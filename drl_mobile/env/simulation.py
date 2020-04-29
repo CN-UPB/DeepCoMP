@@ -24,9 +24,9 @@ class Simulation:
 
 
 if __name__ == "__main__":
-    ue1 = User(start_pos=Point(5,5), move_x=1)
-    bs1 = Basestation(pos=Point(3,6), cap=1, radius=3)
-    bs2 = Basestation(pos=Point(7,6), cap=1, radius=3)
+    ue1 = User('ue1', start_pos=Point(5,5), move_x=1)
+    bs1 = Basestation('bs1', pos=Point(3,6), cap=1, radius=3)
+    bs2 = Basestation('bs2', pos=Point(7,6), cap=1, radius=3)
     world = World(width=10, height=10, bs_list=[bs1, bs2], ue_list=[ue1])
     sim = Simulation(world, sim_time=10)
 
