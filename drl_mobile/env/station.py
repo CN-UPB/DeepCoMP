@@ -7,3 +7,4 @@ class Basestation:
         self.pos = pos
         self.cap = cap
         self.radius = radius
+        self.coverage = pos.buffer(radius)
