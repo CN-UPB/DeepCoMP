@@ -33,6 +33,18 @@ class User:
 
         self.log = self.log.bind(pos=str(new_pos), move=(self.move_x, self.move_y))
         self.log.debug("User move")
+        self.check_bs_connection()
+
+    def check_bs_connection(self):
+        """Check if assigned BS connections are still stable (after move), else remove."""
+        remove_bs_idx = []
+        for i, bs in enumerate(self.assigned_bs):
+            if not self.pos.within(bs.coverage):
+                self.log.info("Losing connection to BS", bs=bs)
+                remove_bs_idx.append(i)
+        # remove bs
+        for i in remove_bs_idx:
+            del self.assigned_bs[i]
 
     def connect_to_bs(self, bs):
         """
