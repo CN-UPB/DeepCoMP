@@ -13,7 +13,7 @@ class World:
         self.bs_list = bs_list
         self.ue_list = ue_list
 
-    def plot(self):
+    def plot(self, title=None):
         """Plot and visualize the current status of the world"""
         # square figure and equal aspect ratio to avoid distortions
         plt.figure(figsize=(5, 5))
@@ -29,4 +29,11 @@ class World:
             plt.scatter(*bs.pos.xy, marker='^', c='black')
             plt.plot(*bs.coverage.exterior.xy, color='black')
 
+        plt.title(title)
         plt.show()
+
+    def step(self):
+        """Do 1 time step and update UE position"""
+        for ue in self.ue_list:
+            ue.move()
+            # TODO: avoid moving out of map

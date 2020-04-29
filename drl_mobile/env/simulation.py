@@ -17,9 +17,10 @@ class Simulation:
 
     def run(self):
         """Run simulation loop"""
-        self.world.plot()
-        # for t in range(self.sim_time):
-        #     pass
+        for t in range(self.sim_time):
+            self.world.plot(title=f"t={t}")
+            self.world.step()
+        self.world.plot(title='Final')
 
 
 if __name__ == "__main__":
@@ -27,6 +28,6 @@ if __name__ == "__main__":
     bs1 = Basestation(pos=Point(3,6), cap=1, radius=3)
     bs2 = Basestation(pos=Point(7,6), cap=1, radius=3)
     world = World(width=10, height=10, bs_list=[bs1, bs2], ue_list=[ue1])
-    sim = Simulation(world, sim_time=10)
+    sim = Simulation(world, sim_time=5)
 
     sim.run()
