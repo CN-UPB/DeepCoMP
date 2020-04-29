@@ -24,9 +24,11 @@ class World:
 
         # map borders
         plt.plot(*self.map.exterior.xy)
-        # users
+        # users & connections
         for ue in self.ue_list:
             plt.scatter(*ue.pos.xy)
+            for bs in ue.assigned_bs:
+                plt.plot([ue.pos.x, bs.pos.x], [ue.pos.y, bs.pos.y], color='orange')
         # base stations
         for bs in self.bs_list:
             plt.scatter(*bs.pos.xy, marker='^', c='black')
@@ -39,4 +41,4 @@ class World:
         """Do 1 time step and update UE position"""
         for ue in self.ue_list:
             ue.move()
-            # TODO: avoid moving out of map
+            ue.connect_to_bs(self.bs_list[1])

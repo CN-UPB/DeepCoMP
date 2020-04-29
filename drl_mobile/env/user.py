@@ -2,9 +2,6 @@ import structlog
 from shapely.geometry import Point
 
 
-log = structlog.get_logger()
-
-
 class User:
     """A user/UE moving around in the world and requesting mobile services"""
     def __init__(self, id, start_pos, move_x=0, move_y=0):
@@ -14,6 +11,8 @@ class User:
         self.move_y = move_y
         self.map = None
         self.assigned_bs = []
+        self.log = structlog.get_logger(id=self.id, pos=str(self.pos), move=(self.move_x, self.move_y),
+                                        assigned_bs=self.assigned_bs)
 
     def __repr__(self):
         return self.id
@@ -32,6 +31,9 @@ class User:
             new_pos = Point(self.pos.x + self.move_x, self.pos.y + self.move_y)
         self.pos = new_pos
 
+        self.log = self.log.bind(pos=str(new_pos), move=(self.move_x, self.move_y))
+        self.log.debug("User move")
+
     def connect_to_bs(self, bs):
         """
         Try to connect to specified basestation. Return if successful.
@@ -39,7 +41,13 @@ class User:
         :return: True if connected successfully (even if was connected before). False if out of range.
         """
         if bs in self.assigned_bs:
-            # TODO: properly configure/use structlog to bind all ue info once
-            log.msg("Already connected to BS")
+            log = self.log.bind(bs=bs)
+            log.info("Already connected to BS", bs=bs)
             return True
-        # TODO: check if BS is in range; if yes --> connect & true, else false
+        if self.pos.within(bs.coverage):
+            self.assigned_bs.append(bs)
+            self.log.info("Connected to BS", bs=bs)
+            return True
+        else:
+            self.log.info("Cannot connect to BS", bs=bs)
+            return False
