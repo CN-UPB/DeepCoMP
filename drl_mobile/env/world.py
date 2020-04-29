@@ -11,7 +11,10 @@ class World:
         self.map = Polygon([(0,0), (0, height), (width, height), (width, 0)])
         # save other attributes
         self.bs_list = bs_list
+        # pass the map to all users (needed for movement)
         self.ue_list = ue_list
+        for ue in self.ue_list:
+            ue.map = self.map
 
     def plot(self, title=None):
         """Plot and visualize the current status of the world"""
