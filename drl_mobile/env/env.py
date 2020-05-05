@@ -6,6 +6,7 @@ import matplotlib.pyplot as plt
 
 class MobileEnv(gym.Env):
     """OpenAI Gym environment with multiple moving UEs and stationary BS on a map"""
+    # FIXME: rethink Gym design (who calls what when?) and fix/adjust implementation; not complete like this
     def __init__(self, width, height, bs_list, ue_list):
         super().__init__()
         # construct the rectangular world map
@@ -29,6 +30,14 @@ class MobileEnv(gym.Env):
     def num_bs(self):
         return len(self.bs_list)
 
+    def step(self, action):
+        """Do 1 time step and update UE position. Apply action. Return new state, reward."""
+        for ue in self.ue_list:
+            ue.move()
+            # test: always try to connect to same BS
+            # ue.connect_to_bs(self.bs_list[1])
+            print(action)
+
     def plot(self, title=None):
         """Plot and visualize the current status of the world"""
         # square figure and equal aspect ratio to avoid distortions
@@ -50,9 +59,4 @@ class MobileEnv(gym.Env):
         plt.title(title)
         plt.show()
 
-    def step(self, action):
-        """Do 1 time step and update UE position"""
-        for ue in self.ue_list:
-            ue.move()
-            # test: always try to connect to same BS
-            ue.connect_to_bs(self.bs_list[1])
+
