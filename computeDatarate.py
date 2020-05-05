@@ -98,22 +98,26 @@ def compute_sum_datavolume(distances, downlink_schedule, uplink_schedule,
         bs_activity = np.sum(schedule, axis=1)
         # print("Schedule: ", schedule, bs_activity)
 
-        # I am sure the following can be done much nicer in numpy: 
+        # I am sure the following can be done much nicer in numpy:
+        # indicies of BS that are sending at all in the current schedule
         sending_bs = [i for i, a in enumerate(bs_activity) if a == 1]
+        # indicies of BS that are sending to more than one UE in a time slot (not allowed)
         silly_bs = [i for i, a in enumerate(bs_activity) if a >1]
+        # indicies of BS that don't send at all
         silent_bs = [i for i, a in enumerate(bs_activity) if a == 0]
         # print("Sending: ", sending_bs, "Silent", silent_bs, "Silly: ", silly_bs)
         for ue in range(num_ues):
             for bs in sending_bs:
                 # print(f"UE {ue},  BS {bs}" )
+                # bs sends to ue
                 if schedule[bs, ue] == 1:
-                    # who interferes?
-                    interfering_bs = set(sending_bs) - {bs}
-
+                    # signal: bs -> ue
                     signal_distance = distances[bs][ue]
                     signal_path_loss = path_loss_fct(signal_distance)
                     signal = received_power(signal_path_loss)
-                    
+
+                    # interference from other bs sending at the same time slot
+                    interfering_bs = set(sending_bs) - {bs}
                     interference = sum(received_power(path_loss_fct(distances[ibs][ue]))
                                         for ibs in interfering_bs)
 
@@ -158,8 +162,9 @@ def get_setup(type):
         basestation_locations = np.array([ [0, 0], [1, 0 ]  ])
         ue_locations = np.array([[.1, .1 ], [.1, .9], [.9, .1 ], [.9, .9 ],  ])
 
+        # scheduled downlink transmission from BS to each of the UEs for the different time slots
         downlink_schedule = [
-            np.array([ [1, 0, 0, 0], [0, 1, 0, 0 ] ]), # TS 1 
+            np.array([ [1, 0, 0, 0], [0, 1, 0, 0 ] ]), # Time Slot 1
             np.array([ [0, 0, 1, 0 ], [0, 0, 0, 1] ]), # TS 2 
             ]
         uplink_schedule = None
