@@ -41,4 +41,5 @@ class World:
         """Do 1 time step and update UE position"""
         for ue in self.ue_list:
             ue.move()
+            # test: always try to connect to same BS
             ue.connect_to_bs(self.bs_list[1])
