@@ -1,10 +1,13 @@
+import gym
+import gym.spaces
 from shapely.geometry import Polygon
 import matplotlib.pyplot as plt
 
 
-class World:
-    """The playground/map/world of the simulation"""
+class MobileEnv(gym.Env):
+    """OpenAI Gym environment with multiple moving UEs and stationary BS on a map"""
     def __init__(self, width, height, bs_list, ue_list):
+        super().__init__()
         # construct the rectangular world map
         self.width = width
         self.height = height
@@ -15,6 +18,16 @@ class World:
         self.ue_list = ue_list
         for ue in self.ue_list:
             ue.map = self.map
+
+        # set observation and action space
+        # observations: binary vector of BS availability (in range & free cap)
+        self.observation_space = gym.spaces.MultiBinary(self.num_bs)
+        # actions: select a single BS to be connected to
+        self.action_space = gym.spaces.Discrete(self.num_bs)
+
+    @property
+    def num_bs(self):
+        return len(self.bs_list)
 
     def plot(self, title=None):
         """Plot and visualize the current status of the world"""
@@ -37,7 +50,7 @@ class World:
         plt.title(title)
         plt.show()
 
-    def step(self):
+    def step(self, action):
         """Do 1 time step and update UE position"""
         for ue in self.ue_list:
             ue.move()
