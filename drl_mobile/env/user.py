@@ -70,20 +70,20 @@ class User:
         :return: True if (dis-)connected successfully. False if out of range.
         """
         # TODO: connecting and disconnecting affects the BS resources
+        log = self.log.bind(bs=bs, disconnect=disconnect, assigned_bs=self.assigned_bs)
         # already connected
         if bs in self.assigned_bs:
-            log = self.log.bind(bs=bs, disconnect=disconnect)
             if disconnect:
-                log.info("Disconnecting from BS")
                 self.assigned_bs.remove(bs)
+                log.info("Disconnected from BS")
             else:
                 log.info("Staying connected to BS")
             return True
         # not yet connected
         if self.can_connect(bs):
             self.assigned_bs.append(bs)
-            self.log.info("Connected to BS", bs=bs)
+            log.info("Connected to BS")
             return True
         else:
-            self.log.info("Cannot connect to BS", bs=bs)
+            log.info("Cannot connect to BS")
             return False

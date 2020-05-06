@@ -44,7 +44,7 @@ if __name__ == "__main__":
     env = MobileEnv(episode_length=5, width=10, height=10, bs_list=[bs1, bs2], ue_list=[ue1])
 
     # setup and run the simulation
-    agent = RandomAgent(env.action_space, seed=1)
+    agent = RandomAgent(env.action_space, seed=1234)
     sim = Simulation(env, agent)
 
     sim.run(render=True)

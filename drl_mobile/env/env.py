@@ -34,15 +34,14 @@ class MobileEnv(gym.Env):
         for ue in self.ue_list:
             ue.map = self.map
         assert len(self.ue_list) == 1, "Currently only support 1 UE"
-        # set observation and action space
+        # current observation
+        self.obs = None
         # observations: binary vector of BS availability (in range & free cap) + already connected BS
         self.observation_space = gym.spaces.MultiBinary(2 * self.num_bs)
         # actions: select a BS to be connected to/disconnect from or noop
         self.action_space = gym.spaces.Discrete(self.num_bs + 1)
 
-        self.log = structlog.get_logger(time=self.time, episode_length=episode_length, width=width, height=height,
-                                        bs_list=self.bs_list, ue_list=self.ue_list,
-                                        obs_space=self.observation_space, act_space=self.action_space)
+        self.log = structlog.get_logger()
 
     @property
     def num_bs(self):
@@ -80,12 +79,14 @@ class MobileEnv(gym.Env):
         for ue in self.ue_list:
             ue.reset()
         # TODO: this just returns the observation for the 1st UE
-        return self.get_obs(self.ue_list[0])
+        self.obs = self.get_obs(self.ue_list[0])
+        return self.obs
 
     def step(self, action: int):
         """Do 1 time step: Apply action and update UE position. Return new state, reward."""
         # TODO: simplyfing assumption for now: just 1 UE! all actions are applied to 1st UE only!
         ue = self.ue_list[0]
+        prev_obs = self.obs
 
         # apply action; 0 = no op
         success = True
@@ -97,12 +98,12 @@ class MobileEnv(gym.Env):
         self.time += 1
 
         # return next observation, reward, done, info
-        obs = self.get_obs(ue)
+        self.obs = self.get_obs(ue)
         reward = self.calc_reward(success)
         done = self.time >= self.episode_length
         info = {}
-        self.log.info("Step", ue=ue, action=action, reward=reward, next_obs=obs, done=done)
-        return obs, reward, done, info
+        self.log.info("Step", ue=ue, time=self.time, prev_obs=prev_obs, action=action, reward=reward, next_obs=self.obs, done=done)
+        return self.obs, reward, done, info
 
     def render(self, mode='human'):
         """Plot and visualize the current status of the world"""
