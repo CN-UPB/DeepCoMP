@@ -74,7 +74,8 @@ class MobileEnv(gym.Env):
         return reward
 
     def reset(self):
-        """Reset environment by resetting all UEs (pos & movement) and their connections"""
+        """Reset environment by resetting time and all UEs (pos & movement) and their connections"""
+        self.time = 0
         # TODO: randomize to avoid repeating always the same episode?
         for ue in self.ue_list:
             ue.reset()
