@@ -1,8 +1,12 @@
 import logging
+import os
 
 import structlog
 from structlog.stdlib import LoggerFactory
 from shapely.geometry import Point
+from stable_baselines import PPO2
+from stable_baselines.common.policies import MlpPolicy
+from stable_baselines.bench import Monitor
 
 from drl_mobile.env.env import MobileEnv
 from drl_mobile.env.user import User
@@ -24,7 +28,7 @@ class Simulation:
         done = False
         obs = self.env.reset()
         while not done:
-            action = self.agent.predict(obs)
+            action, _states = self.agent.predict(obs)
             obs, reward, done, info = self.env.step(action)
             if render:
                 self.env.render()
@@ -34,6 +38,7 @@ if __name__ == "__main__":
     # configure logging
     logging.basicConfig(level=logging.INFO)
     logging.getLogger('matplotlib').setLevel(logging.WARNING)
+    logging.getLogger('tensorflow').setLevel(logging.ERROR)
     structlog.configure(logger_factory=LoggerFactory())
 
     # create the environment
@@ -43,8 +48,10 @@ if __name__ == "__main__":
     bs2 = Basestation('bs2', pos=Point(7,6), cap=1, radius=3)
     env = MobileEnv(episode_length=5, width=10, height=10, bs_list=[bs1, bs2], ue_list=[ue1])
 
-    # setup and run the simulation
-    agent = RandomAgent(env.action_space, seed=1234)
-    sim = Simulation(env, agent)
+    # create the agent
+    # agent = RandomAgent(env.action_space, seed=1234)
+    agent = PPO2(MlpPolicy, Monitor(env, filename='logs'))
 
+    # run the simulation
+    sim = Simulation(env, agent)
     sim.run(render=True)

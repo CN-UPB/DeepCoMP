@@ -3,3 +3,5 @@ shapely==1.7.0
 matplotlib==3.2.1
 numpy==1.18.3
 gym==0.17.1
+tensorflow==1.15.2
+stable_baselines==2.10.0

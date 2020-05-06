@@ -6,4 +6,4 @@ class RandomAgent:
 
     def predict(self, observation):
         """Choose a random action independent of the observation"""
-        return self.action_space.sample()
+        return self.action_space.sample(), None
