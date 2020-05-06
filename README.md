@@ -4,7 +4,7 @@ Simple simulation of mobility management scenario to use with deep RL
 
 ## Setup
 
-Requires Python 3.8 (for modern f-strings).
+Should work with Python 3.6+. Tested with Python 3.8.
 
 ```
 pip install -r requirements

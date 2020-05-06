@@ -1,17 +1,35 @@
+import logging
+
 import gym
 import gym.spaces
 import structlog
-from shapely.geometry import Polygon
+from structlog.stdlib import LoggerFactory
+from shapely.geometry import Point, Polygon
 import matplotlib.pyplot as plt
 
+from drl_mobile.env.user import User
+from drl_mobile.env.station import Basestation
 
+
+# TODO: if I want to experiment with different Gym interfaces with diff action/obs space,
+#  make one general env and inherit with different versions of act/obs space
 class MobileEnv(gym.Env):
     """OpenAI Gym environment with multiple moving UEs and stationary BS on a map"""
     metadata = {'render.modes': ['human']}
 
-    def __init__(self, width, height, bs_list, ue_list):
+    def __init__(self, episode_length, width, height, bs_list, ue_list):
+        """
+        Create a new environment object with an OpenAI Gym interface
+        :param episode_length: Total number of simulation time steps in one episode
+        :param width: Width of the map
+        :param height: Height of the map
+        :param bs_list: List of basestation objects in the environment
+        :param ue_list: List of UE objects in the environment
+        """
         super().__init__()
         # construct the rectangular world map
+        self.time = 0
+        self.episode_length = episode_length
         self.width = width
         self.height = height
         self.map = Polygon([(0,0), (0, height), (width, height), (width, 0)])
@@ -28,7 +46,8 @@ class MobileEnv(gym.Env):
         # actions: select a BS to be connected to/disconnect from or noop
         self.action_space = gym.spaces.Discrete(self.num_bs + 1)
 
-        self.log = structlog.get_logger(width=width, height=height, bs_list=self.bs_list, ue_list=self.ue_list,
+        self.log = structlog.get_logger(time=self.time, episode_length=episode_length, width=width, height=height,
+                                        bs_list=self.bs_list, ue_list=self.ue_list,
                                         obs_space=self.observation_space, act_space=self.action_space)
 
     @property
@@ -81,17 +100,17 @@ class MobileEnv(gym.Env):
             success = ue.connect_to_bs(bs, disconnect=True)
 
         ue.move()
+        self.time += 1
 
         # return next observation, reward, done, info
         obs = self.get_obs(ue)
         reward = self.calc_reward(success)
-        # TODO: the env needs to know the number of steps to set this!
-        done = False
+        done = self.time >= self.episode_length
         info = {}
         self.log.info("Step", ue=ue, action=action, reward=reward, next_obs=obs, done=done)
         return obs, reward, done, info
 
-    def render(self, mode='human', title=None):
+    def render(self, mode='human'):
         """Plot and visualize the current status of the world"""
         # square figure and equal aspect ratio to avoid distortions
         plt.figure(figsize=(5, 5))
@@ -109,5 +128,5 @@ class MobileEnv(gym.Env):
             plt.scatter(*bs.pos.xy, marker='^', c='black')
             plt.plot(*bs.coverage.exterior.xy, color='black')
 
-        plt.title(title)
+        plt.title(f"t={self.time}")
         plt.show()
