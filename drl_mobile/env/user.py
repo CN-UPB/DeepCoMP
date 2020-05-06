@@ -13,9 +13,20 @@ class User:
         self.assigned_bs = []
         self.log = structlog.get_logger(id=self.id, pos=str(self.pos), move=(self.move_x, self.move_y),
                                         assigned_bs=self.assigned_bs)
+        # keep initial pos and movement for resetting
+        self._init_pos = start_pos
+        self._init_move_x = move_x
+        self._init_move_y = move_y
 
     def __repr__(self):
         return self.id
+
+    def reset(self):
+        """Reset UE to initial position and movement. Disconnect from all BS."""
+        self.pos = self._init_pos
+        self.move_x = self._init_move_x
+        self.move_y = self._init_move_y
+        self.assigned_bs = []
 
     def move(self):
         """
@@ -46,17 +57,30 @@ class User:
         for i in remove_bs_idx:
             del self.assigned_bs[i]
 
-    def connect_to_bs(self, bs):
+    def can_connect(self, bs):
+        """Return whether or not the UE can connect to the BS (based on its coverage and capacity)"""
+        # TODO: add capacity
+        return self.pos.within(bs.coverage)
+
+    def connect_to_bs(self, bs, disconnect=False):
         """
         Try to connect to specified basestation. Return if successful.
         :param bs: Basestation to connect to
-        :return: True if connected successfully (even if was connected before). False if out of range.
+        :param disconnect: If True, disconnect from BS if it was previously connected.
+        :return: True if (dis-)connected successfully. False if out of range.
         """
+        # TODO: connecting and disconnecting affects the BS resources
+        # already connected
         if bs in self.assigned_bs:
-            log = self.log.bind(bs=bs)
-            log.info("Already connected to BS", bs=bs)
+            log = self.log.bind(bs=bs, disconnect=disconnect)
+            if disconnect:
+                log.info("Disconnecting from BS")
+                self.assigned_bs.remove(bs)
+            else:
+                log.info("Staying connected to BS")
             return True
-        if self.pos.within(bs.coverage):
+        # not yet connected
+        if self.can_connect(bs):
             self.assigned_bs.append(bs)
             self.log.info("Connected to BS", bs=bs)
             return True

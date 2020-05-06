@@ -21,9 +21,11 @@ class Simulation:
     def run(self):
         """Run simulation loop"""
         for t in range(self.sim_time):
-            self.world.plot(title=f"{t=}")
-            self.world.step(action=None)
-        self.world.plot(title='Final')
+            self.world.render(title=f"{t=}")
+            # sample random action
+            action = self.world.action_space.sample()
+            self.world.step(action=action)
+        self.world.render(title='Final')
 
 
 if __name__ == "__main__":
@@ -38,6 +40,6 @@ if __name__ == "__main__":
     bs1 = Basestation('bs1', pos=Point(3,6), cap=1, radius=3)
     bs2 = Basestation('bs2', pos=Point(7,6), cap=1, radius=3)
     env = MobileEnv(width=10, height=10, bs_list=[bs1, bs2], ue_list=[ue1])
-    sim = Simulation(env, sim_time=10)
+    sim = Simulation(env, sim_time=3)
 
     sim.run()
