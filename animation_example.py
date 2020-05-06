@@ -50,12 +50,15 @@ import matplotlib.animation as animation
 
 ####
 
+# TODO: use this to save a html5 replay when running the simulation (not training)
 fig3 = plt.figure()
 
 ims = []
 for _ in range(10):
-    im, = plt.plot([random.randrange(10), random.randrange(10)], [random.randrange(10), random.randrange(10)])
-    ims.append((im,))
+    im1, = plt.plot([random.randrange(10), random.randrange(10)], [random.randrange(10), random.randrange(10)])
+    im2, = plt.plot([random.randrange(10), random.randrange(10)], [random.randrange(10), random.randrange(10)])
+    # ims.append((im1,))
+    ims.append((im2,))
 ani = animation.ArtistAnimation(fig3, ims)
 
 # To save this second animation with some metadata, use the following command:
