@@ -19,19 +19,20 @@ class Simulation:
         self.env = env
         self.agent = agent
 
-    def run(self):
+    def run(self, render=False):
         """Run simulation loop"""
         done = False
         obs = self.env.reset()
         while not done:
             action = self.agent.predict(obs)
             obs, reward, done, info = self.env.step(action)
-            self.env.render()
+            if render:
+                self.env.render()
 
 
 if __name__ == "__main__":
     # configure logging
-    logging.basicConfig(level=logging.DEBUG)
+    logging.basicConfig(level=logging.INFO)
     logging.getLogger('matplotlib').setLevel(logging.WARNING)
     structlog.configure(logger_factory=LoggerFactory())
 
@@ -43,7 +44,7 @@ if __name__ == "__main__":
     env = MobileEnv(episode_length=5, width=10, height=10, bs_list=[bs1, bs2], ue_list=[ue1])
 
     # setup and run the simulation
-    agent = RandomAgent(env.action_space, seed=None)
+    agent = RandomAgent(env.action_space, seed=1)
     sim = Simulation(env, agent)
 
-    sim.run()
+    sim.run(render=True)

@@ -1,14 +1,8 @@
-import logging
-
 import gym
 import gym.spaces
 import structlog
-from structlog.stdlib import LoggerFactory
-from shapely.geometry import Point, Polygon
+from shapely.geometry import Polygon
 import matplotlib.pyplot as plt
-
-from drl_mobile.env.user import User
-from drl_mobile.env.station import Basestation
 
 
 # TODO: if I want to experiment with different Gym interfaces with diff action/obs space,
