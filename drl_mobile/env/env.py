@@ -61,6 +61,7 @@ class MobileEnv(gym.Env):
 
     def calc_reward(self, action_success: bool):
         """Calculate and return reward"""
+        # TODO: -1 for losing connection?
         reward = 0
         # +10 for every UE that's connected to at least one BS; -10 for each that isn't
         for ue in self.ue_list:

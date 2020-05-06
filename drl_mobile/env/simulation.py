@@ -4,11 +4,15 @@ import os
 import structlog
 from structlog.stdlib import LoggerFactory
 from shapely.geometry import Point
+# disable tf printed warning: https://github.com/tensorflow/tensorflow/issues/27045#issuecomment-480691244
+import tensorflow as tf
+if type(tf.contrib) != type(tf): tf.contrib._warning = None
 from stable_baselines import results_plotter, PPO2
 from stable_baselines.common.policies import MlpPolicy
 from stable_baselines.bench import Monitor
 from stable_baselines.common.evaluation import evaluate_policy
 import matplotlib.pyplot as plt
+
 
 from drl_mobile.env.env import MobileEnv
 from drl_mobile.env.user import User
@@ -29,9 +33,9 @@ class Simulation:
 
     def train(self, train_steps, plot=False):
         """Train agent for specified training steps"""
-        log.info('Start training', train_steps=train_steps, env=self.env, agent=self.agent)
+        log.info('Start training', train_steps=train_steps)
         agent.learn(train_steps)
-        agent.save(f'../../{training_dir}/ppo2_{train_steps}')
+        agent.save(f'{training_dir}/ppo2_{train_steps}')
         if plot:
             results_plotter.plot_results([training_dir], train_steps, results_plotter.X_TIMESTEPS, 'Learning Curve')
             plt.savefig(f'{training_dir}/ppo2_{train_steps}.png')
@@ -39,21 +43,25 @@ class Simulation:
 
     def run(self, render=False):
         """Run one simulation episode. Return episode reward."""
-        reward = 0
+        episode_reward = 0
         done = False
         obs = self.env.reset()
         while not done:
+            if render:
+                self.env.render()
             # deterministic=True is important: https://github.com/hill-a/stable-baselines/issues/832
             action, _states = self.agent.predict(obs, deterministic=True)
             obs, reward, done, info = self.env.step(action)
-            if render:
-                self.env.render()
-        return reward
+            episode_reward += reward
+        if render:
+            self.env.render()
+        return episode_reward
 
 
 if __name__ == "__main__":
     # configure logging
     logging.basicConfig(level=logging.INFO)
+    logging.getLogger('drl_mobile').setLevel(logging.WARNING)
     logging.getLogger('matplotlib').setLevel(logging.WARNING)
     logging.getLogger('tensorflow').setLevel(logging.ERROR)
     structlog.configure(logger_factory=LoggerFactory())
@@ -73,5 +81,6 @@ if __name__ == "__main__":
     # run the simulation
     sim = Simulation(env, agent)
     # sim.train(train_steps=10000, plot=True)
+    logging.getLogger('drl_mobile').setLevel(logging.INFO)
     reward = sim.run(render=True)
-    log.info('Testing complete', reward=reward)
+    log.info('Testing complete', episode_reward=reward)

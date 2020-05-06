@@ -4,7 +4,7 @@ Simple simulation of mobility management scenario to use with deep RL
 
 ## Setup
 
-Should work with Python 3.6+. Tested with Python 3.8.
+Should work with Python 3.6+. Tested with Python 3.7. Tensorflow 1 doesn't work on Python 3.8.
 
 ```
 pip install -r requirements
