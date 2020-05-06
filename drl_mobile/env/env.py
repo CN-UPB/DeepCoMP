@@ -73,9 +73,9 @@ class MobileEnv(gym.Env):
         """Do 1 time step: Apply action and update UE position. Return new state, reward."""
         # TODO: simplyfing assumption for now: just 1 UE! all actions are applied to 1st UE only!
         ue = self.ue_list[0]
-        self.log.info("Step", ue=ue, action=action)
 
         # apply action; 0 = no op
+        success = True
         if action > 0:
             bs = self.bs_list[action-1]
             success = ue.connect_to_bs(bs, disconnect=True)
@@ -88,6 +88,7 @@ class MobileEnv(gym.Env):
         # TODO: the env needs to know the number of steps to set this!
         done = False
         info = {}
+        self.log.info("Step", ue=ue, action=action, reward=reward, next_obs=obs, done=done)
         return obs, reward, done, info
 
     def render(self, mode='human', title=None):
