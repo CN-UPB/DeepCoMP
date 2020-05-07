@@ -69,8 +69,8 @@ class User:
         :param disconnect: If True, disconnect from BS if it was previously connected.
         :return: True if (dis-)connected successfully. False if out of range.
         """
-        # TODO: connecting and disconnecting affects the BS resources
         log = self.log.bind(bs=bs, disconnect=disconnect, assigned_bs=self.assigned_bs)
+        # TODO: check achievable dr for connecting
         dr = bs.data_rate(self.pos)
         # already connected
         if bs in self.assigned_bs:

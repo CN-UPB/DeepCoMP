@@ -18,7 +18,7 @@ import matplotlib.animation
 from drl_mobile.env.env import MobileEnv
 from drl_mobile.env.user import User
 from drl_mobile.env.station import Basestation
-from drl_mobile.agent.random import RandomAgent
+from drl_mobile.agent.dummy import RandomAgent, FixedAgent
 
 
 log = structlog.get_logger()
@@ -75,20 +75,21 @@ if __name__ == "__main__":
     structlog.configure(logger_factory=LoggerFactory())
 
     # create the environment
-    ue1 = User('ue1', start_pos=Point(3,4), move_x=1)
+    ue1 = User('ue1', start_pos=Point(10,40), move_x=5)
     # ue2 = User('ue2', start_pos=Point(3,3), move_x=-1)
-    bs1 = Basestation('bs1', pos=Point(7,5), cap=1, radius=5)
-    bs2 = Basestation('bs2', pos=Point(13,5), cap=1, radius=5)
-    env = MobileEnv(episode_length=5, width=20, height=10, bs_list=[bs1, bs2], ue_list=[ue1])
+    bs1 = Basestation('bs1', pos=Point(70,50))
+    bs2 = Basestation('bs2', pos=Point(130,50))
+    env = MobileEnv(episode_length=5, width=200, height=100, bs_list=[bs1, bs2], ue_list=[ue1])
 
     # create agent
-    agent = RandomAgent(env.action_space, seed=1234)
+    # agent = RandomAgent(env.action_space, seed=1234)
+    agent = FixedAgent(action=1)
     # agent = PPO2(MlpPolicy, Monitor(env, filename=training_dir))
     # agent = PPO2.load(f'{training_dir}/ppo2_10000.zip')
 
     # run the simulation
     sim = Simulation(env, agent)
     # sim.train(train_steps=10000, plot=True)
-    logging.getLogger('drl_mobile').setLevel(logging.INFO)
+    logging.getLogger('drl_mobile').setLevel(logging.DEBUG)
     reward = sim.run(render=True)
     log.info('Testing complete', episode_reward=reward)
