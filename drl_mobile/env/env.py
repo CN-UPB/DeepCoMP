@@ -108,22 +108,25 @@ class MobileEnv(gym.Env):
         return self.obs, reward, done, info
 
     def render(self, mode='human'):
-        """Plot and visualize the current status of the world"""
+        """Plot and visualize the current status of the world. Return the patch of actors for animation."""
         # square figure and equal aspect ratio to avoid distortions
-        plt.figure(figsize=(5, 5))
+        fig = plt.figure(figsize=(5, 5))
         plt.gca().set_aspect('equal')
+        # list of matplotlib "actors", which can be used to create animations
+        patch = []
 
         # map borders
-        plt.plot(*self.map.exterior.xy)
+        patch.extend(plt.plot(*self.map.exterior.xy))
         # users & connections
         for ue in self.ue_list:
-            plt.scatter(*ue.pos.xy)
+            patch.append(plt.scatter(*ue.pos.xy))
             for bs in ue.assigned_bs:
-                plt.plot([ue.pos.x, bs.pos.x], [ue.pos.y, bs.pos.y], color='orange')
+                patch.extend(plt.plot([ue.pos.x, bs.pos.x], [ue.pos.y, bs.pos.y], color='orange'))
         # base stations
         for bs in self.bs_list:
-            plt.scatter(*bs.pos.xy, marker='^', c='black')
-            plt.plot(*bs.coverage.exterior.xy, color='black')
+            patch.append(plt.scatter(*bs.pos.xy, marker='^', c='black'))
+            patch.extend(plt.plot(*bs.coverage.exterior.xy, color='black'))
 
         plt.title(f"t={self.time}")
         plt.show()
+        return patch

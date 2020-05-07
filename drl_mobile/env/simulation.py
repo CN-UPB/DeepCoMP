@@ -12,6 +12,7 @@ from stable_baselines.common.policies import MlpPolicy
 from stable_baselines.bench import Monitor
 from stable_baselines.common.evaluation import evaluate_policy
 import matplotlib.pyplot as plt
+import matplotlib.animation
 
 
 from drl_mobile.env.env import MobileEnv
@@ -43,18 +44,25 @@ class Simulation:
 
     def run(self, render=False):
         """Run one simulation episode. Return episode reward."""
+        patches = []
         episode_reward = 0
         done = False
         obs = self.env.reset()
         while not done:
             if render:
-                self.env.render()
+                patches.append(self.env.render())
             # deterministic=True is important: https://github.com/hill-a/stable-baselines/issues/832
             action, _states = self.agent.predict(obs, deterministic=True)
             obs, reward, done, info = self.env.step(action)
             episode_reward += reward
         if render:
-            self.env.render()
+            patches.append(self.env.render())
+            # FIXME: save animation as html5 video
+            # fig = plt.figure(figsize=(5, 5))
+            # anim = matplotlib.animation.ArtistAnimation(fig, patches, repeat=False)
+            # html = anim.to_html5_video()
+            # with open('replay.html', 'w') as f:
+            #     f.write(html)
         return episode_reward
 
 

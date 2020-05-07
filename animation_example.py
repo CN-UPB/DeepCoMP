@@ -51,20 +51,27 @@ import matplotlib.animation as animation
 ####
 
 # TODO: use this to save a html5 replay when running the simulation (not training)
-fig3 = plt.figure()
+
+fig = plt.figure()
+
+def my_plot():
+    # fig, ax = plt.subplots()
+    patch = []
+    patch.extend(plt.plot([random.randrange(10), random.randrange(10)], [random.randrange(10), random.randrange(10)]))
+    patch.extend(plt.plot([random.randrange(10), random.randrange(10)], [random.randrange(10), random.randrange(10)]))
+    plt.show()
+    return patch
 
 ims = []
-for _ in range(10):
-    im1, = plt.plot([random.randrange(10), random.randrange(10)], [random.randrange(10), random.randrange(10)])
-    im2, = plt.plot([random.randrange(10), random.randrange(10)], [random.randrange(10), random.randrange(10)])
-    # ims.append((im1,))
-    ims.append((im2,))
-ani = animation.ArtistAnimation(fig3, ims)
+for _ in range(5):
+    patch = my_plot()
+    ims.append(patch)
+ani = animation.ArtistAnimation(fig, ims, repeat=False)
 
 # To save this second animation with some metadata, use the following command:
 # ani.save('im.mp4', metadata={'artist':'Guido'})
 html = ani.to_html5_video()
 with open('replay.html', 'w') as f:
     f.write(html)
-
-plt.show()
+#
+# plt.show()
