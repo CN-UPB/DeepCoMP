@@ -71,6 +71,7 @@ class User:
         """
         # TODO: connecting and disconnecting affects the BS resources
         log = self.log.bind(bs=bs, disconnect=disconnect, assigned_bs=self.assigned_bs)
+        dr = bs.data_rate(self.pos)
         # already connected
         if bs in self.assigned_bs:
             if disconnect:

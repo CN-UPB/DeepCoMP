@@ -79,12 +79,12 @@ if __name__ == "__main__":
     # ue2 = User('ue2', start_pos=Point(3,3), move_x=-1)
     bs1 = Basestation('bs1', pos=Point(7,5), cap=1, radius=5)
     bs2 = Basestation('bs2', pos=Point(13,5), cap=1, radius=5)
-    env = MobileEnv(episode_length=15, width=20, height=10, bs_list=[bs1, bs2], ue_list=[ue1])
+    env = MobileEnv(episode_length=5, width=20, height=10, bs_list=[bs1, bs2], ue_list=[ue1])
 
     # create agent
-    # agent = RandomAgent(env.action_space, seed=1234)
+    agent = RandomAgent(env.action_space, seed=1234)
     # agent = PPO2(MlpPolicy, Monitor(env, filename=training_dir))
-    agent = PPO2.load(f'{training_dir}/ppo2_10000.zip')
+    # agent = PPO2.load(f'{training_dir}/ppo2_10000.zip')
 
     # run the simulation
     sim = Simulation(env, agent)

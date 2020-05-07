@@ -4,6 +4,6 @@ class RandomAgent:
         self.action_space = action_space
         self.action_space.seed(seed)
 
-    def predict(self, observation):
-        """Choose a random action independent of the observation"""
+    def predict(self, observation, **kwargs):
+        """Choose a random action independent of the observation and other args"""
         return self.action_space.sample(), None

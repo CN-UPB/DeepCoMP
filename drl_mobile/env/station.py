@@ -1,3 +1,4 @@
+import structlog
 import numpy as np
 
 
@@ -17,6 +18,8 @@ class Basestation:
         self.noise = 10**(-95/10)   # in mW
         self.tx_power = 40  # in dBm
         self.height = 50    # in m
+
+        self.log = structlog.get_logger(id=self.id, pos=str(self.pos))
 
     def __repr__(self):
         return self.id
@@ -39,4 +42,6 @@ class Basestation:
         path_loss = self.path_loss(ue_pos)
         snr = self.snr(path_loss)
         # TODO: add interference
-        return self.bw * np.log2(1 + snr)
+        dr = self.bw * np.log2(1 + snr)
+        self.log.debug('Data rate to UE', ue_pos=ue_pos, path_loss=path_loss, snr=snr, dr=dr)
+        return dr
