@@ -54,6 +54,13 @@ import matplotlib.animation as animation
 
 fig = plt.figure()
 
+def my_plot2():
+    fig, ax = plt.subplots()
+    ax.plot([random.randrange(10), random.randrange(10)], [random.randrange(10), random.randrange(10)])
+    ax.plot([random.randrange(10), random.randrange(10)], [random.randrange(10), random.randrange(10)])
+    plt.show()
+    return ax
+
 def my_plot():
     # fig, ax = plt.subplots()
     patch = []
@@ -64,8 +71,10 @@ def my_plot():
 
 ims = []
 for _ in range(5):
-    patch = my_plot()
-    ims.append(patch)
+    # patch = my_plot()
+    # ims.append(patch)
+    ax = my_plot2()
+    ims.append((ax,))
 ani = animation.ArtistAnimation(fig, ims, repeat=False)
 
 # To save this second animation with some metadata, use the following command:
