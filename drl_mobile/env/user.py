@@ -3,7 +3,10 @@ from shapely.geometry import Point
 
 
 class User:
-    """A user/UE moving around in the world and requesting mobile services"""
+    """
+    A user/UE moving around in the world and requesting mobile services
+    Connection to BS are checked before connecting and after every move to check if connection is lost or still stable
+    """
     def __init__(self, id, start_pos, move_x=0, move_y=0, dr_req=1):
         """
         Create new UE object

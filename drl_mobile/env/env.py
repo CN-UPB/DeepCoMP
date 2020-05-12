@@ -20,7 +20,7 @@ class MobileEnv(gym.Env):
         :param bs_list: List of basestation objects in the environment
         :param ue_list: List of UE objects in the environment
         """
-        super().__init__()
+        super(gym.Env, self).__init__()
         # construct the rectangular world map
         self.time = 0
         self.episode_length = episode_length
@@ -36,10 +36,9 @@ class MobileEnv(gym.Env):
         assert len(self.ue_list) == 1, "Currently only support 1 UE"
         # current observation
         self.obs = None
-        # observations: binary vector of BS availability (in range & free cap) + already connected BS
-        self.observation_space = gym.spaces.MultiBinary(2 * self.num_bs)
-        # actions: select a BS to be connected to/disconnect from or noop
-        self.action_space = gym.spaces.Discrete(self.num_bs + 1)
+        # observation and action space are defined in the subclass --> different variants
+        self.observation_space = None
+        self.action_space = None
 
         self.log = structlog.get_logger()
 
@@ -54,33 +53,15 @@ class MobileEnv(gym.Env):
     def seed(self, seed=None):
         raise NotImplementedError()
 
-    def interference(self, ue, bs):
-        """Calc and return interference from BS other than 'bs' to the UE."""
-        other_bs = [oth_bs for oth_bs in self.bs_list if oth_bs != bs]
-
     def get_obs(self, ue):
         """
         Return the an observation of the current world for a given UE
-        It consists of 2 binary vectors: BS availability and already connected BS
         """
-        bs_availability = [int(ue.can_connect(bs)) for bs in self.bs_list]
-        connected_bs = [int(bs in ue.conn_bs) for bs in self.bs_list]
-        return bs_availability + connected_bs
+        raise NotImplementedError('Implement in subclass')
 
     def calc_reward(self, action_success: bool):
         """Calculate and return reward"""
-        # TODO: -1 for losing connection?
-        reward = 0
-        # +10 for every UE that's connected to at least one BS; -10 for each that isn't
-        for ue in self.ue_list:
-            if len(ue.conn_bs) >= 1:
-                reward += 10
-            else:
-                reward -= 10
-        # -1 if action wasn't successful
-        if not action_success:
-            reward -= 1
-        return reward
+        raise NotImplementedError('Implement in subclass')
 
     def reset(self):
         """Reset environment by resetting time and all UEs (pos & movement) and their connections"""
@@ -138,3 +119,37 @@ class MobileEnv(gym.Env):
         plt.title(f"t={self.time}")
         plt.show()
         return patch
+
+
+class MobileBinaryEnv(MobileEnv):
+    """Instance of the general Mobile Env that uses binary observations to indicate which BS are & can be connected"""
+    def __init__(self, episode_length, width, height, bs_list, ue_list):
+        super(MobileBinaryEnv, self).__init__(episode_length, width, height, bs_list, ue_list)
+        # observations: binary vector of BS availability (in range & free cap) + already connected BS
+        self.observation_space = gym.spaces.MultiBinary(2 * self.num_bs)
+        # actions: select a BS to be connected to/disconnect from or noop
+        self.action_space = gym.spaces.Discrete(self.num_bs + 1)
+
+    def get_obs(self, ue):
+        """
+        Return the an observation of the current world for a given UE
+        It consists of 2 binary vectors: BS availability and already connected BS
+        """
+        bs_availability = [int(ue.can_connect(bs)) for bs in self.bs_list]
+        connected_bs = [int(bs in ue.conn_bs) for bs in self.bs_list]
+        return bs_availability + connected_bs
+
+    def calc_reward(self, action_success: bool):
+        """Calculate and return reward"""
+        # TODO: -1 for losing connection?
+        reward = 0
+        # +10 for every UE that's connected to at least one BS; -10 for each that isn't
+        for ue in self.ue_list:
+            if len(ue.conn_bs) >= 1:
+                reward += 10
+            else:
+                reward -= 10
+        # -1 if action wasn't successful
+        if not action_success:
+            reward -= 1
+        return reward

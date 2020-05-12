@@ -10,10 +10,10 @@ class Basestation:
         # list of connected UEs
         self.conn_ue = []
         # radius for plotting; should reflect coverage
-        # 45m is approx radius for 1mbit with curr settings and no interference
+        # 46m is approx radius for 1mbit with curr settings and no interference
         # TODO: calculate radius automatically based on radio model; can't be calc in closed form but numerically approx
         # TODO: or better visualize decreasing dr somehow
-        self.radius = 45
+        self.radius = 46
         self.coverage = pos.buffer(self.radius)
         # set constants for SINR and data rate calculation
         # numbers originally from https://sites.google.com/site/lteencyclopedia/lte-radio-link-budgeting-and-rf-planning
