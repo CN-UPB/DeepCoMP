@@ -7,8 +7,8 @@ class Basestation:
     def __init__(self, id, pos):
         self.id = id
         self.pos = pos
-        # TODO: use radius just for plotting; should reflect coverage
-        # TODO: calculate radius automatically based on radio model
+        # TODO: use radius just for plotting; should reflect coverage; 45m is approx radius for 1mbit with curr settings and no interference
+        # TODO: calculate radius automatically based on radio model; can't be calc in closed form but numerically approx
         self.radius = 45
         self.coverage = pos.buffer(self.radius)
         # set constants for SINR and data rate calculation

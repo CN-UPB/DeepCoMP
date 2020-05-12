@@ -52,7 +52,12 @@ import matplotlib.animation as animation
 
 # TODO: use this to save a html5 replay when running the simulation (not training)
 
-fig = plt.figure()
+
+def my_plot3():
+    my_fig = plt.figure()
+    plt.plot([random.randrange(10), random.randrange(10)], [random.randrange(10), random.randrange(10)], figure=my_fig)
+    plt.plot([random.randrange(10), random.randrange(10)], [random.randrange(10), random.randrange(10)], figure=my_fig)
+    return my_fig
 
 def my_plot2():
     fig, ax = plt.subplots()
@@ -61,20 +66,25 @@ def my_plot2():
     plt.show()
     return ax
 
-def my_plot():
+def my_plot(figg):
     # fig, ax = plt.subplots()
+    # my_fig = plt.figure()
     patch = []
     patch.extend(plt.plot([random.randrange(10), random.randrange(10)], [random.randrange(10), random.randrange(10)]))
     patch.extend(plt.plot([random.randrange(10), random.randrange(10)], [random.randrange(10), random.randrange(10)]))
     plt.show()
     return patch
 
+fig = plt.figure()
 ims = []
-for _ in range(5):
-    # patch = my_plot()
-    # ims.append(patch)
-    ax = my_plot2()
-    ims.append((ax,))
+for _ in range(2):
+    patch = my_plot(fig)
+    ims.append(patch)
+    # ax = my_plot2()
+    # ims.append((ax,))
+    # my_fig = my_plot3()
+    # ims.append((my_fig,))
+print(ims)
 ani = animation.ArtistAnimation(fig, ims, repeat=False)
 
 # To save this second animation with some metadata, use the following command:
