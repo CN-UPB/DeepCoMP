@@ -177,3 +177,17 @@ class DatarateMobileEnv(BinaryMobileEnv):
         bs_dr = [bs.data_rate(ue.pos, self.active_bs) for bs in self.bs_list]
         connected_bs = [int(bs in ue.conn_bs) for bs in self.bs_list]
         return bs_dr + connected_bs
+
+
+class JustConnectedObsMobileEnv(BinaryMobileEnv):
+    """Dummy observations just contain binary info about which BS are connected. Nothing about availablility"""
+    def __init__(self, episode_length, width, height, bs_list, ue_list):
+        super().__init__(episode_length, width, height, bs_list, ue_list)
+        # observations: just binary vector of already connected BS
+        self.observation_space = gym.spaces.MultiBinary(self.num_bs)
+        # same action space as binary env: select a BS to be connected to/disconnect from or noop
+
+    def get_obs(self, ue):
+        """Observation: Currently connected BS"""
+        connected_bs = [int(bs in ue.conn_bs) for bs in self.bs_list]
+        return connected_bs

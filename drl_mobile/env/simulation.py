@@ -3,6 +3,7 @@ import os
 
 import gym
 import structlog
+import numpy as np
 from structlog.stdlib import LoggerFactory
 from shapely.geometry import Point
 # disable tf printed warning: https://github.com/tensorflow/tensorflow/issues/27045#issuecomment-480691244
@@ -16,7 +17,7 @@ import matplotlib.pyplot as plt
 import matplotlib.animation
 
 
-from drl_mobile.env.env import BinaryMobileEnv, DatarateMobileEnv
+from drl_mobile.env.env import BinaryMobileEnv, DatarateMobileEnv, JustConnectedObsMobileEnv
 from drl_mobile.env.user import User
 from drl_mobile.env.station import Basestation
 from drl_mobile.agent.dummy import RandomAgent, FixedAgent
@@ -75,14 +76,14 @@ if __name__ == "__main__":
     structlog.configure(logger_factory=LoggerFactory())
 
     # create the environment
-    # ue1 = User('ue1', pos_x='random', pos_y=40, move_x='slow')
-    ue1 = User('ue1', pos_x=20, pos_y=40, move_x=5)
+    ue1 = User('ue1', pos_x='random', pos_y=40, move_x=0)
+    # ue1 = User('ue1', pos_x=20, pos_y=40, move_x=5)
     # ue2 = User('ue2', start_pos=Point(3,3), move_x=-1)
     bs1 = Basestation('bs1', pos=Point(50,50))
     bs2 = Basestation('bs2', pos=Point(100,50))
     eps_length = 30
     env = DatarateMobileEnv(episode_length=eps_length, width=150, height=100, bs_list=[bs1, bs2], ue_list=[ue1])
-    # env.seed(42)
+    env.seed(42)
 
     # create dummy agent
     # agent = RandomAgent(env.action_space, seed=1234)
@@ -90,15 +91,15 @@ if __name__ == "__main__":
     # or create RL agent
     # for stable baselines logs
     training_dir = f'../../training/{type(env).__name__}'
-    train_steps = 5000
+    train_steps = 10000
     os.makedirs(training_dir, exist_ok=True)
-    # agent = PPO2(MlpPolicy, Monitor(env, filename=f'{training_dir}'))
+    agent = PPO2(MlpPolicy, Monitor(env, filename=f'{training_dir}'))
     # or load RL agent
-    agent = PPO2.load(f'{training_dir}/ppo2_{train_steps}.zip')
+    # agent = PPO2.load(f'{training_dir}/ppo2_{train_steps}.zip')
 
     # run the simulation
     sim = Simulation(env, agent)
-    # sim.train(train_steps=train_steps, save_dir=training_dir, plot=True)
+    sim.train(train_steps=train_steps, save_dir=training_dir, plot=True)
     logging.getLogger('drl_mobile').setLevel(logging.INFO)
     reward = sim.run(render=True)
     log.info('Testing complete', episode_reward=reward)
