@@ -29,10 +29,10 @@ class MobileEnv(gym.Env):
         self.map = Polygon([(0,0), (0, height), (width, height), (width, 0)])
         # save other attributes
         self.bs_list = bs_list
-        # pass the map to all users (needed for movement)
+        # pass the env to all users (needed for movement; interference etc)
         self.ue_list = ue_list
         for ue in self.ue_list:
-            ue.map = self.map
+            ue.env = self
         assert len(self.ue_list) == 1, "Currently only support 1 UE"
         # current observation
         self.obs = None
@@ -46,6 +46,10 @@ class MobileEnv(gym.Env):
     @property
     def num_bs(self):
         return len(self.bs_list)
+
+    @property
+    def active_bs(self):
+        return [bs for bs in self.bs_list if bs.active]
 
     def seed(self, seed=None):
         raise NotImplementedError()

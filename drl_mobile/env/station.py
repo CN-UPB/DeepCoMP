@@ -42,17 +42,31 @@ class Basestation:
         const2 = 44.9 - 6.55 * np.log10(self.height)
         return const1 + const2 * np.log10(distance)
 
-    def snr(self, path_loss=0):
-        """Return the singal-to-noise (SNR) ratio given a certain path loss"""
-        signal = 10**((self.tx_power - path_loss) / 10)
-        return signal / self.noise
+    def received_power(self, distance):
+        """Return the received power"""
+        return 10**((self.tx_power - self.path_loss(distance)) / 10)
 
-    def data_rate(self, ue_pos, sinr_threshold=1e-5):
-        """Return the achievable data rate for a UE at the given position. 0 if below SINR threshold"""
+    def interference(self, ue_pos, active_bs):
+        """Return interference power at given UE position based on given list of active BS."""
+        interfering_bs = [bs for bs in active_bs if bs != self]
+        interf_power = 0
+        for bs in interfering_bs:
+            dist_to_ue = bs.pos.distance(ue_pos)
+            interf_power += bs.received_power(dist_to_ue)
+        return interf_power
+
+    def sinr(self, ue_pos, active_bs):
+        """Return the singal-to-noise-and-interference (SINR) ratio given a UE position and list of active BS"""
         distance = self.pos.distance(ue_pos)
-        path_loss = self.path_loss(distance)
-        snr = self.snr(path_loss)
-        # TODO: add interference
-        dr = self.bw * np.log2(1 + snr)
-        self.log.debug('Data rate to UE', ue_pos=str(ue_pos), distance=distance, path_loss=path_loss, snr=snr, dr=dr)
+        signal = self.received_power(distance)
+        interference = self.interference(ue_pos, active_bs)
+        self.log.debug('SINR to UE', ue_pos=str(ue_pos), active_bs=active_bs, distance=distance,
+                       signal=signal, interference=interference)
+        return signal / (self.noise + interference)
+
+    def data_rate(self, ue_pos, active_bs):
+        """Return the achievable data rate for a UE at the given position with given list of active BS."""
+        sinr = self.sinr(ue_pos, active_bs)
+        dr = self.bw * np.log2(1 + sinr)
+        self.log.debug('Data rate to UE', ue_pos=str(ue_pos), active_bs=active_bs, sinr=sinr, dr=dr)
         return dr

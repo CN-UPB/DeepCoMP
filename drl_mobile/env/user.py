@@ -18,7 +18,7 @@ class User:
         self.move_x = move_x
         self.move_y = move_y
         self.dr_req = dr_req
-        self.map = None
+        self.env = None
         self.conn_bs = []
         self.log = structlog.get_logger(id=self.id, pos=str(self.pos), move=(self.move_x, self.move_y),
                                         conn_bs=self.conn_bs, dr_req=self.dr_req)
@@ -45,7 +45,7 @@ class User:
         # seems like points are immutable --> replace by new point
         new_pos = Point(self.pos.x + self.move_x, self.pos.y + self.move_y)
         # reverse movement if otherwise moving out of map
-        if not new_pos.within(self.map):
+        if not new_pos.within(self.env.map):
             self.move_x = -self.move_x
             self.move_y = -self.move_y
             new_pos = Point(self.pos.x + self.move_x, self.pos.y + self.move_y)
@@ -54,13 +54,6 @@ class User:
         self.log = self.log.bind(pos=str(new_pos), move=(self.move_x, self.move_y))
         self.log.debug("User move")
         self.check_bs_connection()
-
-    def disconnect_from_bs(self, bs):
-        """Disconnect from given BS. Assume BS is currently connected."""
-        assert bs in self.conn_bs, "Not connected to BS --> Cannot disconnect"
-        self.conn_bs.remove(bs)
-        bs.conn_ue.remove(self)
-        self.log = self.log.bind(conn_bs=self.conn_bs)
 
     def check_bs_connection(self):
         """Check if assigned BS connections are still stable (after move), else remove."""
@@ -75,7 +68,7 @@ class User:
 
     def can_connect(self, bs):
         """Return whether or not the UE can connect to the BS (based achievable data rate at current pos)"""
-        dr = bs.data_rate(self.pos)
+        dr = bs.data_rate(self.pos, self.env.active_bs)
         return dr >= self.dr_req
 
     def connect_to_bs(self, bs, disconnect=False):
@@ -104,3 +97,10 @@ class User:
         else:
             log.info("Cannot connect")
             return False
+
+    def disconnect_from_bs(self, bs):
+        """Disconnect from given BS. Assume BS is currently connected."""
+        assert bs in self.conn_bs, "Not connected to BS --> Cannot disconnect"
+        self.conn_bs.remove(bs)
+        bs.conn_ue.remove(self)
+        self.log = self.log.bind(conn_bs=self.conn_bs)
