@@ -78,10 +78,10 @@ if __name__ == "__main__":
     # ue1 = User('ue1', pos_x='random', pos_y=40, move_x='slow')
     ue1 = User('ue1', pos_x=20, pos_y=40, move_x=5)
     # ue2 = User('ue2', start_pos=Point(3,3), move_x=-1)
-    bs1 = Basestation('bs1', pos=Point(70,50))
-    bs2 = Basestation('bs2', pos=Point(130,50))
-    env = DatarateMobileEnv(episode_length=20, width=200, height=100, bs_list=[bs1, bs2], ue_list=[ue1])
-    env_name = type(env).__name__
+    bs1 = Basestation('bs1', pos=Point(50,50))
+    bs2 = Basestation('bs2', pos=Point(100,50))
+    eps_length = 30
+    env = DatarateMobileEnv(episode_length=eps_length, width=150, height=100, bs_list=[bs1, bs2], ue_list=[ue1])
     # env.seed(42)
 
     # create dummy agent
@@ -89,7 +89,7 @@ if __name__ == "__main__":
     # agent = FixedAgent(action=1)
     # or create RL agent
     # for stable baselines logs
-    training_dir = f'../../training/{env_name}'
+    training_dir = f'../../training/{type(env).__name__}'
     train_steps = 5000
     os.makedirs(training_dir, exist_ok=True)
     # agent = PPO2(MlpPolicy, Monitor(env, filename=f'{training_dir}'))
@@ -106,4 +106,5 @@ if __name__ == "__main__":
     # evaluate learned policy
     logging.getLogger('drl_mobile').setLevel(logging.WARNING)
     mean_reward, std_reward = evaluate_policy(agent, env, n_eval_episodes=10)
-    log.info("Eval. episode reward", mean_reward=mean_reward, std_reward=std_reward)
+    log.info("Policy evaluation", mean_eps_reward=mean_reward, std_eps_reward=std_reward,
+             mean_step_reward=mean_reward/eps_length)
