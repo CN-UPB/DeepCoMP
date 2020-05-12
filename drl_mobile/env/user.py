@@ -20,6 +20,9 @@ class User:
         :param dr_req: Data rate requirement by UE for successful service
         """
         self.id = id
+        self.dr_req = dr_req
+        self.env = None
+        self.conn_bs = []
 
         self.init_pos_x = pos_x
         self.init_pos_y = pos_y
@@ -32,9 +35,6 @@ class User:
         self.move_y = None
         self.reset_movement()
 
-        self.dr_req = dr_req
-        self.env = None
-        self.conn_bs = []
         self.log = structlog.get_logger(id=self.id, pos=str(self.pos), move=(self.move_x, self.move_y),
                                         conn_bs=self.conn_bs, dr_req=self.dr_req)
 

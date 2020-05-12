@@ -77,11 +77,12 @@ if __name__ == "__main__":
     structlog.configure(logger_factory=LoggerFactory())
 
     # create the environment
-    ue1 = User('ue1', pos_x=20, pos_y=40, move_x=5)
+    ue1 = User('ue1', pos_x='random', pos_y=40, move_x='slow')
     # ue2 = User('ue2', start_pos=Point(3,3), move_x=-1)
     bs1 = Basestation('bs1', pos=Point(70,50))
     bs2 = Basestation('bs2', pos=Point(130,50))
     env = DatarateMobileEnv(episode_length=5, width=200, height=100, bs_list=[bs1, bs2], ue_list=[ue1])
+    # env.seed(42)
 
     # create agent
     # agent = RandomAgent(env.action_space, seed=1234)

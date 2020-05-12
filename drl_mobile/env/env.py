@@ -1,3 +1,5 @@
+import random
+
 import gym
 import gym.spaces
 import structlog
@@ -52,7 +54,7 @@ class MobileEnv(gym.Env):
         return [bs for bs in self.bs_list if bs.active]
 
     def seed(self, seed=None):
-        raise NotImplementedError()
+        random.seed(seed)
 
     def get_obs(self, ue):
         """
