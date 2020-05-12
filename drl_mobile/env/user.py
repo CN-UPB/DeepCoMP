@@ -1,3 +1,5 @@
+import random
+
 import structlog
 from shapely.geometry import Point
 
@@ -7,37 +9,81 @@ class User:
     A user/UE moving around in the world and requesting mobile services
     Connection to BS are checked before connecting and after every move to check if connection is lost or still stable
     """
-    def __init__(self, id, start_pos, move_x=0, move_y=0, dr_req=1):
+    def __init__(self, id, pos_x, pos_y, move_x=0, move_y=0, dr_req=1):
         """
         Create new UE object
         :param id: Unique ID of UE (string)
-        :param start_pos: Starting position of the UE (Point)
-        :param move_x: Movement per step along x-axis
-        :param move_y: Movement per step along y-axis
+        :param pos_x: x-coord of starting position or 'random'
+        :param pos_y: y-coord of starting position or 'random'
+        :param move_x: Movement per step along x-axis. Number or 'slow' -> randint(1,5) or 'fast' -> randint(10,20).
+        :param move_y: Movement per step along y-axis. Number or 'slow' -> randint(1,5) or 'fast' -> randint(10,20).
         :param dr_req: Data rate requirement by UE for successful service
         """
         self.id = id
-        self.pos = start_pos
-        self.move_x = move_x
-        self.move_y = move_y
+
+        self.init_pos_x = pos_x
+        self.init_pos_y = pos_y
+        self.pos = None
+        self.reset_pos()
+
+        self.init_move_x = move_x
+        self.init_move_y = move_y
+        self.move_x = None
+        self.move_y = None
+        self.reset_movement()
+
         self.dr_req = dr_req
         self.env = None
         self.conn_bs = []
         self.log = structlog.get_logger(id=self.id, pos=str(self.pos), move=(self.move_x, self.move_y),
                                         conn_bs=self.conn_bs, dr_req=self.dr_req)
-        # keep initial pos and movement for resetting
-        self._init_pos = start_pos
-        self._init_move_x = move_x
-        self._init_move_y = move_y
+
+    def reset_pos(self):
+        """(Re)set position based on initial position x and y as Point. Resolve 'random'."""
+        # set pos_x
+        pos_x = self.init_pos_x
+        if pos_x == 'random':
+            # restrict to 0-10 if map is unknown
+            if self.env is None:
+                pos_x = random.randint(0, 10)
+            else:
+                pos_x = random.randint(0, self.env.width)
+        # set pos_y
+        pos_y = self.init_pos_y
+        if pos_y == 'random':
+            # restrict to 0-10 if map is unknown
+            if self.env is None:
+                pos_y = random.randint(0, 10)
+            else:
+                pos_y = random.randint(0, self.env.height)
+        # set pos as Point
+        self.pos = Point(pos_x, pos_y)
+
+    def reset_movement(self):
+        """(Re)set movement based on provided init movement. Resolve 'slow' or 'fast'."""
+        if self.init_move_x == 'slow':
+            self.move_x = random.randint(1, 5)
+        elif self.init_move_x == 'fast':
+            self.move_x = random.randint(10, 20)
+        else:
+            # assume init_move_x was a specific number for how to move
+            self.move_x = self.init_move_x
+        # same for move_y
+        if self.init_move_y == 'slow':
+            self.move_y = random.randint(1, 5)
+        elif self.init_move_y == 'fast':
+            self.move_y = random.randint(10, 20)
+        else:
+            # assume init_move_y was a specific number for how to move
+            self.move_y = self.init_move_y
 
     def __repr__(self):
         return self.id
 
     def reset(self):
         """Reset UE to initial position and movement. Disconnect from all BS."""
-        self.pos = self._init_pos
-        self.move_x = self._init_move_x
-        self.move_y = self._init_move_y
+        self.reset_pos()
+        self.reset_movement()
         self.conn_bs = []
 
     def move(self):

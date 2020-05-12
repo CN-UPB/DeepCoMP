@@ -1,6 +1,7 @@
 import logging
 import os
 
+import gym
 import structlog
 from structlog.stdlib import LoggerFactory
 from shapely.geometry import Point
@@ -72,14 +73,15 @@ if __name__ == "__main__":
     logging.getLogger('drl_mobile').setLevel(logging.WARNING)
     logging.getLogger('matplotlib').setLevel(logging.WARNING)
     logging.getLogger('tensorflow').setLevel(logging.ERROR)
+    gym.logger.set_level(gym.logger.ERROR)
     structlog.configure(logger_factory=LoggerFactory())
 
     # create the environment
-    ue1 = User('ue1', start_pos=Point(20,40), move_x=5)
+    ue1 = User('ue1', pos_x=20, pos_y=40, move_x=5)
     # ue2 = User('ue2', start_pos=Point(3,3), move_x=-1)
     bs1 = Basestation('bs1', pos=Point(70,50))
     bs2 = Basestation('bs2', pos=Point(130,50))
-    env = DatarateMobileEnv(episode_length=20, width=200, height=100, bs_list=[bs1, bs2], ue_list=[ue1])
+    env = DatarateMobileEnv(episode_length=5, width=200, height=100, bs_list=[bs1, bs2], ue_list=[ue1])
 
     # create agent
     # agent = RandomAgent(env.action_space, seed=1234)
