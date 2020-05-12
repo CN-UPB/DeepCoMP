@@ -2,6 +2,7 @@ import gym
 import gym.spaces
 import structlog
 from shapely.geometry import Polygon
+import numpy as np
 import matplotlib.pyplot as plt
 
 
@@ -121,11 +122,11 @@ class MobileEnv(gym.Env):
         return patch
 
 
-class MobileBinaryEnv(MobileEnv):
-    """Instance of the general Mobile Env that uses binary observations to indicate which BS are & can be connected"""
+class BinaryMobileEnv(MobileEnv):
+    """Subclass of the general Mobile Env that uses binary observations to indicate which BS are & can be connected"""
     def __init__(self, episode_length, width, height, bs_list, ue_list):
-        super(MobileBinaryEnv, self).__init__(episode_length, width, height, bs_list, ue_list)
-        # observations: binary vector of BS availability (in range & free cap) + already connected BS
+        super(MobileEnv, self).__init__(episode_length, width, height, bs_list, ue_list)
+        # observations: binary vector of BS availability (in range and dr >= req_dr) + already connected BS
         self.observation_space = gym.spaces.MultiBinary(2 * self.num_bs)
         # actions: select a BS to be connected to/disconnect from or noop
         self.action_space = gym.spaces.Discrete(self.num_bs + 1)
@@ -153,3 +154,24 @@ class MobileBinaryEnv(MobileEnv):
         if not action_success:
             reward -= 1
         return reward
+
+
+class DatarateMobileEnv(BinaryMobileEnv):
+    """Subclass of the binary MobileEnv that uses the achievable data rate as observations"""
+    def __init__(self, episode_length, width, height, bs_list, ue_list):
+        super(BinaryMobileEnv, self).__init__(episode_length, width, height, bs_list, ue_list)
+        # observations: binary vector of BS availability (in range & free cap) + already connected BS
+        # 1. Achievable data rate for given UE for all BS --> Box; high=500 --> assume dr <= 500mbit
+        # 2. Connected BS --> MultiBinary
+        # Dict space would be most suitable but not supported by stable baselines 2 --> Box
+        # TODO: normalize by dividing with req dr? doesn't change anything as long as all UEs require 1mbit
+        dr_high = np.full(shape=(self.num_bs,), fill_value=5)
+        self.observation_space = gym.spaces.Box(low=np.zeros(2*self.num_bs),
+                                                high=np.concatenate([dr_high, np.ones(self.num_bs)]))
+        # same action space as binary env: select a BS to be connected to/disconnect from or noop
+
+    def get_obs(self, ue):
+        """Observation: Achievable data rate per BS + currently connected BS"""
+        bs_dr = [bs.data_rate(ue.pos, self.active_bs) for bs in self.bs_list]
+        connected_bs = [int(bs in ue.conn_bs) for bs in self.bs_list]
+        return bs_dr + connected_bs

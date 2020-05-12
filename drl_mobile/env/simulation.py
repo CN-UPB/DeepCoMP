@@ -15,7 +15,7 @@ import matplotlib.pyplot as plt
 import matplotlib.animation
 
 
-from drl_mobile.env.env import MobileBinaryEnv
+from drl_mobile.env.env import BinaryMobileEnv, DatarateMobileEnv
 from drl_mobile.env.user import User
 from drl_mobile.env.station import Basestation
 from drl_mobile.agent.dummy import RandomAgent, FixedAgent
@@ -79,7 +79,7 @@ if __name__ == "__main__":
     # ue2 = User('ue2', start_pos=Point(3,3), move_x=-1)
     bs1 = Basestation('bs1', pos=Point(70,50))
     bs2 = Basestation('bs2', pos=Point(130,50))
-    env = MobileBinaryEnv(episode_length=20, width=200, height=100, bs_list=[bs1, bs2], ue_list=[ue1])
+    env = DatarateMobileEnv(episode_length=20, width=200, height=100, bs_list=[bs1, bs2], ue_list=[ue1])
 
     # create agent
     # agent = RandomAgent(env.action_space, seed=1234)
