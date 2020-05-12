@@ -127,7 +127,7 @@ class MobileEnv(gym.Env):
 class BinaryMobileEnv(MobileEnv):
     """Subclass of the general Mobile Env that uses binary observations to indicate which BS are & can be connected"""
     def __init__(self, episode_length, width, height, bs_list, ue_list):
-        super(MobileEnv, self).__init__(episode_length, width, height, bs_list, ue_list)
+        super().__init__(episode_length, width, height, bs_list, ue_list)
         # observations: binary vector of BS availability (in range and dr >= req_dr) + already connected BS
         self.observation_space = gym.spaces.MultiBinary(2 * self.num_bs)
         # actions: select a BS to be connected to/disconnect from or noop
@@ -161,7 +161,7 @@ class BinaryMobileEnv(MobileEnv):
 class DatarateMobileEnv(BinaryMobileEnv):
     """Subclass of the binary MobileEnv that uses the achievable data rate as observations"""
     def __init__(self, episode_length, width, height, bs_list, ue_list):
-        super(BinaryMobileEnv, self).__init__(episode_length, width, height, bs_list, ue_list)
+        super().__init__(episode_length, width, height, bs_list, ue_list)
         # observations: binary vector of BS availability (in range & free cap) + already connected BS
         # 1. Achievable data rate for given UE for all BS --> Box; high=500 --> assume dr <= 500mbit
         # 2. Connected BS --> MultiBinary
