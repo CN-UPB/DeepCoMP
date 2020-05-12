@@ -167,7 +167,7 @@ class DatarateMobileEnv(BinaryMobileEnv):
         # 2. Connected BS --> MultiBinary
         # Dict space would be most suitable but not supported by stable baselines 2 --> Box
         # TODO: normalize by dividing with req dr? doesn't change anything as long as all UEs require 1mbit
-        dr_high = np.full(shape=(self.num_bs,), fill_value=5)
+        dr_high = np.full(shape=(self.num_bs,), fill_value=200)
         self.observation_space = gym.spaces.Box(low=np.zeros(2*self.num_bs),
                                                 high=np.concatenate([dr_high, np.ones(self.num_bs)]))
         # same action space as binary env: select a BS to be connected to/disconnect from or noop

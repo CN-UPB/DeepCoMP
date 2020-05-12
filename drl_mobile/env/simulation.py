@@ -23,8 +23,6 @@ from drl_mobile.agent.dummy import RandomAgent, FixedAgent
 
 
 log = structlog.get_logger()
-# for stable baselines logs
-training_dir = '../../training'
 
 
 class Simulation:
@@ -33,14 +31,14 @@ class Simulation:
         self.env = env
         self.agent = agent
 
-    def train(self, train_steps, plot=False):
+    def train(self, train_steps, save_dir, plot=False):
         """Train agent for specified training steps"""
         log.info('Start training', train_steps=train_steps)
         agent.learn(train_steps)
-        agent.save(f'{training_dir}/ppo2_{train_steps}')
+        agent.save(f'{save_dir}/ppo2_{train_steps}')
         if plot:
-            results_plotter.plot_results([training_dir], train_steps, results_plotter.X_TIMESTEPS, 'Learning Curve')
-            plt.savefig(f'{training_dir}/ppo2_{train_steps}.png')
+            results_plotter.plot_results([save_dir], train_steps, results_plotter.X_TIMESTEPS, 'Learning Curve')
+            plt.savefig(f'{save_dir}/ppo2_{train_steps}.png')
             plt.show()
 
     def run(self, render=False):
@@ -77,22 +75,35 @@ if __name__ == "__main__":
     structlog.configure(logger_factory=LoggerFactory())
 
     # create the environment
-    ue1 = User('ue1', pos_x='random', pos_y=40, move_x='slow')
+    # ue1 = User('ue1', pos_x='random', pos_y=40, move_x='slow')
+    ue1 = User('ue1', pos_x=20, pos_y=40, move_x=5)
     # ue2 = User('ue2', start_pos=Point(3,3), move_x=-1)
     bs1 = Basestation('bs1', pos=Point(70,50))
     bs2 = Basestation('bs2', pos=Point(130,50))
     env = DatarateMobileEnv(episode_length=20, width=200, height=100, bs_list=[bs1, bs2], ue_list=[ue1])
+    env_name = type(env).__name__
     # env.seed(42)
 
-    # create agent
+    # create dummy agent
     # agent = RandomAgent(env.action_space, seed=1234)
     # agent = FixedAgent(action=1)
-    agent = PPO2(MlpPolicy, Monitor(env, filename=training_dir))
-    # agent = PPO2.load(f'{training_dir}/ppo2_10000.zip')
+    # or create RL agent
+    # for stable baselines logs
+    training_dir = f'../../training/{env_name}'
+    train_steps = 5000
+    os.makedirs(training_dir, exist_ok=True)
+    # agent = PPO2(MlpPolicy, Monitor(env, filename=f'{training_dir}'))
+    # or load RL agent
+    agent = PPO2.load(f'{training_dir}/ppo2_{train_steps}.zip')
 
     # run the simulation
     sim = Simulation(env, agent)
-    sim.train(train_steps=10000, plot=True)
-    logging.getLogger('drl_mobile').setLevel(logging.DEBUG)
+    # sim.train(train_steps=train_steps, save_dir=training_dir, plot=True)
+    logging.getLogger('drl_mobile').setLevel(logging.INFO)
     reward = sim.run(render=True)
     log.info('Testing complete', episode_reward=reward)
+
+    # evaluate learned policy
+    logging.getLogger('drl_mobile').setLevel(logging.WARNING)
+    mean_reward, std_reward = evaluate_policy(agent, env, n_eval_episodes=10)
+    log.info("Eval. episode reward", mean_reward=mean_reward, std_reward=std_reward)
