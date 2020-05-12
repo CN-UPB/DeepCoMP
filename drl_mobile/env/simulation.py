@@ -83,13 +83,13 @@ if __name__ == "__main__":
 
     # create agent
     # agent = RandomAgent(env.action_space, seed=1234)
-    # agent = FixedAgent(action=1)
+    agent = FixedAgent(action=1)
     # agent = PPO2(MlpPolicy, Monitor(env, filename=training_dir))
-    agent = PPO2.load(f'{training_dir}/ppo2_10000.zip')
+    # agent = PPO2.load(f'{training_dir}/ppo2_10000.zip')
 
     # run the simulation
     sim = Simulation(env, agent)
     # sim.train(train_steps=10000, plot=True)
-    logging.getLogger('drl_mobile').setLevel(logging.INFO)
+    logging.getLogger('drl_mobile').setLevel(logging.DEBUG)
     reward = sim.run(render=True)
     log.info('Testing complete', episode_reward=reward)

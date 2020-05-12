@@ -16,4 +16,5 @@ pip install -r requirements
 * Variants of observation/action/env
 * (Create and save animation)
 * (Make decisions in fixed decision interval of XY simulator steps)
+* Add schedules/RBs to radio model?
 * As soon as centralized works: Move to distributed RL. Even before adding offloading.

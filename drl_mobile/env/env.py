@@ -50,13 +50,17 @@ class MobileEnv(gym.Env):
     def seed(self, seed=None):
         raise NotImplementedError()
 
+    def interference(self, ue, bs):
+        """Calc and return interference from BS other than 'bs' to the UE."""
+        other_bs = [oth_bs for oth_bs in self.bs_list if oth_bs != bs]
+
     def get_obs(self, ue):
         """
         Return the an observation of the current world for a given UE
         It consists of 2 binary vectors: BS availability and already connected BS
         """
         bs_availability = [int(ue.can_connect(bs)) for bs in self.bs_list]
-        connected_bs = [int(bs in ue.assigned_bs) for bs in self.bs_list]
+        connected_bs = [int(bs in ue.conn_bs) for bs in self.bs_list]
         return bs_availability + connected_bs
 
     def calc_reward(self, action_success: bool):
@@ -65,7 +69,7 @@ class MobileEnv(gym.Env):
         reward = 0
         # +10 for every UE that's connected to at least one BS; -10 for each that isn't
         for ue in self.ue_list:
-            if len(ue.assigned_bs) >= 1:
+            if len(ue.conn_bs) >= 1:
                 reward += 10
             else:
                 reward -= 10
@@ -120,7 +124,7 @@ class MobileEnv(gym.Env):
         # users & connections
         for ue in self.ue_list:
             patch.append(plt.scatter(*ue.pos.xy))
-            for bs in ue.assigned_bs:
+            for bs in ue.conn_bs:
                 patch.extend(plt.plot([ue.pos.x, bs.pos.x], [ue.pos.y, bs.pos.y], color='orange'))
         # base stations
         for bs in self.bs_list:

@@ -7,9 +7,12 @@ class Basestation:
     def __init__(self, id, pos):
         self.id = id
         self.pos = pos
+        # list of connected UEs
+        self.conn_ue = []
         # radius for plotting; should reflect coverage
         # 45m is approx radius for 1mbit with curr settings and no interference
         # TODO: calculate radius automatically based on radio model; can't be calc in closed form but numerically approx
+        # TODO: or better visualize decreasing dr somehow
         self.radius = 45
         self.coverage = pos.buffer(self.radius)
         # set constants for SINR and data rate calculation
@@ -20,11 +23,17 @@ class Basestation:
         self.noise = 1e-9   # in mW
         self.tx_power = 30  # in dBm (was 40)
         self.height = 50    # in m
+        # just consider downlink for now; more interesting for most apps anyways
 
         self.log = structlog.get_logger(id=self.id, pos=str(self.pos))
 
     def __repr__(self):
         return self.id
+
+    @property
+    def active(self):
+        """The BS is active iff it's connected to at least 1 UE"""
+        return len(self.conn_ue) > 0
 
     def path_loss(self, distance, ue_height=1.5):
         """Return path loss in dBm to a UE at a given position. Calculation using Okumura Hata, suburban indoor"""

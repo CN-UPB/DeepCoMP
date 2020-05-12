@@ -19,9 +19,9 @@ class User:
         self.move_y = move_y
         self.dr_req = dr_req
         self.map = None
-        self.assigned_bs = []
+        self.conn_bs = []
         self.log = structlog.get_logger(id=self.id, pos=str(self.pos), move=(self.move_x, self.move_y),
-                                        assigned_bs=self.assigned_bs, dr_req=self.dr_req)
+                                        conn_bs=self.conn_bs, dr_req=self.dr_req)
         # keep initial pos and movement for resetting
         self._init_pos = start_pos
         self._init_move_x = move_x
@@ -35,7 +35,7 @@ class User:
         self.pos = self._init_pos
         self.move_x = self._init_move_x
         self.move_y = self._init_move_y
-        self.assigned_bs = []
+        self.conn_bs = []
 
     def move(self):
         """
@@ -55,16 +55,23 @@ class User:
         self.log.debug("User move")
         self.check_bs_connection()
 
+    def disconnect_from_bs(self, bs):
+        """Disconnect from given BS. Assume BS is currently connected."""
+        assert bs in self.conn_bs, "Not connected to BS --> Cannot disconnect"
+        self.conn_bs.remove(bs)
+        bs.conn_ue.remove(self)
+        self.log = self.log.bind(conn_bs=self.conn_bs)
+
     def check_bs_connection(self):
         """Check if assigned BS connections are still stable (after move), else remove."""
-        remove_bs_idx = []
-        for i, bs in enumerate(self.assigned_bs):
+        remove_bs = []
+        for bs in self.conn_bs:
             if not self.can_connect(bs):
                 self.log.info("Losing connection to BS", bs=bs)
-                remove_bs_idx.append(i)
-        # remove bs
-        for i in remove_bs_idx:
-            del self.assigned_bs[i]
+                remove_bs.append(bs)
+        # remove/disconnect bs
+        for bs in remove_bs:
+            self.disconnect_from_bs(bs)
 
     def can_connect(self, bs):
         """Return whether or not the UE can connect to the BS (based achievable data rate at current pos)"""
@@ -78,20 +85,22 @@ class User:
         :param disconnect: If True, disconnect from BS if it was previously connected.
         :return: True if (dis-)connected successfully. False if out of range.
         """
-        log = self.log.bind(bs=bs, disconnect=disconnect, assigned_bs=self.assigned_bs)
+        log = self.log.bind(bs=bs, disconnect=disconnect, conn_bs=self.conn_bs)
         # already connected
-        if bs in self.assigned_bs:
+        if bs in self.conn_bs:
             if disconnect:
-                self.assigned_bs.remove(bs)
-                log.info("Disconnected from BS")
+                self.disconnect_from_bs(bs)
+                log.info("Disconnected")
             else:
-                log.info("Staying connected to BS")
+                log.info("Staying connected")
             return True
         # not yet connected
         if self.can_connect(bs):
-            self.assigned_bs.append(bs)
-            log.info("Connected to BS")
+            self.conn_bs.append(bs)
+            bs.conn_ue.append(self)
+            log.info("Connected", conn_bs=self.conn_bs)
+            self.log = self.log.bind(conn_bs=self.conn_bs)
             return True
         else:
-            log.info("Cannot connect to BS")
+            log.info("Cannot connect")
             return False
