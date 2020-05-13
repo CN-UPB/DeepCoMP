@@ -172,22 +172,39 @@ class JustConnectedObsMobileEnv(BinaryMobileEnv):
 
 class DatarateMobileEnv(BinaryMobileEnv):
     """Subclass of the binary MobileEnv that uses the achievable data rate as observations"""
-    def __init__(self, episode_length, width, height, bs_list, ue_list, dr_cutoff=200):
+    def __init__(self, episode_length, width, height, bs_list, ue_list, dr_cutoff=200, sub_req_dr=False):
+        """
+        Env where the achievable data rate is passed as observations
+        :param dr_cutoff: Any data rate above this value will be cut off --> help have obs in same range
+        :param sub_req_dr: If true, subtract a UE's required data rate from the achievable dr --> neg obs if too little
+        """
         super().__init__(episode_length, width, height, bs_list, ue_list)
         self.dr_cutoff = dr_cutoff
+        self.sub_req_dr = sub_req_dr
         # observations: binary vector of BS availability (in range & free cap) + already connected BS
         # 1. Achievable data rate for given UE for all BS --> Box;
         # cut off dr at given dr level. here, dr is below 200 anyways --> default doesn't cut off
+        max_dr_req = max([ue.dr_req for ue in self.ue_list])
+        self.log.info('Max dr req', max_dr_req=max_dr_req, sub_req_dr=self.sub_req_dr)
+        assert max_dr_req < dr_cutoff, "Data rate cut off should be higher than max required data rate by UEs"
+        # if we subtract the required data rate, observations may become negative
+        if self.sub_req_dr:
+            dr_low = np.full(shape=(self.num_bs,), fill_value=-max_dr_req)
+        else:
+            dr_low = np.zeros(self.num_bs)
+        dr_high = np.full(shape=(self.num_bs,), fill_value=self.dr_cutoff)
         # 2. Connected BS --> MultiBinary
+        conn_low = np.zeros(self.num_bs)
+        conn_high = np.ones(self.num_bs)
         # Dict space would be most suitable but not supported by stable baselines 2 --> Box
         # TODO: normalize by dividing with req dr? doesn't change anything as long as all UEs require 1mbit
-        dr_high = np.full(shape=(self.num_bs,), fill_value=self.dr_cutoff)
-        self.observation_space = gym.spaces.Box(low=np.zeros(2*self.num_bs),
-                                                high=np.concatenate([dr_high, np.ones(self.num_bs)]))
+        self.observation_space = gym.spaces.Box(low=np.concatenate([dr_low, conn_low]),
+                                                high=np.concatenate([dr_high, conn_high]))
         # same action space as binary env: select a BS to be connected to/disconnect from or noop
 
     def get_obs(self, ue):
         """Observation: Achievable data rate per BS + currently connected BS"""
-        bs_dr = [min(bs.data_rate(ue.pos, self.active_bs), self.dr_cutoff) for bs in self.bs_list]
+        # TODO: test!
+        bs_dr = [min(bs.data_rate(ue.pos, self.active_bs) - ue.req_dr, self.dr_cutoff) for bs in self.bs_list]
         connected_bs = [int(bs in ue.conn_bs) for bs in self.bs_list]
         return bs_dr + connected_bs

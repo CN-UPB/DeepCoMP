@@ -5,6 +5,10 @@
 * Same as v0, but with path loss, SNR to data rate calculation
   * At the beginning: No interference, no scheduling. Add incrementally
 * State/Observation: S = [Achievable data rates per BS, connected BS]?
+    * Using achievable dr directly, works very poorly. 
+    Suspected reason: Data rates are much larger (up to 150x) than the connected values, such that 
+    the agent basically cannot see anymore to which BS it is connected
+    * Simply cutting off data rates, eg, at 3 Mbit/s, works much better
 
 ## [v0.1](https://github.com/CN-UPB/deep-rl-mobility-management/releases/tag/v0.1): Just BS selection, no radio model (week 19)
 

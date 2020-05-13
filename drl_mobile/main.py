@@ -58,7 +58,7 @@ def create_env(eps_length):
     # ue2 = User('ue2', start_pos=Point(3,3), move_x=-1)
     bs1 = Basestation('bs1', pos=Point(50,50))
     bs2 = Basestation('bs2', pos=Point(100,50))
-    return DatarateMobileEnv(episode_length=eps_length, width=150, height=100, bs_list=[bs1, bs2], ue_list=[ue1], dr_cutoff=3)
+    return DatarateMobileEnv(episode_length=eps_length, width=150, height=100, bs_list=[bs1, bs2], ue_list=[ue1], dr_cutoff=3, sub_req_dr=True)
 
 
 def create_agent(agent_name, train=True):
