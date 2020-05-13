@@ -4,7 +4,7 @@ class FloatRounder:
     Inspired by: https://github.com/underyx/structlog-pretty/blob/master/structlog_pretty/processors.py
     Adapted to also round numbers in lists. Less try-except.
     """
-    def __init__(self, digits=3, only_fields=None):
+    def __init__(self, digits=3, only_fields=None, not_fields=None):
         """Create a processor that rounds numbers in the event values
         :param digits: The number of digits to round to
         :param only_fields: An iterable specifying the fields to round
@@ -14,10 +14,16 @@ class FloatRounder:
             self.only_fields = set(only_fields)
         except TypeError:
             self.only_fields = None
+        try:
+            self.not_fields = set(not_fields)
+        except TypeError:
+            self.not_fields = None
 
     def __call__(self, _, __, event_dict):
         for key, value in event_dict.items():
             if self.only_fields is not None and key not in self.only_fields:
+                continue
+            if key in self.not_fields:
                 continue
             if isinstance(value, bool):
                 continue  # don't convert True to 1.0

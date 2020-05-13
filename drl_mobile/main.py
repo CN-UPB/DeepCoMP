@@ -41,7 +41,7 @@ def config_logging(round_digits):
                             # structlog.processors.format_exc_info,
                             # structlog.processors.UnicodeDecoder(),
                             # structlog.processors.TimeStamper(fmt="%Y-%m-%d %H:%M:%S"),
-                            FloatRounder(digits=round_digits),
+                            FloatRounder(digits=round_digits, not_fields=['sinr', 'signal']),
                             structlog.dev.ConsoleRenderer()
                             # structlog.stdlib.render_to_log_kwargs,
                             # structlog.processors.JSONRenderer()
