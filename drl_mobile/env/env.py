@@ -44,6 +44,9 @@ class MobileEnv(gym.Env):
         self.action_space = None
 
         self.log = structlog.get_logger()
+        # square figure and equal aspect ratio to avoid distortions
+        self.fig = plt.figure(figsize=(5, 5))
+        plt.gca().set_aspect('equal')
 
     @property
     def num_bs(self):
@@ -101,17 +104,14 @@ class MobileEnv(gym.Env):
 
     def render(self, mode='human'):
         """Plot and visualize the current status of the world. Return the patch of actors for animation."""
-        # square figure and equal aspect ratio to avoid distortions
-        fig = plt.figure(figsize=(5, 5))
-        plt.gca().set_aspect('equal')
-        # list of matplotlib "actors", which can be used to create animations
+        # list of matplotlib "artists", which can be used to create animations
         patch = []
 
         # map borders
-        patch.extend(plt.plot(*self.map.exterior.xy))
+        patch.extend(plt.plot(*self.map.exterior.xy, color='gray'))
         # users & connections
         for ue in self.ue_list:
-            patch.append(plt.scatter(*ue.pos.xy))
+            patch.append(plt.scatter(*ue.pos.xy, color='blue'))
             for bs in ue.conn_bs:
                 patch.extend(plt.plot([ue.pos.x, bs.pos.x], [ue.pos.y, bs.pos.y], color='orange'))
         # base stations
@@ -119,8 +119,8 @@ class MobileEnv(gym.Env):
             patch.append(plt.scatter(*bs.pos.xy, marker='^', c='black'))
             patch.extend(plt.plot(*bs.coverage.exterior.xy, color='black'))
 
-        plt.title(f"t={self.time}")
-        plt.show()
+        # FIXME: title doesn't change in video
+        patch.append(plt.title(f"t={self.time}"))
         return patch
 
 

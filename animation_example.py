@@ -66,19 +66,26 @@ def my_plot2():
     plt.show()
     return ax
 
-def my_plot(figg):
+def my_plot():
     # fig, ax = plt.subplots()
     # my_fig = plt.figure()
     patch = []
     patch.extend(plt.plot([random.randrange(10), random.randrange(10)], [random.randrange(10), random.randrange(10)]))
     patch.extend(plt.plot([random.randrange(10), random.randrange(10)], [random.randrange(10), random.randrange(10)]))
-    plt.show()
+    # plt.show()
     return patch
 
+def my_plot4():
+    p0, = plt.plot([random.randrange(10), random.randrange(10)], [random.randrange(10), random.randrange(10)])
+    p1, = plt.plot([random.randrange(10), random.randrange(10)], [random.randrange(10), random.randrange(10)])
+    # important: no plt.show()!
+    return [p0, p1]   # return a list of the new plots
+
+# fig, ax = plt.subplots()    # fig and axes created once
 fig = plt.figure()
 ims = []
-for _ in range(2):
-    patch = my_plot(fig)
+for _ in range(5):
+    patch = my_plot()
     ims.append(patch)
     # ax = my_plot2()
     # ims.append((ax,))
