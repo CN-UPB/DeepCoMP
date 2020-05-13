@@ -44,6 +44,11 @@ class Simulation:
 
     def run(self, render=None, save_dir=None):
         """Run one simulation episode. Render situation at beginning of each time step. Return episode reward."""
+        if render is not None:
+            # square figure and equal aspect ratio to avoid distortions
+            fig = plt.figure(figsize=(5, 5))
+            plt.gca().set_aspect('equal')
+
         patches = []
         episode_reward = 0
         done = False
@@ -64,7 +69,7 @@ class Simulation:
                 plt.show()
             if render == 'video':
                 assert save_dir is not None, 'You must specify save_dir if rendering video'
-                anim = matplotlib.animation.ArtistAnimation(self.env.fig, patches, repeat=False)
+                anim = matplotlib.animation.ArtistAnimation(fig, patches, repeat=False)
                 html = anim.to_html5_video()
                 with open(f'{save_dir}/replay.html', 'w') as f:
                     f.write(html)
@@ -94,22 +99,22 @@ if __name__ == "__main__":
     # dir for saving logs, plots, replay video
     training_dir = f'../../training/{type(env).__name__}'
     os.makedirs(training_dir, exist_ok=True)
-    train_steps = 10000
+    train_steps = 2000
 
     # create dummy agent
-    agent = RandomAgent(env.action_space, seed=1234)
+    # agent = RandomAgent(env.action_space, seed=1234)
     # agent = FixedAgent(action=1)
     # or create RL agent
-    # agent = PPO2(MlpPolicy, Monitor(env, filename=f'{training_dir}'))
+    agent = PPO2(MlpPolicy, Monitor(env, filename=f'{training_dir}'))
     # or load RL agent
     # agent = PPO2.load(f'{training_dir}/ppo2_{train_steps}.zip')
 
     # run the simulation
     sim = Simulation(env, agent)
-    # sim.train(train_steps=train_steps, save_dir=training_dir, plot=True)
+    sim.train(train_steps=train_steps, save_dir=training_dir, plot=True)
     logging.getLogger('drl_mobile').setLevel(logging.INFO)
     reward = sim.run(render='video', save_dir=training_dir)
-    log.info('Testing complete', episode_reward=reward)
+    log.info('Simulation complete', episode_reward=reward)
 
     # evaluate learned policy
     # logging.getLogger('drl_mobile').setLevel(logging.WARNING)

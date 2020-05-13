@@ -44,9 +44,6 @@ class MobileEnv(gym.Env):
         self.action_space = None
 
         self.log = structlog.get_logger()
-        # square figure and equal aspect ratio to avoid distortions
-        self.fig = plt.figure(figsize=(5, 5))
-        plt.gca().set_aspect('equal')
 
     @property
     def num_bs(self):
