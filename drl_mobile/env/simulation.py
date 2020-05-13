@@ -3,7 +3,6 @@ import os
 
 import gym
 import structlog
-import numpy as np
 from structlog.stdlib import LoggerFactory
 from shapely.geometry import Point
 # disable tf printed warning: https://github.com/tensorflow/tensorflow/issues/27045#issuecomment-480691244
@@ -21,6 +20,7 @@ from drl_mobile.env.env import BinaryMobileEnv, DatarateMobileEnv, JustConnected
 from drl_mobile.env.user import User
 from drl_mobile.env.station import Basestation
 from drl_mobile.agent.dummy import RandomAgent, FixedAgent
+from drl_mobile.util.logs import FloatRounder
 
 
 log = structlog.get_logger()
@@ -86,7 +86,23 @@ if __name__ == "__main__":
     logging.getLogger('matplotlib').setLevel(logging.WARNING)
     logging.getLogger('tensorflow').setLevel(logging.ERROR)
     gym.logger.set_level(gym.logger.ERROR)
-    structlog.configure(logger_factory=LoggerFactory())
+    # structlog.configure(logger_factory=LoggerFactory())
+    structlog.configure(logger_factory=LoggerFactory(),
+                        processors=[
+                            structlog.stdlib.filter_by_level,
+                            # structlog.stdlib.add_logger_name,
+                            # structlog.stdlib.add_log_level,
+                            # structlog.stdlib.PositionalArgumentsFormatter(),
+                            # structlog.processors.StackInfoRenderer(),
+                            # structlog.processors.format_exc_info,
+                            # structlog.processors.UnicodeDecoder(),
+                            # structlog.processors.TimeStamper(fmt="%Y-%m-%d %H:%M:%S"),
+                            # structlog_pretty.NumericRounder(digits=3),
+                            FloatRounder(digits=3),
+                            structlog.dev.ConsoleRenderer()
+                            # structlog.stdlib.render_to_log_kwargs,
+                            # structlog.processors.JSONRenderer()
+                        ])
 
     # create the environment
     ue1 = User('ue1', pos_x='random', pos_y=40, move_x=0)
@@ -101,20 +117,20 @@ if __name__ == "__main__":
     # dir for saving logs, plots, replay video
     training_dir = f'../../training/{type(env).__name__}'
     os.makedirs(training_dir, exist_ok=True)
-    train_steps = 2000
+    train_steps = 10000
 
     # create dummy agent
     # agent = RandomAgent(env.action_space, seed=1234)
     # agent = FixedAgent(action=1)
     # or create RL agent
-    agent = PPO2(MlpPolicy, Monitor(env, filename=f'{training_dir}'))
+    # agent = PPO2(MlpPolicy, Monitor(env, filename=f'{training_dir}'))
     # or load RL agent
-    # agent = PPO2.load(f'{training_dir}/ppo2_{train_steps}.zip')
+    agent = PPO2.load(f'{training_dir}/ppo2_{train_steps}.zip')
 
     # run the simulation
     sim = Simulation(env, agent)
-    sim.train(train_steps=train_steps, save_dir=training_dir, plot=True)
-    logging.getLogger('drl_mobile').setLevel(logging.INFO)
+    # sim.train(train_steps=train_steps, save_dir=training_dir, plot=True)
+    logging.getLogger('drl_mobile').setLevel(logging.DEBUG)
     reward = sim.run(render='video', save_dir=training_dir)
     log.info('Simulation complete', episode_reward=reward)
 
