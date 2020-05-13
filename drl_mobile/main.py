@@ -11,6 +11,8 @@ from shapely.geometry import Point
 import tensorflow as tf
 if type(tf.contrib) != type(tf): tf.contrib._warning = None
 from stable_baselines import PPO2
+from stable_baselines.common.policies import MlpPolicy
+from stable_baselines.bench import Monitor
 
 from drl_mobile.env.env import BinaryMobileEnv, DatarateMobileEnv, JustConnectedObsMobileEnv
 from drl_mobile.env.user import User
@@ -55,19 +57,24 @@ def create_env(eps_length):
     # ue2 = User('ue2', start_pos=Point(3,3), move_x=-1)
     bs1 = Basestation('bs1', pos=Point(50,50))
     bs2 = Basestation('bs2', pos=Point(100,50))
-    return DatarateMobileEnv(episode_length=eps_length, width=150, height=100, bs_list=[bs1, bs2], ue_list=[ue1])
+    return BinaryMobileEnv(episode_length=eps_length, width=150, height=100, bs_list=[bs1, bs2], ue_list=[ue1])
 
 
-def create_agent():
-    """Create and return agent"""
-    # create dummy agent
-    # agent = RandomAgent(env.action_space, seed=1234)
-    # agent = FixedAgent(action=1)
-    # or create RL agent
-    # agent = PPO2(MlpPolicy, Monitor(env, filename=f'{training_dir}'))
-    # or load RL agent
-    agent = PPO2.load(f'{training_dir}/ppo2_{train_steps}.zip')
-    return agent
+def create_agent(agent_name, train=True):
+    """Create and return agent based on specified name/string"""
+    # dummy agents
+    if agent_name == 'random':
+        return RandomAgent(env.action_space, seed=1234)
+    if agent_name == 'fixed':
+        return FixedAgent(action=1)
+    # PPO RL agent
+    if agent_name == 'ppo':
+        if train:
+            return PPO2(MlpPolicy, Monitor(env, filename=f'{training_dir}'))
+        else:
+            # load trained agent
+            return PPO2.load(f'{training_dir}/ppo2_{train_steps}.zip')
+    return None
 
 
 if __name__ == "__main__":
@@ -80,16 +87,19 @@ if __name__ == "__main__":
     os.makedirs(training_dir, exist_ok=True)
     train_steps = 10000
 
-    agent = create_agent()
+    train = False
+    agent = create_agent('ppo', train=train)
     sim = Simulation(env, agent)
 
     # train
-    # sim.train(train_steps=train_steps, save_dir=training_dir, plot=True)
+    if train:
+        sim.train(train_steps=train_steps, save_dir=training_dir, plot=True)
 
     # simulate one run
-    logging.getLogger('drl_mobile').setLevel(logging.DEBUG)
+    logging.getLogger('drl_mobile').setLevel(logging.INFO)
     sim.run(render='video', save_dir=training_dir)
 
     # evaluate
     logging.getLogger('drl_mobile').setLevel(logging.WARNING)
+    logging.getLogger('drl_mobile.env.simulation').setLevel(logging.INFO)
     sim.evaluate(eval_eps=10)
