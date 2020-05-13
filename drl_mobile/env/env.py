@@ -116,8 +116,8 @@ class MobileEnv(gym.Env):
             patch.append(plt.scatter(*bs.pos.xy, marker='^', c='black'))
             patch.extend(plt.plot(*bs.coverage.exterior.xy, color='black'))
 
-        # title isn't redrawn in animation (out of box) --> show time as text inside box, top-right corner
-        # patch.append(plt.title('Mobility Management'))
+        # title isn't redrawn in animation (out of box) --> static --> show time as text inside box, top-right corner
+        patch.append(plt.title(type(self).__name__))
         patch.append(plt.text(0.9*self.width, 0.9*self.height, f"t={self.time}"))
         return patch
 

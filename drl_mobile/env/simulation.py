@@ -30,6 +30,7 @@ class Simulation:
     """Simulation class"""
     def __init__(self, env, agent):
         self.env = env
+        self.env_name = type(env).__name__
         self.agent = agent
 
     def train(self, train_steps, save_dir, plot=False):
@@ -38,7 +39,8 @@ class Simulation:
         agent.learn(train_steps)
         agent.save(f'{save_dir}/ppo2_{train_steps}')
         if plot:
-            results_plotter.plot_results([save_dir], train_steps, results_plotter.X_TIMESTEPS, 'Learning Curve')
+            results_plotter.plot_results([save_dir], train_steps, results_plotter.X_TIMESTEPS,
+                                         f'Learning Curve for {self.env_name}')
             plt.savefig(f'{save_dir}/ppo2_{train_steps}.png')
             plt.show()
 
@@ -87,8 +89,8 @@ if __name__ == "__main__":
     structlog.configure(logger_factory=LoggerFactory())
 
     # create the environment
-    # ue1 = User('ue1', pos_x='random', pos_y=40, move_x=0)
-    ue1 = User('ue1', pos_x=20, pos_y=40, move_x=5)
+    ue1 = User('ue1', pos_x='random', pos_y=40, move_x=0)
+    # ue1 = User('ue1', pos_x=20, pos_y=40, move_x=5)
     # ue2 = User('ue2', start_pos=Point(3,3), move_x=-1)
     bs1 = Basestation('bs1', pos=Point(50,50))
     bs2 = Basestation('bs2', pos=Point(100,50))
@@ -117,7 +119,7 @@ if __name__ == "__main__":
     log.info('Simulation complete', episode_reward=reward)
 
     # evaluate learned policy
-    # logging.getLogger('drl_mobile').setLevel(logging.WARNING)
-    # mean_reward, std_reward = evaluate_policy(agent, env, n_eval_episodes=10)
-    # log.info("Policy evaluation", mean_eps_reward=mean_reward, std_eps_reward=std_reward,
-    #          mean_step_reward=mean_reward/eps_length)
+    logging.getLogger('drl_mobile').setLevel(logging.WARNING)
+    mean_reward, std_reward = evaluate_policy(agent, env, n_eval_episodes=10)
+    log.info("Policy evaluation", mean_eps_reward=mean_reward, std_eps_reward=std_reward,
+             mean_step_reward=mean_reward/eps_length)
