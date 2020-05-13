@@ -29,6 +29,7 @@ def config_logging(round_digits):
     """Configure logging using structlog, stdlib logging, and custom FloatRounder to round to spec numb digits"""
     logging.basicConfig(level=logging.INFO)
     logging.getLogger('drl_mobile').setLevel(logging.WARNING)
+    logging.getLogger('drl_mobile.env.simulation').setLevel(logging.INFO)
     logging.getLogger('matplotlib').setLevel(logging.WARNING)
     logging.getLogger('tensorflow').setLevel(logging.ERROR)
     gym.logger.set_level(gym.logger.ERROR)
@@ -57,7 +58,7 @@ def create_env(eps_length):
     # ue2 = User('ue2', start_pos=Point(3,3), move_x=-1)
     bs1 = Basestation('bs1', pos=Point(50,50))
     bs2 = Basestation('bs2', pos=Point(100,50))
-    return BinaryMobileEnv(episode_length=eps_length, width=150, height=100, bs_list=[bs1, bs2], ue_list=[ue1])
+    return DatarateMobileEnv(episode_length=eps_length, width=150, height=100, bs_list=[bs1, bs2], ue_list=[ue1], dr_cutoff=3)
 
 
 def create_agent(agent_name, train=True):
@@ -87,7 +88,7 @@ if __name__ == "__main__":
     os.makedirs(training_dir, exist_ok=True)
     train_steps = 10000
 
-    train = False
+    train = True
     agent = create_agent('ppo', train=train)
     sim = Simulation(env, agent)
 
@@ -101,5 +102,4 @@ if __name__ == "__main__":
 
     # evaluate
     logging.getLogger('drl_mobile').setLevel(logging.WARNING)
-    logging.getLogger('drl_mobile.env.simulation').setLevel(logging.INFO)
     sim.evaluate(eval_eps=10)

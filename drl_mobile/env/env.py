@@ -156,27 +156,6 @@ class BinaryMobileEnv(MobileEnv):
         return reward
 
 
-class DatarateMobileEnv(BinaryMobileEnv):
-    """Subclass of the binary MobileEnv that uses the achievable data rate as observations"""
-    def __init__(self, episode_length, width, height, bs_list, ue_list):
-        super().__init__(episode_length, width, height, bs_list, ue_list)
-        # observations: binary vector of BS availability (in range & free cap) + already connected BS
-        # 1. Achievable data rate for given UE for all BS --> Box; high=500 --> assume dr <= 500mbit
-        # 2. Connected BS --> MultiBinary
-        # Dict space would be most suitable but not supported by stable baselines 2 --> Box
-        # TODO: normalize by dividing with req dr? doesn't change anything as long as all UEs require 1mbit
-        dr_high = np.full(shape=(self.num_bs,), fill_value=200)
-        self.observation_space = gym.spaces.Box(low=np.zeros(2*self.num_bs),
-                                                high=np.concatenate([dr_high, np.ones(self.num_bs)]))
-        # same action space as binary env: select a BS to be connected to/disconnect from or noop
-
-    def get_obs(self, ue):
-        """Observation: Achievable data rate per BS + currently connected BS"""
-        bs_dr = [bs.data_rate(ue.pos, self.active_bs) for bs in self.bs_list]
-        connected_bs = [int(bs in ue.conn_bs) for bs in self.bs_list]
-        return bs_dr + connected_bs
-
-
 class JustConnectedObsMobileEnv(BinaryMobileEnv):
     """Dummy observations just contain binary info about which BS are connected. Nothing about availablility"""
     def __init__(self, episode_length, width, height, bs_list, ue_list):
@@ -189,3 +168,26 @@ class JustConnectedObsMobileEnv(BinaryMobileEnv):
         """Observation: Currently connected BS"""
         connected_bs = [int(bs in ue.conn_bs) for bs in self.bs_list]
         return connected_bs
+
+
+class DatarateMobileEnv(BinaryMobileEnv):
+    """Subclass of the binary MobileEnv that uses the achievable data rate as observations"""
+    def __init__(self, episode_length, width, height, bs_list, ue_list, dr_cutoff=200):
+        super().__init__(episode_length, width, height, bs_list, ue_list)
+        self.dr_cutoff = dr_cutoff
+        # observations: binary vector of BS availability (in range & free cap) + already connected BS
+        # 1. Achievable data rate for given UE for all BS --> Box;
+        # cut off dr at given dr level. here, dr is below 200 anyways --> default doesn't cut off
+        # 2. Connected BS --> MultiBinary
+        # Dict space would be most suitable but not supported by stable baselines 2 --> Box
+        # TODO: normalize by dividing with req dr? doesn't change anything as long as all UEs require 1mbit
+        dr_high = np.full(shape=(self.num_bs,), fill_value=self.dr_cutoff)
+        self.observation_space = gym.spaces.Box(low=np.zeros(2*self.num_bs),
+                                                high=np.concatenate([dr_high, np.ones(self.num_bs)]))
+        # same action space as binary env: select a BS to be connected to/disconnect from or noop
+
+    def get_obs(self, ue):
+        """Observation: Achievable data rate per BS + currently connected BS"""
+        bs_dr = [min(bs.data_rate(ue.pos, self.active_bs), self.dr_cutoff) for bs in self.bs_list]
+        connected_bs = [int(bs in ue.conn_bs) for bs in self.bs_list]
+        return bs_dr + connected_bs
