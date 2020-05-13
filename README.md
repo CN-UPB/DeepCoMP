@@ -12,8 +12,8 @@ pip install -r requirements
 
 ## Todos
 
-* (Make decisions in fixed decision interval of XY simulator steps)
-* Add schedules/RBs to radio model?
+* Disable interference (configurable)
+* Add schedules/RBs to radio model? Once I consider multiple UEs
 * As soon as centralized works: Move to distributed RL. Even before adding offloading.
 
 ## Findings

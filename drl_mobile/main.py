@@ -12,6 +12,7 @@ import tensorflow as tf
 if type(tf.contrib) != type(tf): tf.contrib._warning = None
 from stable_baselines import PPO2
 from stable_baselines.common.policies import MlpPolicy
+from stable_baselines.common.vec_env import DummyVecEnv, VecNormalize
 from stable_baselines.bench import Monitor
 
 from drl_mobile.env.env import BinaryMobileEnv, DatarateMobileEnv, JustConnectedObsMobileEnv
@@ -44,7 +45,7 @@ def config_logging(round_digits):
                             # structlog.processors.format_exc_info,
                             # structlog.processors.UnicodeDecoder(),
                             # structlog.processors.TimeStamper(fmt="%Y-%m-%d %H:%M:%S"),
-                            FloatRounder(digits=round_digits, not_fields=['sinr', 'signal']),
+                            FloatRounder(digits=round_digits, not_fields=['sinr', 'signal', 'interference']),
                             structlog.dev.ConsoleRenderer()
                             # structlog.stdlib.render_to_log_kwargs,
                             # structlog.processors.JSONRenderer()
@@ -53,13 +54,13 @@ def config_logging(round_digits):
 
 def create_env(eps_length):
     """Create and return the environment with specific episode length"""
-    ue1 = User('ue1', pos_x='random', pos_y=40, move_x=0)
-    # ue1 = User('ue1', pos_x=20, pos_y=40, move_x=5)
+    # ue1 = User('ue1', pos_x='random', pos_y=40, move_x=0)
+    ue1 = User('ue1', pos_x=20, pos_y=40, move_x=5)
     # ue2 = User('ue2', start_pos=Point(3,3), move_x=-1)
     bs1 = Basestation('bs1', pos=Point(50,50))
     bs2 = Basestation('bs2', pos=Point(100,50))
     return DatarateMobileEnv(episode_length=eps_length, width=150, height=100, bs_list=[bs1, bs2], ue_list=[ue1],
-                             dr_cutoff=3, sub_req_dr=True)
+                             dr_cutoff=200, sub_req_dr=True)
 
 
 def create_agent(agent_name, train=True):
@@ -83,14 +84,17 @@ if __name__ == "__main__":
     config_logging(round_digits=3)
     env = create_env(eps_length=10)
     env.seed(42)
+    # FIXME: try to normalize observations automatically
+    # env = DummyVecEnv([lambda: env])
+    # env = VecNormalize(env, norm_obs=True, norm_reward=False, clip_obs=200, clip_reward=200)
 
     # dir for saving logs, plots, replay video
     training_dir = f'../training/{type(env).__name__}'
     os.makedirs(training_dir, exist_ok=True)
-    train_steps = 10000
+    train_steps = 2000
 
-    train = True
-    agent = create_agent('ppo', train=train)
+    train = False
+    agent = create_agent('fixed', train=train)
     sim = Simulation(env, agent)
 
     # train
@@ -98,9 +102,9 @@ if __name__ == "__main__":
         sim.train(train_steps=train_steps, save_dir=training_dir, plot=True)
 
     # simulate one run
-    logging.getLogger('drl_mobile').setLevel(logging.INFO)
+    logging.getLogger('drl_mobile').setLevel(logging.DEBUG)
     sim.run(render='video', save_dir=training_dir)
 
     # evaluate
     logging.getLogger('drl_mobile').setLevel(logging.WARNING)
-    sim.evaluate(eval_eps=10)
+    # sim.evaluate(eval_eps=10)

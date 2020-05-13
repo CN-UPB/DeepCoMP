@@ -8,8 +8,6 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 
-# TODO: if I want to experiment with different Gym interfaces with diff action/obs space,
-#  make one general env and inherit with different versions of act/obs space
 class MobileEnv(gym.Env):
     """OpenAI Gym environment with multiple moving UEs and stationary BS on a map"""
     metadata = {'render.modes': ['human']}

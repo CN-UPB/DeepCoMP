@@ -4,6 +4,7 @@ import numpy as np
 
 class Basestation:
     """A base station sending data to connected UEs"""
+    # TODO: optionally disable interference
     def __init__(self, id, pos):
         self.id = id
         self.pos = pos
