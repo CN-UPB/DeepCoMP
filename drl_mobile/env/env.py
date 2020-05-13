@@ -152,7 +152,7 @@ class BinaryMobileEnv(MobileEnv):
                 reward -= 10
         # -1 if action wasn't successful
         if not action_success:
-            reward -= 1
+            reward -= 3
         return reward
 
 
@@ -204,7 +204,9 @@ class DatarateMobileEnv(BinaryMobileEnv):
 
     def get_obs(self, ue):
         """Observation: Achievable data rate per BS + currently connected BS"""
-        # TODO: test!
-        bs_dr = [min(bs.data_rate(ue.pos, self.active_bs) - ue.req_dr, self.dr_cutoff) for bs in self.bs_list]
+        if self.sub_req_dr:
+            bs_dr = [min(bs.data_rate(ue.pos, self.active_bs) - ue.dr_req, self.dr_cutoff) for bs in self.bs_list]
+        else:
+            bs_dr = [min(bs.data_rate(ue.pos, self.active_bs), self.dr_cutoff) for bs in self.bs_list]
         connected_bs = [int(bs in ue.conn_bs) for bs in self.bs_list]
         return bs_dr + connected_bs
