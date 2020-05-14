@@ -25,6 +25,8 @@ class Basestation:
         self.tx_power = 30  # in dBm (was 40)
         self.height = 50    # in m
         # just consider downlink for now; more interesting for most apps anyways
+        # if disable_interference=True (set by env), ignore interference; just calc SNR, not SINR
+        self.disable_interference = False
 
         self.log = structlog.get_logger(id=self.id, pos=str(self.pos))
 
@@ -60,9 +62,11 @@ class Basestation:
         """Return the singal-to-noise-and-interference (SINR) ratio given a UE position and list of active BS"""
         distance = self.pos.distance(ue_pos)
         signal = self.received_power(distance)
-        interference = self.interference(ue_pos, active_bs)
+        interference = 0
+        if not self.disable_interference:
+            interference = self.interference(ue_pos, active_bs)
         self.log.debug('SINR to UE', ue_pos=str(ue_pos), active_bs=active_bs, distance=distance,
-                       signal=signal, interference=interference)
+                       signal=signal, interference=interference, disable_interference=self.disable_interference)
         return signal / (self.noise + interference)
 
     def data_rate(self, ue_pos, active_bs):

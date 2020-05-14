@@ -12,7 +12,7 @@ class MobileEnv(gym.Env):
     """OpenAI Gym environment with multiple moving UEs and stationary BS on a map"""
     metadata = {'render.modes': ['human']}
 
-    def __init__(self, episode_length, width, height, bs_list, ue_list):
+    def __init__(self, episode_length, width, height, bs_list, ue_list, disable_interference=False):
         """
         Create a new environment object with an OpenAI Gym interface
         :param episode_length: Total number of simulation time steps in one episode
@@ -20,6 +20,7 @@ class MobileEnv(gym.Env):
         :param height: Height of the map
         :param bs_list: List of basestation objects in the environment
         :param ue_list: List of UE objects in the environment
+        :param disable_interference: If true, disable all interference, ie, only use SNR, not SINR
         """
         super(gym.Env, self).__init__()
         # construct the rectangular world map
@@ -28,8 +29,11 @@ class MobileEnv(gym.Env):
         self.width = width
         self.height = height
         self.map = Polygon([(0,0), (0, height), (width, height), (width, 0)])
-        # save other attributes
+        self.disable_interference = disable_interference
+        # disable interference for all BS (or not)
         self.bs_list = bs_list
+        for bs in self.bs_list:
+            bs.disable_interference = self.disable_interference
         # pass the env to all users (needed for movement; interference etc)
         self.ue_list = ue_list
         for ue in self.ue_list:
@@ -41,7 +45,7 @@ class MobileEnv(gym.Env):
         self.observation_space = None
         self.action_space = None
 
-        self.log = structlog.get_logger()
+        self.log = structlog.get_logger(disable_interference=disable_interference)
 
     @property
     def num_bs(self):
@@ -122,8 +126,8 @@ class MobileEnv(gym.Env):
 
 class BinaryMobileEnv(MobileEnv):
     """Subclass of the general Mobile Env that uses binary observations to indicate which BS are & can be connected"""
-    def __init__(self, episode_length, width, height, bs_list, ue_list):
-        super().__init__(episode_length, width, height, bs_list, ue_list)
+    def __init__(self, episode_length, width, height, bs_list, ue_list, **kwargs):
+        super().__init__(episode_length, width, height, bs_list, ue_list, **kwargs)
         # observations: binary vector of BS availability (in range and dr >= req_dr) + already connected BS
         self.observation_space = gym.spaces.MultiBinary(2 * self.num_bs)
         # actions: select a BS to be connected to/disconnect from or noop
@@ -156,8 +160,8 @@ class BinaryMobileEnv(MobileEnv):
 
 class JustConnectedObsMobileEnv(BinaryMobileEnv):
     """Dummy observations just contain binary info about which BS are connected. Nothing about availablility"""
-    def __init__(self, episode_length, width, height, bs_list, ue_list):
-        super().__init__(episode_length, width, height, bs_list, ue_list)
+    def __init__(self, episode_length, width, height, bs_list, ue_list, **kwargs):
+        super().__init__(episode_length, width, height, bs_list, ue_list, **kwargs)
         # observations: just binary vector of already connected BS
         self.observation_space = gym.spaces.MultiBinary(self.num_bs)
         # same action space as binary env: select a BS to be connected to/disconnect from or noop
@@ -170,13 +174,13 @@ class JustConnectedObsMobileEnv(BinaryMobileEnv):
 
 class DatarateMobileEnv(BinaryMobileEnv):
     """Subclass of the binary MobileEnv that uses the achievable data rate as observations"""
-    def __init__(self, episode_length, width, height, bs_list, ue_list, dr_cutoff=200, sub_req_dr=False):
+    def __init__(self, episode_length, width, height, bs_list, ue_list, dr_cutoff=200, sub_req_dr=False, **kwargs):
         """
         Env where the achievable data rate is passed as observations
         :param dr_cutoff: Any data rate above this value will be cut off --> help have obs in same range
         :param sub_req_dr: If true, subtract a UE's required data rate from the achievable dr --> neg obs if too little
         """
-        super().__init__(episode_length, width, height, bs_list, ue_list)
+        super().__init__(episode_length, width, height, bs_list, ue_list, **kwargs)
         self.dr_cutoff = dr_cutoff
         self.sub_req_dr = sub_req_dr
         # observations: binary vector of BS availability (in range & free cap) + already connected BS
