@@ -45,7 +45,7 @@ class MobileEnv(gym.Env):
         self.observation_space = None
         self.action_space = None
 
-        self.log = structlog.get_logger(disable_interference=disable_interference)
+        self.log = structlog.get_logger()
 
     @property
     def num_bs(self):
