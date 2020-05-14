@@ -12,6 +12,7 @@ import tensorflow as tf
 if type(tf.contrib) != type(tf): tf.contrib._warning = None
 from stable_baselines import PPO2
 from stable_baselines.common.policies import MlpPolicy
+from stable_baselines.common.env_checker import check_env
 from stable_baselines.common.vec_env import DummyVecEnv, VecNormalize
 from stable_baselines.bench import Monitor
 
@@ -59,8 +60,10 @@ def create_env(eps_length):
     # ue2 = User('ue2', start_pos=Point(3,3), move_x=-1)
     bs1 = Basestation('bs1', pos=Point(50,50))
     bs2 = Basestation('bs2', pos=Point(100,50))
-    return DatarateMobileEnv(episode_length=eps_length, width=150, height=100, bs_list=[bs1, bs2], ue_list=[ue1],
+    env = DatarateMobileEnv(episode_length=eps_length, width=150, height=100, bs_list=[bs1, bs2], ue_list=[ue1],
                              dr_cutoff=200, sub_req_dr=True, disable_interference=True)
+    check_env(env)
+    return env
 
 
 def create_agent(agent_name, train=True):
@@ -84,6 +87,7 @@ if __name__ == "__main__":
     config_logging(round_digits=3)
     env = create_env(eps_length=10)
     env.seed(42)
+
     # FIXME: try to normalize observations automatically
     # env = DummyVecEnv([lambda: env])
     # env = VecNormalize(env, norm_obs=True, norm_reward=False, clip_obs=200, clip_reward=200)

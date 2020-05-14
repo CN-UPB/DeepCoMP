@@ -1,15 +1,21 @@
+import numpy as np
+
+
 class FloatRounder:
     """
     A structlog processor for rounding floats.
     Inspired by: https://github.com/underyx/structlog-pretty/blob/master/structlog_pretty/processors.py
     Adapted to also round numbers in lists. Less try-except.
     """
-    def __init__(self, digits=3, only_fields=None, not_fields=None):
+    def __init__(self, digits=3, only_fields=None, not_fields=None, np_array_to_list=True):
         """Create a processor that rounds numbers in the event values
         :param digits: The number of digits to round to
         :param only_fields: An iterable specifying the fields to round
+        :param not_fields: An iterable specifying fields not to round
+        :param np_array_to_list: Whether to cast np.array to list for nicer printing
         """
         self.digits = digits
+        self.np_array_to_list = np_array_to_list
         try:
             self.only_fields = set(only_fields)
         except TypeError:
@@ -28,6 +34,13 @@ class FloatRounder:
             if isinstance(value, bool):
                 continue  # don't convert True to 1.0
 
+            # convert np.array to list
+            if self.np_array_to_list:
+                if isinstance(value, np.ndarray):
+                    value = list(value)
+                    event_dict[key] = value
+
+            # round
             if isinstance(value, float):
                 event_dict[key] = round(value, self.digits)
             if isinstance(value, list):

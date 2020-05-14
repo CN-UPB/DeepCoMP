@@ -140,7 +140,7 @@ class BinaryMobileEnv(MobileEnv):
         """
         bs_availability = [int(ue.can_connect(bs)) for bs in self.bs_list]
         connected_bs = [int(bs in ue.conn_bs) for bs in self.bs_list]
-        return bs_availability + connected_bs
+        return np.array(bs_availability + connected_bs)
 
     def calc_reward(self, action_success: bool):
         """Calculate and return reward"""
@@ -169,7 +169,7 @@ class JustConnectedObsMobileEnv(BinaryMobileEnv):
     def get_obs(self, ue):
         """Observation: Currently connected BS"""
         connected_bs = [int(bs in ue.conn_bs) for bs in self.bs_list]
-        return connected_bs
+        return np.array(connected_bs)
 
 
 class DatarateMobileEnv(BinaryMobileEnv):
@@ -211,4 +211,4 @@ class DatarateMobileEnv(BinaryMobileEnv):
         else:
             bs_dr = [min(bs.data_rate(ue.pos, self.active_bs), self.dr_cutoff) for bs in self.bs_list]
         connected_bs = [int(bs in ue.conn_bs) for bs in self.bs_list]
-        return bs_dr + connected_bs
+        return np.array(bs_dr + connected_bs)
