@@ -79,8 +79,9 @@ def create_env(eps_length, normalize, train):
     # normalize using running avg
     if normalize:
         if train:
-            # clipping is only done if normalizing (before normalization)
+            # clipping is only done if normalizing (after normalization)
             # TODO: only normalize first part of observations (dr; not binary connected)
+            #  see https://github.com/hill-a/stable-baselines/issues/856
             env = VecNormalize(env, norm_obs=True, norm_reward=False, clip_obs=200, clip_reward=200)
         else:
             # load saved normalization stats (running avg etc)
@@ -113,7 +114,7 @@ if __name__ == "__main__":
     config_logging(round_digits=3)
     # settings
     train_steps = 2000
-    train = False            # train or load trained agent (& env norm stats); only set train=True for ppo agent!
+    train = True            # train or load trained agent (& env norm stats); only set train=True for ppo agent!
     normalize = True        # normalize obs (& clip? & reward?)
     seed = 42
 
@@ -121,7 +122,7 @@ if __name__ == "__main__":
     env, training_dir = create_env(eps_length=10, normalize=normalize, train=train)
     env.seed(seed)
 
-    agent = create_agent('fixed', env, seed=seed, train=train)
+    agent = create_agent('ppo', env, seed=seed, train=train)
     sim = Simulation(env, agent, normalize=normalize)
 
     # train
