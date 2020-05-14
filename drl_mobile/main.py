@@ -61,8 +61,8 @@ def create_env(eps_length, normalize, train):
     :param train: Only relevant if normalize=true. If train, record new normalize stats, else load saved stats.
     :return: The created env and the path to the training dir, based on the env name
     """
-    # ue1 = User('ue1', pos_x='random', pos_y=40, move_x=0)
-    ue1 = User('ue1', pos_x=20, pos_y=40, move_x=5)
+    ue1 = User('ue1', pos_x='random', pos_y=40, move_x=0)
+    # ue1 = User('ue1', pos_x=20, pos_y=40, move_x=5)
     # ue2 = User('ue2', start_pos=Point(3,3), move_x=-1)
     bs1 = Basestation('bs1', pos=Point(50,50))
     bs2 = Basestation('bs2', pos=Point(100,50))
@@ -80,6 +80,7 @@ def create_env(eps_length, normalize, train):
     if normalize:
         if train:
             # clipping is only done if normalizing (before normalization)
+            # TODO: only normalize first part of observations (dr; not binary connected)
             env = VecNormalize(env, norm_obs=True, norm_reward=False, clip_obs=200, clip_reward=200)
         else:
             # load saved normalization stats (running avg etc)
@@ -111,7 +112,7 @@ def create_agent(agent_name, env, seed=None, train=True):
 if __name__ == "__main__":
     config_logging(round_digits=3)
     # settings
-    train_steps = 2000
+    train_steps = 10000
     train = True            # train or load trained agent (& env norm stats); only set train=True for ppo agent!
     normalize = True        # normalize obs (& clip? & reward?)
     seed = 42

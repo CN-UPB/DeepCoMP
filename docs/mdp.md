@@ -9,6 +9,7 @@
     Suspected reason: Data rates are much larger (up to 150x) than the connected values, such that 
     the agent basically cannot see anymore to which BS it is connected
     * Simply cutting off data rates, eg, at 3 Mbit/s, works much better
+    * Using normalization with a moving avg works very well and is more general
 
 ## [v0.1](https://github.com/CN-UPB/deep-rl-mobility-management/releases/tag/v0.1): Just BS selection, no radio model (week 19)
 
