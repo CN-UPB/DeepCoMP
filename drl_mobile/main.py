@@ -91,17 +91,17 @@ def create_env(eps_length, normalize, train):
     return env, training_dir
 
 
-def create_agent(agent_name, env, train=True):
+def create_agent(agent_name, env, seed=None, train=True):
     """Create and return agent based on specified name/string"""
     # dummy agents
     if agent_name == 'random':
-        return RandomAgent(env.action_space, seed=1234)
+        return RandomAgent(env.action_space, seed=seed)
     if agent_name == 'fixed':
         return FixedAgent(action=1)
     # PPO RL agent
     if agent_name == 'ppo':
         if train:
-            return PPO2(MlpPolicy, env)
+            return PPO2(MlpPolicy, env, seed=seed)
         else:
             # load trained agent
             return PPO2.load(f'{training_dir}/ppo2_{train_steps}.zip')
@@ -112,15 +112,15 @@ if __name__ == "__main__":
     config_logging(round_digits=3)
     # settings
     train_steps = 2000
-    # FIXME: reproducable training --> seed training somehow?
-    train = False            # train or load trained agent (& env norm stats)
+    train = True            # train or load trained agent (& env norm stats); only set train=True for ppo agent!
     normalize = True        # normalize obs (& clip? & reward?)
+    seed = 42
 
     # create env
     env, training_dir = create_env(eps_length=10, normalize=normalize, train=train)
-    env.seed(42)
+    env.seed(seed)
 
-    agent = create_agent('fixed', env, train=train)
+    agent = create_agent('ppo', env, seed=seed, train=train)
     sim = Simulation(env, agent, normalize=normalize)
 
     # train
