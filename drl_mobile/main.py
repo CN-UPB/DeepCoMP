@@ -120,8 +120,7 @@ if __name__ == "__main__":
     env, training_dir = create_env(eps_length=10, normalize=normalize, train=train)
     env.seed(42)
 
-    # FIXME: dummy agents should work with vecenv
-    agent = create_agent('ppo', env, train=train)
+    agent = create_agent('fixed', env, train=train)
     sim = Simulation(env, agent, normalize=normalize)
 
     # train
