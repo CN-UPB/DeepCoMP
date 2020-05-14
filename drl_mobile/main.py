@@ -112,7 +112,8 @@ if __name__ == "__main__":
     config_logging(round_digits=3)
     # settings
     train_steps = 2000
-    train = True            # train or load trained agent (& env norm stats)
+    # FIXME: reproducable training --> seed training somehow?
+    train = False            # train or load trained agent (& env norm stats)
     normalize = True        # normalize obs (& clip? & reward?)
 
     # create env
