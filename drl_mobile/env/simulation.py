@@ -37,6 +37,7 @@ class Simulation:
             fig = plt.figure(figsize=(5, 5))
             plt.gca().set_aspect('equal')
 
+        # run until episode ends
         patches = []
         episode_reward = 0
         done = False
@@ -52,18 +53,17 @@ class Simulation:
             # in contrast to the logged step in the env, these obs, rewards, etc are processed (eg, clipped, normalized)
             self.log.info("Step", action=action, reward=reward, next_obs=obs, done=done)
             episode_reward += reward
-        if render is not None:
-            patches.append(self.env.render())
-            # it's either plt.show or saving the video; both doesn't work (would prob. work with plt.draw)
-            if render == 'plot':
-                plt.show()
-            if render == 'video':
-                assert save_dir is not None, 'You must specify save_dir if rendering video'
-                anim = matplotlib.animation.ArtistAnimation(fig, patches, repeat=False)
-                html = anim.to_html5_video()
-                with open(f'{save_dir}/replay.html', 'w') as f:
-                    f.write(html)
-                self.log.info('Video saved', path=f'{save_dir}/replay.html')
+        # VecEnv is directly reset when episode ends, so we cannot show the end of the episode after the final step
+        # https://stable-baselines.readthedocs.io/en/master/guide/vec_envs.html
+
+        # create the animation
+        if render == 'video':
+            assert save_dir is not None, 'You must specify save_dir if rendering video'
+            anim = matplotlib.animation.ArtistAnimation(fig, patches, repeat=False)
+            html = anim.to_html5_video()
+            with open(f'{save_dir}/replay.html', 'w') as f:
+                f.write(html)
+            self.log.info('Video saved', path=f'{save_dir}/replay.html')
 
         self.log.info('Simulation complete', episode_reward=episode_reward)
         return episode_reward

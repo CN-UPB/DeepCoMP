@@ -112,8 +112,8 @@ def create_agent(agent_name, env, seed=None, train=True):
 if __name__ == "__main__":
     config_logging(round_digits=3)
     # settings
-    train_steps = 10000
-    train = True            # train or load trained agent (& env norm stats); only set train=True for ppo agent!
+    train_steps = 2000
+    train = False            # train or load trained agent (& env norm stats); only set train=True for ppo agent!
     normalize = True        # normalize obs (& clip? & reward?)
     seed = 42
 
@@ -121,7 +121,7 @@ if __name__ == "__main__":
     env, training_dir = create_env(eps_length=10, normalize=normalize, train=train)
     env.seed(seed)
 
-    agent = create_agent('ppo', env, seed=seed, train=train)
+    agent = create_agent('fixed', env, seed=seed, train=train)
     sim = Simulation(env, agent, normalize=normalize)
 
     # train
