@@ -90,7 +90,6 @@ class Basestation:
         if ue not in self.conn_ue:
             # what would be the data rate if this UE connects as well?
             split_by += 1
-        # FIXME: split_by is set wrongly
         ue_dr = total_dr / split_by
         self.log.debug('Achievable data rate', ue=ue.id, active_bs=active_bs, sinr=sinr, total_dr=total_dr, ue_dr=ue_dr,
                        split_by=split_by)

@@ -68,7 +68,7 @@ def create_env(eps_length, normalize, train):
     bs2 = Basestation('bs2', pos=Point(100, 50))
     env = DatarateMobileEnv(episode_length=eps_length, width=150, height=100, bs_list=[bs1, bs2], ue_list=[ue1, ue2],
                             dr_cutoff='auto', sub_req_dr=True, disable_interference=True)
-    check_env(env)
+    # check_env(env)
 
     # dir for saving logs, plots, replay video
     training_dir = f'../training/{type(env).__name__}'
