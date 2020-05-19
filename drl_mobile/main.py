@@ -62,10 +62,10 @@ def create_env(eps_length, normalize, train):
     :return: The created env and the path to the training dir, based on the env name
     """
     ue1 = User('ue1', color='blue', pos_x='random', pos_y=40, move_x=5)
-    ue2 = User('ue2', color='red', pos_x='random', pos_y=30, move_x=-5)
+    # ue2 = User('ue2', color='red', pos_x='random', pos_y=30, move_x=-5)
     bs1 = Basestation('bs1', pos=Point(50,50))
     bs2 = Basestation('bs2', pos=Point(100,50))
-    env = DatarateMobileEnv(episode_length=eps_length, width=150, height=100, bs_list=[bs1, bs2], ue_list=[ue1, ue2],
+    env = DatarateMobileEnv(episode_length=eps_length, width=150, height=100, bs_list=[bs1, bs2], ue_list=[ue1],
                             dr_cutoff='auto', sub_req_dr=True, disable_interference=True)
     check_env(env)
 
@@ -110,20 +110,20 @@ def create_agent(agent_name, env, seed=None, train=True):
 if __name__ == "__main__":
     config_logging(round_digits=3)
     # settings
-    train_steps = 10000
-    eps_length = 10
+    train_steps = 20000
+    eps_length = 50
     # train or load trained agent (& env norm stats); only set train=True for ppo agent!
-    train = False
+    train = True
     # normalize obs (& clip? & reward?); better: use custom env normalization with dr_cutoff='auto'
     normalize = False
     # seed for agent & env
-    seed = 1234
+    seed = 42
 
     # create env
     env, training_dir = create_env(eps_length=eps_length, normalize=normalize, train=train)
     env.seed(seed)
 
-    agent = create_agent('fixed', env, seed=seed, train=train)
+    agent = create_agent('ppo', env, seed=seed, train=train)
     sim = Simulation(env, agent, normalize=normalize)
 
     # train
@@ -136,4 +136,4 @@ if __name__ == "__main__":
 
     # evaluate
     logging.getLogger('drl_mobile').setLevel(logging.WARNING)
-    # sim.evaluate(eval_eps=10)
+    sim.evaluate(eval_eps=10)
