@@ -10,7 +10,7 @@ class Simulation:
     def __init__(self, env, agent, normalize):
         # we work with a dummy vec env with just 1 env; eg, for normalization
         self.env = env
-        original_env = self.env.envs[0]
+        original_env = self.env.envs[0].env
         self.env_name = type(original_env).__name__
         self.episode_length = original_env.episode_length
         self.agent = agent
