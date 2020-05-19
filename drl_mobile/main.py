@@ -111,10 +111,10 @@ def create_agent(agent_name, env, seed=None, train=True):
 if __name__ == "__main__":
     config_logging(round_digits=3)
     # settings
-    train_steps = 5000
-    eps_length = 10
+    train_steps = 10000
+    eps_length = 30
     # train or load trained agent (& env norm stats); only set train=True for ppo agent!
-    train = False
+    train = True
     # normalize obs (& clip? & reward?); better: use custom env normalization with dr_cutoff='auto'
     normalize = False
     # seed for agent & env
@@ -124,7 +124,7 @@ if __name__ == "__main__":
     env, training_dir = create_env(eps_length=eps_length, normalize=normalize, train=train)
     env.seed(seed)
 
-    agent = create_agent('fixed', env, seed=seed, train=train)
+    agent = create_agent('ppo', env, seed=seed, train=train)
     sim = Simulation(env, agent, normalize=normalize)
 
     # train
@@ -132,9 +132,9 @@ if __name__ == "__main__":
         sim.train(train_steps=train_steps, save_dir=training_dir, plot=True)
 
     # simulate one run
-    logging.getLogger('drl_mobile').setLevel(logging.DEBUG)
+    logging.getLogger('drl_mobile').setLevel(logging.INFO)
     sim.run(render='video', save_dir=training_dir)
 
     # evaluate
     logging.getLogger('drl_mobile').setLevel(logging.WARNING)
-    # sim.evaluate(eval_eps=10)
+    sim.evaluate(eval_eps=10)

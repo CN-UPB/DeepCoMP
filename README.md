@@ -26,7 +26,6 @@ python main.py
 
 ## Todos
 
-* Simple radio load model: Split achievable load equally among connected UEs
 * Multiple UEs: 
     * Test & debug; don't spend time on centralized approach with single agent; just confirm env works as it should
     * Multi-agent: Separate agents for each UE
