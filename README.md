@@ -26,13 +26,11 @@ python main.py
 
 ## Todos
 
-* Update reward calc to check connection at beginning and end of time step; not just beginning
-* Eval with UE moving at different random speeds (fast, slow). Any impact on connections?
-    * Data rate should help make the decision when to connect to new BS
-    * Penalty for connecting to multiple BS?
-* Multiple UEs: Test & debug; try adding ID of UE to which obs refers inside obs; or just obs of all UEs
-* Add schedules/RBs to radio model as capacity? Once I consider multiple UEs
-* As soon as centralized works: Move to distributed RL. Even before adding offloading.
+* Simple radio load model: Split achievable load equally among connected UEs
+* Multiple UEs: 
+    * Test & debug; don't spend time on centralized approach with single agent; just confirm env works as it should
+    * Multi-agent: Separate agents for each UE
+    * Collaborative learning: Share experience or gradients to train agents together. Use same NN. Later separate NNs? Federated learing.
 
 ## Findings
 

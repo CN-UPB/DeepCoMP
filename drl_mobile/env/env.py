@@ -69,15 +69,12 @@ class MobileEnv(gym.Env):
         """
         Calculate and return reward for specific UE. Call AFTER UE moved --> see if it's still connected.
         High positive if connected to at least one BS, high negative if otherwise.
-        Add penalty for undesired actions, eg, unsuccessful connection attempt.
+        Add penalty for undesired actions, eg, unsuccessful connection attempt; passed as arg.
         """
         reward = penalty
         # +10 if UE is connected to at least one BS
-        if len(ue.conn_bs) == 1:
+        if len(ue.conn_bs) >= 1:
             reward += 10
-        # only +5 if connected to 2+ BS at the same time
-        elif len(ue.conn_bs) > 1:
-            reward += 5
         # -10 if not connected to any BS
         else:
             reward -= 10
@@ -104,12 +101,9 @@ class MobileEnv(gym.Env):
 
         # apply action; 0 = no op
         success = True
-        penalty = 0
         if action > 0:
             bs = self.bs_list[action-1]
             success = ue.connect_to_bs(bs, disconnect=True)
-            # penalty of -3 for connection attempts (whether successful or not)
-            # penalty = -3
 
         ue.move()
         self.time += 1
@@ -119,7 +113,7 @@ class MobileEnv(gym.Env):
         next_ue = self.ue_list[self.time % self.num_ue]
         self.obs = self.get_obs(next_ue)
         # penalty of -3 for unsuccessful connection attempt
-        # penalty = -3 * (not success)
+        penalty = -3 * (not success)
         reward = self.calc_reward(ue, penalty)
         done = self.time >= self.episode_length
         info = {}

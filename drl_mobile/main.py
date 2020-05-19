@@ -110,8 +110,8 @@ def create_agent(agent_name, env, seed=None, train=True):
 if __name__ == "__main__":
     config_logging(round_digits=3)
     # settings
-    train_steps = 20000
-    eps_length = 50
+    train_steps = 5000
+    eps_length = 30
     # train or load trained agent (& env norm stats); only set train=True for ppo agent!
     train = True
     # normalize obs (& clip? & reward?); better: use custom env normalization with dr_cutoff='auto'

@@ -3,6 +3,7 @@
 ## v0.3: Multi-UE-BS selection, basic radio model (WIP)
 
 * Multiple moving UEs, each selecting to which BS to connect. 
+* Simple radio load model: Split achievable load equally among connected UEs
 * For now: Make actions and movement for each UE in different time step
 
 ## [v0.2](https://github.com/CN-UPB/deep-rl-mobility-management/releases/tag/v0.2): Just BS selection, basic radio model (week 21)

@@ -71,6 +71,8 @@ class Basestation:
 
     def data_rate(self, ue_pos, active_bs):
         """Return the achievable data rate for a UE at the given position with given list of active BS."""
+        # TODO: if I drop interference from the radio model for good; I don't need to pass active_bs any longer;
+        #  should make the simulation more efficient, since I don't need to keep track of active BS
         sinr = self.sinr(ue_pos, active_bs)
         dr = self.bw * np.log2(1 + sinr)
         self.log.debug('Data rate to UE', ue_pos=str(ue_pos), active_bs=active_bs, sinr=sinr, dr=dr)
