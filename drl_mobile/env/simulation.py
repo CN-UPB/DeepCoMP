@@ -67,6 +67,7 @@ class Simulation:
             # square figure and equal aspect ratio to avoid distortions
             fig = plt.figure(figsize=(5, 5))
             plt.gca().set_aspect('equal')
+            fig.tight_layout()
 
         # run until episode ends
         patches = []

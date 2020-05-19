@@ -1,6 +1,6 @@
 # MDP Formulation 
 
-## v0.2: Just BS selection, basic radio model, clipped & normalized observations (week 21)
+## v0.2: Just BS selection, basic radio model (week 21)
 
 * Same as v0, but with path loss, SNR to data rate calculation. No interference or scheduling yet.
 * State/Observation: S = [Achievable data rates per BS (processed), connected BS]
@@ -11,9 +11,9 @@
     * First subtracting the required data rate from the achievalbe data rate helps a lot!
     It changes the observation to be negative if the data rate doesn't suffice.
     * What works best is auto clipping and normalization:
-        1. Subtract the required data rate :arrow_right: Obs. negative if data rate too small
-        1. Cut off data rate at req data rate :arrow_right: Obs. range now [-req_dr, +req_dr].
-        1. Normalize by dividing by req. data rate :arrow_right: Obs. range now [-1, 1]
+        1. Subtract the required data rate --> Obs. negative if data rate too small
+        1. Cut off data rate at req data rate --> Obs. range now [-req_dr, +req_dr].
+        1. Normalize by dividing by req. data rate --> Obs. range now [-1, 1]
 * Action space as before: Select a BS to connect/disconnect in each time step for the single UE
 
 Example: PPO with auto clipping & normalization observations after 10k training
