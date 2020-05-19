@@ -65,9 +65,20 @@ class MobileEnv(gym.Env):
         """Return the an observation of the current world for a given UE"""
         raise NotImplementedError('Implement in subclass')
 
-    def calc_reward(self, action_success: bool):
-        """Calculate and return reward"""
-        raise NotImplementedError('Implement in subclass')
+    def calc_reward(self, ue, penalty):
+        """
+        Calculate and return reward for specific UE.
+        High positive if connected to at least one BS, high negative if otherwise.
+        Add penalty for undesired actions, eg, unsuccessful connection attempt.
+        """
+        reward = penalty
+        # +10 if UE is connected to at least one BS; -10 otherwise
+        # TODO: check if the UE is connected at the beginning & end of the time step!! not just beginning!
+        if len(ue.conn_bs) >= 1:
+            reward += 10
+        else:
+            reward -= 10
+        return reward
 
     def reset(self):
         """Reset environment by resetting time and all UEs (pos & movement) and their connections"""
@@ -97,11 +108,16 @@ class MobileEnv(gym.Env):
         self.time += 1
 
         # return next observation, reward, done, info
-        self.obs = self.get_obs(ue)
-        reward = self.calc_reward(success)
+        # get obs of next UE
+        next_ue = self.ue_list[self.time % self.num_ue]
+        self.obs = self.get_obs(next_ue)
+        # penalty of -3 for unsuccessful connection attempt
+        penalty = -3 * (not success)
+        reward = self.calc_reward(ue, penalty)
         done = self.time >= self.episode_length
         info = {}
-        self.log.info("Step", ue=ue, time=self.time, prev_obs=prev_obs, action=action, reward=reward, next_obs=self.obs, done=done)
+        self.log.info("Step", time=self.time, ue=ue, prev_obs=prev_obs, action=action, reward=reward, next_obs=self.obs,
+                      next_ue=next_ue, done=done)
         return self.obs, reward, done, info
 
     def render(self, mode='human'):
@@ -148,21 +164,6 @@ class BinaryMobileEnv(MobileEnv):
         bs_availability = [int(ue.can_connect(bs)) for bs in self.bs_list]
         connected_bs = [int(bs in ue.conn_bs) for bs in self.bs_list]
         return np.array(bs_availability + connected_bs)
-
-    def calc_reward(self, action_success: bool):
-        """Calculate and return reward"""
-        # TODO: -1 for losing connection?
-        reward = 0
-        # +10 for every UE that's connected to at least one BS; -10 for each that isn't
-        for ue in self.ue_list:
-            if len(ue.conn_bs) >= 1:
-                reward += 10
-            else:
-                reward -= 10
-        # -1 if action wasn't successful
-        if not action_success:
-            reward -= 3
-        return reward
 
 
 class JustConnectedObsMobileEnv(BinaryMobileEnv):
