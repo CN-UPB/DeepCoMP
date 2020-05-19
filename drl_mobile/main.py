@@ -62,11 +62,10 @@ def create_env(eps_length, normalize, train):
     :return: The created env and the path to the training dir, based on the env name
     """
     ue1 = User('ue1', pos_x='random', pos_y=40, move_x=5)
-    # ue1 = User('ue1', pos_x=20, pos_y=40, move_x=5)
-    # ue2 = User('ue2', start_pos=Point(3,3), move_x=-1)
+    ue2 = User('ue2', pos_x='random', pos_y=30, move_x=-5)
     bs1 = Basestation('bs1', pos=Point(50,50))
     bs2 = Basestation('bs2', pos=Point(100,50))
-    env = DatarateMobileEnv(episode_length=eps_length, width=150, height=100, bs_list=[bs1, bs2], ue_list=[ue1],
+    env = DatarateMobileEnv(episode_length=eps_length, width=150, height=100, bs_list=[bs1, bs2], ue_list=[ue1, ue2],
                             dr_cutoff='auto', sub_req_dr=True, disable_interference=True)
     check_env(env)
 
@@ -112,7 +111,7 @@ if __name__ == "__main__":
     config_logging(round_digits=3)
     # settings
     train_steps = 10000
-    eps_length = 30
+    eps_length = 10
     # train or load trained agent (& env norm stats); only set train=True for ppo agent!
     train = False
     # normalize obs (& clip? & reward?); better: use custom env normalization with dr_cutoff='auto'
@@ -124,7 +123,7 @@ if __name__ == "__main__":
     env, training_dir = create_env(eps_length=eps_length, normalize=normalize, train=train)
     env.seed(seed)
 
-    agent = create_agent('ppo', env, seed=seed, train=train)
+    agent = create_agent('random', env, seed=seed, train=train)
     sim = Simulation(env, agent, normalize=normalize)
 
     # train

@@ -15,10 +15,17 @@ pip install -r requirements
 
 For saving gifs, you also need to install [ImageMagick](https://imagemagick.org/index.php).
 
+## Usage
+
+Adjust and run `main.py` in `drl_mobile`:
+
+```
+cd drl_mobile
+python main.py
+```
+
 ## Todos
 
-* Normalize only parts of observation space (not binary connected info)
-* Fix/improve subtract req data rate: Obs should only be negative if dr is insufficient; normalization destroys this
 * Eval with UE moving at different random speeds (fast, slow). Any impact on connections?
     * Data rate should help make the decision when to connect to new BS
     * Penalty for connecting to multiple BS?

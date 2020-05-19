@@ -38,7 +38,6 @@ class MobileEnv(gym.Env):
         self.ue_list = ue_list
         for ue in self.ue_list:
             ue.env = self
-        assert len(self.ue_list) == 1, "Currently only support 1 UE"
         # current observation
         self.obs = None
         # observation and action space are defined in the subclass --> different variants
@@ -52,6 +51,10 @@ class MobileEnv(gym.Env):
         return len(self.bs_list)
 
     @property
+    def num_ue(self):
+        return len(self.ue_list)
+
+    @property
     def active_bs(self):
         return [bs for bs in self.bs_list if bs.active]
 
@@ -59,9 +62,7 @@ class MobileEnv(gym.Env):
         random.seed(seed)
 
     def get_obs(self, ue):
-        """
-        Return the an observation of the current world for a given UE
-        """
+        """Return the an observation of the current world for a given UE"""
         raise NotImplementedError('Implement in subclass')
 
     def calc_reward(self, action_success: bool):
@@ -71,7 +72,6 @@ class MobileEnv(gym.Env):
     def reset(self):
         """Reset environment by resetting time and all UEs (pos & movement) and their connections"""
         self.time = 0
-        # TODO: randomize to avoid repeating always the same episode?
         for ue in self.ue_list:
             ue.reset()
         # TODO: this just returns the observation for the 1st UE
@@ -79,9 +79,12 @@ class MobileEnv(gym.Env):
         return self.obs
 
     def step(self, action: int):
-        """Do 1 time step: Apply action and update UE position. Return new state, reward."""
-        # TODO: simplyfing assumption for now: just 1 UE! all actions are applied to 1st UE only!
-        ue = self.ue_list[0]
+        """
+        Do 1 time step: Apply action and update UE position. Return new state, reward.
+        Only update one UE at a time. With multiple UEs, select active UE using round robin.
+        """
+        # select active UE (to update in this step) using round robin
+        ue = self.ue_list[self.time % self.num_ue]
         prev_obs = self.obs
 
         # apply action; 0 = no op
