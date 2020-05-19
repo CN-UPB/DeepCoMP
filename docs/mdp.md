@@ -11,6 +11,7 @@
     Likely because the experienced obs-action-reward-obs tuples don't make any sense: 
     After obs and choosing action for UE1, it does not get next obs for UE1, but next obs for UE2.
     Otherwise, it would not know the obs for making action for UE2.
+        * Adding the current UE's ID to the obs does not help and still leads to divergence.
 
 ## [v0.2](https://github.com/CN-UPB/deep-rl-mobility-management/releases/tag/v0.2): Just BS selection, basic radio model (week 21)
 

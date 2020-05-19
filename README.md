@@ -27,8 +27,7 @@ python main.py
 ## Todos
 
 * Multiple UEs: 
-    * Test & debug; don't spend time on centralized approach with single agent; just confirm env works as it should
-    * Multi-agent: Separate agents for each UE
+    * Multi-agent: Separate agents for each UE. I should look into ray/rllib: https://docs.ray.io/en/latest/rllib-env.html#multi-agent-and-hierarchical
     * Collaborative learning: Share experience or gradients to train agents together. Use same NN. Later separate NNs? Federated learing.
 
 ## Findings
