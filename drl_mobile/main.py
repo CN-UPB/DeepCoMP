@@ -9,7 +9,8 @@ from structlog.stdlib import LoggerFactory
 from shapely.geometry import Point
 # disable tf printed warning: https://github.com/tensorflow/tensorflow/issues/27045#issuecomment-480691244
 import tensorflow as tf
-if type(tf.contrib) != type(tf): tf.contrib._warning = None
+if type(tf.contrib) != type(tf):
+    tf.contrib._warning = None
 from stable_baselines import PPO2
 from stable_baselines.common.policies import MlpPolicy
 from stable_baselines.common.env_checker import check_env
@@ -62,10 +63,10 @@ def create_env(eps_length, normalize, train):
     :return: The created env and the path to the training dir, based on the env name
     """
     ue1 = User('ue1', color='blue', pos_x='random', pos_y=40, move_x=5)
-    # ue2 = User('ue2', color='red', pos_x='random', pos_y=30, move_x=-5)
-    bs1 = Basestation('bs1', pos=Point(50,50))
-    bs2 = Basestation('bs2', pos=Point(100,50))
-    env = DatarateMobileEnv(episode_length=eps_length, width=150, height=100, bs_list=[bs1, bs2], ue_list=[ue1],
+    ue2 = User('ue2', color='red', pos_x='random', pos_y=30, move_x=5)
+    bs1 = Basestation('bs1', pos=Point(50, 50))
+    bs2 = Basestation('bs2', pos=Point(100, 50))
+    env = DatarateMobileEnv(episode_length=eps_length, width=150, height=100, bs_list=[bs1, bs2], ue_list=[ue1, ue2],
                             dr_cutoff='auto', sub_req_dr=True, disable_interference=True)
     check_env(env)
 
@@ -111,9 +112,9 @@ if __name__ == "__main__":
     config_logging(round_digits=3)
     # settings
     train_steps = 5000
-    eps_length = 30
+    eps_length = 10
     # train or load trained agent (& env norm stats); only set train=True for ppo agent!
-    train = True
+    train = False
     # normalize obs (& clip? & reward?); better: use custom env normalization with dr_cutoff='auto'
     normalize = False
     # seed for agent & env
@@ -123,7 +124,7 @@ if __name__ == "__main__":
     env, training_dir = create_env(eps_length=eps_length, normalize=normalize, train=train)
     env.seed(seed)
 
-    agent = create_agent('ppo', env, seed=seed, train=train)
+    agent = create_agent('fixed', env, seed=seed, train=train)
     sim = Simulation(env, agent, normalize=normalize)
 
     # train
@@ -131,9 +132,9 @@ if __name__ == "__main__":
         sim.train(train_steps=train_steps, save_dir=training_dir, plot=True)
 
     # simulate one run
-    logging.getLogger('drl_mobile').setLevel(logging.INFO)
+    logging.getLogger('drl_mobile').setLevel(logging.DEBUG)
     sim.run(render='video', save_dir=training_dir)
 
     # evaluate
     logging.getLogger('drl_mobile').setLevel(logging.WARNING)
-    sim.evaluate(eval_eps=10)
+    # sim.evaluate(eval_eps=10)

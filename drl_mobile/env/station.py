@@ -1,10 +1,10 @@
 import structlog
 import numpy as np
+from shapely.geometry import Point
 
 
 class Basestation:
     """A base station sending data to connected UEs"""
-    # TODO: optionally disable interference
     def __init__(self, id, pos):
         self.id = id
         self.pos = pos
@@ -38,6 +38,10 @@ class Basestation:
         """The BS is active iff it's connected to at least 1 UE"""
         return len(self.conn_ue) > 0
 
+    @property
+    def num_conn_ues(self):
+        return len(self.conn_ue)
+
     def path_loss(self, distance, ue_height=1.5):
         """Return path loss in dBm to a UE at a given position. Calculation using Okumura Hata, suburban indoor"""
         ch = 0.8 + (1.1 * np.log10(self.frequency) - 0.7) * ue_height - 1.56 * np.log10(self.frequency)
@@ -69,11 +73,25 @@ class Basestation:
                        signal=signal, interference=interference, disable_interference=self.disable_interference)
         return signal / (self.noise + interference)
 
-    def data_rate(self, ue_pos, active_bs):
-        """Return the achievable data rate for a UE at the given position with given list of active BS."""
+    def data_rate(self, ue, active_bs):
+        """
+        Return the achievable data rate for a given UE (may or may not be connected already).
+        Split the achievable data rate equally among all connected UEs, pretending this UE is also connected.
+        :param ue: UE requesting the achievable data rate
+        :param active_bs: Currently active BS, used to calculating interference.
+        :return: Return the max. achievable data rate for the UE if it were/is connected to the BS.
+        """
         # TODO: if I drop interference from the radio model for good; I don't need to pass active_bs any longer;
         #  should make the simulation more efficient, since I don't need to keep track of active BS
-        sinr = self.sinr(ue_pos, active_bs)
-        dr = self.bw * np.log2(1 + sinr)
-        self.log.debug('Data rate to UE', ue_pos=str(ue_pos), active_bs=active_bs, sinr=sinr, dr=dr)
-        return dr
+        sinr = self.sinr(ue.pos, active_bs)
+        total_dr = self.bw * np.log2(1 + sinr)
+        # split data rate by all already connected UEs + this UE if it is not connected yet
+        split_by = self.num_conn_ues
+        if ue not in self.conn_ue:
+            # what would be the data rate if this UE connects as well?
+            split_by += 1
+        # FIXME: split_by is set wrongly
+        ue_dr = total_dr / split_by
+        self.log.debug('Achievable data rate', ue=ue.id, active_bs=active_bs, sinr=sinr, total_dr=total_dr, ue_dr=ue_dr,
+                       split_by=split_by)
+        return ue_dr

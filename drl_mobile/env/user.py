@@ -119,7 +119,7 @@ class User:
 
     def can_connect(self, bs):
         """Return whether or not the UE can connect to the BS (based achievable data rate at current pos)"""
-        dr = bs.data_rate(self.pos, self.env.active_bs)
+        dr = bs.data_rate(self, self.env.active_bs)
         return dr >= self.dr_req
 
     def connect_to_bs(self, bs, disconnect=False):

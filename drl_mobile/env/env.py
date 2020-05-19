@@ -230,15 +230,15 @@ class DatarateMobileEnv(BinaryMobileEnv):
             # subtract req_dr and auto clip & normalize to [-1, 1]
             bs_dr = []
             for bs in self.bs_list:
-                dr_sub = bs.data_rate(ue.pos, self.active_bs) - ue.dr_req
+                dr_sub = bs.data_rate(ue, self.active_bs) - ue.dr_req
                 dr_clip = min(dr_sub, ue.dr_req)        # clipped to range [-dr_req, dr_req]
                 dr_norm = dr_clip / ue.dr_req
                 bs_dr.append(dr_norm)
         elif self.sub_req_dr:
             # subtract req_dr and cut off at dr_cutoff
-            bs_dr = [min(bs.data_rate(ue.pos, self.active_bs) - ue.dr_req, self.dr_cutoff) for bs in self.bs_list]
+            bs_dr = [min(bs.data_rate(ue, self.active_bs) - ue.dr_req, self.dr_cutoff) for bs in self.bs_list]
         else:
             # just cut off at dr_cutoff
-            bs_dr = [min(bs.data_rate(ue.pos, self.active_bs), self.dr_cutoff) for bs in self.bs_list]
+            bs_dr = [min(bs.data_rate(ue, self.active_bs), self.dr_cutoff) for bs in self.bs_list]
         connected_bs = [int(bs in ue.conn_bs) for bs in self.bs_list]
         return np.array(bs_dr + connected_bs)
