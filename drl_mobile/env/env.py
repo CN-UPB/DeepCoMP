@@ -113,7 +113,7 @@ class MobileEnv(gym.Env):
         patch.extend(plt.plot(*self.map.exterior.xy, color='gray'))
         # users & connections
         for ue in self.ue_list:
-            patch.append(plt.scatter(*ue.pos.xy, color='blue'))
+            patch.append(plt.scatter(*ue.pos.xy, label=ue.id, color=ue.color))
             for bs in ue.conn_bs:
                 patch.extend(plt.plot([ue.pos.x, bs.pos.x], [ue.pos.y, bs.pos.y], color='orange'))
         # base stations
@@ -124,6 +124,10 @@ class MobileEnv(gym.Env):
         # title isn't redrawn in animation (out of box) --> static --> show time as text inside box, top-right corner
         patch.append(plt.title(type(self).__name__))
         patch.append(plt.text(0.9*self.width, 0.9*self.height, f"t={self.time}"))
+
+        # legend doesn't change --> only draw once at the beginning
+        if self.time == 0:
+            plt.legend(loc='upper left')
         return patch
 
 
