@@ -2,6 +2,8 @@
 
 Simple simulation of mobility management scenario to use with deep RL
 
+![example](docs/gifs/v02.gif)
+
 ## Setup
 
 Should work with Python 3.6+. Tested with Python 3.7. 
