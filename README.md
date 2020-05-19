@@ -11,6 +11,8 @@ Tensorflow 1 doesn't work on Python 3.8 but is required by stable_baselines.
 pip install -r requirements
 ```
 
+For saving gifs, you also need to install [ImageMagick](https://imagemagick.org/index.php).
+
 ## Todos
 
 * Normalize only parts of observation space (not binary connected info)

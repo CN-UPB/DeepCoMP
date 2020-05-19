@@ -30,8 +30,39 @@ class Simulation:
             plt.savefig(f'{save_dir}/ppo2_{train_steps}.png')
             plt.show()
 
+    def save_animation(self, fig, patches, mode, save_dir):
+        """
+        Create and save matplotlib animation
+        :param fig: Matplotlib figure
+        :param patches: List of patches to draw for each step in the animation
+        :param mode: How to save the animation. Options: 'video' (=html5) or 'gif' (requires ImageMagick)
+        :param save_dir: In which directory to save the animation
+        """
+        assert mode == 'video' or mode == 'gif', "Mode for saving animation must be 'video' or 'gif'"
+        assert save_dir is not None, 'You must specify a save_dir for saving video/gif'
+        anim = matplotlib.animation.ArtistAnimation(fig, patches, repeat=False)
+
+        # save html5 video
+        if mode == 'video':
+            html = anim.to_html5_video()
+            with open(f'{save_dir}/replay.html', 'w') as f:
+                f.write(html)
+            self.log.info('Video saved', path=f'{save_dir}/replay.html')
+
+        # save gif; requires external dependency ImageMagick
+        if mode == 'gif':
+            try:
+                anim.save(f'{save_dir}/replay.gif', writer='imagemagick')
+                self.log.info('Gif saved', path=f'{save_dir}/replay.gif')
+            except TypeError:
+                self.log.error('ImageMagick needs to be installed for saving gifs.')
+
     def run(self, render=None, save_dir=None):
-        """Run one simulation episode. Render situation at beginning of each time step. Return episode reward."""
+        """
+        Run one simulation episode. Render situation at beginning of each time step. Return episode reward.
+        :param render: If and how to render the simulation. Options: None, 'plot', 'video', 'gif'
+        :param save_dir: Where to save rendered HTML5 video or gif (directory)
+        """
         if render is not None:
             # square figure and equal aspect ratio to avoid distortions
             fig = plt.figure(figsize=(5, 5))
@@ -57,13 +88,8 @@ class Simulation:
         # https://stable-baselines.readthedocs.io/en/master/guide/vec_envs.html
 
         # create the animation
-        if render == 'video':
-            assert save_dir is not None, 'You must specify save_dir if rendering video'
-            anim = matplotlib.animation.ArtistAnimation(fig, patches, repeat=False)
-            html = anim.to_html5_video()
-            with open(f'{save_dir}/replay.html', 'w') as f:
-                f.write(html)
-            self.log.info('Video saved', path=f'{save_dir}/replay.html')
+        if render == 'video' or render == 'gif':
+            self.save_animation(fig, patches, render, save_dir)
 
         self.log.info('Simulation complete', episode_reward=episode_reward)
         return episode_reward
