@@ -67,7 +67,7 @@ def create_env(eps_length, normalize, train):
     bs1 = Basestation('bs1', pos=Point(50,50))
     bs2 = Basestation('bs2', pos=Point(100,50))
     env = DatarateMobileEnv(episode_length=eps_length, width=150, height=100, bs_list=[bs1, bs2], ue_list=[ue1],
-                            dr_cutoff=200, sub_req_dr=True, disable_interference=True)
+                            dr_cutoff='auto', sub_req_dr=True, disable_interference=True)
     check_env(env)
 
     # dir for saving logs, plots, replay video
@@ -115,7 +115,7 @@ if __name__ == "__main__":
     # settings
     train_steps = 2000
     train = True            # train or load trained agent (& env norm stats); only set train=True for ppo agent!
-    normalize = True        # normalize obs (& clip? & reward?)
+    normalize = False        # normalize obs (& clip? & reward?)
     seed = 42
 
     # create env
