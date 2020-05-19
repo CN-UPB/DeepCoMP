@@ -1,15 +1,24 @@
 # MDP Formulation 
 
-## v0.2: Just BS selection, basic radio model (WIP)
+## v0.2: Just BS selection, basic radio model, clipped & normalized observations (week 21)
 
-* Same as v0, but with path loss, SNR to data rate calculation
-  * At the beginning: No interference, no scheduling. Add incrementally
-* State/Observation: S = [Achievable data rates per BS, connected BS]?
+* Same as v0, but with path loss, SNR to data rate calculation. No interference or scheduling yet.
+* State/Observation: S = [Achievable data rates per BS (processed), connected BS]
     * Using achievable dr directly, works very poorly. 
     Suspected reason: Data rates are much larger (up to 150x) than the connected values, such that 
     the agent basically cannot see anymore to which BS it is connected
-    * Simply cutting off data rates, eg, at 3 Mbit/s, works much better
-    * Using normalization with a moving avg works very well and is more general
+    * Simply cutting off data rates, eg, at 3 Mbit/s, works much better. Problem: Where to cut off?
+    * First subtracting the required data rate from the achievalbe data rate helps a lot!
+    It changes the observation to be negative if the data rate doesn't suffice.
+    * What works best is auto clipping and normalization:
+        1. Subtract the required data rate :arrow_right: Obs. negative if data rate too small
+        1. Cut off data rate at req data rate :arrow_right: Obs. range now [-req_dr, +req_dr].
+        1. Normalize by dividing by req. data rate :arrow_right: Obs. range now [-1, 1]
+* Action space as before: Select a BS to connect/disconnect in each time step for the single UE
+
+Example: PPO with auto clipping & normalization observations after 10k training
+
+![v0.2 example](gifs/v02.gif)
 
 ## [v0.1](https://github.com/CN-UPB/deep-rl-mobility-management/releases/tag/v0.1): Just BS selection, no radio model (week 19)
 
