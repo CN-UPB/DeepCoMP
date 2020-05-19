@@ -97,7 +97,7 @@ def create_agent(agent_name, env, seed=None, train=True):
     if agent_name == 'random':
         return RandomAgent(env.action_space, seed=seed)
     if agent_name == 'fixed':
-        return FixedAgent(action=1)
+        return FixedAgent(action=1, noop_interval=4)
     # PPO RL agent
     if agent_name == 'ppo':
         if train:

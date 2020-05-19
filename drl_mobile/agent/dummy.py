@@ -17,14 +17,29 @@ class RandomAgent:
 
 class FixedAgent:
     """Agent that always selects a the same fixed action. Following the stable_baselines API."""
-    def __init__(self, action, num_vec_envs=1):
+    def __init__(self, action, noop_interval=0, num_vec_envs=1):
         self.action = action
+        # number of no op actions (action 0) between repeating actions
+        self.noop_interval = noop_interval
+        self.noop_counter = noop_interval
         # number of envs inside the VecEnv determines the number of actions to make in each step; or None if no VecEnv
         self.num_vec_envs = num_vec_envs
 
     def predict(self, observation, **kwargs):
-        """Choose a same fixed action independent of the observation and other args"""
-        if self.num_vec_envs is None:
-            return self.action, None
+        """
+        Choose a same fixed action independent of the observation and other args.
+        In between the same action, choose no operation (action 0) for the configured interval.
+        """
+        # no op during the interval
+        if self.noop_counter < self.noop_interval:
+            action = 0
+            self.noop_counter += 1
         else:
-            return [self.action for _ in range(self.num_vec_envs)], None
+            action = self.action
+            self.noop_counter = 0
+
+        # return action
+        if self.num_vec_envs is None:
+            return action, None
+        else:
+            return [action for _ in range(self.num_vec_envs)], None
