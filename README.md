@@ -30,6 +30,21 @@ python main.py
     * Multi-agent: Separate agents for each UE. I should look into ray/rllib: https://docs.ray.io/en/latest/rllib-env.html#multi-agent-and-hierarchical
     * Collaborative learning: Share experience or gradients to train agents together. Use same NN. Later separate NNs? Federated learing.
 
+### Multi-Agent RL with rllib
+
+* Seems like rllib already supports multi-agent environments
+* Anyway seems like the (by far) most complex/feature rich but also mature RL framework
+* Doesn't run on Windows yet: https://github.com/ray-project/ray/issues/631 (but should on WSL)
+* Multi agent environments: https://docs.ray.io/en/latest/rllib-env.html#multi-agent-and-hierarchical
+* Multi agent concept/policies: https://docs.ray.io/en/latest/rllib-concepts.html#policies-in-multi-agent
+* Also supports parameter sharing for joint learning; hierarchical RL etc --> rllib is the way to go
+* It's API both for agents and environments (and everything else) is completely different
+
+Dev plan:
+
+1. Switch to rllib and verify single-UE case still works as before. Keep working stable baselines code in separate branch
+2. Move to multi-user and multi-UE environment with rllib
+
 ## Findings
 
 * Binary observations: [BS available?, BS connected?] work very well
