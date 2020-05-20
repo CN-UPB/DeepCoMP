@@ -42,6 +42,7 @@ python main.py
 
 Dev plan:
 
+0. Experiment with rllib and existing environments in separate rl-experiments repo
 1. Switch to rllib and verify single-UE case still works as before. Keep working stable baselines code in separate branch
 2. Move to multi-user and multi-UE environment with rllib
 
