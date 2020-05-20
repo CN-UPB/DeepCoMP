@@ -9,7 +9,7 @@ class User:
     A user/UE moving around in the world and requesting mobile services
     Connection to BS are checked before connecting and after every move to check if connection is lost or still stable
     """
-    def __init__(self, id, pos_x, pos_y, move_x=0, move_y=0, dr_req=1):
+    def __init__(self, id, pos_x, pos_y, move_x=0, move_y=0, dr_req=1, color='blue'):
         """
         Create new UE object
         :param id: Unique ID of UE (string)
@@ -18,11 +18,13 @@ class User:
         :param move_x: Movement per step along x-axis. Number or 'slow' -> randint(1,5) or 'fast' -> randint(10,20).
         :param move_y: Movement per step along y-axis. Number or 'slow' -> randint(1,5) or 'fast' -> randint(10,20).
         :param dr_req: Data rate requirement by UE for successful service
+        :param color: Color for rendering. Default: blue
         """
         self.id = id
         self.dr_req = dr_req
         self.env = None
         self.conn_bs = []
+        self.color = color
 
         self.init_pos_x = pos_x
         self.init_pos_y = pos_y
@@ -117,7 +119,7 @@ class User:
 
     def can_connect(self, bs):
         """Return whether or not the UE can connect to the BS (based achievable data rate at current pos)"""
-        dr = bs.data_rate(self.pos, self.env.active_bs)
+        dr = bs.data_rate(self, self.env.active_bs)
         return dr >= self.dr_req
 
     def connect_to_bs(self, bs, disconnect=False):

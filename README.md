@@ -15,15 +15,35 @@ pip install -r requirements
 
 For saving gifs, you also need to install [ImageMagick](https://imagemagick.org/index.php).
 
+## Usage
+
+Adjust and run `main.py` in `drl_mobile`:
+
+```
+cd drl_mobile
+python main.py
+```
+
 ## Todos
 
-* Normalize only parts of observation space (not binary connected info)
-* Fix/improve subtract req data rate: Obs should only be negative if dr is insufficient; normalization destroys this
-* Eval with UE moving at different random speeds (fast, slow). Any impact on connections?
-    * Data rate should help make the decision when to connect to new BS
-    * Penalty for connecting to multiple BS?
-* Add schedules/RBs to radio model as capacity? Once I consider multiple UEs
-* As soon as centralized works: Move to distributed RL. Even before adding offloading.
+* Multiple UEs: 
+    * Multi-agent: Separate agents for each UE. I should look into ray/rllib: https://docs.ray.io/en/latest/rllib-env.html#multi-agent-and-hierarchical
+    * Collaborative learning: Share experience or gradients to train agents together. Use same NN. Later separate NNs? Federated learing.
+
+### Multi-Agent RL with rllib
+
+* Seems like rllib already supports multi-agent environments
+* Anyway seems like the (by far) most complex/feature rich but also mature RL framework
+* Doesn't run on Windows yet: https://github.com/ray-project/ray/issues/631 (but should on WSL)
+* Multi agent environments: https://docs.ray.io/en/latest/rllib-env.html#multi-agent-and-hierarchical
+* Multi agent concept/policies: https://docs.ray.io/en/latest/rllib-concepts.html#policies-in-multi-agent
+* Also supports parameter sharing for joint learning; hierarchical RL etc --> rllib is the way to go
+* It's API both for agents and environments (and everything else) is completely different
+
+Dev plan:
+
+1. Switch to rllib and verify single-UE case still works as before. Keep working stable baselines code in separate branch
+2. Move to multi-user and multi-UE environment with rllib
 
 ## Findings
 

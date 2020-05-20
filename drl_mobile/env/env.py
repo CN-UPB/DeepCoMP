@@ -38,7 +38,6 @@ class MobileEnv(gym.Env):
         self.ue_list = ue_list
         for ue in self.ue_list:
             ue.env = self
-        assert len(self.ue_list) == 1, "Currently only support 1 UE"
         # current observation
         self.obs = None
         # observation and action space are defined in the subclass --> different variants
@@ -52,6 +51,10 @@ class MobileEnv(gym.Env):
         return len(self.bs_list)
 
     @property
+    def num_ue(self):
+        return len(self.ue_list)
+
+    @property
     def active_bs(self):
         return [bs for bs in self.bs_list if bs.active]
 
@@ -59,19 +62,28 @@ class MobileEnv(gym.Env):
         random.seed(seed)
 
     def get_obs(self, ue):
-        """
-        Return the an observation of the current world for a given UE
-        """
+        """Return the an observation of the current world for a given UE"""
         raise NotImplementedError('Implement in subclass')
 
-    def calc_reward(self, action_success: bool):
-        """Calculate and return reward"""
-        raise NotImplementedError('Implement in subclass')
+    def calc_reward(self, ue, penalty):
+        """
+        Calculate and return reward for specific UE. Call AFTER UE moved --> see if it's still connected.
+        High positive if connected to at least one BS, high negative if otherwise.
+        Add penalty for undesired actions, eg, unsuccessful connection attempt; passed as arg.
+        """
+        reward = penalty
+        # +10 if UE is connected to at least one BS
+        if len(ue.conn_bs) >= 1:
+            reward += 10
+        # -10 if not connected to any BS
+        else:
+            reward -= 10
+
+        return reward
 
     def reset(self):
         """Reset environment by resetting time and all UEs (pos & movement) and their connections"""
         self.time = 0
-        # TODO: randomize to avoid repeating always the same episode?
         for ue in self.ue_list:
             ue.reset()
         # TODO: this just returns the observation for the 1st UE
@@ -79,9 +91,12 @@ class MobileEnv(gym.Env):
         return self.obs
 
     def step(self, action: int):
-        """Do 1 time step: Apply action and update UE position. Return new state, reward."""
-        # TODO: simplyfing assumption for now: just 1 UE! all actions are applied to 1st UE only!
-        ue = self.ue_list[0]
+        """
+        Do 1 time step: Apply action and update UE position. Return new state, reward.
+        Only update one UE at a time. With multiple UEs, select active UE using round robin.
+        """
+        # select active UE (to update in this step) using round robin
+        ue = self.ue_list[self.time % self.num_ue]
         prev_obs = self.obs
 
         # apply action; 0 = no op
@@ -94,11 +109,16 @@ class MobileEnv(gym.Env):
         self.time += 1
 
         # return next observation, reward, done, info
-        self.obs = self.get_obs(ue)
-        reward = self.calc_reward(success)
+        # get obs of next UE
+        next_ue = self.ue_list[self.time % self.num_ue]
+        self.obs = self.get_obs(next_ue)
+        # penalty of -3 for unsuccessful connection attempt
+        penalty = -3 * (not success)
+        reward = self.calc_reward(ue, penalty)
         done = self.time >= self.episode_length
         info = {}
-        self.log.info("Step", ue=ue, time=self.time, prev_obs=prev_obs, action=action, reward=reward, next_obs=self.obs, done=done)
+        self.log.info("Step", time=self.time, ue=ue, prev_obs=prev_obs, action=action, reward=reward, next_obs=self.obs,
+                      next_ue=next_ue, done=done)
         return self.obs, reward, done, info
 
     def render(self, mode='human'):
@@ -110,7 +130,7 @@ class MobileEnv(gym.Env):
         patch.extend(plt.plot(*self.map.exterior.xy, color='gray'))
         # users & connections
         for ue in self.ue_list:
-            patch.append(plt.scatter(*ue.pos.xy, color='blue'))
+            patch.append(plt.scatter(*ue.pos.xy, label=ue.id, color=ue.color))
             for bs in ue.conn_bs:
                 patch.extend(plt.plot([ue.pos.x, bs.pos.x], [ue.pos.y, bs.pos.y], color='orange'))
         # base stations
@@ -121,6 +141,10 @@ class MobileEnv(gym.Env):
         # title isn't redrawn in animation (out of box) --> static --> show time as text inside box, top-right corner
         patch.append(plt.title(type(self).__name__))
         patch.append(plt.text(0.9*self.width, 0.9*self.height, f"t={self.time}"))
+
+        # legend doesn't change --> only draw once at the beginning
+        if self.time == 0:
+            plt.legend(loc='upper left')
         return patch
 
 
@@ -141,21 +165,6 @@ class BinaryMobileEnv(MobileEnv):
         bs_availability = [int(ue.can_connect(bs)) for bs in self.bs_list]
         connected_bs = [int(bs in ue.conn_bs) for bs in self.bs_list]
         return np.array(bs_availability + connected_bs)
-
-    def calc_reward(self, action_success: bool):
-        """Calculate and return reward"""
-        # TODO: -1 for losing connection?
-        reward = 0
-        # +10 for every UE that's connected to at least one BS; -10 for each that isn't
-        for ue in self.ue_list:
-            if len(ue.conn_bs) >= 1:
-                reward += 10
-            else:
-                reward -= 10
-        # -1 if action wasn't successful
-        if not action_success:
-            reward -= 3
-        return reward
 
 
 class JustConnectedObsMobileEnv(BinaryMobileEnv):
@@ -221,15 +230,15 @@ class DatarateMobileEnv(BinaryMobileEnv):
             # subtract req_dr and auto clip & normalize to [-1, 1]
             bs_dr = []
             for bs in self.bs_list:
-                dr_sub = bs.data_rate(ue.pos, self.active_bs) - ue.dr_req
+                dr_sub = bs.data_rate(ue, self.active_bs) - ue.dr_req
                 dr_clip = min(dr_sub, ue.dr_req)        # clipped to range [-dr_req, dr_req]
                 dr_norm = dr_clip / ue.dr_req
                 bs_dr.append(dr_norm)
         elif self.sub_req_dr:
             # subtract req_dr and cut off at dr_cutoff
-            bs_dr = [min(bs.data_rate(ue.pos, self.active_bs) - ue.dr_req, self.dr_cutoff) for bs in self.bs_list]
+            bs_dr = [min(bs.data_rate(ue, self.active_bs) - ue.dr_req, self.dr_cutoff) for bs in self.bs_list]
         else:
             # just cut off at dr_cutoff
-            bs_dr = [min(bs.data_rate(ue.pos, self.active_bs), self.dr_cutoff) for bs in self.bs_list]
+            bs_dr = [min(bs.data_rate(ue, self.active_bs), self.dr_cutoff) for bs in self.bs_list]
         connected_bs = [int(bs in ue.conn_bs) for bs in self.bs_list]
         return np.array(bs_dr + connected_bs)

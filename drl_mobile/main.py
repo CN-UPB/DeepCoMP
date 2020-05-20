@@ -9,7 +9,8 @@ from structlog.stdlib import LoggerFactory
 from shapely.geometry import Point
 # disable tf printed warning: https://github.com/tensorflow/tensorflow/issues/27045#issuecomment-480691244
 import tensorflow as tf
-if type(tf.contrib) != type(tf): tf.contrib._warning = None
+if type(tf.contrib) != type(tf):
+    tf.contrib._warning = None
 from stable_baselines import PPO2
 from stable_baselines.common.policies import MlpPolicy
 from stable_baselines.common.env_checker import check_env
@@ -61,14 +62,13 @@ def create_env(eps_length, normalize, train):
     :param train: Only relevant if normalize=true. If train, record new normalize stats, else load saved stats.
     :return: The created env and the path to the training dir, based on the env name
     """
-    ue1 = User('ue1', pos_x='random', pos_y=40, move_x=5)
-    # ue1 = User('ue1', pos_x=20, pos_y=40, move_x=5)
-    # ue2 = User('ue2', start_pos=Point(3,3), move_x=-1)
-    bs1 = Basestation('bs1', pos=Point(50,50))
-    bs2 = Basestation('bs2', pos=Point(100,50))
-    env = DatarateMobileEnv(episode_length=eps_length, width=150, height=100, bs_list=[bs1, bs2], ue_list=[ue1],
+    ue1 = User('ue1', color='blue', pos_x='random', pos_y=40, move_x=5)
+    ue2 = User('ue2', color='red', pos_x='random', pos_y=30, move_x=5)
+    bs1 = Basestation('bs1', pos=Point(50, 50))
+    bs2 = Basestation('bs2', pos=Point(100, 50))
+    env = DatarateMobileEnv(episode_length=eps_length, width=150, height=100, bs_list=[bs1, bs2], ue_list=[ue1, ue2],
                             dr_cutoff='auto', sub_req_dr=True, disable_interference=True)
-    check_env(env)
+    # check_env(env)
 
     # dir for saving logs, plots, replay video
     training_dir = f'../training/{type(env).__name__}'
@@ -97,7 +97,7 @@ def create_agent(agent_name, env, seed=None, train=True):
     if agent_name == 'random':
         return RandomAgent(env.action_space, seed=seed)
     if agent_name == 'fixed':
-        return FixedAgent(action=1)
+        return FixedAgent(action=1, noop_interval=4)
     # PPO RL agent
     if agent_name == 'ppo':
         if train:
@@ -114,7 +114,7 @@ if __name__ == "__main__":
     train_steps = 10000
     eps_length = 30
     # train or load trained agent (& env norm stats); only set train=True for ppo agent!
-    train = False
+    train = True
     # normalize obs (& clip? & reward?); better: use custom env normalization with dr_cutoff='auto'
     normalize = False
     # seed for agent & env
