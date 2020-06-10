@@ -17,6 +17,8 @@ For saving gifs, you also need to install [ImageMagick](https://imagemagick.org/
 
 ### Installing RLlib
 
+Ray supports TF2 and thus also Python 3.8.
+
 ```
 pip install ray[rllib]
 ```
