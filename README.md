@@ -15,6 +15,16 @@ pip install -r requirements
 
 For saving gifs, you also need to install [ImageMagick](https://imagemagick.org/index.php).
 
+### Installing RLlib
+
+```
+pip install ray[rllib]
+```
+
+It may fail installing `gym[atari]`, which needs the following dependencies that can be installed with `apt`:
+`cmake, build-essentials, zlib1g-dev`. 
+RLlib does not ([yet](https://github.com/ray-project/ray/issues/631)) run on Windows, but it does on WSL.
+
 ## Usage
 
 Adjust and run `main.py` in `drl_mobile`:
