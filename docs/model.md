@@ -22,6 +22,8 @@ Radio model mostly implemented in [`drl_mobile/env/station.py`](https://github.c
     * RBs (and thus achievable data rate) are split equally among connected UEs
     * FIXME: That's not what I'm doing [here](https://github.com/CN-UPB/deep-rl-mobility-management/blob/master/drl_mobile/env/station.py#L87).
     I split the achievable data rate *per UE* equally. But that's not the same thing as splitting RBs, is it?
+        * Actually, on second thought why not? Wouldn't 50% RBs lead to 50% achievable data rate for each UE?
+        * That achievable data rate may still differ for different UEs depending on their position.
 * Based on the SNR and the number of connected users at a BS, I calculate the achievable data rate per UE from a BS
 * UEs can connect to multiple BS and their data rates add up
     * TODO: UEs can only connect to BS that are not too far away, eg, where the SNR is above a threshold
