@@ -1,6 +1,6 @@
 # MDP Formulation 
 
-## v0.3: Centralized, single-agent, multi-UE-BS selection, basic radio model (WIP)
+## v0.3: Centralized, single-agent, multi-UE-BS selection, basic radio model (week 25)
 
 * Simple but improved radio load model: 
     * Split achievable load equally among connected UEs
