@@ -2,7 +2,7 @@
 
 Simple simulation of mobility management scenario to use with deep RL
 
-![example](docs/gifs/v02.gif)
+![example](docs/gifs/v03.gif)
 
 ## Setup
 
