@@ -67,8 +67,7 @@ class MobileEnv(gym.Env):
 
     def calc_reward(self, ue, penalty):
         """
-        Calculate and return reward for specific UE. Call AFTER UE moved --> see if it's still connected.
-        TODO: Should check before and after step. Curr dr may also increase when moving, ie, be too low before
+        Calculate and return reward for specific UE. Called before and after UE movement.
         High positive if connected with enough data rate, high negative if otherwise.
         Add penalty for undesired actions, eg, unsuccessful connection attempt; passed as arg.
         """
@@ -98,30 +97,34 @@ class MobileEnv(gym.Env):
         Do 1 time step: Apply action and update UE position. Return new state, reward.
         Only update one UE at a time. With multiple UEs, select active UE using round robin.
         """
+        penalty = 0
         # select active UE (to update in this step) using round robin
         ue = self.ue_list[self.time % self.num_ue]
         prev_obs = self.obs
 
         # apply action; 0 = no op
-        success = True
         if action > 0:
             bs = self.bs_list[action-1]
-            success = ue.connect_to_bs(bs, disconnect=True)
+            # penalty of -3 for unsuccessful connection attempt
+            penalty = -3 * (not ue.connect_to_bs(bs, disconnect=True))
 
+        # check connections and reward before and after moving
+        # TODO: usually before & after are the same anyways; so I can drop this if the simulator becomes too slow
+        reward_before = self.calc_reward(ue, penalty)
         ue.move()
         self.time += 1
+        reward_after = self.calc_reward(ue, penalty)
 
         # return next observation, reward, done, info
         # get obs of next UE
         next_ue = self.ue_list[self.time % self.num_ue]
         self.obs = self.get_obs(next_ue)
-        # penalty of -3 for unsuccessful connection attempt
-        penalty = -3 * (not success)
-        reward = self.calc_reward(ue, penalty)
+        # average reward
+        reward = np.mean([reward_before, reward_after])
         done = self.time >= self.episode_length
         info = {}
-        self.log.info("Step", time=self.time, ue=ue, prev_obs=prev_obs, action=action, reward=reward, next_obs=self.obs,
-                      next_ue=next_ue, done=done)
+        self.log.info("Step", time=self.time, ue=ue, prev_obs=prev_obs, action=action, reward_before=reward_before,
+                      reward_after=reward_after, reward=reward, next_obs=self.obs, next_ue=next_ue, done=done)
         return self.obs, reward, done, info
 
     def render(self, mode='human'):
