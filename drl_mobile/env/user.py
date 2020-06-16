@@ -22,6 +22,8 @@ class User:
         """
         self.id = id
         self.dr_req = dr_req
+        # min. data rate threshold required to connect (stay connected) to a BS; fixed to 1/10 here
+        self.dr_thres = self.dr_req / 10
         self.env = None
         self.conn_bs = []
         self.color = color
@@ -38,7 +40,7 @@ class User:
         self.reset_movement()
 
         self.log = structlog.get_logger(id=self.id, pos=str(self.pos), move=(self.move_x, self.move_y),
-                                        conn_bs=self.conn_bs, dr_req=self.dr_req)
+                                        conn_bs=self.conn_bs, dr_req=self.dr_req, dr_thres=self.dr_thres)
 
     def __repr__(self):
         return self.id
@@ -120,7 +122,7 @@ class User:
     def can_connect(self, bs):
         """Return whether or not the UE can connect to the BS (based achievable data rate at current pos)"""
         dr = bs.data_rate(self, self.env.active_bs)
-        return dr >= self.dr_req
+        return dr >= self.dr_thres
 
     def connect_to_bs(self, bs, disconnect=False):
         """
