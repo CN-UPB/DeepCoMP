@@ -20,12 +20,10 @@ Radio model mostly implemented in [`drl_mobile/env/station.py`](https://github.c
 * We do not consider assignment of RBs explicitly, but assume that
     * BS assign all RBs to connected users, ie, transmit as much data rate as possible
     * RBs (and thus achievable data rate) are split equally among connected UEs
-    * FIXME: That's not what I'm doing [here](https://github.com/CN-UPB/deep-rl-mobility-management/blob/master/drl_mobile/env/station.py#L87).
+    * FIXME?: That's not what I'm doing [here](https://github.com/CN-UPB/deep-rl-mobility-management/blob/master/drl_mobile/env/station.py#L87).
     I split the achievable data rate *per UE* equally. But that's not the same thing as splitting RBs, is it?
         * Actually, on second thought why not? Wouldn't 50% RBs lead to 50% achievable data rate for each UE?
         * That achievable data rate may still differ for different UEs depending on their position.
 * Based on the SNR and the number of connected users at a BS, I calculate the achievable data rate per UE from a BS
 * UEs can connect to multiple BS and their data rates add up
-    * TODO: UEs can only connect to BS that are not too far away, eg, where the SNR is above a threshold
-    * Currently, UEs can only connect if a BS can serve their full rate requirement. That's not what I want.
-    ([Code](https://github.com/CN-UPB/deep-rl-mobility-management/blob/master/drl_mobile/env/user.py#L120))
+* UEs can only connect to BS that are not too far away, ie, where the achievable data rate at the BS is at least 1/10 of the required rate    

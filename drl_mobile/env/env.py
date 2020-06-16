@@ -68,14 +68,15 @@ class MobileEnv(gym.Env):
     def calc_reward(self, ue, penalty):
         """
         Calculate and return reward for specific UE. Call AFTER UE moved --> see if it's still connected.
-        High positive if connected to at least one BS, high negative if otherwise.
+        TODO: Should check before and after step. Curr dr may also increase when moving, ie, be too low before
+        High positive if connected with enough data rate, high negative if otherwise.
         Add penalty for undesired actions, eg, unsuccessful connection attempt; passed as arg.
         """
         reward = penalty
-        # +10 if UE is connected to at least one BS
-        if len(ue.conn_bs) >= 1:
+        # +10 if UE is connected such that its dr requirement is satisfied
+        if ue.curr_dr >= ue.dr_req:
             reward += 10
-        # -10 if not connected to any BS
+        # -10 if not connected with sufficient data rate
         else:
             reward -= 10
 

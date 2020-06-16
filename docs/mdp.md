@@ -7,9 +7,10 @@
     * Single agent that sees/controls combined observations and actions for all UEs in every time step
     * Observation: Achievable data rate for all UEs, connected BS for all UEs (auto clipped, normalized as before)
     * Action: Selected BS (or no-op) for all UEs
-* Simple radio load model: 
+* Simple but improved radio load model: 
     * Split achievable load equally among connected UEs
-    * TODO: Allow connecting to any BS if signal > noise. Data rate from multiple BS adds up.
+    * Allow connecting to any BS if the achievable data rate is above a 10% threshold of the required rate
+    * Data rate from multiple BS adds up
 * Discussion:
     * This means, observation and action space grow linearly with the number of UEs, which has to be fixed
     * Trying to avoid this by just having obs and actions for a single UE (as before) does not work:

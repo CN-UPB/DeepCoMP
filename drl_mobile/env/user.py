@@ -45,6 +45,15 @@ class User:
     def __repr__(self):
         return self.id
 
+    @property
+    def curr_dr(self):
+        """Current data rate the UE gets through all its BS connections"""
+        dr = 0
+        for bs in self.conn_bs:
+            dr += bs.data_rate(self, self.env.active_bs)
+        self.log.debug("Current data rate", curr_dr=dr)
+        return dr
+
     def reset_pos(self):
         """(Re)set position based on initial position x and y as Point. Resolve 'random'."""
         # set pos_x
