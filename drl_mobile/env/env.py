@@ -2,7 +2,7 @@ import random
 
 import gym
 import gym.spaces
-import structlog
+# import structlog
 from shapely.geometry import Polygon
 import numpy as np
 import matplotlib.pyplot as plt
@@ -47,7 +47,7 @@ class MobileEnv(gym.Env):
         self.observation_space = None
         self.action_space = None
 
-        self.log = structlog.get_logger()
+        # self.log = structlog.get_logger()
 
     @property
     def num_bs(self):
@@ -126,8 +126,8 @@ class MobileEnv(gym.Env):
         reward = np.mean([reward_before, reward_after])
         done = self.time >= self.episode_length
         info = {}
-        self.log.info("Step", time=self.time, ue=ue, prev_obs=prev_obs, action=action, reward_before=reward_before,
-                      reward_after=reward_after, reward=reward, next_obs=self.obs, next_ue=next_ue, done=done)
+        # self.log.info("Step", time=self.time, ue=ue, prev_obs=prev_obs, action=action, reward_before=reward_before,
+        #               reward_after=reward_after, reward=reward, next_obs=self.obs, next_ue=next_ue, done=done)
         return self.obs, reward, done, info
 
     def render(self, mode='human'):
@@ -210,7 +210,7 @@ class DatarateMobileEnv(BinaryMobileEnv):
         # 1. Achievable data rate for given UE for all BS --> Box;
         # cut off dr at given dr level. here, dr is below 200 anyways --> default doesn't cut off
         max_dr_req = max([ue.dr_req for ue in self.ue_list])
-        self.log.info('Max dr req', max_dr_req=max_dr_req, dr_cutoff=self.dr_cutoff, sub_req_dr=self.sub_req_dr)
+        # self.log.info('Max dr req', max_dr_req=max_dr_req, dr_cutoff=self.dr_cutoff, sub_req_dr=self.sub_req_dr)
         assert dr_cutoff == 'auto' or max_dr_req < dr_cutoff, "dr_cutoff should be higher than max required dr. by UEs"
 
         # define observation space

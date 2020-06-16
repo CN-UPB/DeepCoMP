@@ -1,6 +1,6 @@
 import random
 
-import structlog
+# import structlog
 from shapely.geometry import Point
 
 
@@ -39,8 +39,8 @@ class User:
         self.move_y = None
         self.reset_movement()
 
-        self.log = structlog.get_logger(id=self.id, pos=str(self.pos), move=(self.move_x, self.move_y),
-                                        conn_bs=self.conn_bs, dr_req=self.dr_req, dr_thres=self.dr_thres)
+        # self.log = structlog.get_logger(id=self.id, pos=str(self.pos), move=(self.move_x, self.move_y),
+        #                                 conn_bs=self.conn_bs, dr_req=self.dr_req, dr_thres=self.dr_thres)
 
     def __repr__(self):
         return self.id
@@ -51,7 +51,7 @@ class User:
         dr = 0
         for bs in self.conn_bs:
             dr += bs.data_rate(self, self.env.active_bs)
-        self.log.debug("Current data rate", curr_dr=dr)
+        # self.log.debug("Current data rate", curr_dr=dr)
         return dr
 
     def reset_pos(self):
@@ -113,8 +113,8 @@ class User:
             new_pos = Point(self.pos.x + self.move_x, self.pos.y + self.move_y)
         self.pos = new_pos
 
-        self.log = self.log.bind(pos=str(new_pos), move=(self.move_x, self.move_y))
-        self.log.debug("User move")
+        # self.log = self.log.bind(pos=str(new_pos), move=(self.move_x, self.move_y))
+        # self.log.debug("User move")
         self.check_bs_connection()
 
     def check_bs_connection(self):
@@ -122,7 +122,7 @@ class User:
         remove_bs = []
         for bs in self.conn_bs:
             if not self.can_connect(bs):
-                self.log.info("Losing connection to BS", bs=bs)
+                # self.log.info("Losing connection to BS", bs=bs)
                 remove_bs.append(bs)
         # remove/disconnect bs
         for bs in remove_bs:
@@ -140,24 +140,24 @@ class User:
         :param disconnect: If True, disconnect from BS if it was previously connected.
         :return: True if (dis-)connected successfully. False if out of range.
         """
-        log = self.log.bind(bs=bs, disconnect=disconnect, conn_bs=self.conn_bs)
+        # log = self.log.bind(bs=bs, disconnect=disconnect, conn_bs=self.conn_bs)
         # already connected
         if bs in self.conn_bs:
             if disconnect:
                 self.disconnect_from_bs(bs)
-                log.info("Disconnected")
-            else:
-                log.info("Staying connected")
+                # log.info("Disconnected")
+            # else:
+            #     log.info("Staying connected")
             return True
         # not yet connected
         if self.can_connect(bs):
             self.conn_bs.append(bs)
             bs.conn_ue.append(self)
-            log.info("Connected", conn_bs=self.conn_bs)
-            self.log = self.log.bind(conn_bs=self.conn_bs)
+            # log.info("Connected", conn_bs=self.conn_bs)
+            # self.log = self.log.bind(conn_bs=self.conn_bs)
             return True
         else:
-            log.info("Cannot connect")
+            # log.info("Cannot connect")
             return False
 
     def disconnect_from_bs(self, bs):
@@ -165,4 +165,4 @@ class User:
         assert bs in self.conn_bs, "Not connected to BS --> Cannot disconnect"
         self.conn_bs.remove(bs)
         bs.conn_ue.remove(self)
-        self.log = self.log.bind(conn_bs=self.conn_bs)
+        # self.log = self.log.bind(conn_bs=self.conn_bs)

@@ -1,4 +1,4 @@
-import structlog
+# import structlog
 import numpy as np
 from shapely.geometry import Point
 
@@ -28,7 +28,7 @@ class Basestation:
         # if disable_interference=True (set by env), ignore interference; just calc SNR, not SINR
         self.disable_interference = False
 
-        self.log = structlog.get_logger(id=self.id, pos=str(self.pos))
+        # self.log = structlog.get_logger(id=self.id, pos=str(self.pos))
 
     def __repr__(self):
         return self.id
@@ -73,8 +73,8 @@ class Basestation:
         interference = 0
         if not self.disable_interference:
             interference = self.interference(ue_pos, active_bs)
-        self.log.debug('SINR to UE', ue_pos=str(ue_pos), active_bs=active_bs, distance=distance,
-                       signal=signal, interference=interference, disable_interference=self.disable_interference)
+        # self.log.debug('SINR to UE', ue_pos=str(ue_pos), active_bs=active_bs, distance=distance,
+        #                signal=signal, interference=interference, disable_interference=self.disable_interference)
         return signal / (self.noise + interference)
 
     def data_rate(self, ue, active_bs):
@@ -95,6 +95,6 @@ class Basestation:
             # what would be the data rate if this UE connects as well?
             split_by += 1
         ue_dr = total_dr / split_by
-        self.log.debug('Achievable data rate', ue=ue.id, active_bs=active_bs, sinr=sinr, total_dr=total_dr, ue_dr=ue_dr,
-                       split_by=split_by)
+        # self.log.debug('Achievable data rate', ue=ue.id, active_bs=active_bs, sinr=sinr, total_dr=total_dr, ue_dr=ue_dr,
+        #                split_by=split_by)
         return ue_dr
