@@ -61,8 +61,10 @@ python main.py
 
 Dev plan:
 
-0. Experiment with rllib and existing environments in separate rl-experiments repo
-1. Switch to rllib and verify single-UE case still works as before. Keep working stable baselines code in separate branch
+0. Done: Experiment with rllib and existing environments in separate rl-experiments repo
+1. WIP: Switch to rllib and verify single-UE case still works as before. Keep working stable baselines code in separate branch
+    * Non-trivial: Framework needs several changes in environment and overall workflow. Currently, everything is crashing and errors don't make sense.
+    * TODO: Building a working enviornment from the ground up at `drl_mobile/rllib`
 2. Move to multi-user and multi-UE environment with rllib
 
 ## Findings

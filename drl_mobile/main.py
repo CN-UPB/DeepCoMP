@@ -27,6 +27,7 @@ from drl_mobile.env.station import Basestation
 from drl_mobile.env.simulation import Simulation
 from drl_mobile.agent.dummy import RandomAgent, FixedAgent
 from drl_mobile.util.logs import FloatRounder
+from drl_mobile.rllib.agent import create_rllib_agent
 
 
 log = structlog.get_logger()
@@ -147,16 +148,18 @@ if __name__ == "__main__":
     # seed for agent & env
     seed = 42
 
-    # create env (env_config with RLlib)
-    env_config, training_dir = create_env(eps_length=eps_length, normalize=normalize, train=train, seed=seed)
+    # create env
+    # env, training_dir = create_env(eps_length=eps_length, normalize=normalize, train=train, seed=seed)
 
-    agent = create_agent('rllib_ppo', env_config, seed=seed, train=train)
+    # agent = create_agent('rllib_ppo', env, seed=seed, train=train)
+    agent = create_rllib_agent(seed=seed, train=train)
     # simulator doesn't need RLlib's env_config (contained in agent anyways)
     sim = Simulation(env=None, agent=agent, normalize=normalize)
 
     # train
     if train:
-        sim.train_rllib(train_steps=train_steps, save_dir=training_dir, plot=True)
+        # sim.train_rllib(train_steps=train_steps, save_dir=training_dir, plot=True)
+        sim.train_rllib(train_steps=train_steps, save_dir=None, plot=True)
 
     # TODO: adjust/debug test & evaluation
     # simulate one run
