@@ -4,7 +4,7 @@ matplotlib==3.2.1
 numpy==1.18.3
 gym==0.17.1
 #tensorflow==1.15.2
-#stable_baselines==2.10.0
+stable_baselines==2.10.0
 tensorflow==2.2.0
 ray[rllib]==0.8.5
 gputil==1.4.0

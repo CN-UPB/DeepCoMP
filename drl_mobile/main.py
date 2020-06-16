@@ -9,15 +9,19 @@ from structlog.stdlib import LoggerFactory
 from shapely.geometry import Point
 # disable tf printed warning: https://github.com/tensorflow/tensorflow/issues/27045#issuecomment-480691244
 import tensorflow as tf
-if type(tf.contrib) != type(tf):
+if hasattr(tf, 'contrib') and type(tf.contrib) != type(tf):
     tf.contrib._warning = None
-from stable_baselines import PPO2
-from stable_baselines.common.policies import MlpPolicy
-from stable_baselines.common.env_checker import check_env
-from stable_baselines.common.vec_env import DummyVecEnv, VecNormalize
-from stable_baselines.bench import Monitor
+# sb imports don't work with tf2
+# from stable_baselines import PPO2
+# from stable_baselines.common.policies import MlpPolicy
+# from stable_baselines.common.env_checker import check_env
+# from stable_baselines.common.vec_env import DummyVecEnv, VecNormalize
+# from stable_baselines.bench import Monitor
+import ray
+import ray.tune
+import ray.rllib.agents.ppo as rllib_ppo
 
-from drl_mobile.env.env import BinaryMobileEnv, JustConnectedObsMobileEnv, DatarateMobileEnv, CentralMultiUserEnv
+from drl_mobile.env.env import BinaryMobileEnv, DatarateMobileEnv, CentralMultiUserEnv, RLlibEnv
 from drl_mobile.env.user import User
 from drl_mobile.env.station import Basestation
 from drl_mobile.env.simulation import Simulation
@@ -54,7 +58,7 @@ def config_logging(round_digits):
                         ])
 
 
-def create_env(eps_length, normalize, train):
+def create_env(eps_length, normalize, train, seed=None):
     """
     Create and return the environment with specific episode length
     :param eps_length: Number of time steps per episode before the env resets
@@ -63,21 +67,29 @@ def create_env(eps_length, normalize, train):
     :return: The created env and the path to the training dir, based on the env name
     """
     ue1 = User('ue1', color='blue', pos_x='random', pos_y=40, move_x='slow')
-    ue2 = User('ue2', color='red', pos_x='random', pos_y=30, move_x='fast')
+    # ue2 = User('ue2', color='red', pos_x='random', pos_y=30, move_x='fast')
     bs1 = Basestation('bs1', pos=Point(50, 50))
     bs2 = Basestation('bs2', pos=Point(100, 50))
     # env = DatarateMobileEnv(episode_length=eps_length, width=150, height=100, bs_list=[bs1, bs2], ue_list=[ue1],
     #                         dr_cutoff='auto', sub_req_dr=True, disable_interference=True)
-    env = CentralMultiUserEnv(episode_length=eps_length, width=150, height=100, bs_list=[bs1, bs2], ue_list=[ue1, ue2],
-                              disable_interference=True)
+    # env = CentralMultiUserEnv(episode_length=eps_length, width=150, height=100, bs_list=[bs1, bs2], ue_list=[ue1, ue2],
+    #                           disable_interference=True)
+    # env.seed(seed)
+
+    # create env_config for RLlib instead
+    env_config = {'episode_length': eps_length, 'width': 150, 'height': 100, 'bs_list': [bs1, bs2], 'ue_list': [ue1],
+                  'dr_cutoff': 'auto', 'sub_req_dr': True, 'disable_interference': True, 'seed': seed}
+    env = env_config
+
     # check_env(env)
 
     # dir for saving logs, plots, replay video
     training_dir = f'../training/{type(env).__name__}'
     os.makedirs(training_dir, exist_ok=True)
 
-    env = Monitor(env, filename=f'{training_dir}')
-    env = DummyVecEnv([lambda: env])
+    # TODO: implement for RLlib
+    # env = Monitor(env, filename=f'{training_dir}')
+    # env = DummyVecEnv([lambda: env])
     # normalize using running avg
     if normalize:
         if train:
@@ -100,43 +112,53 @@ def create_agent(agent_name, env, seed=None, train=True):
         return RandomAgent(env.action_space, seed=seed)
     if agent_name == 'fixed':
         return FixedAgent(action=1, noop_interval=4)
-    # PPO RL agent
-    if agent_name == 'ppo':
+    # stable_baselines PPO RL agent
+    if agent_name == 'sb_ppo':
         if train:
             return PPO2(MlpPolicy, env, seed=seed)
         else:
             # load trained agent
             return PPO2.load(f'{training_dir}/ppo2_{train_steps}.zip')
+    # RLlib PPO RL agent
+    if agent_name == 'rllib_ppo':
+        if train:
+            config = rllib_ppo.DEFAULT_CONFIG.copy()
+            config['num_workers'] = 1
+            # in case of RLlib env is the env_config
+            config['env_config'] = env
+            # FIXME: rllib tries to do a deepcopy which fails when copying some structlog code
+            return rllib_ppo.PPOTrainer(config=config, env=RLlibEnv)
+        else:   # TODO: rllib testing
+            raise NotImplementedError('Still have to implement testing with RLlib')
     return None
 
 
 if __name__ == "__main__":
     config_logging(round_digits=3)
     # settings
-    train_steps = 20000
-    eps_length = 30
+    train_steps = 10000
+    eps_length = 10
     # train or load trained agent (& env norm stats); only set train=True for ppo agent!
-    train = False
+    train = True
     # normalize obs (& clip? & reward?); better: use custom env normalization with dr_cutoff='auto'
     normalize = False
     # seed for agent & env
     seed = 42
 
     # create env
-    env, training_dir = create_env(eps_length=eps_length, normalize=normalize, train=train)
-    env.seed(seed)
+    env, training_dir = create_env(eps_length=eps_length, normalize=normalize, train=train, seed=seed)
 
-    agent = create_agent('ppo', env, seed=seed, train=train)
+    agent = create_agent('rllib_ppo', env, seed=seed, train=train)
     sim = Simulation(env, agent, normalize=normalize)
 
     # train
     if train:
-        sim.train(train_steps=train_steps, save_dir=training_dir, plot=True)
+        sim.train(train_steps=train_steps, save_dir=training_dir, plot=False)
 
     # simulate one run
     logging.getLogger('drl_mobile').setLevel(logging.INFO)
     sim.run(render='gif', save_dir=training_dir)
 
     # evaluate
-    logging.getLogger('drl_mobile').setLevel(logging.WARNING)
-    sim.evaluate(eval_eps=10)
+    # logging.getLogger('drl_mobile').setLevel(logging.WARNING)
+    # sim.evaluate(eval_eps=10)

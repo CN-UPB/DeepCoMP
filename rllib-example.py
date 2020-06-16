@@ -69,6 +69,7 @@ config['env_config'] = env_config
 
 # PPO-specific config: https://docs.ray.io/en/latest/rllib-algorithms.html#ppo
 # config['train_batch_size'] = 150    # default 4000 for PPO; must be larger than mini batch size 128
+# sgd_minibatch_size
 
 # stop configuration (how long to train)
 # can contain any field in the returned results by train()

@@ -1,8 +1,8 @@
 import structlog
 import matplotlib.pyplot as plt
 import matplotlib.animation
-from stable_baselines import results_plotter
-from stable_baselines.common.evaluation import evaluate_policy
+# from stable_baselines import results_plotter
+# from stable_baselines.common.evaluation import evaluate_policy
 
 
 class Simulation:

@@ -8,6 +8,9 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 
+# TODO: once this grows too large, split it into separate modules (base_env, extended_env, central_env, rllib_env,...)
+
+
 class MobileEnv(gym.Env):
     """OpenAI Gym environment with multiple moving UEs and stationary BS on a map"""
     metadata = {'render.modes': ['human']}
@@ -341,3 +344,15 @@ class CentralMultiUserEnv(MobileEnv):
         self.log.info("Step", time=self.time, prev_obs=prev_obs, action=action, reward_before=reward_before,
                       reward_after=reward_after, reward=reward, next_obs=self.obs, done=done)
         return self.obs, reward, done, info
+
+
+class RLlibEnv(DatarateMobileEnv):
+    """Wrapper class of the DatarateMobileEnv for RLlib"""
+    def __init__(self, env_config):
+        """Wrapper env for RLlib, in which all args are in the env_config dict"""
+        super().__init__(env_config['episode_length'], env_config['width'], env_config['height'], env_config['bs_list'],
+                         env_config['ue_list'], env_config['dr_cutoff'], env_config['sub_req_dr'],
+                         disable_interference=env_config['disable_interference'])
+        super().seed(env_config['seed'])
+
+        # TODO: try the Gym Dictspace for obs if it's supported by Ray (box for dr, binary for conn)
