@@ -86,6 +86,8 @@ class MobileEnv(gym.Env):
         self.time = 0
         for ue in self.ue_list:
             ue.reset()
+        for bs in self.bs_list:
+            bs.reset()
         # TODO: this just returns the observation for the 1st UE
         self.obs = self.get_obs(self.ue_list[0])
         return self.obs

@@ -45,6 +45,7 @@ python main.py
     * Simple centralized agent that has observations (and actions?) of both UEs combined. Later use as comparison case.
     * Multi-agent: Separate agents for each UE. I should look into ray/rllib: https://docs.ray.io/en/latest/rllib-env.html#multi-agent-and-hierarchical
     * Collaborative learning: Share experience or gradients to train agents together. Use same NN. Later separate NNs? Federated learing.
+* Generic utlitiy function: Currently, reward is a step function (pos if enough rate, neg if not). Could also be any other function of the rate, eg, logarithmic
 
 ### Multi-Agent RL with rllib
 

@@ -42,6 +42,10 @@ class Basestation:
     def num_conn_ues(self):
         return len(self.conn_ue)
 
+    def reset(self):
+        """Reset BS to having no connected UEs"""
+        self.conn_ue = []
+
     def path_loss(self, distance, ue_height=1.5):
         """Return path loss in dBm to a UE at a given position. Calculation using Okumura Hata, suburban indoor"""
         ch = 0.8 + (1.1 * np.log10(self.frequency) - 0.7) * ue_height - 1.56 * np.log10(self.frequency)

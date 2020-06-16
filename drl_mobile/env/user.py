@@ -40,6 +40,9 @@ class User:
         self.log = structlog.get_logger(id=self.id, pos=str(self.pos), move=(self.move_x, self.move_y),
                                         conn_bs=self.conn_bs, dr_req=self.dr_req)
 
+    def __repr__(self):
+        return self.id
+
     def reset_pos(self):
         """(Re)set position based on initial position x and y as Point. Resolve 'random'."""
         # set pos_x
@@ -78,9 +81,6 @@ class User:
         else:
             # assume init_move_y was a specific number for how to move
             self.move_y = self.init_move_y
-
-    def __repr__(self):
-        return self.id
 
     def reset(self):
         """Reset UE to initial position and movement. Disconnect from all BS."""

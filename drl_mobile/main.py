@@ -63,10 +63,10 @@ def create_env(eps_length, normalize, train):
     :return: The created env and the path to the training dir, based on the env name
     """
     ue1 = User('ue1', color='blue', pos_x='random', pos_y=40, move_x=5)
-    ue2 = User('ue2', color='red', pos_x='random', pos_y=30, move_x=5)
+    # ue2 = User('ue2', color='red', pos_x='random', pos_y=30, move_x=5)
     bs1 = Basestation('bs1', pos=Point(50, 50))
     bs2 = Basestation('bs2', pos=Point(100, 50))
-    env = DatarateMobileEnv(episode_length=eps_length, width=150, height=100, bs_list=[bs1, bs2], ue_list=[ue1, ue2],
+    env = DatarateMobileEnv(episode_length=eps_length, width=150, height=100, bs_list=[bs1, bs2], ue_list=[ue1],
                             dr_cutoff='auto', sub_req_dr=True, disable_interference=True)
     # check_env(env)
 
@@ -132,7 +132,7 @@ if __name__ == "__main__":
         sim.train(train_steps=train_steps, save_dir=training_dir, plot=True)
 
     # simulate one run
-    logging.getLogger('drl_mobile').setLevel(logging.INFO)
+    logging.getLogger('drl_mobile').setLevel(logging.DEBUG)
     sim.run(render='video', save_dir=training_dir)
 
     # evaluate
