@@ -124,6 +124,7 @@ def create_agent(agent_name, env, seed=None, train=True):
         if train:
             config = rllib_ppo.DEFAULT_CONFIG.copy()
             config['num_workers'] = 1
+            # config['log_level'] = 'INFO'    # default: warning
             # in case of RLlib env is the env_config
             config['env_config'] = env
             # FIXME: rllib tries to do a deepcopy which fails when copying some structlog code
@@ -134,6 +135,7 @@ def create_agent(agent_name, env, seed=None, train=True):
 
 
 if __name__ == "__main__":
+    ray.init()
     config_logging(round_digits=3)
     # settings
     train_steps = 10000
@@ -145,19 +147,21 @@ if __name__ == "__main__":
     # seed for agent & env
     seed = 42
 
-    # create env
-    env, training_dir = create_env(eps_length=eps_length, normalize=normalize, train=train, seed=seed)
+    # create env (env_config with RLlib)
+    env_config, training_dir = create_env(eps_length=eps_length, normalize=normalize, train=train, seed=seed)
 
-    agent = create_agent('rllib_ppo', env, seed=seed, train=train)
-    sim = Simulation(env, agent, normalize=normalize)
+    agent = create_agent('rllib_ppo', env_config, seed=seed, train=train)
+    # simulator doesn't need RLlib's env_config (contained in agent anyways)
+    sim = Simulation(env=None, agent=agent, normalize=normalize)
 
     # train
     if train:
-        sim.train(train_steps=train_steps, save_dir=training_dir, plot=False)
+        sim.train_rllib(train_steps=train_steps, save_dir=training_dir, plot=True)
 
+    # TODO: adjust/debug test & evaluation
     # simulate one run
-    logging.getLogger('drl_mobile').setLevel(logging.INFO)
-    sim.run(render='gif', save_dir=training_dir)
+    # logging.getLogger('drl_mobile').setLevel(logging.INFO)
+    # sim.run(render='gif', save_dir=training_dir)
 
     # evaluate
     # logging.getLogger('drl_mobile').setLevel(logging.WARNING)

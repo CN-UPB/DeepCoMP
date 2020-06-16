@@ -9,16 +9,20 @@ class Simulation:
     """Simulation class"""
     def __init__(self, env, agent, normalize):
         # we work with a dummy vec env with just 1 env; eg, for normalization
-        self.env = env
-        original_env = self.env.envs[0].env
-        self.env_name = type(original_env).__name__
-        self.episode_length = original_env.episode_length
+        # self.env = env
+        # original_env = self.env.envs[0].env
+        # self.env_name = type(original_env).__name__
+
+        # and RLlib envs differently
+        self.env_name = agent.config['env']
+        self.env_config = agent.config['env_config']
+        self.episode_length = self.env_config['episode_length']
         self.agent = agent
         self.normalize = normalize
         self.log = structlog.get_logger()
 
-    def train(self, train_steps, save_dir, plot=False):
-        """Train agent for specified training steps"""
+    def train_sb(self, train_steps, save_dir, plot=False):
+        """Train stable_baselines agent for specified training steps"""
         self.log.info('Start training', train_steps=train_steps)
         self.agent.learn(train_steps)
         self.agent.save(f'{save_dir}/ppo2_{train_steps}')
@@ -29,6 +33,14 @@ class Simulation:
                                          f'Learning Curve for {self.env_name}')
             plt.savefig(f'{save_dir}/ppo2_{train_steps}.png')
             plt.show()
+
+    def train_rllib(self, train_steps, save_dir, plot=False):
+        """Train RLlib agent"""
+        self.log.info('Start training', train_steps=train_steps)
+        # TODO: configure training length; plot progress; save
+        results = self.agent.train()
+        return results
+
 
     def save_animation(self, fig, patches, mode, save_dir):
         """
