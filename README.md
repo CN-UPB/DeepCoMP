@@ -38,8 +38,6 @@ python main.py
 
 ## Todos
 
-* Fix radio model: See docs
-    * Splitting RBs among connected BS rather than achievable dr per user?
 * Multiple UEs: 
     * Multi-agent: Separate agents for each UE. I should look into ray/rllib: https://docs.ray.io/en/latest/rllib-env.html#multi-agent-and-hierarchical
     * Collaborative learning: Share experience or gradients to train agents together. Use same NN. Later separate NNs? Federated learing.
