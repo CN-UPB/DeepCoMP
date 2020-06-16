@@ -17,6 +17,8 @@ For saving gifs, you also need to install [ImageMagick](https://imagemagick.org/
 
 ### Installing RLlib
 
+Ray supports TF2 and thus also Python 3.8.
+
 ```
 pip install ray[rllib]
 ```
@@ -36,7 +38,11 @@ python main.py
 
 ## Todos
 
+* Fix radio model: See docs
+    * Threshold for connecting/disconnecting from a BS
+    * Splitting RBs among connected BS rather than achievable dr per user?
 * Multiple UEs: 
+    * Simple centralized agent that has observations (and actions?) of both UEs combined. Later use as comparison case.
     * Multi-agent: Separate agents for each UE. I should look into ray/rllib: https://docs.ray.io/en/latest/rllib-env.html#multi-agent-and-hierarchical
     * Collaborative learning: Share experience or gradients to train agents together. Use same NN. Later separate NNs? Federated learing.
 
