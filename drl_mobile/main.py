@@ -62,8 +62,8 @@ def create_env(eps_length, normalize, train):
     :param train: Only relevant if normalize=true. If train, record new normalize stats, else load saved stats.
     :return: The created env and the path to the training dir, based on the env name
     """
-    ue1 = User('ue1', color='blue', pos_x='random', pos_y=40, move_x=5)
-    ue2 = User('ue2', color='red', pos_x='random', pos_y=30, move_x=5)
+    ue1 = User('ue1', color='blue', pos_x='random', pos_y=40, move_x='slow')
+    ue2 = User('ue2', color='red', pos_x='random', pos_y=30, move_x='fast')
     bs1 = Basestation('bs1', pos=Point(50, 50))
     bs2 = Basestation('bs2', pos=Point(100, 50))
     # env = DatarateMobileEnv(episode_length=eps_length, width=150, height=100, bs_list=[bs1, bs2], ue_list=[ue1],
@@ -113,10 +113,10 @@ def create_agent(agent_name, env, seed=None, train=True):
 if __name__ == "__main__":
     config_logging(round_digits=3)
     # settings
-    train_steps = 10000
-    eps_length = 10
+    train_steps = 20000
+    eps_length = 30
     # train or load trained agent (& env norm stats); only set train=True for ppo agent!
-    train = True
+    train = False
     # normalize obs (& clip? & reward?); better: use custom env normalization with dr_cutoff='auto'
     normalize = False
     # seed for agent & env
@@ -135,8 +135,8 @@ if __name__ == "__main__":
 
     # simulate one run
     logging.getLogger('drl_mobile').setLevel(logging.INFO)
-    sim.run(render='video', save_dir=training_dir)
+    sim.run(render='gif', save_dir=training_dir)
 
     # evaluate
-    # logging.getLogger('drl_mobile').setLevel(logging.WARNING)
-    # sim.evaluate(eval_eps=10)
+    logging.getLogger('drl_mobile').setLevel(logging.WARNING)
+    sim.evaluate(eval_eps=10)

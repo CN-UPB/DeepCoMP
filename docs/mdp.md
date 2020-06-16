@@ -1,17 +1,27 @@
 # MDP Formulation 
 
-## v0.3: Multi-UE-BS selection, basic radio model (WIP)
+## v0.3: Centralized, single-agent, multi-UE-BS selection, basic radio model (WIP)
 
-* Multiple moving UEs, each selecting to which BS to connect. 
-* Simple radio load model: Split achievable load equally among connected UEs
+* Multiple moving UEs, each selecting to which BS to connect
+    * UEs may move at different speeds
+    * Single agent that sees/controls combined observations and actions for all UEs in every time step
+    * Observation: Achievable data rate for all UEs, connected BS for all UEs (auto clipped, normalized as before)
+    * Action: Selected BS (or no-op) for all UEs
+* Simple radio load model: 
+    * Split achievable load equally among connected UEs
+    * TODO: Allow connecting to any BS if signal > noise. Data rate from multiple BS adds up.
+* Discussion:
+    * This means, observation and action space grow linearly with the number of UEs, which has to be fixed
+    * Trying to avoid this by just having obs and actions for a single UE (as before) does not work:
+        * Either: Obs for UE1, action for UE1, obs for UE2, action for UE2, obs for UE1, ...
+        Here, the agent does not learn the env dynamics, because it does not see the impact of an action, ie, next obs.
+        * Or: Action for UE1, obs for UE1, action for UE2, obs for UE2, ...
+        Here, the agent sees obs from a different UE than what it is making decisions for. Choosing a proper action becomes impossible.
+    * Adding the current UE's ID to the obs does not help and still leads to divergence
 
-* Actions:
-    * For now: Make actions and movement for each UE in different time step
-    * When just applying a single agent for both UEs, it works really bad and even diverges.
-    Likely because the experienced obs-action-reward-obs tuples don't make any sense: 
-    After obs and choosing action for UE1, it does not get next obs for UE1, but next obs for UE2.
-    Otherwise, it would not know the obs for making action for UE2.
-        * Adding the current UE's ID to the obs does not help and still leads to divergence.
+Example: Centralized PPO agent controlling two UEs after 20k training
+
+![v0.3 example](gifs/v03.gif)
 
 ## [v0.2](https://github.com/CN-UPB/deep-rl-mobility-management/releases/tag/v0.2): Just BS selection, basic radio model (week 21)
 
