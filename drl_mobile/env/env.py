@@ -244,3 +244,92 @@ class DatarateMobileEnv(BinaryMobileEnv):
             bs_dr = [min(bs.data_rate(ue, self.active_bs), self.dr_cutoff) for bs in self.bs_list]
         connected_bs = [int(bs in ue.conn_bs) for bs in self.bs_list]
         return np.array(bs_dr + connected_bs)
+
+
+class CentralMultiUserEnv(MobileEnv):
+    """
+    Env where all UEs move, observe and act at all time steps, controlled by a single central agent.
+    Otherwise similar to DatarateMobileEnv with auto dr_cutoff and sub_req_dr.
+    """
+    def __init__(self, episode_length, width, height, bs_list, ue_list, **kwargs):
+        """Similar to DatarateMobileEnv but with multi-UEs controlled at once and fixed dr_cutoff, sub_req_dr"""
+        super().__init__(episode_length, width, height, bs_list, ue_list, **kwargs)
+        # observations: FOR EACH UE: binary vector of BS availability (in range & free cap) + already connected BS
+        # 1. Achievable data rate for given UE for all BS (normalized to [-1, 1]) --> Box;
+        dr_low = np.full(shape=(self.num_ue * self.num_bs,), fill_value=-1)
+        dr_high = np.ones(self.num_ue * self.num_bs)
+        # 2. Connected BS --> MultiBinary
+        conn_low = np.zeros(self.num_ue * self.num_bs)
+        conn_high = np.ones(self.num_ue * self.num_bs)
+        # Dict space would be most suitable but not supported by stable baselines 2 --> Box
+        self.observation_space = gym.spaces.Box(low=np.concatenate([dr_low, conn_low]),
+                                                high=np.concatenate([dr_high, conn_high]))
+
+        # actions: FOR EACH UE: select a BS to be connected to/disconnect from or noop
+        self.action_space = gym.spaces.MultiDiscrete([self.num_bs + 1 for _ in range(self.num_ue)])
+
+    def get_obs(self):
+        """Observation: Available data rate + connected BS - FOR ALL UEs --> no ue arg"""
+        bs_dr = []
+        conn_bs = []
+        for ue in self.ue_list:
+            # subtract req_dr and auto clip & normalize to [-1, 1]
+            ue_bs_dr = []
+            for bs in self.bs_list:
+                dr_sub = bs.data_rate(ue, self.active_bs) - ue.dr_req
+                dr_clip = min(dr_sub, ue.dr_req)        # clipped to range [-dr_req, dr_req]
+                dr_norm = dr_clip / ue.dr_req
+                ue_bs_dr.append(dr_norm)
+            bs_dr.extend(ue_bs_dr)
+            # connected BS
+            ue_conn_bs = [int(bs in ue.conn_bs) for bs in self.bs_list]
+            conn_bs.extend(ue_conn_bs)
+        return np.array(bs_dr + conn_bs)
+
+    def calc_reward(self, penalty):
+        """Calc reward for ALL UEs, similar to normal MobileEnv"""
+        reward = penalty
+        for ue in self.ue_list:
+            reward += super().calc_reward(ue, penalty=0)
+        return reward
+
+    def reset(self):
+        """Reset environment: Reset all UEs, BS"""
+        self.time = 0
+        for ue in self.ue_list:
+            ue.reset()
+        for bs in self.bs_list:
+            bs.reset()
+        self.obs = self.get_obs()
+        return self.obs
+
+    def step(self, action):
+        """
+        Do 1 time step: Apply action of all UEs and update their position.
+        :param action: Array of actions to be applied for each UE
+        :return: next observation, reward, done, info
+        """
+        penalty = 0
+        prev_obs = self.obs
+
+        # apply action for each UE; 0 = noop
+        for i, ue in enumerate(self.ue_list):
+            if action[i] > 0:
+                bs = self.bs_list[action[i] - 1]
+                # penalty of -3 for unsuccessful connection attempt
+                penalty -= 3 * (not ue.connect_to_bs(bs, disconnect=True))
+
+        # move all UEs
+        for ue in self.ue_list:
+            ue.move()
+
+        self.time += 1
+
+        # return next observation, reward, done, info
+        self.obs = self.get_obs()
+        reward = self.calc_reward(penalty)
+        done = self.time >= self.episode_length
+        info = {}
+        self.log.info("Step", time=self.time, prev_obs=prev_obs, action=action, reward=reward, next_obs=self.obs,
+                      done=done)
+        return self.obs, reward, done, info
