@@ -6,6 +6,7 @@ import numpy as np
 import gym
 import gym.spaces
 import ray
+from ray import tune
 import ray.rllib.agents.ppo as ppo
 from ray.tune.logger import pretty_print
 
@@ -63,16 +64,41 @@ config = ppo.DEFAULT_CONFIG.copy()
 config["num_gpus"] = 0
 config["num_workers"] = 1
 config["eager"] = False
+config['env'] = TunnelEnv
 config['env_config'] = env_config
 
+# PPO-specific config: https://docs.ray.io/en/latest/rllib-algorithms.html#ppo
+# config['train_batch_size'] = 150    # default 4000 for PPO; must be larger than mini batch size 128
+
+# stop configuration (how long to train)
+# can contain any field in the returned results by train()
+# stops when any of the criteria is met
+stop = {
+    'training_iteration': 20,
+    'timesteps_total': 40
+}
+# timesteps_total is overruled by train_batch_size
 
 # train on custom env
-trainer = ppo.PPOTrainer(config=config, env=TunnelEnv)
+# trainer = ppo.PPOTrainer(config=config, env=TunnelEnv)
+# for i in range(1):
+#     # by default this runs 1 training iteration of 4000 time steps
+#     result = trainer.train()
+#     print(pretty_print(result))
 
-for i in range(1):
-    result = trainer.train()
-    print(pretty_print(result))
+# tune API is recommended (superset of trainer api) + supports hyperparam tuning
+results = tune.run('PPO', config=config, stop=stop, checkpoint_at_end=True)
 
+# custom training workflow: https://github.com/ray-project/ray/blob/master/rllib/examples/custom_train_fn.py
+# def custom_train(config, reporter):
+#     agent = ppo.PPOTrainer(env=TunnelEnv, config=config)
+#     for _ in range(3):
+#         result = agent.train()
+#         reporter(**result)
+#     saved = agent.save()
+#     print(saved)
+#
+# results = tune.run(custom_train, config=config, stop=stop)
 
 # train on cartpole
 # trainer = ppo.PPOTrainer(config=config, env="CartPole-v0")
