@@ -2,15 +2,15 @@
 
 ## v0.3: Centralized, single-agent, multi-UE-BS selection, basic radio model (WIP)
 
+* Simple but improved radio load model: 
+    * Split achievable load equally among connected UEs
+    * Allow connecting to any BS if the achievable data rate is above a 10% threshold of the required rate
+    * Data rate from multiple BS adds up
 * Multiple moving UEs, each selecting to which BS to connect
     * UEs may move at different speeds
     * Single agent that sees/controls combined observations and actions for all UEs in every time step
     * Observation: Achievable data rate for all UEs, connected BS for all UEs (auto clipped, normalized as before)
     * Action: Selected BS (or no-op) for all UEs
-* Simple but improved radio load model: 
-    * Split achievable load equally among connected UEs
-    * Allow connecting to any BS if the achievable data rate is above a 10% threshold of the required rate
-    * Data rate from multiple BS adds up
 * Discussion:
     * This means, observation and action space grow linearly with the number of UEs, which has to be fixed
     * Trying to avoid this by just having obs and actions for a single UE (as before) does not work:
@@ -19,6 +19,7 @@
         * Or: Action for UE1, obs for UE1, action for UE2, obs for UE2, ...
         Here, the agent sees obs from a different UE than what it is making decisions for. Choosing a proper action becomes impossible.
     * Adding the current UE's ID to the obs does not help and still leads to divergence
+    * The updated radio model allows and encourages the agent to connect UEs to multiple BS since their rate adds up and they can connect from farther away
 
 Example: Centralized PPO agent controlling two UEs after 20k training
 

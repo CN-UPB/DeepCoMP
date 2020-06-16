@@ -324,16 +324,20 @@ class CentralMultiUserEnv(MobileEnv):
                 penalty -= 3 * (not ue.connect_to_bs(bs, disconnect=True))
 
         # move all UEs
+        # check connections and reward before and after moving; then avg
+        # TODO: usually before & after are the same anyways; so I can drop this if the simulator becomes too slow
+        reward_before = self.calc_reward(penalty)
         for ue in self.ue_list:
             ue.move()
+        reward_after = self.calc_reward(penalty)
 
         self.time += 1
 
         # return next observation, reward, done, info
         self.obs = self.get_obs()
-        reward = self.calc_reward(penalty)
+        reward = np.mean([reward_before, reward_after])
         done = self.time >= self.episode_length
         info = {}
-        self.log.info("Step", time=self.time, prev_obs=prev_obs, action=action, reward=reward, next_obs=self.obs,
-                      done=done)
+        self.log.info("Step", time=self.time, prev_obs=prev_obs, action=action, reward_before=reward_before,
+                      reward_after=reward_after, reward=reward, next_obs=self.obs, done=done)
         return self.obs, reward, done, info

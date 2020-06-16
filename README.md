@@ -39,13 +39,17 @@ python main.py
 ## Todos
 
 * Fix radio model: See docs
-    * Threshold for connecting/disconnecting from a BS
     * Splitting RBs among connected BS rather than achievable dr per user?
 * Multiple UEs: 
-    * Simple centralized agent that has observations (and actions?) of both UEs combined. Later use as comparison case.
     * Multi-agent: Separate agents for each UE. I should look into ray/rllib: https://docs.ray.io/en/latest/rllib-env.html#multi-agent-and-hierarchical
     * Collaborative learning: Share experience or gradients to train agents together. Use same NN. Later separate NNs? Federated learing.
 * Generic utlitiy function: Currently, reward is a step function (pos if enough rate, neg if not). Could also be any other function of the rate, eg, logarithmic
+* Efficient caching of connection data rate:
+    * Currently always recalculate the data rate per connection per UE, eg, when calculating reward or checking whether we can connect
+    * Safe & easy, but probably slow for many UEs/BSs. Let's see
+    * Instead, write the dr per connection into a dict (conn --> curr dr); then derive total curr connection etc from that in O(1)
+    * Needs to be updated whenever the UE moves or any UE changes its connections (this or another UE)
+    * Eg, 1st move all UEs, 2nd check & update connections of all UEs, 3rd calculate reward etc
 
 ### Multi-Agent RL with rllib
 
