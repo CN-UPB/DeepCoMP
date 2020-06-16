@@ -1,6 +1,7 @@
 # minimal working env with RLlib. To be extended to what I have/want
 import gym
 import gym.spaces
+from shapely.geometry import Polygon
 
 
 # example for a custom env: https://github.com/ray-project/ray/blob/master/rllib/examples/custom_env.py
@@ -45,3 +46,43 @@ class TunnelEnv(gym.Env):
         done = self.time >= self.len_episode
         print(f"{self.time=}, {self.pos=}, {reward=}, {done=}")
         return self.pos, reward, done, {}
+
+
+class DummyMobileEnv(gym.Env):
+    """Drastically simplified, dummy mobile env. Incrementally extended to debug the problem."""
+    def __init__(self, env_config):
+        # construct the rectangular world map
+        self.time = 0
+        self.len_tunnel = env_config['len_tunnel']
+        self.episode_length = env_config['len_episode']
+
+        # self.width = 150
+        # self.height = 100
+        # self.map = Polygon([(0,0), (0, self.height), (self.width, self.height), (self.width, 0)])
+        # self.disable_interference = True
+        # # disable interference for all BS (or not)
+        # self.bs_list = []
+        # for bs in self.bs_list:
+        #     bs.disable_interference = self.disable_interference
+        # # pass the env to all users (needed for movement; interference etc)
+        # self.ue_list = []
+        # for ue in self.ue_list:
+        #     ue.env = self
+        # # current observation
+        # self.obs = None
+        # dummy observations and actions
+        # observation and action space are defined in the subclass --> different variants
+        self.observation_space = gym.spaces.Discrete(2)
+        self.action_space = gym.spaces.Discrete(2)
+
+    def reset(self):
+        """Reset environment by resetting time and all UEs (pos & movement) and their connections"""
+        self.time = 0
+        # TODO: this just returns the observation for the 1st UE
+        # self.obs = self.get_obs(self.ue_list[0])
+        return 1
+
+    def step(self, action):
+        # dummy
+        print(f"{action=}")
+        return 1, 0, False, {}

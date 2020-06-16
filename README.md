@@ -65,6 +65,7 @@ Dev plan:
 1. WIP: Switch to rllib and verify single-UE case still works as before. Keep working stable baselines code in separate branch
     * Non-trivial: Framework needs several changes in environment and overall workflow. Currently, everything is crashing and errors don't make sense.
     * TODO: Building a working enviornment from the ground up at `drl_mobile/rllib`
+    * Seems like the env is not the real problem. The current workflow also doesn't work for the TunnelEnv, which works in `rllib-example.py`
 2. Move to multi-user and multi-UE environment with rllib
 
 ## Findings
