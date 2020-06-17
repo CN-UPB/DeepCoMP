@@ -16,7 +16,7 @@ class Simulation:
         # and RLlib envs differently
         self.env_name = agent.config['env']
         self.env_config = agent.config['env_config']
-        self.episode_length = self.env_config['len_episode']
+        self.episode_length = self.env_config['episode_length']
         self.agent = agent
         self.normalize = normalize
         self.log = structlog.get_logger()

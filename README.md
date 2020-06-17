@@ -66,7 +66,7 @@ Dev plan:
     * Non-trivial: Framework needs several changes in environment and overall workflow. Currently, everything is crashing and errors don't make sense.
     * TODO: Building a working enviornment from the ground up at `drl_mobile/rllib`
     * https://github.com/ray-project/ray/issues/8993
-2. Build joint codebase for running both RLlib and stable_baselines. Eg, different packages with variations of main script
+2. Build joint codebase for running both RLlib and stable_baselines. Eg, different packages with variations of main script; use env_config for all envs
 2. Move to multi-user and multi-UE environment with rllib
 
 ## Findings
