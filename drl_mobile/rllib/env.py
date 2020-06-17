@@ -1,4 +1,4 @@
-# minimal working env with RLlib. To be extended to what I have/want
+# working dummy envs for testing with RLlib
 import gym
 import gym.spaces
 from shapely.geometry import Polygon
