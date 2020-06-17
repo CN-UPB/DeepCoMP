@@ -65,7 +65,8 @@ Dev plan:
 1. WIP: Switch to rllib and verify single-UE case still works as before. Keep working stable baselines code in separate branch
     * Non-trivial: Framework needs several changes in environment and overall workflow. Currently, everything is crashing and errors don't make sense.
     * TODO: Building a working enviornment from the ground up at `drl_mobile/rllib`
-    * Seems like the env is not the real problem. The current workflow also doesn't work for the TunnelEnv, which works in `rllib-example.py`
+    * https://github.com/ray-project/ray/issues/8993
+2. Build joint codebase for running both RLlib and stable_baselines. Eg, different packages with variations of main script
 2. Move to multi-user and multi-UE environment with rllib
 
 ## Findings
