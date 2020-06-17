@@ -2,7 +2,7 @@ import random
 
 import gym
 import gym.spaces
-# import structlog
+import structlog
 from shapely.geometry import Polygon
 import numpy as np
 import matplotlib.pyplot as plt
@@ -47,7 +47,8 @@ class MobileEnv(gym.Env):
         self.observation_space = None
         self.action_space = None
 
-        # self.log = structlog.get_logger()
+        # FIXME: leads to deep copy errors!
+        self.log = structlog.get_logger()
 
     @property
     def num_bs(self):
@@ -350,9 +351,13 @@ class RLlibEnv(DatarateMobileEnv):
     """Wrapper class of the DatarateMobileEnv for RLlib"""
     def __init__(self, env_config):
         """Wrapper env for RLlib, in which all args are in the env_config dict"""
+        # FIXME: issues with deepcopying; leads to "AttributeError: 'User' object has no attribute 'id'"
+
         super().__init__(env_config['episode_length'], env_config['width'], env_config['height'], env_config['bs_list'],
                          env_config['ue_list'], env_config['dr_cutoff'], env_config['sub_req_dr'],
                          disable_interference=env_config['disable_interference'])
         super().seed(env_config['seed'])
+
+        # self.log = structlog.getLogger()
 
         # TODO: try the Gym Dictspace for obs if it's supported by Ray (box for dr, binary for conn)

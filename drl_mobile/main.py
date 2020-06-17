@@ -141,7 +141,8 @@ def config_logging(round_digits):
 
 if __name__ == "__main__":
     ray.init()
-    config_logging(round_digits=3)
+    # FIXME: config_logging leads to KeyError: __deepcopy__ when structlog is enabled with rllib on the real env; not dummy
+    # config_logging(round_digits=3)
     # settings
     train_steps = 10000
     eps_length = 10

@@ -20,7 +20,8 @@ class TunnelEnv(gym.Env):
         # observation: pos in the tunnel (starting left at pos 0)
         self.observation_space = gym.spaces.Discrete(self.len_tunnel)
 
-        self.log = structlog.get_logger(test='works')
+        self.log = structlog.get_logger()
+        # self.log = structlog.get_logger(test='works')
 
     def reset(self):
         self.pos = 0
@@ -51,6 +52,11 @@ class TunnelEnv(gym.Env):
         # logging with structlog works!
         self.log.info('ok')
         return self.pos, reward, done, {}
+
+
+class ChildTunnelEnv(TunnelEnv):
+    def __init__(self, env_config):
+        super().__init__(env_config)
 
 
 class DummyMobileEnv(gym.Env):
