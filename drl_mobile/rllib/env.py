@@ -2,6 +2,7 @@
 import gym
 import gym.spaces
 from shapely.geometry import Polygon
+import structlog
 
 
 # example for a custom env: https://github.com/ray-project/ray/blob/master/rllib/examples/custom_env.py
@@ -18,6 +19,8 @@ class TunnelEnv(gym.Env):
         self.action_space = gym.spaces.Discrete(2)
         # observation: pos in the tunnel (starting left at pos 0)
         self.observation_space = gym.spaces.Discrete(self.len_tunnel)
+
+        self.log = structlog.get_logger(test='works')
 
     def reset(self):
         self.pos = 0
@@ -45,6 +48,8 @@ class TunnelEnv(gym.Env):
         # return obs, reward, done, info as usual
         done = self.time >= self.len_episode
         print(f"{self.time=}, {self.pos=}, {reward=}, {done=}")
+        # logging with structlog works!
+        self.log.info('ok')
         return self.pos, reward, done, {}
 
 
