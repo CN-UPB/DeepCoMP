@@ -39,7 +39,6 @@ class MobileEnv(gym.Env):
         self.observation_space = None
         self.action_space = None
 
-        # FIXME: leads to deep copy errors!
         self.log = structlog.get_logger()
 
     @property
