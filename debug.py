@@ -2,6 +2,7 @@
 from copy import copy, deepcopy
 
 from shapely.geometry import Point
+import ray.rllib.agents.ppo as ppo
 
 from drl_mobile.env.user import User
 from drl_mobile.env.station import Basestation
@@ -24,13 +25,30 @@ env_config = {
     'dr_cutoff': 'auto', 'sub_req_dr': True, 'disable_interference': True, 'seed': 1234
 }
 
-env = RLlibEnv(env_config)
-print(env)
+config = ppo.DEFAULT_CONFIG.copy()
+config['num_workers'] = 1
+config['seed'] = 1234
+# shorter training for faster debugging
+config['train_batch_size'] = 200
+# config['log_level'] = 'INFO'    # default: warning
+config['env_config'] = env_config
 
-# copy seems to work for (child)tunnelenv, but not deepcopy
-copy_env = copy(env)
-print(copy_env)
+# this works
+copy_conf = deepcopy(config)
+print(copy_conf)
 
-# deepcopy works for DummyMobileEnv, which doesn't use structlog at all
-deepcopy_env = deepcopy(env)
-print(deepcopy_env)
+# still works
+config['env'] = RLlibEnv
+copy_conf2 = deepcopy(config)
+print(copy_conf2)
+
+# env = RLlibEnv(env_config)
+# print(env)
+#
+# # copy seems to work for (child)tunnelenv, but not deepcopy
+# copy_env = copy(env)
+# print(copy_env)
+#
+# # deepcopy works for DummyMobileEnv, which doesn't use structlog at all
+# deepcopy_env = deepcopy(env)
+# print(deepcopy_env)

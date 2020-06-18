@@ -66,6 +66,9 @@ Dev plan:
     * Non-trivial: Framework needs several changes in environment and overall workflow. Currently, everything is crashing and errors don't make sense.
     * Solved: tf import; https://github.com/ray-project/ray/issues/8993
     * WIP: structlog works in dummy env, but not real env
+        * Error when deepcopying the rllib config inside rllib (different from config passed!)
+        * The error happens somewhere in deepcopy when the env is created and copyied. trying to make a deepcopy of self.log fails.
+        * Not sure why it fails giving the attribute error for User --> try without any user? & run debugger again
 2. Build joint codebase for running both RLlib and stable_baselines. Eg, different packages with variations of main script; use env_config for all envs
 2. Move to multi-user and multi-UE environment with rllib
 

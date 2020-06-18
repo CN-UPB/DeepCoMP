@@ -129,6 +129,7 @@ class MobileEnv(gym.Env):
         info = {}
         # self.log.info("Step", time=self.time, ue=ue, prev_obs=prev_obs, action=action, reward_before=reward_before,
         #               reward_after=reward_after, reward=reward, next_obs=self.obs, next_ue=next_ue, done=done)
+        print(f"{self.time=}, {ue=}, {prev_obs=}, {action=}, {reward=}, {self.obs=}")
         return self.obs, reward, done, info
 
     def render(self, mode='human'):
