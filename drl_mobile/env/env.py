@@ -3,7 +3,6 @@ import random
 import gym
 import gym.spaces
 import structlog
-from shapely.geometry import Polygon
 import numpy as np
 import matplotlib.pyplot as plt
 
@@ -15,23 +14,19 @@ class MobileEnv(gym.Env):
     """OpenAI Gym environment with multiple moving UEs and stationary BS on a map"""
     metadata = {'render.modes': ['human']}
 
-    def __init__(self, episode_length, width, height, bs_list, ue_list, disable_interference=False):
+    def __init__(self, episode_length, map, bs_list, ue_list, disable_interference=True):
         """
         Create a new environment object with an OpenAI Gym interface
         :param episode_length: Total number of simulation time steps in one episode
-        :param width: Width of the map
-        :param height: Height of the map
+        :param map: Map object representing the playground
         :param bs_list: List of basestation objects in the environment
         :param ue_list: List of UE objects in the environment
         :param disable_interference: If true, disable all interference, ie, only use SNR, not SINR
         """
         super(gym.Env, self).__init__()
-        # construct the rectangular world map
         self.time = 0
         self.episode_length = episode_length
-        self.width = width
-        self.height = height
-        self.map = Polygon([(0,0), (0, height), (width, height), (width, 0)])
+        self.map = map
         self.disable_interference = disable_interference
         # disable interference for all BS (or not)
         self.bs_list = bs_list
@@ -138,7 +133,7 @@ class MobileEnv(gym.Env):
         patch = []
 
         # map borders
-        patch.extend(plt.plot(*self.map.exterior.xy, color='gray'))
+        patch.extend(plt.plot(*self.map.shape.exterior.xy, color='gray'))
         # users & connections
         for ue in self.ue_list:
             patch.append(plt.scatter(*ue.pos.xy, label=ue.id, color=ue.color))
@@ -151,7 +146,7 @@ class MobileEnv(gym.Env):
 
         # title isn't redrawn in animation (out of box) --> static --> show time as text inside box, top-right corner
         patch.append(plt.title(type(self).__name__))
-        patch.append(plt.text(0.9*self.width, 0.9*self.height, f"t={self.time}"))
+        patch.append(plt.text(0.9*self.map.width, 0.9*self.map.height, f"t={self.time}"))
 
         # legend doesn't change --> only draw once at the beginning
         if self.time == 0:
@@ -161,8 +156,8 @@ class MobileEnv(gym.Env):
 
 class BinaryMobileEnv(MobileEnv):
     """Subclass of the general Mobile Env that uses binary observations to indicate which BS are & can be connected"""
-    def __init__(self, episode_length, width, height, bs_list, ue_list, **kwargs):
-        super().__init__(episode_length, width, height, bs_list, ue_list, **kwargs)
+    def __init__(self, episode_length, map, bs_list, ue_list, **kwargs):
+        super().__init__(episode_length, map, bs_list, ue_list, **kwargs)
         # observations: binary vector of BS availability (in range and dr >= req_dr) + already connected BS
         self.observation_space = gym.spaces.MultiBinary(2 * self.num_bs)
         # actions: select a BS to be connected to/disconnect from or noop
@@ -180,8 +175,8 @@ class BinaryMobileEnv(MobileEnv):
 
 class JustConnectedObsMobileEnv(BinaryMobileEnv):
     """Dummy observations just contain binary info about which BS are connected. Nothing about availablility"""
-    def __init__(self, episode_length, width, height, bs_list, ue_list, **kwargs):
-        super().__init__(episode_length, width, height, bs_list, ue_list, **kwargs)
+    def __init__(self, episode_length, map, bs_list, ue_list, **kwargs):
+        super().__init__(episode_length, map, bs_list, ue_list, **kwargs)
         # observations: just binary vector of already connected BS
         self.observation_space = gym.spaces.MultiBinary(self.num_bs)
         # same action space as binary env: select a BS to be connected to/disconnect from or noop
@@ -194,7 +189,7 @@ class JustConnectedObsMobileEnv(BinaryMobileEnv):
 
 class DatarateMobileEnv(BinaryMobileEnv):
     """Subclass of the binary MobileEnv that uses the achievable data rate as observations"""
-    def __init__(self, episode_length, width, height, bs_list, ue_list, dr_cutoff=200, sub_req_dr=False, **kwargs):
+    def __init__(self, episode_length, map, bs_list, ue_list, dr_cutoff=200, sub_req_dr=False, **kwargs):
         """
         Env where the achievable data rate is passed as observations
         Special setting: dr_cutoff='auto' (sub_req_dr must be True) -->
@@ -204,7 +199,7 @@ class DatarateMobileEnv(BinaryMobileEnv):
         :param dr_cutoff: Any data rate above this value will be cut off --> help have obs in same range
         :param sub_req_dr: If true, subtract a UE's required data rate from the achievable dr --> neg obs if too little
         """
-        super().__init__(episode_length, width, height, bs_list, ue_list, **kwargs)
+        super().__init__(episode_length, map, bs_list, ue_list, **kwargs)
         self.dr_cutoff = dr_cutoff
         self.sub_req_dr = sub_req_dr
         assert not (self.dr_cutoff == 'auto' and not self.sub_req_dr), "For dr_cutoff auto, sub_req_dr must be True."
@@ -260,9 +255,9 @@ class CentralMultiUserEnv(MobileEnv):
     Env where all UEs move, observe and act at all time steps, controlled by a single central agent.
     Otherwise similar to DatarateMobileEnv with auto dr_cutoff and sub_req_dr.
     """
-    def __init__(self, episode_length, width, height, bs_list, ue_list, **kwargs):
+    def __init__(self, episode_length, map, bs_list, ue_list, **kwargs):
         """Similar to DatarateMobileEnv but with multi-UEs controlled at once and fixed dr_cutoff, sub_req_dr"""
-        super().__init__(episode_length, width, height, bs_list, ue_list, **kwargs)
+        super().__init__(episode_length, map, bs_list, ue_list, **kwargs)
         # observations: FOR EACH UE: binary vector of BS availability (in range & free cap) + already connected BS
         # 1. Achievable data rate for given UE for all BS (normalized to [-1, 1]) --> Box;
         dr_low = np.full(shape=(self.num_ue * self.num_bs,), fill_value=-1)
@@ -354,7 +349,7 @@ class RLlibEnv(DatarateMobileEnv):
         """Wrapper env for RLlib, in which all args are in the env_config dict"""
         # FIXME: issues with deepcopying; leads to "AttributeError: 'User' object has no attribute 'id'"
 
-        super().__init__(env_config['episode_length'], env_config['width'], env_config['height'], env_config['bs_list'],
+        super().__init__(env_config['episode_length'], env_config['map'], env_config['bs_list'],
                          env_config['ue_list'], env_config['dr_cutoff'], env_config['sub_req_dr'],
                          disable_interference=env_config['disable_interference'])
         super().seed(env_config['seed'])

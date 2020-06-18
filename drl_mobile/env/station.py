@@ -26,7 +26,8 @@ class Basestation:
         self.height = 50    # in m
         # just consider downlink for now; more interesting for most apps anyways
         # if disable_interference=True (set by env), ignore interference; just calc SNR, not SINR
-        self.disable_interference = False
+        # disabling_interference by default now!
+        self.disable_interference = True
 
         # self.log = structlog.get_logger(id=self.id, pos=str(self.pos))
 
@@ -59,6 +60,7 @@ class Basestation:
 
     def interference(self, ue_pos, active_bs):
         """Return interference power at given UE position based on given list of active BS."""
+        assert not self.disable_interference, "Interference is disabled"
         interfering_bs = [bs for bs in active_bs if bs != self]
         interf_power = 0
         for bs in interfering_bs:
@@ -87,6 +89,7 @@ class Basestation:
         """
         # TODO: if I drop interference from the radio model for good; I don't need to pass active_bs any longer;
         #  should make the simulation more efficient, since I don't need to keep track of active BS
+        #  I acutally pass active_bs=None now already in UE
         sinr = self.sinr(ue.pos, active_bs)
         total_dr = self.bw * np.log2(1 + sinr)
         # split data rate by all already connected UEs + this UE if it is not connected yet

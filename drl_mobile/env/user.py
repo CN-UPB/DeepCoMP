@@ -9,10 +9,11 @@ class User:
     A user/UE moving around in the world and requesting mobile services
     Connection to BS are checked before connecting and after every move to check if connection is lost or still stable
     """
-    def __init__(self, id, pos_x, pos_y, move_x=0, move_y=0, dr_req=1, color='blue'):
+    def __init__(self, id, map, pos_x, pos_y, move_x=0, move_y=0, dr_req=1, color='blue'):
         """
         Create new UE object
         :param id: Unique ID of UE (string)
+        :param map: Map object representing the playground/world
         :param pos_x: x-coord of starting position or 'random'
         :param pos_y: y-coord of starting position or 'random'
         :param move_x: Movement per step along x-axis. Number or 'slow' -> randint(1,5) or 'fast' -> randint(10,20).
@@ -21,10 +22,10 @@ class User:
         :param color: Color for rendering. Default: blue
         """
         self.id = id
+        self.map = map
         self.dr_req = dr_req
         # min. data rate threshold required to connect (stay connected) to a BS; fixed to 1/10 here
         self.dr_thres = self.dr_req / 10
-        self.env = None
         self.conn_bs = []
         self.color = color
 
@@ -50,7 +51,7 @@ class User:
         """Current data rate the UE gets through all its BS connections"""
         dr = 0
         for bs in self.conn_bs:
-            dr += bs.data_rate(self, self.env.active_bs)
+            dr += bs.data_rate(self, None)
         # self.log.debug("Current data rate", curr_dr=dr)
         return dr
 
@@ -59,19 +60,11 @@ class User:
         # set pos_x
         pos_x = self.init_pos_x
         if pos_x == 'random':
-            # restrict to 0-10 if map is unknown
-            if self.env is None:
-                pos_x = random.randint(0, 10)
-            else:
-                pos_x = random.randint(0, self.env.width)
+            pos_x = random.randint(0, self.map.width)
         # set pos_y
         pos_y = self.init_pos_y
         if pos_y == 'random':
-            # restrict to 0-10 if map is unknown
-            if self.env is None:
-                pos_y = random.randint(0, 10)
-            else:
-                pos_y = random.randint(0, self.env.height)
+            pos_y = random.randint(0, self.map.height)
         # set pos as Point
         self.pos = Point(pos_x, pos_y)
 
@@ -107,7 +100,7 @@ class User:
         # seems like points are immutable --> replace by new point
         new_pos = Point(self.pos.x + self.move_x, self.pos.y + self.move_y)
         # reverse movement if otherwise moving out of map
-        if not new_pos.within(self.env.map):
+        if not new_pos.within(self.map.shape):
             self.move_x = -self.move_x
             self.move_y = -self.move_y
             new_pos = Point(self.pos.x + self.move_x, self.pos.y + self.move_y)
@@ -130,7 +123,9 @@ class User:
 
     def can_connect(self, bs):
         """Return whether or not the UE can connect to the BS (based achievable data rate at current pos)"""
-        dr = bs.data_rate(self, self.env.active_bs)
+        # just pass None as active_bs; doesn't make a difference if interference disabled
+        assert bs.disable_interference, "Need active_bs to calculate interference. Disable interference instead."
+        dr = bs.data_rate(self, None)
         return dr >= self.dr_thres
 
     def connect_to_bs(self, bs, disconnect=False):
