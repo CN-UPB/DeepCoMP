@@ -33,6 +33,6 @@ def create_rllib_agent(seed=None, train=True):
             'dr_cutoff': 'auto', 'sub_req_dr': True, 'disable_interference': True, 'seed': seed
         }
         config['env_config'] = env_config
-        return ppo.PPOTrainer(config=config, env=RLlibEnv)
+        return ppo.PPOTrainer(config=config, env=ChildTunnelEnv)
     else:   # TODO: rllib testing
         raise NotImplementedError('Still have to implement testing with RLlib')

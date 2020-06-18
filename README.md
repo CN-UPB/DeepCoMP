@@ -69,6 +69,10 @@ Dev plan:
         * Error when deepcopying the rllib config inside rllib (different from config passed!)
         * The error happens somewhere in deepcopy when the env is created and copyied. trying to make a deepcopy of self.log fails.
         * Not sure why it fails giving the attribute error for User --> try without any user? & run debugger again
+        * Most likely the problem is with the cyclic references of env --> ue --> env. 
+        In deepcopy, the `memo` has some pointers errors of `unable to get repr` for user attributes.
+        These errors get printed when deepcopying the stuctlog logger (because it tries to convert the `memo` dict to `str`)
+        * Exactly, the issue is caused by the reference env --> ue --> env when deepcopying. structlog only leads to printing the error when trying to `str()` the `memo` dict
 2. Build joint codebase for running both RLlib and stable_baselines. Eg, different packages with variations of main script; use env_config for all envs
 2. Move to multi-user and multi-UE environment with rllib
 

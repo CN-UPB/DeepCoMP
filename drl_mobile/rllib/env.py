@@ -20,8 +20,8 @@ class TunnelEnv(gym.Env):
         # observation: pos in the tunnel (starting left at pos 0)
         self.observation_space = gym.spaces.Discrete(self.len_tunnel)
 
-        # self.log = structlog.get_logger()
-        self.log = structlog.get_logger(test='works')
+        self.log = structlog.get_logger()
+        # self.log = structlog.get_logger(test='works')
 
     def reset(self):
         self.pos = 0
@@ -57,6 +57,10 @@ class TunnelEnv(gym.Env):
 class ChildTunnelEnv(TunnelEnv):
     def __init__(self, env_config):
         super().__init__(env_config)
+        self.ue = env_config['ue_list'][0]
+        # this is what's causing errors when deepcopying:
+        # I guess this has nothing to do with structlog; stuctlog just causes to print the error
+        # self.ue.env = self
 
 
 class DummyMobileEnv(gym.Env):
