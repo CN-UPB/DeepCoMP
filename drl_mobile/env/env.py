@@ -32,10 +32,7 @@ class MobileEnv(gym.Env):
         self.bs_list = bs_list
         for bs in self.bs_list:
             bs.disable_interference = self.disable_interference
-        # pass the env to all users (needed for movement; interference etc)
         self.ue_list = ue_list
-        for ue in self.ue_list:
-            ue.env = self
         # current observation
         self.obs = None
         # observation and action space are defined in the subclass --> different variants
