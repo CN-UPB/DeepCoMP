@@ -34,11 +34,13 @@ class Simulation:
             plt.savefig(f'{save_dir}/ppo2_{train_steps}.png')
             plt.show()
 
-    def train_rllib(self, train_steps, save_dir, plot=False):
+    def train_rllib(self, train_iter, save_dir, plot=False):
         """Train RLlib agent"""
-        self.log.info('Start training', train_steps=train_steps)
+        self.log.info('Start training', total_train_iter=train_iter)
         # TODO: configure training length; plot progress; save
-        results = self.agent.train()
+        for i in range(train_iter):
+            results = self.agent.train()
+            self.log.debug('Train iteration done', train_iter=i, results=results)
         return results
 
 

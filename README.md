@@ -1,31 +1,29 @@
 # deep-rl-mobility-management
 
-Simple simulation of mobility management scenario to use with deep RL
+Using deep RL for mobility management.
 
 ![example](docs/gifs/v03.gif)
 
 ## Setup
 
-Should work with Python 3.6+. Tested with Python 3.7. 
-Tensorflow 1 doesn't work on Python 3.8 but is required by stable_baselines.
+Ray supports TF2 and thus also Python 3.8.
 
 ```
 pip install -r requirements
 ```
 
-For saving gifs, you also need to install [ImageMagick](https://imagemagick.org/index.php).
-
-### Installing RLlib
-
-Ray supports TF2 and thus also Python 3.8.
-
-```
-pip install ray[rllib]
-```
-
 It may fail installing `gym[atari]`, which needs the following dependencies that can be installed with `apt`:
 `cmake, build-essentials, zlib1g-dev`. 
 RLlib does not ([yet](https://github.com/ray-project/ray/issues/631)) run on Windows, but it does on WSL.
+
+For saving gifs, you also need to install [ImageMagick](https://imagemagick.org/index.php).
+
+### Notes on stable_baselines (deprecated)
+
+Should work with Python 3.6+. Tested with Python 3.7. 
+Tensorflow 1 doesn't work on Python 3.8 but is required by stable_baselines.
+As `ray` requires TF2 and `stable_baselines` requires TF1, they are mutually exclusive.
+
 
 ## Usage
 
@@ -77,3 +75,19 @@ Dev plan:
 * Just cutting the data rate off at some small value (eg, 3 Mbit/s) leads to much better results
 * Agent keeps trying to connect to all BS, even if out of range. --> Subtracting req. dr by UE + higher penalty (both!) solves the issue
 * Normalizing loses info about which BS has enough dr and connectivity --> does not work as well
+
+## Development
+
+### Notes on RLlib
+
+#### Training
+
+* `agent.train()` runs one training iteration. Calling it in a loop, continues training for multiple iterations.
+* The number of environment steps (not episodes) per iteration is set in `config['train_batch_size']`
+* `config['sgd_minibatch_size']` sets how many steps/experiences are used per training epoch
+* `config['train_batch_size'] >= config['sgd_minibatch_size']`
+* I still don't quite get the details. Sometimes, `config['sgd_minibatch_size']` is ignored and RLlib just trains longer.
+* In the results of each training iteration, 
+    * `results['hist_stats']['episode_reward']` is a list of all episode rewards from all training iterations so far. Useful for plotting.
+    * `results['info']['num_steps_trained']` shows the total number of training steps, 
+    * which is at most `results['info']['num_steps_sampled']`, based on the `train_batch_size`

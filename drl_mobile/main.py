@@ -136,7 +136,8 @@ if __name__ == "__main__":
     # train
     if train:
         # sim.train_rllib(train_steps=train_steps, save_dir=training_dir, plot=True)
-        sim.train_rllib(train_steps=train_steps, save_dir=None, plot=True)
+        # here, train_iter is the number of iterations not total training steps (which is much larger)
+        sim.train_rllib(train_iter=1, save_dir=None, plot=True)
 
     # TODO: adjust/debug test & evaluation
     # simulate one run
