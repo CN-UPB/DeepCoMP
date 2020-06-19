@@ -36,6 +36,8 @@ python main.py
 
 ## Todos
 
+**Next**: RLlib training: Configure where stats are saved using tune (see rllib-example.py); then plot and save agent. then testing. once that works, go full rllib; remove stable baselines
+
 * Multiple UEs: 
     * Multi-agent: Separate agents for each UE. I should look into ray/rllib: https://docs.ray.io/en/latest/rllib-env.html#multi-agent-and-hierarchical
     * Collaborative learning: Share experience or gradients to train agents together. Use same NN. Later separate NNs? Federated learing.
