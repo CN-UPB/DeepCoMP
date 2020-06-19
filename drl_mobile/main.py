@@ -1,11 +1,9 @@
 """Main execution script used for experimentation"""
 
-import logging
 import os
 
 import gym
 import structlog
-from structlog.stdlib import LoggerFactory
 from shapely.geometry import Point
 import ray
 # import ray.tune
@@ -29,38 +27,12 @@ from drl_mobile.env.user import User
 from drl_mobile.env.station import Basestation
 from drl_mobile.env.simulation import Simulation
 from drl_mobile.agent.dummy import RandomAgent, FixedAgent
-from drl_mobile.util.logs import FloatRounder
+from drl_mobile.util.logs import config_logging
 from drl_mobile.rllib.agent import create_rllib_agent
 from drl_mobile.rllib.env import TunnelEnv
 
 
 log = structlog.get_logger()
-
-
-def config_logging(round_digits):
-    """Configure logging using structlog, stdlib logging, and custom FloatRounder to round to spec numb digits"""
-    logging.basicConfig(level=logging.INFO)
-    logging.getLogger('drl_mobile').setLevel(logging.WARNING)
-    logging.getLogger('drl_mobile.env.simulation').setLevel(logging.INFO)
-    logging.getLogger('matplotlib').setLevel(logging.WARNING)
-    logging.getLogger('tensorflow').setLevel(logging.ERROR)
-    gym.logger.set_level(gym.logger.ERROR)
-    # structlog.configure(logger_factory=LoggerFactory())
-    structlog.configure(logger_factory=LoggerFactory(),
-                        processors=[
-                            structlog.stdlib.filter_by_level,
-                            # structlog.stdlib.add_logger_name,
-                            # structlog.stdlib.add_log_level,
-                            # structlog.stdlib.PositionalArgumentsFormatter(),
-                            # structlog.processors.StackInfoRenderer(),
-                            # structlog.processors.format_exc_info,
-                            # structlog.processors.UnicodeDecoder(),
-                            # structlog.processors.TimeStamper(fmt="%Y-%m-%d %H:%M:%S"),
-                            FloatRounder(digits=round_digits, not_fields=['sinr', 'signal', 'interference']),
-                            structlog.dev.ConsoleRenderer()
-                            # structlog.stdlib.render_to_log_kwargs,
-                            # structlog.processors.JSONRenderer()
-                        ])
 
 
 # def create_env(eps_length, normalize, train, seed=None):
@@ -141,8 +113,7 @@ def config_logging(round_digits):
 
 if __name__ == "__main__":
     ray.init()
-    # FIXME: config_logging leads to KeyError: __deepcopy__ when structlog is enabled with rllib on the real env; not dummy
-    # config_logging(round_digits=3)
+    config_logging(round_digits=3)
     # settings
     train_steps = 10000
     eps_length = 10

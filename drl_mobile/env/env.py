@@ -6,6 +6,8 @@ import structlog
 import numpy as np
 import matplotlib.pyplot as plt
 
+from drl_mobile.util.logs import config_logging
+
 
 # TODO: once this grows too large, split it into separate modules (base_env, extended_env, central_env, rllib_env,...)
 
@@ -40,6 +42,8 @@ class MobileEnv(gym.Env):
         self.action_space = None
 
         self.log = structlog.get_logger()
+        # configure logging inside env to ensure it works in ray/rllib. https://github.com/ray-project/ray/issues/9030
+        config_logging(round_digits=3)
 
     @property
     def num_bs(self):
@@ -118,9 +122,9 @@ class MobileEnv(gym.Env):
         reward = np.mean([reward_before, reward_after])
         done = self.time >= self.episode_length
         info = {}
-        # self.log.info("Step", time=self.time, ue=ue, prev_obs=prev_obs, action=action, reward_before=reward_before,
-        #               reward_after=reward_after, reward=reward, next_obs=self.obs, next_ue=next_ue, done=done)
-        print(f"{self.time=}, {ue=}, {prev_obs=}, {action=}, {reward=}, {self.obs=}")
+        self.log.info("Step", time=self.time, ue=ue, prev_obs=prev_obs, action=action, reward_before=reward_before,
+                      reward_after=reward_after, reward=reward, next_obs=self.obs, next_ue=next_ue, done=done)
+        # print(f"{self.time=}, {ue=}, {prev_obs=}, {action=}, {reward=}, {self.obs=}")
         return self.obs, reward, done, info
 
     def render(self, mode='human'):
@@ -203,7 +207,7 @@ class DatarateMobileEnv(BinaryMobileEnv):
         # 1. Achievable data rate for given UE for all BS --> Box;
         # cut off dr at given dr level. here, dr is below 200 anyways --> default doesn't cut off
         max_dr_req = max([ue.dr_req for ue in self.ue_list])
-        # self.log.info('Max dr req', max_dr_req=max_dr_req, dr_cutoff=self.dr_cutoff, sub_req_dr=self.sub_req_dr)
+        self.log.info('Max dr req', max_dr_req=max_dr_req, dr_cutoff=self.dr_cutoff, sub_req_dr=self.sub_req_dr)
         assert dr_cutoff == 'auto' or max_dr_req < dr_cutoff, "dr_cutoff should be higher than max required dr. by UEs"
 
         # define observation space
@@ -349,7 +353,5 @@ class RLlibEnv(DatarateMobileEnv):
                          env_config['ue_list'], env_config['dr_cutoff'], env_config['sub_req_dr'],
                          disable_interference=env_config['disable_interference'])
         super().seed(env_config['seed'])
-
-        # self.log = structlog.getLogger()
 
         # TODO: try the Gym Dictspace for obs if it's supported by Ray (box for dr, binary for conn)
