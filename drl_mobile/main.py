@@ -128,7 +128,7 @@ if __name__ == "__main__":
     # env, training_dir = create_env(eps_length=eps_length, normalize=normalize, train=train, seed=seed)
 
     # agent = create_agent('rllib_ppo', env, seed=seed, train=train)
-    agent = create_rllib_agent(seed=seed, train=train)
+    agent = create_rllib_agent(seed=seed, train=train, monitor=True)
 
     # simulator doesn't need RLlib's env_config (contained in agent anyways)
     sim = Simulation(env=None, agent=agent, normalize=normalize)
@@ -137,7 +137,7 @@ if __name__ == "__main__":
     if train:
         # sim.train_rllib(train_steps=train_steps, save_dir=training_dir, plot=True)
         # here, train_iter is the number of iterations not total training steps (which is much larger)
-        sim.train_rllib(train_iter=1, save_dir=None, plot=True)
+        sim.train_rllib(train_iter=10, save_dir=None, plot=True)
 
     # TODO: adjust/debug test & evaluation
     # simulate one run

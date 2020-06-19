@@ -9,8 +9,8 @@ from structlog.stdlib import LoggerFactory
 def config_logging(round_digits):
     """Configure logging using structlog, stdlib logging, and custom FloatRounder to round to spec numb digits"""
     logging.basicConfig(level=logging.INFO)
-    logging.getLogger('drl_mobile').setLevel(logging.INFO)
-    logging.getLogger('drl_mobile.env.simulation').setLevel(logging.INFO)
+    logging.getLogger('drl_mobile').setLevel(logging.WARNING)
+    logging.getLogger('drl_mobile.env.simulation').setLevel(logging.DEBUG)
     logging.getLogger('matplotlib').setLevel(logging.WARNING)
     logging.getLogger('tensorflow').setLevel(logging.ERROR)
     gym.logger.set_level(gym.logger.ERROR)

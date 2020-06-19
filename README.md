@@ -91,3 +91,9 @@ Dev plan:
     * `results['hist_stats']['episode_reward']` is a list of all episode rewards from all training iterations so far. Useful for plotting.
     * `results['info']['num_steps_trained']` shows the total number of training steps, 
     * which is at most `results['info']['num_steps_sampled']`, based on the `train_batch_size`
+
+#### Tensorboard
+
+* Ray supports tensorboard, but `config['monitor']` needs to be set to `True`
+* Then just run `tensorboard --logdir ~/ray_results` to visualize all results. Use WSL not PyCharm terminal.
+* Tensorboard is available at http://localhost:6006

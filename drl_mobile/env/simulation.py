@@ -1,8 +1,12 @@
+import os
+
 import structlog
 import matplotlib.pyplot as plt
 import matplotlib.animation
 # from stable_baselines import results_plotter
 # from stable_baselines.common.evaluation import evaluate_policy
+import seaborn as sns
+import numpy as np
 
 
 class Simulation:
@@ -19,6 +23,11 @@ class Simulation:
         self.episode_length = self.env_config['episode_length']
         self.agent = agent
         self.normalize = normalize
+
+        # dir for saving logs, plots, replay video
+        self.save_dir = f'../training/{self.env_name}'
+        os.makedirs(self.save_dir, exist_ok=True)
+
         self.log = structlog.get_logger()
 
     def train_sb(self, train_steps, save_dir, plot=False):
@@ -34,15 +43,47 @@ class Simulation:
             plt.savefig(f'{save_dir}/ppo2_{train_steps}.png')
             plt.show()
 
+    def plot_training_results(self, eps_steps, eps_rewards, plot_eps=True):
+        """
+        Plot episode rewards over time
+        :param eps_steps: List of time steps per episode (should always be the same here)
+        :param eps_rewards: List of reward per episode
+        :param plot_eps: If true, plot episodes on the xlabel instead of steps
+        """
+        x = []
+        if plot_eps:
+            # just create a list of training episodes (not time steps)
+            x = [i+1 for i in range(len(eps_rewards))]
+        else:
+            # sum up episode time steps
+            for i, t in enumerate(eps_steps):
+                if i == 0:
+                    x.append(t)
+                else:
+                    x.append(t + x[i-1])
+
+        # plot
+        sns.regplot(x, eps_rewards, x_estimator=np.mean)
+        plt.title(f'Learning Curve for {self.env_name}')
+        if plot_eps:
+            plt.xlabel('Training episodes')
+        else:
+            plt.xlabel('Training steps')
+        plt.ylabel('Episode reward')
+        train_steps = sum(eps_steps)
+        plt.savefig(f'{self.save_dir}/rllib_ppo_{train_steps}.png')
+        plt.show()
+
     def train_rllib(self, train_iter, save_dir, plot=False):
         """Train RLlib agent"""
         self.log.info('Start training', total_train_iter=train_iter)
-        # TODO: configure training length; plot progress; save
+        # # TODO: configure training length; plot progress; save
+        results = {}
         for i in range(train_iter):
             results = self.agent.train()
             self.log.debug('Train iteration done', train_iter=i, results=results)
-        return results
-
+        eps_results = results['hist_stats']
+        self.plot_training_results(eps_results['episode_lengths'], eps_results['episode_reward'])
 
     def save_animation(self, fig, patches, mode, save_dir):
         """

@@ -8,13 +8,13 @@ from drl_mobile.env.env import RLlibEnv
 
 
 # dummy function with hard-coded env to get sth simple working
-def create_rllib_agent(seed=None, train=True):
+def create_rllib_agent(seed=None, train=True, monitor=False):
     if train:
         config = ppo.DEFAULT_CONFIG.copy()
         config['num_workers'] = 1
         config['seed'] = seed
-        # write training stats and videos to file (default: False)
-        config['monitor'] = True
+        # write training stats to file under ~/ray_results (default: False)
+        config['monitor'] = monitor
 
         # shorter training for faster debugging
         config['train_batch_size'] = 200        # default: 4000; default in stable_baselines: 128
