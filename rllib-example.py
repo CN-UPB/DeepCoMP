@@ -69,22 +69,22 @@ config['env'] = TunnelEnv
 config['env_config'] = env_config
 
 # PPO-specific config: https://docs.ray.io/en/latest/rllib-algorithms.html#ppo
-# config['train_batch_size'] = 150    # default 4000 for PPO; must be larger than mini batch size 128
+config['train_batch_size'] = 200    # default 4000 for PPO; must be larger than mini batch size 128
 # sgd_minibatch_size
 
 # stop configuration (how long to train)
 # can contain any field in the returned results by train()
 # stops when any of the criteria is met
 stop = {
-    'training_iteration': 20,
-    'timesteps_total': 40
+    'training_iteration': 1,
+    'timesteps_total': 10
 }
 # timesteps_total is overruled by train_batch_size
 
 # train on custom env
-trainer = ppo.PPOTrainer(config=config, env=TunnelEnv)
-result = trainer.train()
-print(pretty_print(result))
+# trainer = ppo.PPOTrainer(config=config, env=TunnelEnv)
+# result = trainer.train()
+# print(pretty_print(result))
 # for i in range(1):
 #     # by default this runs 1 training iteration of 4000 time steps
 #     result = trainer.train()
@@ -94,15 +94,16 @@ print(pretty_print(result))
 # results = tune.run('PPO', config=config, stop=stop, checkpoint_at_end=True)
 
 # custom training workflow: https://github.com/ray-project/ray/blob/master/rllib/examples/custom_train_fn.py
-# def custom_train(config, reporter):
-#     agent = ppo.PPOTrainer(env=TunnelEnv, config=config)
-#     for _ in range(3):
-#         result = agent.train()
-#         reporter(**result)
-#     saved = agent.save()
-#     print(saved)
-#
-# results = tune.run(custom_train, config=config, stop=stop)
+def custom_train(config, reporter):
+    agent = ppo.PPOTrainer(env=TunnelEnv, config=config)
+    for _ in range(1):
+        result = agent.train()
+        reporter(**result)
+    saved = agent.save()
+    print(saved)
+
+# FIXME: results/stats are still saved at ray_results; not at the local_dir; it does work!!!
+results = tune.run(custom_train, config=config, stop=stop, local_dir='.')
 
 # train on cartpole
 # trainer = ppo.PPOTrainer(config=config, env="CartPole-v0")

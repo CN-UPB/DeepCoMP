@@ -88,7 +88,7 @@ Dev plan:
 * `config['train_batch_size'] >= config['sgd_minibatch_size']`
 * I still don't quite get the details. Sometimes, `config['sgd_minibatch_size']` is ignored and RLlib just trains longer.
 * In the results of each training iteration, 
-    * `results['hist_stats']['episode_reward']` is a list of all episode rewards from all training iterations so far. Useful for plotting.
+    * `results['hist_stats']['episode_reward']` is a list of the last 100 episode rewards from all training iterations so far. Useful for plotting.
     * `results['info']['num_steps_trained']` shows the total number of training steps, 
     * which is at most `results['info']['num_steps_sampled']`, based on the `train_batch_size`
 

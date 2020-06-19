@@ -83,6 +83,7 @@ class Simulation:
             results = self.agent.train()
             self.log.debug('Train iteration done', train_iter=i, results=results)
         eps_results = results['hist_stats']
+        # FIXME: this only contains the last 100 episodes --> not useful; instead properly configer the log dir and then plot progress.csv
         self.plot_training_results(eps_results['episode_lengths'], eps_results['episode_reward'])
 
     def save_animation(self, fig, patches, mode, save_dir):
