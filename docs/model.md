@@ -19,11 +19,17 @@ Radio model mostly implemented in [`drl_mobile/env/station.py`](https://github.c
     Hence, there is no interference between BSs.
 * We do not consider assignment of RBs explicitly, but assume that
     * BS assign all RBs to connected users, ie, transmit as much data rate as possible
-    * RBs (and thus achievable data rate) are split equally among connected UEs
-    * FIXME?: That's not what I'm doing [here](https://github.com/CN-UPB/deep-rl-mobility-management/blob/master/drl_mobile/env/station.py#L87).
-    I split the achievable data rate *per UE* equally. But that's not the same thing as splitting RBs, is it?
-        * Actually, on second thought why not? Wouldn't 50% RBs lead to 50% achievable data rate for each UE?
-        * That achievable data rate may still differ for different UEs depending on their position.
+    * Time-wise fair share: RBs are split equally among connected UEs
+        * Rate r_i for UE i is split by the number k of all connected UEs: r_i^nominell = r_i / k
 * Based on the SNR and the number of connected users at a BS, I calculate the achievable data rate per UE from a BS
 * UEs can connect to multiple BS and their data rates add up
 * UEs can only connect to BS that are not too far away, ie, where the achievable data rate at the BS is at least 1/10 of the required rate    
+
+### Todo
+
+See HK's mail from 22.06.:
+
+* Current time-wise fair sharing is fine. But volume-wise would be better (Wifi). Or even better proportional fair.
+* Assuming a high frequency reuse factor such that neighboring BS do not interfere is like GSM and outdated. I should consider a stand-alone scheduler (greedy?) at some point instead.
+* Assuming that UEs can receive from multiple BS at multiple frequencies at the same time may not be realistic. Not sure what is?
+* Allowing UEs to connect to BS that offer 1/10 the required rate doesn't make sense, eg, if the required rate is very high. Instead: S * factor c > N? With configurable c.
