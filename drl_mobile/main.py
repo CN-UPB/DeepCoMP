@@ -6,6 +6,7 @@ import gym
 import structlog
 from shapely.geometry import Point
 import ray
+import ray.rllib.agents.ppo as ppo
 # import ray.tune
 import ray.rllib.agents.ppo as rllib_ppo
 from ray.tune.logger import pretty_print
@@ -23,13 +24,13 @@ from ray.tune.logger import pretty_print
 
 
 from drl_mobile.env.env import BinaryMobileEnv, DatarateMobileEnv, CentralMultiUserEnv, RLlibEnv
-from drl_mobile.env.user import User
-from drl_mobile.env.station import Basestation
 from drl_mobile.env.simulation import Simulation
 from drl_mobile.agent.dummy import RandomAgent, FixedAgent
 from drl_mobile.util.logs import config_logging
-from drl_mobile.rllib.agent import create_rllib_agent
 from drl_mobile.rllib.env import TunnelEnv
+from drl_mobile.env.user import User
+from drl_mobile.env.station import Basestation
+from drl_mobile.env.map import Map
 
 
 log = structlog.get_logger()
@@ -110,12 +111,49 @@ log = structlog.get_logger()
 #             raise NotImplementedError('Still have to implement testing with RLlib')
 #     return None
 
+def get_config(seed=None, monitor=False, train_batch_size=4000, env=RLlibEnv):
+    """
+    Create environment and config. Return config
+    :param seed: Seed for reproducible results
+    :param monitor: Whether or not to monitor and log stats
+    :param train_batch_size: Number of sampled env steps in a single training iteration (default 4000)
+    :param env: Environment class (not object) to use
+    :return: The complete config for an RLlib agent, including the env & env_config
+    """
+    # create the environment
+    map = Map(width=150, height=100)
+    ue1 = User('ue1', map, color='blue', pos_x='random', pos_y=40, move_x='slow')
+    # ue2 = User('ue2', color='red', pos_x='random', pos_y=30, move_x='fast')
+    bs1 = Basestation('bs1', pos=Point(50, 50))
+    bs2 = Basestation('bs2', pos=Point(100, 50))
+
+    # create and return the config
+    # TODO: for now, hard-code ppo config; make it configurable if necessary
+    config = ppo.DEFAULT_CONFIG.copy()
+    config['num_workers'] = 1
+    config['seed'] = seed
+    # write training stats to file under ~/ray_results (default: False)
+    config['monitor'] = monitor
+    config['train_batch_size'] = train_batch_size        # default: 4000; default in stable_baselines: 128
+    # config['log_level'] = 'INFO'    # ray logging default: warning
+    config['env'] = env
+    env_config = {
+        'episode_length': 10, 'map': map, 'bs_list': [bs1, bs2], 'ue_list': [ue1],
+        'dr_cutoff': 'auto', 'sub_req_dr': True, 'disable_interference': True, 'seed': seed
+    }
+    config['env_config'] = env_config
+
+    return config
+
 
 if __name__ == "__main__":
     ray.init()
     config_logging(round_digits=3)
+
     # settings
-    train_steps = 10000
+    train_iter = 1
+    # env steps per train_iter
+    train_batch_size = 200
     eps_length = 10
     # train or load trained agent (& env norm stats); only set train=True for ppo agent!
     train = True
@@ -126,18 +164,17 @@ if __name__ == "__main__":
 
     # create env
     # env, training_dir = create_env(eps_length=eps_length, normalize=normalize, train=train, seed=seed)
-
-    # agent = create_agent('rllib_ppo', env, seed=seed, train=train)
-    agent = create_rllib_agent(seed=seed, train=train, monitor=True)
+    config = get_config(seed=seed, monitor=True, train_batch_size=train_batch_size, env=RLlibEnv)
 
     # simulator doesn't need RLlib's env_config (contained in agent anyways)
-    sim = Simulation(env=None, agent=agent, normalize=normalize)
+    sim = Simulation(config=config, env=RLlibEnv, agent='ppo', normalize=normalize)
 
     # train
     if train:
         # sim.train_rllib(train_steps=train_steps, save_dir=training_dir, plot=True)
         # here, train_iter is the number of iterations not total training steps (which is much larger)
-        sim.train_rllib(train_iter=5, save_dir=None, plot=True)
+        # sim.train_rllib(train_iter=5, save_dir=None, plot=True)
+        sim.train_rllib2(train_iter=1)
 
     # TODO: adjust/debug test & evaluation
     # simulate one run

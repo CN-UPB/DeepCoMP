@@ -7,21 +7,24 @@ import matplotlib.animation
 # from stable_baselines.common.evaluation import evaluate_policy
 import seaborn as sns
 import numpy as np
+import ray.tune
+import ray.rllib.agents.ppo as ppo
 
 
 class Simulation:
     """Simulation class"""
-    def __init__(self, env, agent, normalize):
-        # we work with a dummy vec env with just 1 env; eg, for normalization
-        # self.env = env
-        # original_env = self.env.envs[0].env
-        # self.env_name = type(original_env).__name__
-
-        # and RLlib envs differently
-        self.env_name = agent.config['env']
-        self.env_config = agent.config['env_config']
+    def __init__(self, config, env, agent_type, normalize):
+        # save the config
+        self.config = config
+        self.env_name = config['env']
+        self.env_config = config['env_config']
         self.episode_length = self.env_config['episode_length']
-        self.agent = agent
+
+        # set agent
+        supported_agents = ('ppo', 'random', 'fixed')
+        assert agent_type in supported_agents, f"Agent {agent_type} not supported. Supported agents: {supported_agents}"
+        self.agent_type = agent_type
+        self.env = env
         self.normalize = normalize
 
         # dir for saving logs, plots, replay video
@@ -29,6 +32,17 @@ class Simulation:
         os.makedirs(self.save_dir, exist_ok=True)
 
         self.log = structlog.get_logger()
+
+    def get_agent(self, config):
+        """
+        Return an agent object of the configured type
+        :param config: Config to pass to the agent
+        :return: Created agent object
+        """
+        if self.agent_type == 'ppo':
+            return ppo.PPOTrainer(config=config, env=self.env)
+        else:
+            raise NotImplementedError(f"Agent {self.agent_type} not yet implemented")
 
     def train_sb(self, train_steps, save_dir, plot=False):
         """Train stable_baselines agent for specified training steps"""
@@ -85,6 +99,16 @@ class Simulation:
         eps_results = results['hist_stats']
         # FIXME: this only contains the last 100 episodes --> not useful; instead properly configer the log dir and then plot progress.csv
         self.plot_training_results(eps_results['episode_lengths'], eps_results['episode_reward'])
+
+    def train_rllib2(self, train_iter):
+        def custom_tune_loop(config, reporter):
+            agent = self.get_agent(config)
+            for i in range(train_iter):
+                results = agent.train()
+                self.log.debug('Train iteration done', train_iter=i, results=results)
+                reporter(**results)
+
+        final_results = ray.tune.run(custom_tune_loop, config=self.config, local_dir='training/rllib')
 
     def save_animation(self, fig, patches, mode, save_dir):
         """

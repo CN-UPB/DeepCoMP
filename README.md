@@ -6,23 +6,19 @@ Using deep RL for mobility management.
 
 ## Setup
 
-Ray supports TF2 and thus also Python 3.8.
+To install everything, run
 
 ```
 pip install -r requirements
 ```
+
+Tested on Ubuntu 20.04 (on WSL) with Python 3.8.
 
 It may fail installing `gym[atari]`, which needs the following dependencies that can be installed with `apt`:
 `cmake, build-essentials, zlib1g-dev`. 
 RLlib does not ([yet](https://github.com/ray-project/ray/issues/631)) run on Windows, but it does on WSL.
 
 For saving gifs, you also need to install [ImageMagick](https://imagemagick.org/index.php).
-
-### Notes on stable_baselines (deprecated)
-
-Should work with Python 3.6+. Tested with Python 3.7. 
-Tensorflow 1 doesn't work on Python 3.8 but is required by stable_baselines.
-As `ray` requires TF2 and `stable_baselines` requires TF1, they are mutually exclusive.
 
 
 ## Usage
