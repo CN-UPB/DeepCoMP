@@ -100,15 +100,36 @@ class Simulation:
         # FIXME: this only contains the last 100 episodes --> not useful; instead properly configer the log dir and then plot progress.csv
         self.plot_training_results(eps_results['episode_lengths'], eps_results['episode_reward'])
 
-    def train_rllib2(self, train_iter):
-        def custom_tune_loop(config, reporter):
+    def train(self, train_iter):
+        def rllib_train(config, reporter):
             agent = self.get_agent(config)
+            # collect number of episode steps and rewards over all training episodes for plotting later
+            eps_steps = []
+            eps_rewards = []
             for i in range(train_iter):
                 results = agent.train()
+                # collect and save episode steps and rewards in results
+                # otherwise only the last 100 are saved by default
+                # FIXME: somehow save or get all episode rewards for plotting the learning curve later
+                #  this works, but in the end I only get a string, not a list of rewards. I can't seem to get this list out of the function
+                #  https://github.com/ray-project/ray/issues/9104
+                # eps_steps.extend(results['hist_stats']['episode_lengths'])
+                # eps_rewards.extend(results['hist_stats']['episode_reward'])
+                # results['eps_steps'] = eps_steps
+                # results['eps_rewards'] = eps_rewards
                 self.log.debug('Train iteration done', train_iter=i, results=results)
                 reporter(**results)
 
-        final_results = ray.tune.run(custom_tune_loop, config=self.config, local_dir=self.save_dir)
+            # TODO: the path is relative to tune's local_dir; try getting the path and loading the agent somehow
+            save_path = agent.save(self.save_dir)
+            # results['checkpoint_path'] = save_path
+            # reporter(**results)
+            self.log.info('Agent saved', path=save_path)
+
+        # FIXME: need to implement a save function to use checkpiont in the end; or save inside the function
+        analysis = ray.tune.run(rllib_train, config=self.config, local_dir=self.save_dir, checkpoint_at_end=False)
+        self.log.info('Train results', train_results=analysis)
+        return analysis
 
     def save_animation(self, fig, patches, mode, save_dir):
         """
