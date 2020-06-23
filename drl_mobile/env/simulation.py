@@ -13,10 +13,11 @@ import ray.rllib.agents.ppo as ppo
 
 class Simulation:
     """Simulation class"""
-    def __init__(self, config, env, agent_type, normalize):
+    def __init__(self, config, agent_type, normalize):
         # save the config
         self.config = config
-        self.env_name = config['env']
+        self.env = config['env']
+        self.env_name = config['env'].__name__
         self.env_config = config['env_config']
         self.episode_length = self.env_config['episode_length']
 
@@ -24,7 +25,6 @@ class Simulation:
         supported_agents = ('ppo', 'random', 'fixed')
         assert agent_type in supported_agents, f"Agent {agent_type} not supported. Supported agents: {supported_agents}"
         self.agent_type = agent_type
-        self.env = env
         self.normalize = normalize
 
         # dir for saving logs, plots, replay video
@@ -108,7 +108,7 @@ class Simulation:
                 self.log.debug('Train iteration done', train_iter=i, results=results)
                 reporter(**results)
 
-        final_results = ray.tune.run(custom_tune_loop, config=self.config, local_dir='training/rllib')
+        final_results = ray.tune.run(custom_tune_loop, config=self.config, local_dir=self.save_dir)
 
     def save_animation(self, fig, patches, mode, save_dir):
         """

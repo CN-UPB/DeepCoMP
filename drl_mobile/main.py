@@ -167,7 +167,7 @@ if __name__ == "__main__":
     config = get_config(seed=seed, monitor=True, train_batch_size=train_batch_size, env=RLlibEnv)
 
     # simulator doesn't need RLlib's env_config (contained in agent anyways)
-    sim = Simulation(config=config, env=RLlibEnv, agent='ppo', normalize=normalize)
+    sim = Simulation(config=config, agent_type='ppo', normalize=normalize)
 
     # train
     if train:
