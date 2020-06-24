@@ -1,4 +1,5 @@
 import random
+import logging
 
 import gym
 import gym.spaces
@@ -59,6 +60,14 @@ class MobileEnv(gym.Env):
 
     def seed(self, seed=None):
         random.seed(seed)
+
+    def set_log_level(self, logger_name, level):
+        """
+        Set a logging level for a given logger. Needs to happen here, inside the env, for RLlib workers to work.
+        :param logger_name: String containing the logger's name whose logging level should be set, eg, 'drl_mobile.env'
+        :param level: A logging level, eg, logging.INFO
+        """
+        logging.getLogger(logger_name).setLevel(level)
 
     def get_obs(self, ue):
         """Return the an observation of the current world for a given UE"""

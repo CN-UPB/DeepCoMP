@@ -175,12 +175,8 @@ if __name__ == "__main__":
     if train:
         analysis = sim.train(train_iter)
 
-    # TODO: adjust/debug test & evaluation
     # simulate one run
-    logging.getLogger('drl_mobile').setLevel(logging.INFO)
-    # sim.run(config, render='video')
+    sim.run(config, render='video', log_steps=True)
 
     # evaluate
-    # https://github.com/ray-project/ray/blob/master/rllib/examples/custom_eval.py
-    logging.getLogger('drl_mobile.env.simulation').setLevel(logging.WARNING)
-    sim.run(config, num_episodes=5)
+    sim.run(config, num_episodes=10, log_steps=False)

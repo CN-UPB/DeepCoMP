@@ -1,4 +1,5 @@
 import os
+import logging
 
 import structlog
 import matplotlib.pyplot as plt
@@ -158,12 +159,13 @@ class Simulation:
             except TypeError:
                 self.log.error('ImageMagick needs to be installed for saving gifs.')
 
-    def run(self, config, num_episodes=1, render=None):
+    def run(self, config, num_episodes=1, render=None, log_steps=False):
         """
         Run one simulation episode. Render situation at beginning of each time step. Return episode reward.
         :param config: RLlib config to create a new trainer/agent
         :param num_episodes: Number of episodes to run
         :param render: If and how to render the simulation. Options: None, 'plot', 'video', 'gif'
+        :param log_steps: Whether or not to log infos about each step or just about each episode
         :return: Return list of episode rewards
         """
         assert (num_episodes == 1) or (render == None), "Turn off rendering when running for multiple episodes"
@@ -172,8 +174,12 @@ class Simulation:
         self.agent = self.get_agent(config)
         self.agent.restore('../training/RLlibEnv/rllib_train/trained_agents/checkpoint_1/checkpoint-1')
 
-        # instantiate env
+        # instantiate env and set logging level
         env = self.env_class(self.env_config)
+        if log_steps:
+            env.set_log_level('drl_mobile.env.simulation', logging.DEBUG)
+        else:
+            env.set_log_level('drl_mobile.env.simulation', logging.INFO)
 
         # simulate for given number of episodes
         for _ in range(num_episodes):
@@ -224,34 +230,3 @@ class Simulation:
         self.log.info("Policy evaluation", mean_eps_reward=mean_eps_reward, std_eps_reward=std_eps_reward,
                       mean_step_reward=mean_step_reward)
         return mean_eps_reward, std_eps_reward, mean_step_reward
-
-    def eval(self, eval_eps):
-        # FIXME: all eval episodes are identical because they are seeded the same
-        config = self.config.copy()
-        config['seed'] = None
-
-        eval_eps_rewards = []
-        for _ in range(eval_eps):
-            eval_eps_rewards.append(self.run(config))
-        mean_eps_reward = np.mean(eval_eps_rewards)
-        mean_step_reward = mean_eps_reward / self.episode_length
-        self.log.info("Policy evaluation", mean_eps_reward=mean_eps_reward, std_eps_reward=np.std(eval_eps_rewards),
-                      mean_step_reward=mean_step_reward)
-        return eval_eps_rewards
-
-    def eval_rllib(self, config, eval_eps):
-        """
-        Evaluate the trained agent.
-        See https://github.com/ray-project/ray/blob/master/rllib/examples/custom_eval.py
-        """
-        # adjust config: https://github.com/ray-project/ray/blob/master/rllib/agents/trainer.py
-        config['in_evaluation'] = True
-        config['evaluation_interval'] = 1
-        config['evaluation_num_episodes'] = eval_eps
-        # possibly turn off exploration to disable the stochastic policy; but should not be necessary
-        # can also use this to alter the env_config for evaluation
-        # config['evaluation_config'] = {'explore': False}
-
-        # not sure how to do this
-        # analysis = ray.tune.run(rllib_train, config=self.config, local_dir=self.save_dir, checkpoint_at_end=False)
-        # ray.tune.run('ppo')
