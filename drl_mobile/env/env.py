@@ -356,8 +356,6 @@ class RLlibEnv(DatarateMobileEnv):
     """Wrapper class of the DatarateMobileEnv for RLlib"""
     def __init__(self, env_config):
         """Wrapper env for RLlib, in which all args are in the env_config dict"""
-        # FIXME: issues with deepcopying; leads to "AttributeError: 'User' object has no attribute 'id'"
-
         super().__init__(env_config['episode_length'], env_config['map'], env_config['bs_list'],
                          env_config['ue_list'], env_config['dr_cutoff'], env_config['sub_req_dr'],
                          disable_interference=env_config['disable_interference'])

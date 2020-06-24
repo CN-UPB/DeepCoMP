@@ -17,12 +17,13 @@ from drl_mobile.env.map import Map
 log = structlog.get_logger()
 
 
-def get_config(seed=None, train_batch_size=4000, env=RLlibEnv):
+def create_env_config(env, eps_length, train_batch_size=1000, seed=None):
     """
-    Create environment and Rconfig. Return config
-    :param seed: Seed for reproducible results
-    :param train_batch_size: Number of sampled env steps in a single training iteration
+    Create environment and RLlib config. Return config.
     :param env: Environment class (not object) to use
+    :param eps_length: Number of time steps per episode (parameter of the environment)
+    :param train_batch_size: Number of sampled env steps in a single training iteration
+    :param seed: Seed for reproducible results
     :return: The complete config for an RLlib agent, including the env & env_config
     """
     # create the environment and env_config
@@ -33,13 +34,11 @@ def get_config(seed=None, train_batch_size=4000, env=RLlibEnv):
     bs2 = Basestation('bs2', pos=Point(100, 50))
 
     env_config = {
-        # FIXME configurable episode length
-        'episode_length': 10, 'map': map, 'bs_list': [bs1, bs2], 'ue_list': [ue1],
+        'episode_length': eps_length, 'map': map, 'bs_list': [bs1, bs2], 'ue_list': [ue1],
         'dr_cutoff': 'auto', 'sub_req_dr': True, 'disable_interference': True, 'seed': seed
     }
 
     # create and return the config
-    # TODO: for now, hard-code ppo config; make it configurable if necessary
     config = ppo.DEFAULT_CONFIG.copy()
     # 0 = no workers/actors at all --> low overhead for short debugging
     config['num_workers'] = 1
@@ -49,7 +48,6 @@ def get_config(seed=None, train_batch_size=4000, env=RLlibEnv):
     config['train_batch_size'] = train_batch_size        # default: 4000; default in stable_baselines: 128
     # config['log_level'] = 'INFO'    # ray logging default: warning
     config['env'] = env
-
     config['env_config'] = env_config
 
     return config
@@ -67,18 +65,16 @@ if __name__ == "__main__":
     }
     # env steps per train_iter
     train_batch_size = 1000
-    # train or load trained agent (& env norm stats); only set train=True for ppo agent!
+    # train or load trained agent; only set train=True for ppo agent!
     train = True
-    # normalize obs (& clip? & reward?); better: use custom env normalization with dr_cutoff='auto'
-    normalize = False
     # seed for agent & env
     seed = 42
 
     # create env and RLlib config
-    config = get_config(seed=seed, train_batch_size=train_batch_size, env=RLlibEnv)
+    config = create_env_config(env=RLlibEnv, eps_length=eps_length, train_batch_size=train_batch_size, seed=seed)
 
     # simulator doesn't need RLlib's env_config (contained in agent anyways)
-    sim = Simulation(config=config, agent_type='ppo', normalize=normalize)
+    sim = Simulation(config=config, agent_type='ppo')
 
     # train
     if train:

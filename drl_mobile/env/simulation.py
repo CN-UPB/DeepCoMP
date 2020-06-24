@@ -12,7 +12,7 @@ import ray.rllib.agents.ppo as ppo
 
 class Simulation:
     """Simulation class"""
-    def __init__(self, config, agent_type, normalize):
+    def __init__(self, config, agent_type):
         # config and env
         self.config = config
         self.env_class = config['env']
@@ -26,8 +26,6 @@ class Simulation:
         assert agent_type in supported_agents, f"Agent {agent_type} not supported. Supported agents: {supported_agents}"
         self.agent_type = agent_type
         self.agent = None
-        # TODO: do I still need normalize? I do it in the env anyways
-        self.normalize = normalize
 
         # save dir
         self.save_dir = f'../training'
@@ -168,7 +166,8 @@ class Simulation:
                 # action, _states = self.agent.predict(obs, deterministic=True)
                 action = self.agent.compute_action(obs)
                 obs, reward, done, info = env.step(action)
-                # in contrast to the logged step in the env, these obs, rewards, etc are processed (eg, clipped, normalized)
+                # in contrast to the logged step in the env, these obs, rewards, etc may be further processed
+                # (eg, clipped, normalized)
                 self.log.debug("Step", action=action, reward=reward, next_obs=obs, done=done)
                 episode_reward += reward
             # VecEnv is directly reset when episode ends, so we cannot show the end of the episode after the final step
