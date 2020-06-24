@@ -10,32 +10,39 @@ import matplotlib.pyplot as plt
 from drl_mobile.util.logs import config_logging
 
 
-# TODO: once this grows too large, split it into separate modules (base_env, extended_env, central_env, rllib_env,...)
-
-
 class MobileEnv(gym.Env):
-    """OpenAI Gym environment with multiple moving UEs and stationary BS on a map"""
+    """
+    Base environment class with moving UEs and stationary BS on a map. RLlib and OpenAI Gym-compatible.
+    No observation or action space implemented. This needs to be done in subclasses.
+    """
     metadata = {'render.modes': ['human']}
 
-    def __init__(self, episode_length, map, bs_list, ue_list, disable_interference=True):
+    def __init__(self, env_config):
         """
-        Create a new environment object with an OpenAI Gym interface
-        :param episode_length: Total number of simulation time steps in one episode
-        :param map: Map object representing the playground
-        :param bs_list: List of basestation objects in the environment
-        :param ue_list: List of UE objects in the environment
-        :param disable_interference: If true, disable all interference, ie, only use SNR, not SINR
+        Create a new environment object with an OpenAI Gym interface. Required fields in the env_config:
+
+        * episode_length: Total number of simulation time steps in one episode
+        * map: Map object representing the playground
+        * bs_list: List of base station objects in the environment
+        * ue_list: List of UE objects in the environment
+        * seed: Seed for the RNG; for reproducibility. May be None.
+
+        :param env_config: Dict containing all configuration options for the environment. Required by RLlib.
         """
         super(gym.Env, self).__init__()
         self.time = 0
-        self.episode_length = episode_length
-        self.map = map
-        self.disable_interference = disable_interference
+        self.episode_length = env_config['episode_length']
+        self.map = env_config['map']
         # disable interference for all BS (or not)
-        self.bs_list = bs_list
+        # TODO: get rid of this once my radio model is finalized
+        self.disable_interference = True
+        self.bs_list = env_config['bs_list']
         for bs in self.bs_list:
             bs.disable_interference = self.disable_interference
-        self.ue_list = ue_list
+        self.ue_list = env_config['ue_list']
+        # seed the environment
+        self.seed(env_config['seed'])
+
         # current observation
         self.obs = None
         # observation and action space are defined in the subclass --> different variants
@@ -130,7 +137,7 @@ class MobileEnv(gym.Env):
         # average reward
         reward = np.mean([reward_before, reward_after])
         done = self.time >= self.episode_length
-        info = {}
+        info = {'time': self.time}
         self.log.info("Step", time=self.time, ue=ue, prev_obs=prev_obs, action=action, reward_before=reward_before,
                       reward_after=reward_after, reward=reward, next_obs=self.obs, next_ue=next_ue, done=done)
         # print(f"{self.time=}, {ue=}, {prev_obs=}, {action=}, {reward=}, {self.obs=}")
@@ -165,8 +172,8 @@ class MobileEnv(gym.Env):
 
 class BinaryMobileEnv(MobileEnv):
     """Subclass of the general Mobile Env that uses binary observations to indicate which BS are & can be connected"""
-    def __init__(self, episode_length, map, bs_list, ue_list, **kwargs):
-        super().__init__(episode_length, map, bs_list, ue_list, **kwargs)
+    def __init__(self, env_config):
+        super().__init__(env_config)
         # observations: binary vector of BS availability (in range and dr >= req_dr) + already connected BS
         self.observation_space = gym.spaces.MultiBinary(2 * self.num_bs)
         # actions: select a BS to be connected to/disconnect from or noop
@@ -183,9 +190,9 @@ class BinaryMobileEnv(MobileEnv):
 
 
 class JustConnectedObsMobileEnv(BinaryMobileEnv):
-    """Dummy observations just contain binary info about which BS are connected. Nothing about availablility"""
-    def __init__(self, episode_length, map, bs_list, ue_list, **kwargs):
-        super().__init__(episode_length, map, bs_list, ue_list, **kwargs)
+    """Dummy observations just contain binary info about which BS are connected. Nothing about availability"""
+    def __init__(self, env_config):
+        super().__init__(env_config)
         # observations: just binary vector of already connected BS
         self.observation_space = gym.spaces.MultiBinary(self.num_bs)
         # same action space as binary env: select a BS to be connected to/disconnect from or noop
@@ -198,27 +205,32 @@ class JustConnectedObsMobileEnv(BinaryMobileEnv):
 
 class DatarateMobileEnv(BinaryMobileEnv):
     """Subclass of the binary MobileEnv that uses the achievable data rate as observations"""
-    def __init__(self, episode_length, map, bs_list, ue_list, dr_cutoff=200, sub_req_dr=False, **kwargs):
+    def __init__(self, env_config):
         """
         Env where the achievable data rate is passed as observations
         Special setting: dr_cutoff='auto' (sub_req_dr must be True) -->
             1. Subtract required data rate --> negative if data rate is too low
             2. Clip/cut off at req. dr --> symmetric range [-req_dr, +req_dr]; doesn't matter if dr is much higher
             3. Normalize by dividing by req_dr --> range [-1, 1] similar to other obs
-        :param dr_cutoff: Any data rate above this value will be cut off --> help have obs in same range
-        :param sub_req_dr: If true, subtract a UE's required data rate from the achievable dr --> neg obs if too little
+
+        Extra fields in the env_config:
+
+        * dr_cutoff: Any data rate above this value will be cut off --> help have obs in same range
+        * sub_req_dr: If true, subtract a UE's required data rate from the achievable dr --> neg obs if too little
         """
-        super().__init__(episode_length, map, bs_list, ue_list, **kwargs)
-        self.dr_cutoff = dr_cutoff
-        self.sub_req_dr = sub_req_dr
+        super().__init__(env_config)
+        self.dr_cutoff = env_config['dr_cutoff']
+        self.sub_req_dr = env_config['sub_req_dr']
         assert not (self.dr_cutoff == 'auto' and not self.sub_req_dr), "For dr_cutoff auto, sub_req_dr must be True."
         # observations: binary vector of BS availability (in range & free cap) + already connected BS
         # 1. Achievable data rate for given UE for all BS --> Box;
         # cut off dr at given dr level. here, dr is below 200 anyways --> default doesn't cut off
         max_dr_req = max([ue.dr_req for ue in self.ue_list])
         self.log.info('Max dr req', max_dr_req=max_dr_req, dr_cutoff=self.dr_cutoff, sub_req_dr=self.sub_req_dr)
-        assert dr_cutoff == 'auto' or max_dr_req < dr_cutoff, "dr_cutoff should be higher than max required dr. by UEs"
+        assert self.dr_cutoff == 'auto' or max_dr_req < self.dr_cutoff, \
+            "dr_cutoff should be higher than max required dr. by UEs"
 
+        # TODO: try the Gym Dictspace for obs if it's supported by Ray (box for dr, binary for conn)
         # define observation space
         if self.dr_cutoff == 'auto':
             # normalized to [-1, 1]
@@ -264,9 +276,9 @@ class CentralMultiUserEnv(MobileEnv):
     Env where all UEs move, observe and act at all time steps, controlled by a single central agent.
     Otherwise similar to DatarateMobileEnv with auto dr_cutoff and sub_req_dr.
     """
-    def __init__(self, episode_length, map, bs_list, ue_list, **kwargs):
+    def __init__(self, env_config):
         """Similar to DatarateMobileEnv but with multi-UEs controlled at once and fixed dr_cutoff, sub_req_dr"""
-        super().__init__(episode_length, map, bs_list, ue_list, **kwargs)
+        super().__init__(env_config)
         # observations: FOR EACH UE: binary vector of BS availability (in range & free cap) + already connected BS
         # 1. Achievable data rate for given UE for all BS (normalized to [-1, 1]) --> Box;
         dr_low = np.full(shape=(self.num_ue * self.num_bs,), fill_value=-1)
@@ -346,19 +358,7 @@ class CentralMultiUserEnv(MobileEnv):
         self.obs = self.get_obs()
         reward = np.mean([reward_before, reward_after])
         done = self.time >= self.episode_length
-        info = {}
+        info = {'time': self.time}
         self.log.info("Step", time=self.time, prev_obs=prev_obs, action=action, reward_before=reward_before,
                       reward_after=reward_after, reward=reward, next_obs=self.obs, done=done)
         return self.obs, reward, done, info
-
-
-class RLlibEnv(DatarateMobileEnv):
-    """Wrapper class of the DatarateMobileEnv for RLlib"""
-    def __init__(self, env_config):
-        """Wrapper env for RLlib, in which all args are in the env_config dict"""
-        super().__init__(env_config['episode_length'], env_config['map'], env_config['bs_list'],
-                         env_config['ue_list'], env_config['dr_cutoff'], env_config['sub_req_dr'],
-                         disable_interference=env_config['disable_interference'])
-        super().seed(env_config['seed'])
-
-        # TODO: try the Gym Dictspace for obs if it's supported by Ray (box for dr, binary for conn)

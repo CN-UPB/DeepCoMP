@@ -5,7 +5,7 @@ from shapely.geometry import Point
 import ray
 import ray.rllib.agents.ppo as ppo
 
-from drl_mobile.env.env import BinaryMobileEnv, DatarateMobileEnv, CentralMultiUserEnv, RLlibEnv
+from drl_mobile.env.env import BinaryMobileEnv, DatarateMobileEnv, CentralMultiUserEnv
 from drl_mobile.env.simulation import Simulation
 from drl_mobile.agent.dummy import RandomAgent, FixedAgent
 from drl_mobile.util.logs import config_logging
@@ -59,19 +59,22 @@ if __name__ == "__main__":
 
     # settings
     eps_length = 30
+    # stop training when any of the criteria is met
     stop_criteria = {
-        'training_iteration': 10,
+        'training_iteration': 1,
         'episode_reward_mean': 250
     }
     # env steps per train_iter
     train_batch_size = 1000
     # train or load trained agent; only set train=True for ppo agent!
-    train = True
+    train = False
+    # name of the RLlib dir to load the agent from for testing
+    agent_load_dir = 'PPO_DatarateMobileEnv_0_2020-06-24_15-57-20gprbjzss'
     # seed for agent & env
     seed = 42
 
     # create env and RLlib config
-    config = create_env_config(env=RLlibEnv, eps_length=eps_length, train_batch_size=train_batch_size, seed=seed)
+    config = create_env_config(env=DatarateMobileEnv, eps_length=eps_length, train_batch_size=train_batch_size, seed=seed)
 
     # simulator doesn't need RLlib's env_config (contained in agent anyways)
     sim = Simulation(config=config, agent_type='ppo')
@@ -83,8 +86,8 @@ if __name__ == "__main__":
     # TODO: currently I need to get the path of the trained agent manually and load it before testing.
     #  it should be possible to train and directly test
     else:
-        sim.load_agent('../training/PPO/PPO_RLlibEnv_0_2020-06-24_14-54-00v6aqqe1k/checkpoint_1/checkpoint-1')
+        sim.load_agent(f'../training/PPO/{agent_load_dir}/checkpoint_1/checkpoint-1')
         # simulate one run
         sim.run(render='video', log_steps=True)
         # evaluate
-        sim.run(num_episodes=10, log_steps=False)
+        # sim.run(num_episodes=10, log_steps=False)

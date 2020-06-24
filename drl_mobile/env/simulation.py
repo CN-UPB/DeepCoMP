@@ -168,7 +168,7 @@ class Simulation:
                 obs, reward, done, info = env.step(action)
                 # in contrast to the logged step in the env, these obs, rewards, etc may be further processed
                 # (eg, clipped, normalized)
-                self.log.debug("Step", action=action, reward=reward, next_obs=obs, done=done)
+                self.log.debug("Step", t=info['time'], action=action, reward=reward, next_obs=obs, done=done)
                 episode_reward += reward
             # VecEnv is directly reset when episode ends, so we cannot show the end of the episode after the final step
             # https://stable-baselines.readthedocs.io/en/master/guide/vec_envs.html
