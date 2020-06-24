@@ -1,6 +1,7 @@
 """Main execution script used for experimentation"""
 
 import os
+import logging
 
 import gym
 import structlog
@@ -156,7 +157,7 @@ if __name__ == "__main__":
     train_batch_size = 200
     eps_length = 10
     # train or load trained agent (& env norm stats); only set train=True for ppo agent!
-    train = True
+    train = False
     # normalize obs (& clip? & reward?); better: use custom env normalization with dr_cutoff='auto'
     normalize = False
     # seed for agent & env
@@ -175,12 +176,11 @@ if __name__ == "__main__":
         # here, train_iter is the number of iterations not total training steps (which is much larger)
         # sim.train_rllib(train_iter=5, save_dir=None, plot=True)
         analysis = sim.train(train_iter)
-        print(analysis)
 
     # TODO: adjust/debug test & evaluation
     # simulate one run
-    # logging.getLogger('drl_mobile').setLevel(logging.INFO)
-    # sim.run(render='gif', save_dir=training_dir)
+    logging.getLogger('drl_mobile').setLevel(logging.INFO)
+    sim.run(config, render='video')
 
     # evaluate
     # logging.getLogger('drl_mobile').setLevel(logging.WARNING)

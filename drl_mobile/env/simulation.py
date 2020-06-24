@@ -16,7 +16,7 @@ class Simulation:
     def __init__(self, config, agent_type, normalize):
         # save the config
         self.config = config
-        self.env = config['env']
+        self.env_class = config['env']
         self.env_name = config['env'].__name__
         self.env_config = config['env_config']
         self.episode_length = self.env_config['episode_length']
@@ -25,6 +25,7 @@ class Simulation:
         supported_agents = ('ppo', 'random', 'fixed')
         assert agent_type in supported_agents, f"Agent {agent_type} not supported. Supported agents: {supported_agents}"
         self.agent_type = agent_type
+        self.agent = None
         self.normalize = normalize
 
         # dir for saving logs, plots, replay video
@@ -40,7 +41,7 @@ class Simulation:
         :return: Created agent object
         """
         if self.agent_type == 'ppo':
-            return ppo.PPOTrainer(config=config, env=self.env)
+            return ppo.PPOTrainer(config=config, env=self.env_class)
         else:
             raise NotImplementedError(f"Agent {self.agent_type} not yet implemented")
 
@@ -120,10 +121,9 @@ class Simulation:
                 self.log.debug('Train iteration done', train_iter=i, results=results)
                 reporter(**results)
 
-            # TODO: the path is relative to tune's local_dir; try getting the path and loading the agent somehow
-            save_path = agent.save(self.save_dir)
-            # results['checkpoint_path'] = save_path
-            # reporter(**results)
+            # the path is relative to tune's local_dir; try getting the path and loading the agent somehow
+            # TODO: save inside experiment folder but also copy to training/trained_agent
+            save_path = agent.save('../trained_agents/')
             self.log.info('Agent saved', path=save_path)
 
         # FIXME: need to implement a save function to use checkpiont in the end; or save inside the function
@@ -158,31 +158,39 @@ class Simulation:
             except TypeError:
                 self.log.error('ImageMagick needs to be installed for saving gifs.')
 
-    def run(self, render=None, save_dir=None):
+    def run(self, config, render=None):
         """
         Run one simulation episode. Render situation at beginning of each time step. Return episode reward.
+        :param config: RLlib config to create a new trainer/agent
         :param render: If and how to render the simulation. Options: None, 'plot', 'video', 'gif'
-        :param save_dir: Where to save rendered HTML5 video or gif (directory)
         """
+        # create and load agent
+        self.agent = self.get_agent(config)
+        self.agent.restore('../training/RLlibEnv/rllib_train/trained_agents/checkpoint_1/checkpoint-1')
+
         if render is not None:
             # square figure and equal aspect ratio to avoid distortions
             fig = plt.figure(figsize=(5, 5))
             plt.gca().set_aspect('equal')
             fig.tight_layout()
 
+        # instantiate env
+        env = self.env_class(self.env_config)
+
         # run until episode ends
         patches = []
         episode_reward = 0
         done = False
-        obs = self.env.reset()
+        obs = env.reset()
         while not done:
             if render is not None:
-                patches.append(self.env.render())
+                patches.append(env.render())
                 if render == 'plot':
                     plt.show()
             # deterministic=True is important: https://github.com/hill-a/stable-baselines/issues/832
-            action, _states = self.agent.predict(obs, deterministic=True)
-            obs, reward, done, info = self.env.step(action)
+            # action, _states = self.agent.predict(obs, deterministic=True)
+            action = self.agent.compute_action(obs)
+            obs, reward, done, info = env.step(action)
             # in contrast to the logged step in the env, these obs, rewards, etc are processed (eg, clipped, normalized)
             self.log.info("Step", action=action, reward=reward, next_obs=obs, done=done)
             episode_reward += reward
@@ -191,7 +199,7 @@ class Simulation:
 
         # create the animation
         if render == 'video' or render == 'gif':
-            self.save_animation(fig, patches, render, save_dir)
+            self.save_animation(fig, patches, render, self.save_dir)
 
         self.log.info('Simulation complete', episode_reward=episode_reward)
         return episode_reward

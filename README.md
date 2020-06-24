@@ -18,7 +18,12 @@ It may fail installing `gym[atari]`, which needs the following dependencies that
 `cmake, build-essentials, zlib1g-dev`. 
 RLlib does not ([yet](https://github.com/ray-project/ray/issues/631)) run on Windows, but it does on WSL.
 
-For saving gifs, you also need to install [ImageMagick](https://imagemagick.org/index.php).
+For saving videos and gifs, you also need to install ffmpeg (not on Windows) and [ImageMagick](https://imagemagick.org/index.php). 
+On Ubuntu:
+
+```
+sudo apt install ffmpeg imagemagick
+```
 
 
 ## Usage
@@ -29,6 +34,15 @@ Adjust and run `main.py` in `drl_mobile`:
 cd drl_mobile
 python main.py
 ```
+
+Training logs and results are saved in `training/<env_name>/rllib_train/<experiment>`.
+The latest trained agent is also copied to `training/trained_agent/<checkpoint>`.
+
+#### Tensorboard
+
+* Ray supports tensorboard, but `config['monitor']` needs to be set to `True`
+* Then just run `tensorboard --logdir ~/ray_results` to visualize all results. Or provide the path to the training logs. Use WSL not PyCharm terminal.
+* Tensorboard is available at http://localhost:6006
 
 ## Todos
 
@@ -91,8 +105,4 @@ Dev plan:
     * `results['info']['num_steps_trained']` shows the total number of training steps, 
     * which is at most `results['info']['num_steps_sampled']`, based on the `train_batch_size`
 
-#### Tensorboard
 
-* Ray supports tensorboard, but `config['monitor']` needs to be set to `True`
-* Then just run `tensorboard --logdir ~/ray_results` to visualize all results. Use WSL not PyCharm terminal.
-* Tensorboard is available at http://localhost:6006
