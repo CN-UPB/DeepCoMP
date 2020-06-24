@@ -85,6 +85,6 @@ if __name__ == "__main__":
     else:
         sim.load_agent(path=agent_path, seed=seed)
         # simulate one run
-        sim.run(render='video', log_steps=True)
+        sim.run(render='gif', log_steps=True)
         # evaluate
-        sim.run(num_episodes=10, log_steps=False)
+        # sim.run(num_episodes=10, log_steps=False)

@@ -2,7 +2,7 @@
 
 Using deep RL for mobility management.
 
-![example](docs/gifs/v03.gif)
+![example](docs/gifs/v04.gif)
 
 The latest version uses the [RLlib](https://docs.ray.io/en/latest/rllib.html) library for multi-agent RL.
 There is also an older version using [stable_baselines](https://stable-baselines.readthedocs.io/en/master/) for single-agent RL

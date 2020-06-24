@@ -1,5 +1,16 @@
 # MDP Formulation 
 
+## [v0.4](https://github.com/CN-UPB/deep-rl-mobility-management/releases/tag/v0.4): Replaced stable_baselines with ray's RLlib (week 26)
+
+* Replaced the RL framework: [RLlib](https://docs.ray.io/en/latest/rllib.html) instead of [stable_baselines](https://stable-baselines.readthedocs.io/en/master/)
+* Benefit: RLlib is more powerful and supports multi-agent environments
+* Refactored most parts of the existing code base to adjust to the new frameworks API
+* Radio model and MDP remained unchanged
+
+Example: Centralized PPO agent controlling two UEs after 20k training with RLlib
+
+![v0.4 example](gifs/v04.gif)
+
 ## [v0.3](https://github.com/CN-UPB/deep-rl-mobility-management/releases/tag/v0.3): Centralized, single-agent, multi-UE-BS selection, basic radio model (week 25)
 
 * Simple but improved radio load model: 
