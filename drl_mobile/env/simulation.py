@@ -158,51 +158,64 @@ class Simulation:
             except TypeError:
                 self.log.error('ImageMagick needs to be installed for saving gifs.')
 
-    def run(self, config, render=None):
+    def run(self, config, num_episodes=1, render=None):
         """
         Run one simulation episode. Render situation at beginning of each time step. Return episode reward.
         :param config: RLlib config to create a new trainer/agent
+        :param num_episodes: Number of episodes to run
         :param render: If and how to render the simulation. Options: None, 'plot', 'video', 'gif'
+        :return: Return list of episode rewards
         """
+        assert (num_episodes == 1) or (render == None), "Turn off rendering when running for multiple episodes"
+        eps_rewards = []
         # create and load agent
         self.agent = self.get_agent(config)
         self.agent.restore('../training/RLlibEnv/rllib_train/trained_agents/checkpoint_1/checkpoint-1')
 
-        if render is not None:
-            # square figure and equal aspect ratio to avoid distortions
-            fig = plt.figure(figsize=(5, 5))
-            plt.gca().set_aspect('equal')
-            fig.tight_layout()
-
         # instantiate env
         env = self.env_class(self.env_config)
 
-        # run until episode ends
-        patches = []
-        episode_reward = 0
-        done = False
-        obs = env.reset()
-        while not done:
+        # simulate for given number of episodes
+        for _ in range(num_episodes):
             if render is not None:
-                patches.append(env.render())
-                if render == 'plot':
-                    plt.show()
-            # deterministic=True is important: https://github.com/hill-a/stable-baselines/issues/832
-            # action, _states = self.agent.predict(obs, deterministic=True)
-            action = self.agent.compute_action(obs)
-            obs, reward, done, info = env.step(action)
-            # in contrast to the logged step in the env, these obs, rewards, etc are processed (eg, clipped, normalized)
-            self.log.info("Step", action=action, reward=reward, next_obs=obs, done=done)
-            episode_reward += reward
-        # VecEnv is directly reset when episode ends, so we cannot show the end of the episode after the final step
-        # https://stable-baselines.readthedocs.io/en/master/guide/vec_envs.html
+                # square figure and equal aspect ratio to avoid distortions
+                fig = plt.figure(figsize=(5, 5))
+                plt.gca().set_aspect('equal')
+                fig.tight_layout()
 
-        # create the animation
-        if render == 'video' or render == 'gif':
-            self.save_animation(fig, patches, render, self.save_dir)
+            # run until episode ends
+            patches = []
+            episode_reward = 0
+            done = False
+            obs = env.reset()
+            while not done:
+                if render is not None:
+                    patches.append(env.render())
+                    if render == 'plot':
+                        plt.show()
+                # deterministic=True is important: https://github.com/hill-a/stable-baselines/issues/832
+                # action, _states = self.agent.predict(obs, deterministic=True)
+                action = self.agent.compute_action(obs)
+                obs, reward, done, info = env.step(action)
+                # in contrast to the logged step in the env, these obs, rewards, etc are processed (eg, clipped, normalized)
+                self.log.debug("Step", action=action, reward=reward, next_obs=obs, done=done)
+                episode_reward += reward
+            # VecEnv is directly reset when episode ends, so we cannot show the end of the episode after the final step
+            # https://stable-baselines.readthedocs.io/en/master/guide/vec_envs.html
 
-        self.log.info('Simulation complete', episode_reward=episode_reward)
-        return episode_reward
+            # create the animation
+            if render == 'video' or render == 'gif':
+                self.save_animation(fig, patches, render, self.save_dir)
+
+            eps_rewards.append(episode_reward)
+            self.log.info('Episode complete', episode_reward=episode_reward)
+
+        # summarize episode rewards
+        mean_eps_reward = np.mean(eps_rewards)
+        mean_step_reward = mean_eps_reward / self.episode_length
+        self.log.info("Simulation complete", mean_eps_reward=mean_eps_reward, std_eps_reward=np.std(eps_rewards),
+                      mean_step_reward=mean_step_reward)
+        return eps_rewards
 
     def evaluate(self, eval_eps):
         """Evaluate the agent over specified number of episodes. Return avg & std episode reward and step reward"""
@@ -211,3 +224,34 @@ class Simulation:
         self.log.info("Policy evaluation", mean_eps_reward=mean_eps_reward, std_eps_reward=std_eps_reward,
                       mean_step_reward=mean_step_reward)
         return mean_eps_reward, std_eps_reward, mean_step_reward
+
+    def eval(self, eval_eps):
+        # FIXME: all eval episodes are identical because they are seeded the same
+        config = self.config.copy()
+        config['seed'] = None
+
+        eval_eps_rewards = []
+        for _ in range(eval_eps):
+            eval_eps_rewards.append(self.run(config))
+        mean_eps_reward = np.mean(eval_eps_rewards)
+        mean_step_reward = mean_eps_reward / self.episode_length
+        self.log.info("Policy evaluation", mean_eps_reward=mean_eps_reward, std_eps_reward=np.std(eval_eps_rewards),
+                      mean_step_reward=mean_step_reward)
+        return eval_eps_rewards
+
+    def eval_rllib(self, config, eval_eps):
+        """
+        Evaluate the trained agent.
+        See https://github.com/ray-project/ray/blob/master/rllib/examples/custom_eval.py
+        """
+        # adjust config: https://github.com/ray-project/ray/blob/master/rllib/agents/trainer.py
+        config['in_evaluation'] = True
+        config['evaluation_interval'] = 1
+        config['evaluation_num_episodes'] = eval_eps
+        # possibly turn off exploration to disable the stochastic policy; but should not be necessary
+        # can also use this to alter the env_config for evaluation
+        # config['evaluation_config'] = {'explore': False}
+
+        # not sure how to do this
+        # analysis = ray.tune.run(rllib_train, config=self.config, local_dir=self.save_dir, checkpoint_at_end=False)
+        # ray.tune.run('ppo')

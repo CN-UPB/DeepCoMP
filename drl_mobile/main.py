@@ -131,7 +131,8 @@ def get_config(seed=None, monitor=False, train_batch_size=4000, env=RLlibEnv):
     # create and return the config
     # TODO: for now, hard-code ppo config; make it configurable if necessary
     config = ppo.DEFAULT_CONFIG.copy()
-    config['num_workers'] = 1
+    # 0 = no workers/actors at all --> low overhead for short debugging
+    config['num_workers'] = 0
     config['seed'] = seed
     # write training stats to file under ~/ray_results (default: False)
     config['monitor'] = monitor
@@ -151,6 +152,7 @@ if __name__ == "__main__":
     ray.init()
     config_logging(round_digits=3)
 
+    # TODO: use stop dir for tune.run?
     # settings
     train_iter = 1
     # env steps per train_iter
@@ -164,7 +166,6 @@ if __name__ == "__main__":
     seed = 42
 
     # create env
-    # env, training_dir = create_env(eps_length=eps_length, normalize=normalize, train=train, seed=seed)
     config = get_config(seed=seed, monitor=True, train_batch_size=train_batch_size, env=RLlibEnv)
 
     # simulator doesn't need RLlib's env_config (contained in agent anyways)
@@ -172,16 +173,14 @@ if __name__ == "__main__":
 
     # train
     if train:
-        # sim.train_rllib(train_steps=train_steps, save_dir=training_dir, plot=True)
-        # here, train_iter is the number of iterations not total training steps (which is much larger)
-        # sim.train_rllib(train_iter=5, save_dir=None, plot=True)
         analysis = sim.train(train_iter)
 
     # TODO: adjust/debug test & evaluation
     # simulate one run
     logging.getLogger('drl_mobile').setLevel(logging.INFO)
-    sim.run(config, render='video')
+    # sim.run(config, render='video')
 
     # evaluate
-    # logging.getLogger('drl_mobile').setLevel(logging.WARNING)
-    # sim.evaluate(eval_eps=10)
+    # https://github.com/ray-project/ray/blob/master/rllib/examples/custom_eval.py
+    logging.getLogger('drl_mobile.env.simulation').setLevel(logging.WARNING)
+    sim.run(config, num_episodes=5)
