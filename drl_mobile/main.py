@@ -28,13 +28,13 @@ def create_env_config(env, eps_length, train_batch_size=1000, seed=None):
     """
     # create the environment and env_config
     map = Map(width=150, height=100)
-    ue1 = User('ue1', map, color='blue', pos_x='random', pos_y=40, move_x=5)
-    # ue2 = User('ue2', color='red', pos_x='random', pos_y=30, move_x='fast')
+    ue1 = User('ue1', map, color='blue', pos_x='random', pos_y=40, move_x='slow')
+    ue2 = User('ue2', map, color='red', pos_x='random', pos_y=30, move_x='fast')
     bs1 = Basestation('bs1', pos=Point(50, 50))
     bs2 = Basestation('bs2', pos=Point(100, 50))
 
     env_config = {
-        'episode_length': eps_length, 'map': map, 'bs_list': [bs1, bs2], 'ue_list': [ue1],
+        'episode_length': eps_length, 'map': map, 'bs_list': [bs1, bs2], 'ue_list': [ue1, ue2],
         'dr_cutoff': 'auto', 'sub_req_dr': True, 'disable_interference': True, 'seed': seed
     }
 
@@ -57,24 +57,21 @@ if __name__ == "__main__":
     config_logging(round_digits=3)
 
     # settings
-    eps_length = 30
     # stop training when any of the criteria is met
     stop_criteria = {
-        'training_iteration': 1,
-        'episode_reward_mean': 250
+        'training_iteration': 20,
+        # 'episode_reward_mean': 250
     }
-    # env steps per train_iter
-    train_batch_size = 1000
-    # train or load trained agent; only set train=True for ppo agent!
+    # train or load trained agent; only set train=True for ppo agent
     train = False
-    agent_name = 'fixed'
+    agent_name = 'ppo'
     # name of the RLlib dir to load the agent from for testing
-    agent_load_dir = 'PPO_DatarateMobileEnv_0_2020-06-24_15-57-20gprbjzss'
+    agent_path = '../training/PPO/PPO_CentralMultiUserEnv_0_2020-06-24_16-42-21tp6f0w12/checkpoint_20/checkpoint-20'
     # seed for agent & env
     seed = 42
 
     # create env and RLlib config
-    config = create_env_config(env=DatarateMobileEnv, eps_length=eps_length, train_batch_size=train_batch_size, seed=seed)
+    config = create_env_config(CentralMultiUserEnv, eps_length=30, train_batch_size=1000, seed=seed)
 
     # simulator doesn't need RLlib's env_config (contained in agent anyways)
     sim = Simulation(config=config, agent_name=agent_name)
@@ -86,10 +83,8 @@ if __name__ == "__main__":
     # TODO: currently I need to get the path of the trained agent manually and load it before testing.
     #  it should be possible to train and directly test
     else:
-        sim.load_agent(path=f'../training/PPO/{agent_load_dir}/checkpoint_1/checkpoint-1', seed=seed)
+        sim.load_agent(path=agent_path, seed=seed)
         # simulate one run
         sim.run(render='video', log_steps=True)
         # evaluate
-        # sim.run(num_episodes=10, log_steps=False)
-
-# TODO: update readme and release 0.4
+        sim.run(num_episodes=10, log_steps=False)

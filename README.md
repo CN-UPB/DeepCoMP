@@ -4,9 +4,9 @@ Using deep RL for mobility management.
 
 ![example](docs/gifs/v03.gif)
 
-The latest version uses the [rllib](https://docs.ray.io/en/latest/rllib.html) library for multi-agent RL.
+The latest version uses the [RLlib](https://docs.ray.io/en/latest/rllib.html) library for multi-agent RL.
 There is also an older version using [stable_baselines](https://stable-baselines.readthedocs.io/en/master/) for single-agent RL
-in the [stable_baselines branch](https://github.com/CN-UPB/deep-rl-mobility-management/tree/stable_baselines).
+in the [stable_baselines branch](https://github.com/CN-UPB/deep-rl-mobility-management/tree/stable_baselines) (used for v0.1-v0.3).
 The current version does not support `stable_baselines` anymore.
 
 ## Setup
@@ -17,11 +17,11 @@ To install everything, run
 pip install -r requirements
 ```
 
-Tested on Ubuntu 20.04 (on WSL) with Python 3.8.
+Tested on Ubuntu 20.04 (on WSL) with Python 3.8. RLlib does not ([yet](https://github.com/ray-project/ray/issues/631)) run on Windows, but it does on WSL.
 
 It may fail installing `gym[atari]`, which needs the following dependencies that can be installed with `apt`:
 `cmake, build-essentials, zlib1g-dev`. 
-RLlib does not ([yet](https://github.com/ray-project/ray/issues/631)) run on Windows, but it does on WSL.
+
 
 For saving videos and gifs, you also need to install ffmpeg (not on Windows) and [ImageMagick](https://imagemagick.org/index.php). 
 On Ubuntu:
@@ -40,18 +40,31 @@ cd drl_mobile
 python main.py
 ```
 
-Training logs and results are saved in `training/<env_name>/rllib_train/<experiment>`.
-The latest trained agent is also copied to `training/trained_agent/<checkpoint>`.
+Training logs, results, videos, and trained agents are saved in the `training` directory.
 
 #### Tensorboard
 
-* Ray supports tensorboard, but `config['monitor']` needs to be set to `True`
-* Then just run `tensorboard --logdir ~/ray_results` to visualize all results. Or provide the path to the training logs. Use WSL not PyCharm terminal.
-* Tensorboard is available at http://localhost:6006
+To view learning curves (and other metrics) when training an agent, use Tensorboard:
 
-## Todos
+```
+tensorboard --logdir training
+```
 
-**Next**: RLlib training: Configure where stats are saved using tune (see rllib-example.py); then plot and save agent. then testing. once that works, go full rllib; remove stable baselines
+Run the command in a WSL not a PyCharm terminal. Tensorboard is available at http://localhost:6006
+
+## Research
+
+### Findings
+
+* Binary observations: [BS available?, BS connected?] work very well
+* Replacing binary "BS available?" with achievable data rate by BS does not work at all
+* Probably, because data rate is magnitudes larger (up to 150x) than "BS connected?" --> agent becomes blind to 2nd part of obs
+* Just cutting the data rate off at some small value (eg, 3 Mbit/s) leads to much better results
+* Agent keeps trying to connect to all BS, even if out of range. --> Subtracting req. dr by UE + higher penalty (both!) solves the issue
+* Normalizing loses info about which BS has enough dr and connectivity --> does not work as well
+
+
+### Todos
 
 * Multiple UEs: 
     * Multi-agent: Separate agents for each UE. I should look into ray/rllib: https://docs.ray.io/en/latest/rllib-env.html#multi-agent-and-hierarchical
@@ -65,6 +78,8 @@ The latest trained agent is also copied to `training/trained_agent/<checkpoint>`
     * Needs to be updated whenever the UE moves or any UE changes its connections (this or another UE)
     * Eg, 1st move all UEs, 2nd check & update connections of all UEs, 3rd calculate reward etc
 
+## Development
+
 ### Multi-Agent RL with rllib
 
 * Seems like rllib already supports multi-agent environments
@@ -74,27 +89,6 @@ The latest trained agent is also copied to `training/trained_agent/<checkpoint>`
 * Multi agent concept/policies: https://docs.ray.io/en/latest/rllib-concepts.html#policies-in-multi-agent
 * Also supports parameter sharing for joint learning; hierarchical RL etc --> rllib is the way to go
 * It's API both for agents and environments (and everything else) is completely different
-
-Dev plan:
-
-0. Done: Experiment with rllib and existing environments in separate rl-experiments repo
-1. WIP: Switch to rllib and verify single-UE case still works as before. Keep working stable baselines code in separate branch
-    * Non-trivial: Framework needs several changes in environment and overall workflow. Currently, everything is crashing and errors don't make sense.
-    * Solved: tf import; https://github.com/ray-project/ray/issues/8993
-    * Solved: structlog works in dummy env, but not real env. Real problem was cyclic ref env --> ue --> env that caused a deepcopy error, which only was printed when using structlog
-2. Build joint codebase for running both RLlib and stable_baselines. Eg, different packages with variations of main script; use env_config for all envs
-2. Move to multi-user and multi-UE environment with rllib
-
-## Findings
-
-* Binary observations: [BS available?, BS connected?] work very well
-* Replacing binary "BS available?" with achievable data rate by BS does not work at all
-* Probably, because data rate is magnitudes larger (up to 150x) than "BS connected?" --> agent becomes blind to 2nd part of obs
-* Just cutting the data rate off at some small value (eg, 3 Mbit/s) leads to much better results
-* Agent keeps trying to connect to all BS, even if out of range. --> Subtracting req. dr by UE + higher penalty (both!) solves the issue
-* Normalizing loses info about which BS has enough dr and connectivity --> does not work as well
-
-## Development
 
 ### Notes on RLlib
 
