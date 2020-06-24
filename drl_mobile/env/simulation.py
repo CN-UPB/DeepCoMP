@@ -1,7 +1,5 @@
 import os
 import logging
-from distutils.dir_util import copy_tree
-import shutil
 
 import structlog
 import matplotlib.pyplot as plt
@@ -80,9 +78,10 @@ class Simulation:
         # tune returns an ExperimentAnalysis that can be cast to a Pandas data frame
         # object https://docs.ray.io/en/latest/tune/api_docs/analysis.html#experimentanalysis
         df = analysis.dataframe()
-        self.log.info('Training done', timesteps_total=df['timesteps_total'], episodes_total=df['episodes_total'],
-                      num_steps_sampled=df['info']['num_steps_sampled'],
-                      num_steps_trained=df['info']['num_steps_trained'], episode_reward_mean=df['episode_reward_mean'])
+        self.log.info('Training done', timesteps_total=int(df['timesteps_total']),
+                      episodes_total=int(df['episodes_total']), episode_reward_mean=float(df['episode_reward_mean']),
+                      num_steps_sampled=int(df['info/num_steps_sampled']),
+                      num_steps_trained=int(df['info/num_steps_trained']))
 
         # plot results
         # TODO: this only contains (and plots) the last 100 episodes --> not useful
