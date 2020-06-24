@@ -6,13 +6,16 @@ import matplotlib.pyplot as plt
 import matplotlib.animation
 import seaborn as sns
 import numpy as np
+import ray
 import ray.tune
 import ray.rllib.agents.ppo as ppo
 
+from drl_mobile.agent.dummy import RandomAgent, FixedAgent
+
 
 class Simulation:
-    """Simulation class"""
-    def __init__(self, config, agent_type):
+    """Simulation class for training and testing agents."""
+    def __init__(self, config, agent_name):
         # config and env
         self.config = config
         self.env_class = config['env']
@@ -21,11 +24,13 @@ class Simulation:
         self.episode_length = self.env_config['episode_length']
 
         # agent
-        # TODO: test random and fixed agent
         supported_agents = ('ppo', 'random', 'fixed')
-        assert agent_type in supported_agents, f"Agent {agent_type} not supported. Supported agents: {supported_agents}"
-        self.agent_type = agent_type
+        assert agent_name in supported_agents, f"Agent {agent_name} not supported. Supported agents: {supported_agents}"
+        self.agent_name = agent_name
         self.agent = None
+        # only init ray if necessary --> lower overhead for dummy agents
+        if self.agent_name == 'ppo':
+            ray.init()
 
         # save dir
         self.save_dir = f'../training'
@@ -35,7 +40,7 @@ class Simulation:
 
     def plot_learning_curve(self, eps_steps, eps_rewards, plot_eps=True):
         """
-        Plot episode rewards over time
+        Plot episode rewards over time. Currently not used.
         :param eps_steps: List of time steps per episode (should always be the same here)
         :param eps_rewards: List of reward per episode
         :param plot_eps: If true, plot episodes on the xlabel instead of steps
@@ -88,14 +93,23 @@ class Simulation:
         # self.plot_learning_curve(eps_results['episode_lengths'], eps_results['episode_reward'])
         return df
 
-    def load_agent(self, path):
+    def load_agent(self, path=None, seed=None):
         """
         Load a trained RLlib agent from the specified path. Call this when testing without training up front.
-        :param path: Path pointing to the agent's saved checkpoint
+        :param path: Path pointing to the agent's saved checkpoint (only used for RLlib agents)
+        :param seed: RNG seed used by the random agent
         """
-        self.agent = ppo.PPOTrainer(config=self.config, env=self.env_class)
-        self.agent.restore(path)
-        self.log.info('Agent loaded', agent=self.agent, path=path)
+        if self.agent_name == 'ppo':
+            self.agent = ppo.PPOTrainer(config=self.config, env=self.env_class)
+            self.agent.restore(path)
+        if self.agent_name == 'random':
+            # instantiate the environment to get the action space
+            env = self.env_class(self.env_config)
+            self.agent = RandomAgent(env.action_space, seed=seed)
+        if self.agent_name == 'fixed':
+            self.agent = FixedAgent(action=1, noop_interval=4)
+
+        self.log.info('Agent loaded', agent=type(self.agent).__name__)
 
     def save_animation(self, fig, patches, mode, save_dir):
         """
@@ -162,16 +176,10 @@ class Simulation:
                     patches.append(env.render())
                     if render == 'plot':
                         plt.show()
-                # deterministic=True is important: https://github.com/hill-a/stable-baselines/issues/832
-                # action, _states = self.agent.predict(obs, deterministic=True)
                 action = self.agent.compute_action(obs)
                 obs, reward, done, info = env.step(action)
-                # in contrast to the logged step in the env, these obs, rewards, etc may be further processed
-                # (eg, clipped, normalized)
                 self.log.debug("Step", t=info['time'], action=action, reward=reward, next_obs=obs, done=done)
                 episode_reward += reward
-            # VecEnv is directly reset when episode ends, so we cannot show the end of the episode after the final step
-            # https://stable-baselines.readthedocs.io/en/master/guide/vec_envs.html
 
             # create the animation
             if render == 'video' or render == 'gif':

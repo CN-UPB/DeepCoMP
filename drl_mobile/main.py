@@ -54,7 +54,6 @@ def create_env_config(env, eps_length, train_batch_size=1000, seed=None):
 
 
 if __name__ == "__main__":
-    ray.init()
     config_logging(round_digits=3)
 
     # settings
@@ -68,6 +67,7 @@ if __name__ == "__main__":
     train_batch_size = 1000
     # train or load trained agent; only set train=True for ppo agent!
     train = False
+    agent_name = 'fixed'
     # name of the RLlib dir to load the agent from for testing
     agent_load_dir = 'PPO_DatarateMobileEnv_0_2020-06-24_15-57-20gprbjzss'
     # seed for agent & env
@@ -77,7 +77,7 @@ if __name__ == "__main__":
     config = create_env_config(env=DatarateMobileEnv, eps_length=eps_length, train_batch_size=train_batch_size, seed=seed)
 
     # simulator doesn't need RLlib's env_config (contained in agent anyways)
-    sim = Simulation(config=config, agent_type='ppo')
+    sim = Simulation(config=config, agent_name=agent_name)
 
     # train
     if train:
@@ -86,8 +86,10 @@ if __name__ == "__main__":
     # TODO: currently I need to get the path of the trained agent manually and load it before testing.
     #  it should be possible to train and directly test
     else:
-        sim.load_agent(f'../training/PPO/{agent_load_dir}/checkpoint_1/checkpoint-1')
+        sim.load_agent(path=f'../training/PPO/{agent_load_dir}/checkpoint_1/checkpoint-1', seed=seed)
         # simulate one run
         sim.run(render='video', log_steps=True)
         # evaluate
         # sim.run(num_episodes=10, log_steps=False)
+
+# TODO: update readme and release 0.4
