@@ -4,6 +4,11 @@ Using deep RL for mobility management.
 
 ![example](docs/gifs/v03.gif)
 
+The latest version uses the [rllib](https://docs.ray.io/en/latest/rllib.html) library for multi-agent RL.
+There is also an older version using [stable_baselines](https://stable-baselines.readthedocs.io/en/master/) for single-agent RL
+in the [stable_baselines branch](https://github.com/CN-UPB/deep-rl-mobility-management/tree/stable_baselines).
+The current version does not support `stable_baselines` anymore.
+
 ## Setup
 
 To install everything, run

@@ -1,11 +1,11 @@
 import os
 import logging
+from distutils.dir_util import copy_tree
+import shutil
 
 import structlog
 import matplotlib.pyplot as plt
 import matplotlib.animation
-# from stable_baselines import results_plotter
-# from stable_baselines.common.evaluation import evaluate_policy
 import seaborn as sns
 import numpy as np
 import ray.tune
@@ -15,22 +15,24 @@ import ray.rllib.agents.ppo as ppo
 class Simulation:
     """Simulation class"""
     def __init__(self, config, agent_type, normalize):
-        # save the config
+        # config and env
         self.config = config
         self.env_class = config['env']
         self.env_name = config['env'].__name__
         self.env_config = config['env_config']
         self.episode_length = self.env_config['episode_length']
 
-        # set agent
+        # agent
+        # TODO: test random and fixed agent
         supported_agents = ('ppo', 'random', 'fixed')
         assert agent_type in supported_agents, f"Agent {agent_type} not supported. Supported agents: {supported_agents}"
         self.agent_type = agent_type
         self.agent = None
+        # TODO: do I still need normalize? I do it in the env anyways
         self.normalize = normalize
 
-        # dir for saving logs, plots, replay video
-        self.save_dir = f'../training/{self.env_name}'
+        # save dir
+        self.save_dir = f'../training'
         os.makedirs(self.save_dir, exist_ok=True)
 
         self.log = structlog.get_logger()
@@ -46,20 +48,7 @@ class Simulation:
         else:
             raise NotImplementedError(f"Agent {self.agent_type} not yet implemented")
 
-    def train_sb(self, train_steps, save_dir, plot=False):
-        """Train stable_baselines agent for specified training steps"""
-        self.log.info('Start training', train_steps=train_steps)
-        self.agent.learn(train_steps)
-        self.agent.save(f'{save_dir}/ppo2_{train_steps}')
-        if self.normalize:
-            self.env.save(f'{save_dir}/vec_norm.pkl')
-        if plot:
-            results_plotter.plot_results([save_dir], train_steps, results_plotter.X_TIMESTEPS,
-                                         f'Learning Curve for {self.env_name}')
-            plt.savefig(f'{save_dir}/ppo2_{train_steps}.png')
-            plt.show()
-
-    def plot_training_results(self, eps_steps, eps_rewards, plot_eps=True):
+    def plot_learning_curve(self, eps_steps, eps_rewards, plot_eps=True):
         """
         Plot episode rewards over time
         :param eps_steps: List of time steps per episode (should always be the same here)
@@ -90,47 +79,37 @@ class Simulation:
         plt.savefig(f'{self.save_dir}/rllib_ppo_{train_steps}.png')
         plt.show()
 
-    def train_rllib(self, train_iter, save_dir, plot=False):
-        """Train RLlib agent"""
-        self.log.info('Start training', total_train_iter=train_iter)
-        # # TODO: configure training length; plot progress; save
-        results = {}
-        for i in range(train_iter):
-            results = self.agent.train()
-            self.log.debug('Train iteration done', train_iter=i, results=results)
-        eps_results = results['hist_stats']
-        # FIXME: this only contains the last 100 episodes --> not useful; instead properly configer the log dir and then plot progress.csv
-        self.plot_training_results(eps_results['episode_lengths'], eps_results['episode_reward'])
-
     def train(self, train_iter):
         def rllib_train(config, reporter):
             agent = self.get_agent(config)
-            # collect number of episode steps and rewards over all training episodes for plotting later
-            eps_steps = []
-            eps_rewards = []
             for i in range(train_iter):
                 results = agent.train()
-                # collect and save episode steps and rewards in results
-                # otherwise only the last 100 are saved by default
-                # FIXME: somehow save or get all episode rewards for plotting the learning curve later
-                #  this works, but in the end I only get a string, not a list of rewards. I can't seem to get this list out of the function
-                #  https://github.com/ray-project/ray/issues/9104
-                # eps_steps.extend(results['hist_stats']['episode_lengths'])
-                # eps_rewards.extend(results['hist_stats']['episode_reward'])
-                # results['eps_steps'] = eps_steps
-                # results['eps_rewards'] = eps_rewards
                 self.log.debug('Train iteration done', train_iter=i, results=results)
                 reporter(**results)
 
-            # the path is relative to tune's local_dir; try getting the path and loading the agent somehow
-            # TODO: save inside experiment folder but also copy to training/trained_agent
-            save_path = agent.save('../trained_agents/')
-            self.log.info('Agent saved', path=save_path)
+            # save the trained agent. in a sub dir of the experiment directory (see tune's local_dir)
+            save_path = agent.save('checkpoints')
+            # copy agent to 'last_trained_agent' for easy testing (path still relative to experiment dir)
+            agent_path = f'../../last_trained_agent'
+            os.makedirs(agent_path, exist_ok=True)
+            # TODO: copy dirs and tree
+            # copy_tree(save_path, agent_path)
+            shutil.copytree(save_path, agent_path, dirs_exist_ok=True)
+            self.log.info('Agent saved', path=save_path, copied_to=agent_path)
 
-        # FIXME: need to implement a save function to use checkpiont in the end; or save inside the function
+        # tune returns an ExperimentAnalysis that can be cast to a Pandas data frame
+        # object https://docs.ray.io/en/latest/tune/api_docs/analysis.html#experimentanalysis
         analysis = ray.tune.run(rllib_train, config=self.config, local_dir=self.save_dir, checkpoint_at_end=False)
-        self.log.info('Train results', train_results=analysis)
-        return analysis
+        df_results = analysis.dataframe()
+        self.log.info('Train results', train_results=df_results)
+
+        # plot results
+        # TODO: this only contains (and plots) the last 100 episodes --> not useful
+        #  --> use tensorboard instead; or read and plot progress.csv
+        # eps_results = df_results['hist_stats']
+        # self.plot_learning_curve(eps_results['episode_lengths'], eps_results['episode_reward'])
+
+        return df_results
 
     def save_animation(self, fig, patches, mode, save_dir):
         """
@@ -172,7 +151,7 @@ class Simulation:
         eps_rewards = []
         # create and load agent
         self.agent = self.get_agent(config)
-        self.agent.restore('../training/RLlibEnv/rllib_train/trained_agents/checkpoint_1/checkpoint-1')
+        self.agent.restore('../training/RLlibEnv/rllib_train/trained_agents/checkpoint_2/checkpoint-2')
 
         # instantiate env and set logging level
         env = self.env_class(self.env_config)

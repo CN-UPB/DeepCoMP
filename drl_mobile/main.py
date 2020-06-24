@@ -123,7 +123,7 @@ def get_config(seed=None, monitor=False, train_batch_size=4000, env=RLlibEnv):
     """
     # create the environment
     map = Map(width=150, height=100)
-    ue1 = User('ue1', map, color='blue', pos_x='random', pos_y=40, move_x='slow')
+    ue1 = User('ue1', map, color='blue', pos_x='random', pos_y=40, move_x=5)
     # ue2 = User('ue2', color='red', pos_x='random', pos_y=30, move_x='fast')
     bs1 = Basestation('bs1', pos=Point(50, 50))
     bs2 = Basestation('bs2', pos=Point(100, 50))
@@ -132,7 +132,7 @@ def get_config(seed=None, monitor=False, train_batch_size=4000, env=RLlibEnv):
     # TODO: for now, hard-code ppo config; make it configurable if necessary
     config = ppo.DEFAULT_CONFIG.copy()
     # 0 = no workers/actors at all --> low overhead for short debugging
-    config['num_workers'] = 0
+    config['num_workers'] = 1
     config['seed'] = seed
     # write training stats to file under ~/ray_results (default: False)
     config['monitor'] = monitor
@@ -159,7 +159,7 @@ if __name__ == "__main__":
     train_batch_size = 200
     eps_length = 10
     # train or load trained agent (& env norm stats); only set train=True for ppo agent!
-    train = False
+    train = True
     # normalize obs (& clip? & reward?); better: use custom env normalization with dr_cutoff='auto'
     normalize = False
     # seed for agent & env
