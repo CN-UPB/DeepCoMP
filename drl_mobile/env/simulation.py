@@ -37,17 +37,6 @@ class Simulation:
 
         self.log = structlog.get_logger()
 
-    def get_agent(self, config):
-        """
-        Return an agent object of the configured type
-        :param config: Config to pass to the agent
-        :return: Created agent object
-        """
-        if self.agent_type == 'ppo':
-            return ppo.PPOTrainer(config=config, env=self.env_class)
-        else:
-            raise NotImplementedError(f"Agent {self.agent_type} not yet implemented")
-
     def plot_learning_curve(self, eps_steps, eps_rewards, plot_eps=True):
         """
         Plot episode rewards over time
@@ -79,37 +68,37 @@ class Simulation:
         plt.savefig(f'{self.save_dir}/rllib_ppo_{train_steps}.png')
         plt.show()
 
-    def train(self, train_iter):
-        def rllib_train(config, reporter):
-            agent = self.get_agent(config)
-            for i in range(train_iter):
-                results = agent.train()
-                self.log.debug('Train iteration done', train_iter=i, results=results)
-                reporter(**results)
-
-            # save the trained agent. in a sub dir of the experiment directory (see tune's local_dir)
-            save_path = agent.save('checkpoints')
-            # copy agent to 'last_trained_agent' for easy testing (path still relative to experiment dir)
-            agent_path = f'../../last_trained_agent'
-            os.makedirs(agent_path, exist_ok=True)
-            # TODO: copy dirs and tree
-            # copy_tree(save_path, agent_path)
-            shutil.copytree(save_path, agent_path, dirs_exist_ok=True)
-            self.log.info('Agent saved', path=save_path, copied_to=agent_path)
-
+    def train(self, stop_criteria):
+        """
+        Train an RLlib agent using tune until any of the configured stopping criteria is met.
+        :param stop_criteria: Dict with stopping criteria.
+            See https://docs.ray.io/en/latest/tune/api_docs/execution.html#tune-run
+        :return: Return a Pandas data frame with the training results
+        """
+        analysis = ray.tune.run(ppo.PPOTrainer, config=self.config, local_dir=self.save_dir, stop=stop_criteria,
+                                checkpoint_at_end=True)
         # tune returns an ExperimentAnalysis that can be cast to a Pandas data frame
         # object https://docs.ray.io/en/latest/tune/api_docs/analysis.html#experimentanalysis
-        analysis = ray.tune.run(rllib_train, config=self.config, local_dir=self.save_dir, checkpoint_at_end=False)
-        df_results = analysis.dataframe()
-        self.log.info('Train results', train_results=df_results)
+        df = analysis.dataframe()
+        self.log.info('Training done', timesteps_total=df['timesteps_total'], episodes_total=df['episodes_total'],
+                      num_steps_sampled=df['info']['num_steps_sampled'],
+                      num_steps_trained=df['info']['num_steps_trained'], episode_reward_mean=df['episode_reward_mean'])
 
         # plot results
         # TODO: this only contains (and plots) the last 100 episodes --> not useful
         #  --> use tensorboard instead; or read and plot progress.csv
-        # eps_results = df_results['hist_stats']
+        # eps_results = df['hist_stats']
         # self.plot_learning_curve(eps_results['episode_lengths'], eps_results['episode_reward'])
+        return df
 
-        return df_results
+    def load_agent(self, path):
+        """
+        Load a trained RLlib agent from the specified path. Call this when testing without training up front.
+        :param path: Path pointing to the agent's saved checkpoint
+        """
+        self.agent = ppo.PPOTrainer(config=self.config, env=self.env_class)
+        self.agent.restore(path)
+        self.log.info('Agent loaded', agent=self.agent, path=path)
 
     def save_animation(self, fig, patches, mode, save_dir):
         """
@@ -138,20 +127,18 @@ class Simulation:
             except TypeError:
                 self.log.error('ImageMagick needs to be installed for saving gifs.')
 
-    def run(self, config, num_episodes=1, render=None, log_steps=False):
+    def run(self, num_episodes=1, render=None, log_steps=False):
         """
-        Run one simulation episode. Render situation at beginning of each time step. Return episode reward.
+        Run one or more simulation episodes. Render situation at beginning of each time step. Return episode rewards.
         :param config: RLlib config to create a new trainer/agent
         :param num_episodes: Number of episodes to run
         :param render: If and how to render the simulation. Options: None, 'plot', 'video', 'gif'
         :param log_steps: Whether or not to log infos about each step or just about each episode
         :return: Return list of episode rewards
         """
+        assert self.agent is not None, "Train or load an agent before running the simulation"
         assert (num_episodes == 1) or (render == None), "Turn off rendering when running for multiple episodes"
         eps_rewards = []
-        # create and load agent
-        self.agent = self.get_agent(config)
-        self.agent.restore('../training/RLlibEnv/rllib_train/trained_agents/checkpoint_2/checkpoint-2')
 
         # instantiate env and set logging level
         env = self.env_class(self.env_config)
@@ -201,11 +188,3 @@ class Simulation:
         self.log.info("Simulation complete", mean_eps_reward=mean_eps_reward, std_eps_reward=np.std(eps_rewards),
                       mean_step_reward=mean_step_reward)
         return eps_rewards
-
-    def evaluate(self, eval_eps):
-        """Evaluate the agent over specified number of episodes. Return avg & std episode reward and step reward"""
-        mean_eps_reward, std_eps_reward = evaluate_policy(self.agent, self.env, n_eval_episodes=eval_eps)
-        mean_step_reward = mean_eps_reward / self.episode_length
-        self.log.info("Policy evaluation", mean_eps_reward=mean_eps_reward, std_eps_reward=std_eps_reward,
-                      mean_step_reward=mean_step_reward)
-        return mean_eps_reward, std_eps_reward, mean_step_reward

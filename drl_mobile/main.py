@@ -154,12 +154,12 @@ if __name__ == "__main__":
 
     # TODO: use stop dir for tune.run?
     # settings
-    train_iter = 1
+    stop_criteria = {'training_iteration': 1}
     # env steps per train_iter
     train_batch_size = 200
     eps_length = 10
     # train or load trained agent (& env norm stats); only set train=True for ppo agent!
-    train = True
+    train = False
     # normalize obs (& clip? & reward?); better: use custom env normalization with dr_cutoff='auto'
     normalize = False
     # seed for agent & env
@@ -173,10 +173,13 @@ if __name__ == "__main__":
 
     # train
     if train:
-        analysis = sim.train(train_iter)
-
-    # simulate one run
-    sim.run(config, render='video', log_steps=True)
-
-    # evaluate
-    sim.run(config, num_episodes=10, log_steps=False)
+        analysis = sim.train(stop_criteria)
+    # test
+    # TODO: currently I need to get the path of the trained agent manually and load it before testing.
+    #  it should be possible to train and directly test
+    else:
+        sim.load_agent('../training/PPO/PPO_RLlibEnv_0_2020-06-24_14-54-00v6aqqe1k/checkpoint_1/checkpoint-1')
+        # simulate one run
+        sim.run(render='video', log_steps=True)
+        # evaluate
+        sim.run(num_episodes=10, log_steps=False)
