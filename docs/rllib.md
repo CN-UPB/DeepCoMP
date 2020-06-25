@@ -19,7 +19,8 @@ These notes are referring to `ray[rllib]==0.8.6`.
 * The environment and all involved classes need to support `deepcopy`
     * This lead to hard-to-debug errors when I had cyclic references inside my env that did not get copied correctly
     * Best approach: Avoid cyclic references
-    * Alternative: Overwrite `deepcopy`
+    * Apparently it's still also a problem with `structlog`
+    * See https://stackoverflow.com/q/46283738/2745116 and https://github.com/hynek/structlog/issues/268
 
 ## Training
 

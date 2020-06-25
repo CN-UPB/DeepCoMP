@@ -3,6 +3,8 @@ import random
 import structlog
 from shapely.geometry import Point
 
+from drl_mobile.util.logs import config_logging
+
 
 class User:
     """
@@ -40,8 +42,8 @@ class User:
         self.move_y = None
         self.reset_movement()
 
-        self.log = structlog.get_logger(id=self.id, pos=str(self.pos), move=(self.move_x, self.move_y),
-                                        conn_bs=self.conn_bs, dr_req=self.dr_req, dr_thres=self.dr_thres)
+        # self.log = structlog.get_logger(id=self.id, pos=str(self.pos), move=(self.move_x, self.move_y),
+        #                                 conn_bs=self.conn_bs, dr_req=self.dr_req, dr_thres=self.dr_thres)
 
     def __repr__(self):
         return self.id

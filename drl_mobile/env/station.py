@@ -25,7 +25,7 @@ class Basestation:
         # just consider downlink for now; more interesting for most apps anyways
         self.disable_interference = True
 
-        # FIXME: enabling logging still shows deepcopy error
+        # FIXME: enabling logging still shows deepcopy error. See https://github.com/hynek/structlog/issues/268
         # TODO: log num conn ues
         # self.log = structlog.get_logger(id=self.id, pos=str(self.pos))
 

@@ -84,6 +84,6 @@ if __name__ == "__main__":
     # load & test agent
     sim.load_agent(path=agent_path, seed=seed)
     # simulate one episode and render
-    sim.run(render='vido', log_steps=True)
+    sim.run(render='video', log_steps=True)
     # evaluate over multiple episodes
     # sim.run(num_episodes=10, log_steps=False)
