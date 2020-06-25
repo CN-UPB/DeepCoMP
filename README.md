@@ -4,11 +4,6 @@ Using deep RL for mobility management.
 
 ![example](docs/gifs/v04.gif)
 
-The latest version uses the [RLlib](https://docs.ray.io/en/latest/rllib.html) library for multi-agent RL.
-There is also an older version using [stable_baselines](https://stable-baselines.readthedocs.io/en/master/) for single-agent RL
-in the [stable_baselines branch](https://github.com/CN-UPB/deep-rl-mobility-management/tree/stable_baselines) (used for v0.1-v0.3).
-The current version does not support `stable_baselines` anymore.
-
 ## Setup
 
 To install everything, run
@@ -79,6 +74,15 @@ Run the command in a WSL not a PyCharm terminal. Tensorboard is available at htt
     * Eg, 1st move all UEs, 2nd check & update connections of all UEs, 3rd calculate reward etc
 
 ## Development
+
+### Branches and RL frameworks
+
+* The latest version uses the [RLlib](https://docs.ray.io/en/latest/rllib.html) library for multi-agent RL.
+* There is also an older version using [stable_baselines](https://stable-baselines.readthedocs.io/en/master/) for single-agent RL
+in the [stable_baselines branch](https://github.com/CN-UPB/deep-rl-mobility-management/tree/stable_baselines) (used for v0.1-v0.3).
+* The RLlib version on the `rllib` branch is functionally roughly equivalent to the `stable_baselines` branch (same model, MDP, agent), just with a different framework.
+* Development continues in the `dev` branch.
+* The current version on `master` and `dev` do not support `stable_baselines` anymore.
 
 ### Multi-Agent RL with rllib
 
