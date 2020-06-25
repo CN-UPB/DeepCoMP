@@ -18,7 +18,9 @@ Questions I had up front:
   - No way to do that automatically at the moment
 - How to configure or return save path of agent
   - With `analysis = ray.tune.run(checkpoint_at_end=True)`
-  - Then `analysis.get_best_checkpoint()` returns the checkpoint
+  - Then `analysis.get_best_checkpoint()` returns the checkpoint --> Tested & doesn't work.
+    - Instead `analysis.get_best_logdir(metric='episode_reward_mean')` works
+    - `analysis.get_trial_checkpoints_paths(analysis.get_best_trial('episode_reward_mean'), 'episode_reward_mean')` gets me the path to the checkpoint
 - What's the difference between 0 and 1 worker?
 
 ## Notes

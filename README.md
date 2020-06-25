@@ -108,4 +108,8 @@ in the [stable_baselines branch](https://github.com/CN-UPB/deep-rl-mobility-mana
     * `results['info']['num_steps_trained']` shows the total number of training steps, 
     * which is at most `results['info']['num_steps_sampled']`, based on the `train_batch_size`
 
+### Hyperparameter tuning
 
+* Ray's `tune.run()` can also be used directly to tune hyperparameters.
+* The resulting `ExperimentAnalysis` object provides the best parameter configuration and path to the saved logs and agent:
+https://docs.ray.io/en/latest/tune/api_docs/analysis.html#experimentanalysis-tune-experimentanalysis

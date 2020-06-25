@@ -15,7 +15,13 @@ from drl_mobile.agent.dummy import RandomAgent, FixedAgent
 
 class Simulation:
     """Simulation class for training and testing agents."""
-    def __init__(self, config, agent_name):
+    def __init__(self, config, agent_name, debug=False):
+        """
+        Create a new simulation object to hold the agent and environment, train & test & visualize the agent + env.
+        :param config: RLlib agent config
+        :param agent_name: String identifying the agent. Supported: 'ppo', 'random', 'fixed'
+        :param debug: Whether or not to enable ray's local_mode for debugging
+        """
         # config and env
         self.config = config
         self.env_class = config['env']
@@ -30,7 +36,7 @@ class Simulation:
         self.agent = None
         # only init ray if necessary --> lower overhead for dummy agents
         if self.agent_name == 'ppo':
-            ray.init()
+            ray.init(local_mode=debug)
 
         # save dir
         self.save_dir = f'../training'
@@ -74,24 +80,31 @@ class Simulation:
         Train an RLlib agent using tune until any of the configured stopping criteria is met.
         :param stop_criteria: Dict with stopping criteria.
             See https://docs.ray.io/en/latest/tune/api_docs/execution.html#tune-run
-        :return: Return a Pandas data frame with the training results
+        :return: Return the path to the saved agent (checkpoint) and tune's ExperimentAnalysis object
+            See https://docs.ray.io/en/latest/tune/api_docs/analysis.html#experimentanalysis-tune-experimentanalysis
         """
         analysis = ray.tune.run(ppo.PPOTrainer, config=self.config, local_dir=self.save_dir, stop=stop_criteria,
                                 checkpoint_at_end=True)
         # tune returns an ExperimentAnalysis that can be cast to a Pandas data frame
         # object https://docs.ray.io/en/latest/tune/api_docs/analysis.html#experimentanalysis
         df = analysis.dataframe()
+        # list of lists: one list per checkpoint; each checkpoint list contains 1st the path, 2nd the metric value
+        checkpoints = analysis.get_trial_checkpoints_paths(trial=analysis.get_best_trial('episode_reward_mean'),
+                                                           metric='episode_reward_mean')
+        # retriev the checkpoint path; we only have a single checkpoint, so take the first one
+        checkpoint_path = checkpoints[0][0]
         self.log.info('Training done', timesteps_total=int(df['timesteps_total']),
                       episodes_total=int(df['episodes_total']), episode_reward_mean=float(df['episode_reward_mean']),
                       num_steps_sampled=int(df['info/num_steps_sampled']),
-                      num_steps_trained=int(df['info/num_steps_trained']))
+                      num_steps_trained=int(df['info/num_steps_trained']),
+                      log_dir=analysis.get_best_logdir(metric='episode_reward_mean'))
 
         # plot results
         # TODO: this only contains (and plots) the last 100 episodes --> not useful
         #  --> use tensorboard instead; or read and plot progress.csv
         # eps_results = df['hist_stats']
         # self.plot_learning_curve(eps_results['episode_lengths'], eps_results['episode_reward'])
-        return df
+        return checkpoint_path, analysis
 
     def load_agent(self, path=None, seed=None):
         """
@@ -109,7 +122,7 @@ class Simulation:
         if self.agent_name == 'fixed':
             self.agent = FixedAgent(action=1, noop_interval=4)
 
-        self.log.info('Agent loaded', agent=type(self.agent).__name__)
+        self.log.info('Agent loaded', agent=type(self.agent).__name__, path=path)
 
     def save_animation(self, fig, patches, mode, save_dir):
         """

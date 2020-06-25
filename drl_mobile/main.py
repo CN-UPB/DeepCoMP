@@ -46,6 +46,8 @@ def create_env_config(env, eps_length, train_batch_size=1000, seed=None):
     # write training stats to file under ~/ray_results (default: False)
     config['monitor'] = True
     config['train_batch_size'] = train_batch_size        # default: 4000; default in stable_baselines: 128
+    # configure the size of the neural network's hidden layers
+    # config['model']['fcnet_hiddens'] = [100, 100]
     # config['log_level'] = 'INFO'    # ray logging default: warning
     config['env'] = env
     config['env_config'] = env_config
@@ -59,32 +61,28 @@ if __name__ == "__main__":
     # settings
     # stop training when any of the criteria is met
     stop_criteria = {
-        'training_iteration': 20,
+        'training_iteration': 1,
         # 'episode_reward_mean': 250
     }
     # train or load trained agent; only set train=True for ppo agent
-    train = False
+    train = True
     agent_name = 'ppo'
     # name of the RLlib dir to load the agent from for testing
     agent_path = '../training/PPO/PPO_CentralMultiUserEnv_0_2020-06-24_16-42-21tp6f0w12/checkpoint_20/checkpoint-20'
     # seed for agent & env
     seed = 42
 
-    # create env and RLlib config
+    # create RLlib config (with env inside) & simulator
     config = create_env_config(CentralMultiUserEnv, eps_length=30, train_batch_size=1000, seed=seed)
-
-    # simulator doesn't need RLlib's env_config (contained in agent anyways)
-    sim = Simulation(config=config, agent_name=agent_name)
+    sim = Simulation(config=config, agent_name=agent_name, debug=False)
 
     # train
     if train:
-        analysis = sim.train(stop_criteria)
-    # test
-    # TODO: currently I need to get the path of the trained agent manually and load it before testing.
-    #  it should be possible to train and directly test
-    else:
-        sim.load_agent(path=agent_path, seed=seed)
-        # simulate one run
-        sim.run(render='gif', log_steps=True)
-        # evaluate
-        # sim.run(num_episodes=10, log_steps=False)
+        agent_path, analysis = sim.train(stop_criteria)
+
+    # load & test agent
+    sim.load_agent(path=agent_path, seed=seed)
+    # simulate one episode and render
+    sim.run(render='vido', log_steps=True)
+    # evaluate over multiple episodes
+    sim.run(num_episodes=10, log_steps=False)

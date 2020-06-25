@@ -5,5 +5,5 @@ seaborn==0.10.1
 numpy==1.18.3
 gym==0.17.1
 tensorflow==2.2.0
-ray[rllib]==0.8.5
+ray[rllib]==0.8.6
 gputil==1.4.0
