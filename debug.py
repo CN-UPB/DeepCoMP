@@ -4,14 +4,15 @@ from copy import copy, deepcopy
 from shapely.geometry import Point
 import ray.rllib.agents.ppo as ppo
 
+from drl_mobile.env.map import Map
 from drl_mobile.env.user import User
 from drl_mobile.env.station import Basestation
-from drl_mobile.rllib.env import ChildTunnelEnv, DummyMobileEnv, TunnelEnv
-from drl_mobile.env.env import RLlibEnv
+from drl_mobile.env.env import DatarateMobileEnv
 
 
 # for real env
-ue1 = User('ue1', color='blue', pos_x='random', pos_y=40, move_x='slow')
+map = Map(width=150, height=100)
+ue1 = User('ue1', map, color='blue', pos_x='random', pos_y=40, move_x='slow')
 # ue2 = User('ue2', color='red', pos_x='random', pos_y=30, move_x='fast')
 bs1 = Basestation('bs1', pos=Point(50, 50))
 bs2 = Basestation('bs2', pos=Point(100, 50))
@@ -22,7 +23,7 @@ env_config = {
     'len_tunnel': 5, 'len_episode': 10,
     # real config
     'episode_length': 10, 'width': 150, 'height': 100, 'bs_list': [bs1, bs2], 'ue_list': [ue1],
-    'dr_cutoff': 'auto', 'sub_req_dr': True, 'disable_interference': True, 'seed': 1234
+    'dr_cutoff': 'auto', 'sub_req_dr': True, 'seed': 1234
 }
 
 config = ppo.DEFAULT_CONFIG.copy()
@@ -34,13 +35,13 @@ config['train_batch_size'] = 200
 config['env_config'] = env_config
 
 # this works
-copy_conf = deepcopy(config)
+copy_conf = deepcopy(ue1)
 print(copy_conf)
 
 # still works
-config['env'] = RLlibEnv
-copy_conf2 = deepcopy(config)
-print(copy_conf2)
+# config['env'] = DatarateMobileEnv
+# copy_conf2 = deepcopy(config)
+# print(copy_conf2)
 
 # env = RLlibEnv(env_config)
 # print(env)

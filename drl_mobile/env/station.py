@@ -25,7 +25,9 @@ class Basestation:
         # just consider downlink for now; more interesting for most apps anyways
         self.disable_interference = True
 
-        self.log = structlog.get_logger(id=self.id, pos=str(self.pos))
+        # FIXME: enabling logging still shows deepcopy error
+        # TODO: log num conn ues
+        # self.log = structlog.get_logger(id=self.id, pos=str(self.pos))
 
     def __repr__(self):
         return self.id

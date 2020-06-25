@@ -96,6 +96,15 @@ in the [stable_baselines branch](https://github.com/CN-UPB/deep-rl-mobility-mana
 
 ### Notes on RLlib
 
+#### Environment Requirements
+
+* Envs need to follow the Gym interface
+* The constructor must take a `env_config` dict as only argument
+* The environment and all involved classes need to support `deepcopy`
+    * This lead to hard-to-debug errors when I had cyclic references inside my env that did not get copied correctly
+    * Best approach: Avoid cyclic references
+    * Alternative: Overwrite `deepcopy`
+
 #### Training
 
 * `agent.train()` runs one training iteration. Calling it in a loop, continues training for multiple iterations.

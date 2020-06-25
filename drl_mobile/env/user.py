@@ -1,6 +1,6 @@
 import random
 
-# import structlog
+import structlog
 from shapely.geometry import Point
 
 
@@ -40,8 +40,8 @@ class User:
         self.move_y = None
         self.reset_movement()
 
-        # self.log = structlog.get_logger(id=self.id, pos=str(self.pos), move=(self.move_x, self.move_y),
-        #                                 conn_bs=self.conn_bs, dr_req=self.dr_req, dr_thres=self.dr_thres)
+        self.log = structlog.get_logger(id=self.id, pos=str(self.pos), move=(self.move_x, self.move_y),
+                                        conn_bs=self.conn_bs, dr_req=self.dr_req, dr_thres=self.dr_thres)
 
     def __repr__(self):
         return self.id
@@ -147,6 +147,7 @@ class User:
         # not yet connected
         if self.can_connect(bs):
             self.conn_bs.append(bs)
+            bs.num_conn_ues += 1
             # log.info("Connected", conn_bs=self.conn_bs)
             # self.log = self.log.bind(conn_bs=self.conn_bs)
             return True
@@ -158,4 +159,5 @@ class User:
         """Disconnect from given BS. Assume BS is currently connected."""
         assert bs in self.conn_bs, "Not connected to BS --> Cannot disconnect"
         self.conn_bs.remove(bs)
+        bs.num_conn_ues -= 1
         # self.log = self.log.bind(conn_bs=self.conn_bs)
