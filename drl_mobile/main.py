@@ -35,7 +35,7 @@ def create_env_config(env, eps_length, num_workers=1, train_batch_size=1000, see
     bs2 = Basestation('bs2', pos=Point(100, 50))
 
     env_config = {
-        'episode_length': eps_length, 'map': map, 'bs_list': [bs1, bs2], 'ue_list': [ue1, ue2],
+        'episode_length': eps_length, 'map': map, 'bs_list': [bs1, bs2], 'ue_list': [ue1],
         'dr_cutoff': 'auto', 'sub_req_dr': True, 'seed': seed
     }
 
@@ -66,15 +66,15 @@ if __name__ == "__main__":
         # 'episode_reward_mean': 250
     }
     # train or load trained agent; only set train=True for ppo agent
-    train = True
-    agent_name = 'ppo'
+    train = False
+    agent_name = 'fixed'
     # name of the RLlib dir to load the agent from for testing
     agent_path = '../training/PPO/PPO_CentralMultiUserEnv_0_2020-06-24_16-42-21tp6f0w12/checkpoint_20/checkpoint-20'
     # seed for agent & env
     seed = 42
 
     # create RLlib config (with env inside) & simulator
-    config = create_env_config(CentralMultiUserEnv, eps_length=10, num_workers=1, train_batch_size=200, seed=seed)
+    config = create_env_config(DatarateMobileEnv, eps_length=10, num_workers=1, train_batch_size=200, seed=seed)
     sim = Simulation(config=config, agent_name=agent_name, debug=True)
 
     # train

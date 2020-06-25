@@ -2,6 +2,10 @@ import structlog
 import numpy as np
 
 
+# SNR threshold required for UEs to connect to this BS. This threshold corresponds roughly to a distance of 70m.
+SNR_THRESHOLD = 2e-8
+
+
 class Basestation:
     """A base station sending data to connected UEs"""
     def __init__(self, id, pos):
@@ -43,7 +47,7 @@ class Basestation:
         return const1 + const2 * np.log10(distance)
 
     def received_power(self, distance):
-        """Return the received power"""
+        """Return the received power at a given distance"""
         return 10**((self.tx_power - self.path_loss(distance)) / 10)
 
     def snr(self, ue_pos):
@@ -51,6 +55,7 @@ class Basestation:
         distance = self.pos.distance(ue_pos)
         signal = self.received_power(distance)
         # self.log.debug('SNR to UE', ue_pos=str(ue_pos), distance=distance, signal=signal)
+        print(f"SNR: bs={self.id}, {distance=}, {signal=}, {self.noise=}")
         return signal / self.noise
 
     def data_rate(self, ue):
@@ -60,8 +65,9 @@ class Basestation:
         :param ue: UE requesting the achievable data rate
         :return: Return the max. achievable data rate for the UE if it were/is connected to the BS.
         """
-        sinr = self.snr(ue.pos)
-        total_dr = self.bw * np.log2(1 + sinr)
+        snr = self.snr(ue.pos)
+        total_dr = self.bw * np.log2(1 + snr)
+        print(f"bs={self.id}, {snr=}, {total_dr=}")
         # split data rate by all already connected UEs + this UE if it is not connected yet
         split_by = self.num_conn_ues
         if self not in ue.conn_bs:
@@ -70,3 +76,8 @@ class Basestation:
         ue_dr = total_dr / split_by
         # self.log.debug('Achievable data rate', ue=ue.id, sinr=sinr, total_dr=total_dr, ue_dr=ue_dr, split_by=split_by)
         return ue_dr
+
+    # TODO: use this instead of the UE's "can connect"
+    def can_connect(self, ue_pos):
+        """Return if a UE at a given pos can connect to this BS. That's the case if its SNR is above a threshold."""
+        return self.snr(ue_pos) > SNR_THRESHOLD
