@@ -53,7 +53,7 @@ class User:
         """Current data rate the UE gets through all its BS connections"""
         dr = 0
         for bs in self.conn_bs:
-            dr += bs.data_rate(self, None)
+            dr += bs.data_rate(self)
         # self.log.debug("Current data rate", curr_dr=dr)
         return dr
 
@@ -125,9 +125,7 @@ class User:
 
     def can_connect(self, bs):
         """Return whether or not the UE can connect to the BS (based achievable data rate at current pos)"""
-        # just pass None as active_bs; doesn't make a difference if interference disabled
-        assert bs.disable_interference, "Need active_bs to calculate interference. Disable interference instead."
-        dr = bs.data_rate(self, None)
+        dr = bs.data_rate(self)
         return dr >= self.dr_thres
 
     def connect_to_bs(self, bs, disconnect=False):

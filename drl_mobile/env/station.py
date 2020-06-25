@@ -23,7 +23,6 @@ class Basestation:
         self.tx_power = 30  # in dBm (was 40)
         self.height = 50    # in m
         # just consider downlink for now; more interesting for most apps anyways
-        self.disable_interference = True
 
         # FIXME: enabling logging still shows deepcopy error. See https://github.com/hynek/structlog/issues/268
         # TODO: log num conn ues
@@ -31,11 +30,6 @@ class Basestation:
 
     def __repr__(self):
         return self.id
-
-    @property
-    def active(self):
-        """The BS is active iff it's connected to at least 1 UE"""
-        return self.num_conn_ues > 0
 
     def reset(self):
         """Reset BS to having no connected UEs"""
@@ -52,39 +46,21 @@ class Basestation:
         """Return the received power"""
         return 10**((self.tx_power - self.path_loss(distance)) / 10)
 
-    def interference(self, ue_pos, active_bs):
-        """Return interference power at given UE position based on given list of active BS."""
-        assert not self.disable_interference, "Interference is disabled"
-        interfering_bs = [bs for bs in active_bs if bs != self]
-        interf_power = 0
-        for bs in interfering_bs:
-            dist_to_ue = bs.pos.distance(ue_pos)
-            interf_power += bs.received_power(dist_to_ue)
-        return interf_power
-
-    def sinr(self, ue_pos, active_bs):
-        """Return the singal-to-noise-and-interference (SINR) ratio given a UE position and list of active BS"""
+    def snr(self, ue_pos):
+        """Return the signal-to-noise (SNR) ratio given a UE position."""
         distance = self.pos.distance(ue_pos)
         signal = self.received_power(distance)
-        interference = 0
-        if not self.disable_interference:
-            interference = self.interference(ue_pos, active_bs)
-        # self.log.debug('SINR to UE', ue_pos=str(ue_pos), active_bs=active_bs, distance=distance,
-        #                signal=signal, interference=interference, disable_interference=self.disable_interference)
-        return signal / (self.noise + interference)
+        # self.log.debug('SNR to UE', ue_pos=str(ue_pos), distance=distance, signal=signal)
+        return signal / self.noise
 
-    def data_rate(self, ue, active_bs):
+    def data_rate(self, ue):
         """
         Return the achievable data rate for a given UE (may or may not be connected already).
         Split the achievable data rate equally among all connected UEs, pretending this UE is also connected.
         :param ue: UE requesting the achievable data rate
-        :param active_bs: Currently active BS, used to calculating interference.
         :return: Return the max. achievable data rate for the UE if it were/is connected to the BS.
         """
-        # TODO: if I drop interference from the radio model for good; I don't need to pass active_bs any longer;
-        #  should make the simulation more efficient, since I don't need to keep track of active BS
-        #  I acutally pass active_bs=None now already in UE
-        sinr = self.sinr(ue.pos, active_bs)
+        sinr = self.snr(ue.pos)
         total_dr = self.bw * np.log2(1 + sinr)
         # split data rate by all already connected UEs + this UE if it is not connected yet
         split_by = self.num_conn_ues
@@ -92,6 +68,5 @@ class Basestation:
             # what would be the data rate if this UE connects as well?
             split_by += 1
         ue_dr = total_dr / split_by
-        # self.log.debug('Achievable data rate', ue=ue.id, active_bs=active_bs, sinr=sinr, total_dr=total_dr, ue_dr=ue_dr,
-        #                split_by=split_by)
+        # self.log.debug('Achievable data rate', ue=ue.id, sinr=sinr, total_dr=total_dr, ue_dr=ue_dr, split_by=split_by)
         return ue_dr
