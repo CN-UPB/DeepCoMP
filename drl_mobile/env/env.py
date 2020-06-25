@@ -33,12 +33,7 @@ class MobileEnv(gym.Env):
         self.time = 0
         self.episode_length = env_config['episode_length']
         self.map = env_config['map']
-        # disable interference for all BS (or not)
-        # TODO: get rid of this once my radio model is finalized
-        self.disable_interference = True
         self.bs_list = env_config['bs_list']
-        for bs in self.bs_list:
-            bs.disable_interference = self.disable_interference
         self.ue_list = env_config['ue_list']
         # seed the environment
         self.seed(env_config['seed'])

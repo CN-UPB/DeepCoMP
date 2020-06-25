@@ -147,7 +147,6 @@ class User:
         # not yet connected
         if self.can_connect(bs):
             self.conn_bs.append(bs)
-            bs.conn_ue.append(self)
             # log.info("Connected", conn_bs=self.conn_bs)
             # self.log = self.log.bind(conn_bs=self.conn_bs)
             return True
@@ -159,5 +158,4 @@ class User:
         """Disconnect from given BS. Assume BS is currently connected."""
         assert bs in self.conn_bs, "Not connected to BS --> Cannot disconnect"
         self.conn_bs.remove(bs)
-        bs.conn_ue.remove(self)
         # self.log = self.log.bind(conn_bs=self.conn_bs)

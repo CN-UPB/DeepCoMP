@@ -1,6 +1,5 @@
-# import structlog
+import structlog
 import numpy as np
-from shapely.geometry import Point
 
 
 class Basestation:
@@ -8,8 +7,7 @@ class Basestation:
     def __init__(self, id, pos):
         self.id = id
         self.pos = pos
-        # list of connected UEs
-        self.conn_ue = []
+        self.num_conn_ues = 0
         # radius for plotting; should reflect coverage
         # 46m is approx radius for 1mbit with curr settings and no interference
         # TODO: calculate radius automatically based on radio model; can't be calc in closed form but numerically approx
@@ -25,11 +23,9 @@ class Basestation:
         self.tx_power = 30  # in dBm (was 40)
         self.height = 50    # in m
         # just consider downlink for now; more interesting for most apps anyways
-        # if disable_interference=True (set by env), ignore interference; just calc SNR, not SINR
-        # disabling_interference by default now!
         self.disable_interference = True
 
-        # self.log = structlog.get_logger(id=self.id, pos=str(self.pos))
+        self.log = structlog.get_logger(id=self.id, pos=str(self.pos))
 
     def __repr__(self):
         return self.id
@@ -37,15 +33,11 @@ class Basestation:
     @property
     def active(self):
         """The BS is active iff it's connected to at least 1 UE"""
-        return len(self.conn_ue) > 0
-
-    @property
-    def num_conn_ues(self):
-        return len(self.conn_ue)
+        return self.num_conn_ues > 0
 
     def reset(self):
         """Reset BS to having no connected UEs"""
-        self.conn_ue = []
+        self.num_conn_ues = 0
 
     def path_loss(self, distance, ue_height=1.5):
         """Return path loss in dBm to a UE at a given position. Calculation using Okumura Hata, suburban indoor"""
@@ -94,7 +86,7 @@ class Basestation:
         total_dr = self.bw * np.log2(1 + sinr)
         # split data rate by all already connected UEs + this UE if it is not connected yet
         split_by = self.num_conn_ues
-        if ue not in self.conn_ue:
+        if self not in ue.conn_bs:
             # what would be the data rate if this UE connects as well?
             split_by += 1
         ue_dr = total_dr / split_by

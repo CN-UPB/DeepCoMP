@@ -1,4 +1,8 @@
-# MDP Formulation 
+# MDP Formulation & Release Details
+
+## v0.5: Improved radio model (WIP)
+
+
 
 ## [v0.4](https://github.com/CN-UPB/deep-rl-mobility-management/releases/tag/v0.4): Replaced stable_baselines with ray's RLlib (week 26)
 

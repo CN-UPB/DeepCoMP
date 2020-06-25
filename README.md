@@ -57,7 +57,7 @@ Run the command in a WSL not a PyCharm terminal. Tensorboard is available at htt
 * Just cutting the data rate off at some small value (eg, 3 Mbit/s) leads to much better results
 * Agent keeps trying to connect to all BS, even if out of range. --> Subtracting req. dr by UE + higher penalty (both!) solves the issue
 * Normalizing loses info about which BS has enough dr and connectivity --> does not work as well
-
+* Central agent with observations and actions for all UEs in every time step works fine with 2 UEs
 
 ### Todos
 

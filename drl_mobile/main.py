@@ -36,7 +36,7 @@ def create_env_config(env, eps_length, num_workers=1, train_batch_size=1000, see
 
     env_config = {
         'episode_length': eps_length, 'map': map, 'bs_list': [bs1, bs2], 'ue_list': [ue1, ue2],
-        'dr_cutoff': 'auto', 'sub_req_dr': True, 'disable_interference': True, 'seed': seed
+        'dr_cutoff': 'auto', 'sub_req_dr': True, 'seed': seed
     }
 
     # create and return the config
@@ -62,7 +62,7 @@ if __name__ == "__main__":
     # settings
     # stop training when any of the criteria is met
     stop_criteria = {
-        'training_iteration': 10,
+        'training_iteration': 1,
         # 'episode_reward_mean': 250
     }
     # train or load trained agent; only set train=True for ppo agent
@@ -74,8 +74,8 @@ if __name__ == "__main__":
     seed = 42
 
     # create RLlib config (with env inside) & simulator
-    config = create_env_config(CentralMultiUserEnv, eps_length=30, num_workers=1, train_batch_size=1000, seed=seed)
-    sim = Simulation(config=config, agent_name=agent_name, debug=False)
+    config = create_env_config(CentralMultiUserEnv, eps_length=10, num_workers=1, train_batch_size=200, seed=seed)
+    sim = Simulation(config=config, agent_name=agent_name, debug=True)
 
     # train
     if train:
@@ -86,4 +86,4 @@ if __name__ == "__main__":
     # simulate one episode and render
     sim.run(render='vido', log_steps=True)
     # evaluate over multiple episodes
-    sim.run(num_episodes=10, log_steps=False)
+    # sim.run(num_episodes=10, log_steps=False)
