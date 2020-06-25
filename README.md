@@ -47,6 +47,11 @@ tensorboard --logdir training
 
 Run the command in a WSL not a PyCharm terminal. Tensorboard is available at http://localhost:6006
 
+## Documentation
+
+* See documents in `docs`
+* See docstrings in code
+
 ## Research
 
 ### Findings
@@ -75,50 +80,9 @@ Run the command in a WSL not a PyCharm terminal. Tensorboard is available at htt
 
 ## Development
 
-### Branches and RL frameworks
-
 * The latest version uses the [RLlib](https://docs.ray.io/en/latest/rllib.html) library for multi-agent RL.
 * There is also an older version using [stable_baselines](https://stable-baselines.readthedocs.io/en/master/) for single-agent RL
 in the [stable_baselines branch](https://github.com/CN-UPB/deep-rl-mobility-management/tree/stable_baselines) (used for v0.1-v0.3).
 * The RLlib version on the `rllib` branch is functionally roughly equivalent to the `stable_baselines` branch (same model, MDP, agent), just with a different framework.
 * Development continues in the `dev` branch.
 * The current version on `master` and `dev` do not support `stable_baselines` anymore.
-
-### Multi-Agent RL with rllib
-
-* Seems like rllib already supports multi-agent environments
-* Anyway seems like the (by far) most complex/feature rich but also mature RL framework
-* Doesn't run on Windows yet: https://github.com/ray-project/ray/issues/631 (but should on WSL)
-* Multi agent environments: https://docs.ray.io/en/latest/rllib-env.html#multi-agent-and-hierarchical
-* Multi agent concept/policies: https://docs.ray.io/en/latest/rllib-concepts.html#policies-in-multi-agent
-* Also supports parameter sharing for joint learning; hierarchical RL etc --> rllib is the way to go
-* It's API both for agents and environments (and everything else) is completely different
-
-### Notes on RLlib
-
-#### Environment Requirements
-
-* Envs need to follow the Gym interface
-* The constructor must take a `env_config` dict as only argument
-* The environment and all involved classes need to support `deepcopy`
-    * This lead to hard-to-debug errors when I had cyclic references inside my env that did not get copied correctly
-    * Best approach: Avoid cyclic references
-    * Alternative: Overwrite `deepcopy`
-
-#### Training
-
-* `agent.train()` runs one training iteration. Calling it in a loop, continues training for multiple iterations.
-* The number of environment steps (not episodes) per iteration is set in `config['train_batch_size']`
-* `config['sgd_minibatch_size']` sets how many steps/experiences are used per training epoch
-* `config['train_batch_size'] >= config['sgd_minibatch_size']`
-* I still don't quite get the details. Sometimes, `config['sgd_minibatch_size']` is ignored and RLlib just trains longer.
-* In the results of each training iteration, 
-    * `results['hist_stats']['episode_reward']` is a list of the last 100 episode rewards from all training iterations so far. Useful for plotting.
-    * `results['info']['num_steps_trained']` shows the total number of training steps, 
-    * which is at most `results['info']['num_steps_sampled']`, based on the `train_batch_size`
-
-### Hyperparameter tuning
-
-* Ray's `tune.run()` can also be used directly to tune hyperparameters.
-* The resulting `ExperimentAnalysis` object provides the best parameter configuration and path to the saved logs and agent:
-https://docs.ray.io/en/latest/tune/api_docs/analysis.html#experimentanalysis-tune-experimentanalysis

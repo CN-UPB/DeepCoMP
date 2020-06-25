@@ -108,7 +108,7 @@ class Simulation:
 
     def load_agent(self, path=None, seed=None):
         """
-        Load a trained RLlib agent from the specified path. Call this when testing without training up front.
+        Load a trained RLlib agent from the specified path. Call this before testing a trained agent.
         :param path: Path pointing to the agent's saved checkpoint (only used for RLlib agents)
         :param seed: RNG seed used by the random agent
         """
