@@ -46,7 +46,7 @@ class User:
         #                                 conn_bs=self.conn_bs, dr_req=self.dr_req, dr_thres=self.dr_thres)
 
     def __repr__(self):
-        return self.id
+        return str(self.id)
 
     @property
     def curr_dr(self):
@@ -116,17 +116,12 @@ class User:
         """Check if assigned BS connections are still stable (after move), else remove."""
         remove_bs = []
         for bs in self.conn_bs:
-            if not self.can_connect(bs):
+            if not bs.can_connect(self.pos):
                 # self.log.info("Losing connection to BS", bs=bs)
                 remove_bs.append(bs)
         # remove/disconnect bs
         for bs in remove_bs:
             self.disconnect_from_bs(bs)
-
-    def can_connect(self, bs):
-        """Return whether or not the UE can connect to the BS (based achievable data rate at current pos)"""
-        dr = bs.data_rate(self)
-        return dr >= self.dr_thres
 
     def connect_to_bs(self, bs, disconnect=False):
         """
@@ -145,7 +140,7 @@ class User:
             #     log.info("Staying connected")
             return True
         # not yet connected
-        if self.can_connect(bs):
+        if bs.can_connect(self.pos):
             self.conn_bs.append(bs)
             bs.num_conn_ues += 1
             # log.info("Connected", conn_bs=self.conn_bs)

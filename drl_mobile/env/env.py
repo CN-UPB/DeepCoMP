@@ -139,8 +139,10 @@ class MobileEnv(gym.Env):
         # list of matplotlib "artists", which can be used to create animations
         patch = []
 
-        # map borders
-        patch.extend(plt.plot(*self.map.shape.exterior.xy, color='gray'))
+        # limit to map borders
+        plt.xlim(0, self.map.width)
+        plt.ylim(0, self.map.height)
+
         # users & connections
         for ue in self.ue_list:
             patch.append(plt.scatter(*ue.pos.xy, label=ue.id, color=ue.color))
@@ -149,7 +151,8 @@ class MobileEnv(gym.Env):
         # base stations
         for bs in self.bs_list:
             patch.append(plt.scatter(*bs.pos.xy, marker='^', c='black'))
-            patch.extend(plt.plot(*bs.coverage.exterior.xy, color='black'))
+            patch.extend(plt.plot(*bs.range_1mbit.exterior.xy, color='black'))
+            patch.extend(plt.plot(*bs.range_conn.exterior.xy, color='gray'))
 
         # title isn't redrawn in animation (out of box) --> static --> show time as text inside box, top-right corner
         patch.append(plt.title(type(self).__name__))
@@ -175,7 +178,7 @@ class BinaryMobileEnv(MobileEnv):
         Return the an observation of the current world for a given UE
         It consists of 2 binary vectors: BS availability and already connected BS
         """
-        bs_availability = [int(ue.can_connect(bs)) for bs in self.bs_list]
+        bs_availability = [int(bs.can_connect(ue.pos)) for bs in self.bs_list]
         connected_bs = [int(bs in ue.conn_bs) for bs in self.bs_list]
         return np.array(bs_availability + connected_bs)
 

@@ -29,7 +29,7 @@ def create_env_config(env, eps_length, num_workers=1, train_batch_size=1000, see
     """
     # create the environment and env_config
     map = Map(width=150, height=100)
-    ue1 = User('ue1', map, color='blue', pos_x='random', pos_y=40, move_x='slow')
+    ue1 = User('ue1', map, color='blue', pos_x=120, pos_y=40, move_x='slow')
     ue2 = User('ue2', map, color='red', pos_x='random', pos_y=30, move_x='fast')
     bs1 = Basestation('bs1', pos=Point(50, 50))
     bs2 = Basestation('bs2', pos=Point(100, 50))

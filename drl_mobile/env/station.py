@@ -2,7 +2,7 @@ import structlog
 import numpy as np
 
 
-# SNR threshold required for UEs to connect to this BS. This threshold corresponds roughly to a distance of 70m.
+# SNR threshold required for UEs to connect to this BS. This threshold corresponds roughly to a distance of 69m.
 SNR_THRESHOLD = 2e-8
 
 
@@ -12,12 +12,7 @@ class Basestation:
         self.id = id
         self.pos = pos
         self.num_conn_ues = 0
-        # radius for plotting; should reflect coverage
-        # 46m is approx radius for 1mbit with curr settings and no interference
-        # TODO: calculate radius automatically based on radio model; can't be calc in closed form but numerically approx
-        # TODO: or better visualize decreasing dr somehow
-        self.radius = 46
-        self.coverage = pos.buffer(self.radius)
+
         # set constants for SINR and data rate calculation
         # numbers originally from https://sites.google.com/site/lteencyclopedia/lte-radio-link-budgeting-and-rf-planning
         # changed numbers to get shorter range --> simulate smaller map
@@ -28,12 +23,16 @@ class Basestation:
         self.height = 50    # in m
         # just consider downlink for now; more interesting for most apps anyways
 
+        # for visualization: circles around BS that show connection range (69m) and 1 Mbit range (46m); no interference
+        self.range_conn = pos.buffer(69)
+        self.range_1mbit = pos.buffer(46)
+
         # FIXME: enabling logging still shows deepcopy error. See https://github.com/hynek/structlog/issues/268
         # TODO: log num conn ues
         # self.log = structlog.get_logger(id=self.id, pos=str(self.pos))
 
     def __repr__(self):
-        return self.id
+        return str(self.id)
 
     def reset(self):
         """Reset BS to having no connected UEs"""
@@ -77,7 +76,9 @@ class Basestation:
         # self.log.debug('Achievable data rate', ue=ue.id, sinr=sinr, total_dr=total_dr, ue_dr=ue_dr, split_by=split_by)
         return ue_dr
 
-    # TODO: use this instead of the UE's "can connect"
     def can_connect(self, ue_pos):
         """Return if a UE at a given pos can connect to this BS. That's the case if its SNR is above a threshold."""
-        return self.snr(ue_pos) > SNR_THRESHOLD
+        can_connect = self.snr(ue_pos) > SNR_THRESHOLD
+        # TODO: replace with logging once it works again
+        print(f"bs={self.id}, {ue_pos=}, {can_connect=}")
+        return can_connect

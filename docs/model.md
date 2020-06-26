@@ -33,3 +33,11 @@ See HK's mail from 22.06.:
 * Assuming a high frequency reuse factor such that neighboring BS do not interfere is like GSM and outdated. I should consider a stand-alone scheduler (greedy?) at some point instead.
 * Assuming that UEs can receive from multiple BS at multiple frequencies at the same time may not be realistic. Not sure what is?
 * Allowing UEs to connect to BS that offer 1/10 the required rate doesn't make sense, eg, if the required rate is very high. Instead: S * factor c > N? With configurable c.
+
+
+Model considerations after reading recent paper (26.06.):
+
+* What do I optimize? Should I also just optimize sum of all UE data rates? Wouldn't that lead to exploitation of best UEs and starvation of remaining?
+* Co-channel interference + power control or sub-channel/RB assignment?
+* Add UE positions (or distances?) to observations?
+* UE movement following Brownian motion?

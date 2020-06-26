@@ -49,20 +49,10 @@ Run the command in a WSL not a PyCharm terminal. Tensorboard is available at htt
 
 ## Documentation
 
-* See documents in `docs`
-* See docstrings in code
+* See documents in `docs` folder
+* See docstrings in code (TODO: generate read-the-docs in the end for v1.0)
 
 ## Research
-
-### Findings
-
-* Binary observations: [BS available?, BS connected?] work very well
-* Replacing binary "BS available?" with achievable data rate by BS does not work at all
-* Probably, because data rate is magnitudes larger (up to 150x) than "BS connected?" --> agent becomes blind to 2nd part of obs
-* Just cutting the data rate off at some small value (eg, 3 Mbit/s) leads to much better results
-* Agent keeps trying to connect to all BS, even if out of range. --> Subtracting req. dr by UE + higher penalty (both!) solves the issue
-* Normalizing loses info about which BS has enough dr and connectivity --> does not work as well
-* Central agent with observations and actions for all UEs in every time step works fine with 2 UEs
 
 ### Todos
 
@@ -77,6 +67,16 @@ Run the command in a WSL not a PyCharm terminal. Tensorboard is available at htt
     * Instead, write the dr per connection into a dict (conn --> curr dr); then derive total curr connection etc from that in O(1)
     * Needs to be updated whenever the UE moves or any UE changes its connections (this or another UE)
     * Eg, 1st move all UEs, 2nd check & update connections of all UEs, 3rd calculate reward etc
+
+### Findings
+
+* Binary observations: [BS available?, BS connected?] work very well
+* Replacing binary "BS available?" with achievable data rate by BS does not work at all
+* Probably, because data rate is magnitudes larger (up to 150x) than "BS connected?" --> agent becomes blind to 2nd part of obs
+* Just cutting the data rate off at some small value (eg, 3 Mbit/s) leads to much better results
+* Agent keeps trying to connect to all BS, even if out of range. --> Subtracting req. dr by UE + higher penalty (both!) solves the issue
+* Normalizing loses info about which BS has enough dr and connectivity --> does not work as well
+* Central agent with observations and actions for all UEs in every time step works fine with 2 UEs
 
 ## Development
 
