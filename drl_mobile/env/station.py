@@ -71,28 +71,40 @@ class Basestation:
         dr_ue_unshared = self.bw * np.log2(1 + snr)
         return dr_ue_unshared
 
-    def data_rate_shared(self, ue, dr_ue_unshared, sharing_model='resource-fair'):
+    def data_rate_shared(self, ue, dr_ue_unshared, sharing_model='rate-fair'):
         """
         Return the shared data rate the given UE would get based on its unshared data rate and a sharing model.
         :param ue: UE requesting the achievable data rate
         :param dr_ue_unshared: The UE's unshared achievable data rate
         :param sharing_model: A model for sharing rate/resources among connected UEs.
-            Currently supported: 'resource-fair'
+            Currently supported: 'resource-fair', 'rate-fair'
         :return: The UE's final, shared data rate that it (could/does) get from this BS
         """
-        supported_models = ('resource-fair')
+        # TODO: sharing model should rather be a (hard-coded) attribute of the BS than depend on the function call
+        supported_models = ('resource-fair', 'rate-fair')
         assert sharing_model in supported_models, f"{sharing_model=} not supported. {supported_models=}"
         dr_ue_shared = None
 
-        # resource fair = time/bandwidth-fair: split time slots/bandwidth/RBs equally among all connected UEs
+        # if the UE isn't connected yet, temporarily add it to the connected UEs to properly calculate sharing
+        ue_already_conn = ue in self.conn_ues
+        if not ue_already_conn:
+            self.conn_ues.append(ue)
+
+        # resource-fair = time/bandwidth-fair: split time slots/bandwidth/RBs equally among all connected UEs
         if sharing_model == 'resource-fair':
-            # split data rate by all already connected UEs + this UE if it is not connected yet
-            split_by = self.num_conn_ues
-            if ue not in self.conn_ues:
-                # what would be the data rate if this UE connects as well?
-                split_by += 1
-            # nominal data rate depends on sharing model
-            dr_ue_shared = dr_ue_unshared / split_by
+            # split data rate by all already connected UEs incl. this UE
+            dr_ue_shared = dr_ue_unshared / self.num_conn_ues
+
+        # rate-fair=volume-fair: rather than splitting the resources equally, all connected UEs get the same rate/volume
+        # this makes adding new UEs very expensive if they are far away
+        if sharing_model == 'rate-fair':
+            total_inverse_dr = sum([1/self.data_rate_unshared(ue) for ue in self.conn_ues])
+            # assume we can split them into infinitely small/many RBs
+            dr_ue_shared = 1 / total_inverse_dr
+
+        # disconnect UE again if it wasn't connected before
+        if not ue_already_conn:
+            self.conn_ues.remove(ue)
 
         return dr_ue_shared
 
