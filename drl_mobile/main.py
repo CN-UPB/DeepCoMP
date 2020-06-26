@@ -83,4 +83,4 @@ if __name__ == "__main__":
     # simulate one episode and render
     sim.run(render='gif', log_steps=True)
     # evaluate over multiple episodes
-    sim.run(num_episodes=30, log_steps=False)
+    # sim.run(num_episodes=30, log_steps=False)

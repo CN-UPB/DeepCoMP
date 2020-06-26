@@ -32,6 +32,7 @@ def config_logging(round_digits):
                         ])
 
 
+# TODO: I could publish this in a separate small PyPi module. structlog-round
 class FloatRounder:
     """
     A structlog processor for rounding floats.
@@ -69,6 +70,11 @@ class FloatRounder:
         if isinstance(value, list):
             for idx, item in enumerate(value):
                 value[idx] = self._round(item)
+            return value
+        # similarly, round values in dicts recursively
+        if isinstance(value, dict):
+            for k, v in value.items():
+                value[k] = self._round(v)
             return value
         # return any other values as they are
         return value
