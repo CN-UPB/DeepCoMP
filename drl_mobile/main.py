@@ -1,14 +1,10 @@
 """Main execution script used for experimentation"""
-
 import structlog
-import numpy as np
 from shapely.geometry import Point
-import ray
-import ray.rllib.agents.ppo as ppo
+from ray.rllib.agents.ppo import DEFAULT_CONFIG
 
 from drl_mobile.env.env import BinaryMobileEnv, DatarateMobileEnv, CentralMultiUserEnv
 from drl_mobile.env.simulation import Simulation
-from drl_mobile.agent.dummy import RandomAgent, FixedAgent
 from drl_mobile.util.logs import config_logging
 from drl_mobile.env.user import User
 from drl_mobile.env.station import Basestation
@@ -41,7 +37,7 @@ def create_env_config(eps_length, num_workers=1, train_batch_size=1000, seed=Non
     }
 
     # create and return the config
-    config = ppo.DEFAULT_CONFIG.copy()
+    config = DEFAULT_CONFIG.copy()
     # 0 = no workers/actors at all --> low overhead for short debugging; 2+ workers to accelerate long training
     config['num_workers'] = num_workers
     config['seed'] = seed
@@ -83,7 +79,7 @@ if __name__ == "__main__":
         agent_path, analysis = sim.train(stop_criteria)
 
     # load & test agent
-    sim.load_agent(rllib_path=agent_path, rand_seed=seed, fixed_action=np.array([1, 1]))
+    sim.load_agent(rllib_path=agent_path, rand_seed=seed, fixed_action=[1, 1])
     # simulate one episode and render
     sim.run(render='video', log_steps=True)
     # evaluate over multiple episodes

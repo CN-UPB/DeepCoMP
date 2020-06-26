@@ -77,11 +77,11 @@ class Basestation:
         :param ue: UE requesting the achievable data rate
         :param dr_ue_unshared: The UE's unshared achievable data rate
         :param sharing_model: A model for sharing rate/resources among connected UEs.
-            Currently supported: 'resource-fair', 'rate-fair'
+            Currently supported: 'resource-fair', 'rate-fair', 'max-cap'
         :return: The UE's final, shared data rate that it (could/does) get from this BS
         """
         # TODO: sharing model should rather be a (hard-coded) attribute of the BS than depend on the function call
-        supported_models = ('resource-fair', 'rate-fair')
+        supported_models = ('resource-fair', 'rate-fair', 'max-cap')
         assert sharing_model in supported_models, f"{sharing_model=} not supported. {supported_models=}"
         dr_ue_shared = None
 
@@ -101,6 +101,13 @@ class Basestation:
             total_inverse_dr = sum([1/self.data_rate_unshared(ue) for ue in self.conn_ues])
             # assume we can split them into infinitely small/many RBs
             dr_ue_shared = 1 / total_inverse_dr
+
+        # capacity maximizing: only send to UE with max dr, not to any other. very unfair, but max BS' dr
+        if sharing_model == 'max-cap':
+            max_ue_idx = np.argmax([self.data_rate_unshared(ue) for ue in self.conn_ues])
+            dr_ue_shared = 0
+            if self.conn_ues.index(ue) == max_ue_idx:
+                dr_ue_shared = self.data_rate_unshared(ue)
 
         print(f"Shared dr: bs={self.id}, {ue=}, {sharing_model=}, {self.num_conn_ues=}, {dr_ue_unshared=}, {dr_ue_shared=}")
 
