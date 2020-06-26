@@ -59,20 +59,20 @@ if __name__ == "__main__":
     # settings
     # stop training when any of the criteria is met
     stop_criteria = {
-        'training_iteration': 1,
+        'training_iteration': 30,
         # 'episode_reward_mean': 250
     }
     # train or load trained agent; only set train=True for ppo agent
-    train = False
-    agent_name = 'fixed'
+    train = True
+    agent_name = 'ppo'
     # name of the RLlib dir to load the agent from for testing
     agent_path = '../training/PPO/PPO_CentralMultiUserEnv_0_2020-06-24_16-42-21tp6f0w12/checkpoint_20/checkpoint-20'
     # seed for agent & env
     seed = 42
 
     # create RLlib config (with env inside) & simulator
-    config = create_env_config(eps_length=10, num_workers=1, train_batch_size=200, seed=seed)
-    sim = Simulation(config=config, agent_name=agent_name, debug=True)
+    config = create_env_config(eps_length=30, num_workers=2, train_batch_size=1000, seed=seed)
+    sim = Simulation(config=config, agent_name=agent_name, debug=False)
 
     # train
     if train:
@@ -83,4 +83,4 @@ if __name__ == "__main__":
     # simulate one episode and render
     sim.run(render='video', log_steps=True)
     # evaluate over multiple episodes
-    # sim.run(num_episodes=10, log_steps=False)
+    sim.run(num_episodes=10, log_steps=False)

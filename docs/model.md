@@ -16,9 +16,14 @@ Radio model mostly implemented in [`drl_mobile/env/station.py`](https://github.c
     * BS assign different resource blocks (RB) to different UEs (different time or frequency).
     Hence, there is no interference between UEs at the same BS.
     * Neighboring BS do not use the same RBs but have slightly shifted frequencies.
-    Hence, there is no interference between BSs.
+    Hence, there is no cinterference between BSs.
 * We do not consider assignment of RBs explicitly, but assume that
     * BS assign all RBs to connected users, ie, transmit as much data rate as possible
+    * It's configurable how the data rate is shared among connected UEs: 
+        * Currently, we use rate-fair. But it's easy to switch to any of the following models.
+        * Capacity maximizing: Only send to the UE with the highes achievable data rate
+        * Resource/time/bandwidth-fair: Use the same amount of RBs for all UEs. Rate varies for each UE: `dr_nominal = dr / num_ues`
+        * Rate/volume-fair: Same rate for all UEs. Connecting to new, far-away UEs becomes *very* expensive for all other UEs and total BS rate.
     * Time-wise fair share: RBs are split equally among connected UEs
         * Rate r_i for UE i is split by the number k of all connected UEs: r_i^nominell = r_i / k
 * Based on the SNR and the number of connected users at a BS, I calculate the achievable data rate per UE from a BS
@@ -29,11 +34,11 @@ Radio model mostly implemented in [`drl_mobile/env/station.py`](https://github.c
 
 See HK's mail from 22.06.:
 
-* Current time-wise fair sharing is fine. But volume-wise would be better (Wifi). Or even better proportional fair.
+* *Done*: Current time-wise fair sharing is fine. But volume-wise would be better (Wifi). Or even better proportional fair.
 * Assuming a high frequency reuse factor such that neighboring BS do not interfere is like GSM and outdated. I should consider a stand-alone scheduler (greedy?) at some point instead.
     * Or control power or RB/channel assignment by RL like in paper below
 * Assuming that UEs can receive from multiple BS at multiple frequencies at the same time may not be realistic. Not sure what is?
-* Done: Allowing UEs to connect to BS that offer 1/10 the required rate doesn't make sense, eg, if the required rate is very high. Instead: S * factor c > N? With configurable c.
+* *Done*: Allowing UEs to connect to BS that offer 1/10 the required rate doesn't make sense, eg, if the required rate is very high. Instead: S * factor c > N? With configurable c.
 
 
 Model considerations after reading recent paper (26.06.):
