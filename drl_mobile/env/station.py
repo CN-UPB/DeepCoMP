@@ -58,7 +58,7 @@ class Basestation:
         distance = self.pos.distance(ue_pos)
         signal = self.received_power(distance)
         # self.log.debug('SNR to UE', ue_pos=str(ue_pos), distance=distance, signal=signal)
-        print(f"SNR: bs={self.id}, {distance=}, {signal=}, {self.noise=}")
+        # print(f"SNR: bs={self.id}, {distance=}, {signal=}, {self.noise=}")
         return signal / self.noise
 
     def data_rate_unshared(self, ue):
@@ -96,11 +96,13 @@ class Basestation:
             dr_ue_shared = dr_ue_unshared / self.num_conn_ues
 
         # rate-fair=volume-fair: rather than splitting the resources equally, all connected UEs get the same rate/volume
-        # this makes adding new UEs very expensive if they are far away
+        # this makes adding new UEs very expensive if they are far away (leads to much lower shared dr for all UEs)
         if sharing_model == 'rate-fair':
             total_inverse_dr = sum([1/self.data_rate_unshared(ue) for ue in self.conn_ues])
             # assume we can split them into infinitely small/many RBs
             dr_ue_shared = 1 / total_inverse_dr
+
+        print(f"Shared dr: bs={self.id}, {ue=}, {sharing_model=}, {self.num_conn_ues=}, {dr_ue_unshared=}, {dr_ue_shared=}")
 
         # disconnect UE again if it wasn't connected before
         if not ue_already_conn:
@@ -130,5 +132,5 @@ class Basestation:
         """Return if a UE at a given pos can connect to this BS. That's the case if its SNR is above a threshold."""
         can_connect = self.snr(ue_pos) > SNR_THRESHOLD
         # TODO: replace with logging once it works again
-        print(f"bs={self.id}, {ue_pos=}, {can_connect=}")
+        # print(f"bs={self.id}, {ue_pos=}, {can_connect=}")
         return can_connect

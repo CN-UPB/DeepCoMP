@@ -106,23 +106,24 @@ class Simulation:
         # self.plot_learning_curve(eps_results['episode_lengths'], eps_results['episode_reward'])
         return checkpoint_path, analysis
 
-    def load_agent(self, path=None, seed=None):
+    def load_agent(self, rllib_path=None, rand_seed=None, fixed_action=1):
         """
-        Load a trained RLlib agent from the specified path. Call this before testing a trained agent.
-        :param path: Path pointing to the agent's saved checkpoint (only used for RLlib agents)
-        :param seed: RNG seed used by the random agent
+        Load a trained RLlib agent from the specified rllib_path. Call this before testing a trained agent.
+        :param rllib_path: Path pointing to the agent's saved checkpoint (only used for RLlib agents)
+        :param rand_seed: RNG seed used by the random agent (ignored by other agents)
+        :param fixed_action: Fixed action performed by the fixed agent (ignored by the others)
         """
         if self.agent_name == 'ppo':
             self.agent = ppo.PPOTrainer(config=self.config, env=self.env_class)
-            self.agent.restore(path)
+            self.agent.restore(rllib_path)
         if self.agent_name == 'random':
             # instantiate the environment to get the action space
             env = self.env_class(self.env_config)
-            self.agent = RandomAgent(env.action_space, seed=seed)
+            self.agent = RandomAgent(env.action_space, seed=rand_seed)
         if self.agent_name == 'fixed':
-            self.agent = FixedAgent(action=1, noop_interval=4)
+            self.agent = FixedAgent(action=fixed_action, noop_interval=4)
 
-        self.log.info('Agent loaded', agent=type(self.agent).__name__, path=path)
+        self.log.info('Agent loaded', agent=type(self.agent).__name__, rllib_path=rllib_path)
 
     def save_animation(self, fig, patches, mode, save_dir):
         """

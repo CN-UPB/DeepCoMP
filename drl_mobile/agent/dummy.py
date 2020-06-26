@@ -1,3 +1,6 @@
+import numpy as np
+
+
 class RandomAgent:
     """Agent that always selects a random action. Following the stable_baselines API."""
     def __init__(self, action_space, num_vec_envs=None, seed=None):
@@ -32,7 +35,7 @@ class FixedAgent:
         """
         # no op during the interval
         if self.noop_counter < self.noop_interval:
-            action = 0
+            action = np.zeros(len(self.action))
             self.noop_counter += 1
         else:
             action = self.action
