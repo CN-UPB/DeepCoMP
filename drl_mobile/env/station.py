@@ -11,7 +11,7 @@ class Basestation:
     def __init__(self, id, pos):
         self.id = id
         self.pos = pos
-        self.num_conn_ues = 0
+        self.conn_ues = []
 
         # set constants for SINR and data rate calculation
         # numbers originally from https://sites.google.com/site/lteencyclopedia/lte-radio-link-budgeting-and-rf-planning
@@ -34,9 +34,13 @@ class Basestation:
     def __repr__(self):
         return str(self.id)
 
+    @property
+    def num_conn_ues(self):
+        return len(self.conn_ues)
+
     def reset(self):
         """Reset BS to having no connected UEs"""
-        self.num_conn_ues = 0
+        self.conn_ues = []
 
     def path_loss(self, distance, ue_height=1.5):
         """Return path loss in dBm to a UE at a given position. Calculation using Okumura Hata, suburban indoor"""
@@ -84,7 +88,7 @@ class Basestation:
         if sharing_model == 'resource-fair':
             # split data rate by all already connected UEs + this UE if it is not connected yet
             split_by = self.num_conn_ues
-            if self not in ue.conn_bs:
+            if ue not in self.conn_ues:
                 # what would be the data rate if this UE connects as well?
                 split_by += 1
             # nominal data rate depends on sharing model
