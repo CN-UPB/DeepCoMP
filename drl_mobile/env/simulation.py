@@ -100,7 +100,7 @@ class Simulation:
                       log_dir=analysis.get_best_logdir(metric='episode_reward_mean'))
 
         # plot results
-        # TODO: this only contains (and plots) the last 100 episodes --> not useful
+        # this only contains (and plots) the last 100 episodes --> not useful
         #  --> use tensorboard instead; or read and plot progress.csv
         # eps_results = df['hist_stats']
         # self.plot_learning_curve(eps_results['episode_lengths'], eps_results['episode_reward'])
