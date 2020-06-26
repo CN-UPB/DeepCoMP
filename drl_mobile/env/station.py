@@ -57,25 +57,59 @@ class Basestation:
         print(f"SNR: bs={self.id}, {distance=}, {signal=}, {self.noise=}")
         return signal / self.noise
 
-    def data_rate(self, ue):
+    def data_rate_unshared(self, ue):
         """
-        Return the achievable data rate for a given UE (may or may not be connected already).
-        Split the achievable data rate equally among all connected UEs, pretending this UE is also connected.
+        Return the achievable data rate for a given UE assuming that it gets the BS' full, unshared data rate.
         :param ue: UE requesting the achievable data rate
         :return: Return the max. achievable data rate for the UE if it were/is connected to the BS.
         """
         snr = self.snr(ue.pos)
-        total_dr = self.bw * np.log2(1 + snr)
-        print(f"bs={self.id}, {snr=}, {total_dr=}")
-        # split data rate by all already connected UEs + this UE if it is not connected yet
-        split_by = self.num_conn_ues
-        if self not in ue.conn_bs:
-            # what would be the data rate if this UE connects as well?
-            split_by += 1
-        ue_dr = total_dr / split_by
-        # self.log.debug('Achievable data rate', ue=ue.id, sinr=sinr, total_dr=total_dr, ue_dr=ue_dr, split_by=split_by)
-        return ue_dr
+        dr_ue_unshared = self.bw * np.log2(1 + snr)
+        return dr_ue_unshared
 
+    def data_rate_shared(self, ue, dr_ue_unshared, sharing_model='resource-fair'):
+        """
+        Return the shared data rate the given UE would get based on its unshared data rate and a sharing model.
+        :param ue: UE requesting the achievable data rate
+        :param dr_ue_unshared: The UE's unshared achievable data rate
+        :param sharing_model: A model for sharing rate/resources among connected UEs.
+            Currently supported: 'resource-fair'
+        :return: The UE's final, shared data rate that it (could/does) get from this BS
+        """
+        supported_models = ('resource-fair')
+        assert sharing_model in supported_models, f"{sharing_model=} not supported. {supported_models=}"
+        dr_ue_shared = None
+
+        # resource fair = time/bandwidth-fair: split time slots/bandwidth/RBs equally among all connected UEs
+        if sharing_model == 'resource-fair':
+            # split data rate by all already connected UEs + this UE if it is not connected yet
+            split_by = self.num_conn_ues
+            if self not in ue.conn_bs:
+                # what would be the data rate if this UE connects as well?
+                split_by += 1
+            # nominal data rate depends on sharing model
+            dr_ue_shared = dr_ue_unshared / split_by
+
+        return dr_ue_shared
+
+    def data_rate(self, ue):
+        """
+        Return the achievable data rate for a given UE (may or may not be connected already).
+        Share & split the achievable data rate among all connected UEs, pretending this UE is also connected.
+        :param ue: UE requesting the achievable data rate
+        :return: Return the max. achievable data rate for the UE if it were/is connected to the BS.
+        """
+        # achievable data rate if it wasn't shared with any other connected UEs
+        dr_ue_unshared = self.data_rate_unshared(ue)
+        # final, shared data rate depends on sharing model
+        dr_ue_shared = self.data_rate_shared(ue, dr_ue_unshared)
+        print(f"bs={self.id}, {dr_ue_unshared=}, {dr_ue_shared=}")
+        # self.log.debug('Achievable data rate', ue=ue.id, snr=snr, dr_ue=dr_ue, dr_ue_shared=dr_ue_shared,
+        # split_by=split_by)
+        return dr_ue_shared
+
+    # TODO: without interference, this really just translates to a fixed distance. so decide based on distance instead?
+    #  would be simpler & faster
     def can_connect(self, ue_pos):
         """Return if a UE at a given pos can connect to this BS. That's the case if its SNR is above a threshold."""
         can_connect = self.snr(ue_pos) > SNR_THRESHOLD

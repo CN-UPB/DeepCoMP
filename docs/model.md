@@ -31,8 +31,9 @@ See HK's mail from 22.06.:
 
 * Current time-wise fair sharing is fine. But volume-wise would be better (Wifi). Or even better proportional fair.
 * Assuming a high frequency reuse factor such that neighboring BS do not interfere is like GSM and outdated. I should consider a stand-alone scheduler (greedy?) at some point instead.
+    * Or control power or RB/channel assignment by RL like in paper below
 * Assuming that UEs can receive from multiple BS at multiple frequencies at the same time may not be realistic. Not sure what is?
-* Allowing UEs to connect to BS that offer 1/10 the required rate doesn't make sense, eg, if the required rate is very high. Instead: S * factor c > N? With configurable c.
+* Done: Allowing UEs to connect to BS that offer 1/10 the required rate doesn't make sense, eg, if the required rate is very high. Instead: S * factor c > N? With configurable c.
 
 
 Model considerations after reading recent paper (26.06.):
