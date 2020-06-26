@@ -117,7 +117,9 @@ class MobileEnv(gym.Env):
         # check connections and reward before and after moving
         # TODO: usually before & after are the same anyways; so I can drop this if the simulator becomes too slow
         reward_before = self.calc_reward(ue, penalty)
-        ue.move()
+        num_lost_conn = ue.move()
+        # add penalty of -1 for each lost connection through movement (rather than actively disconnected)
+        penalty -= num_lost_conn
         self.time += 1
         reward_after = self.calc_reward(ue, penalty)
 
@@ -224,7 +226,6 @@ class DatarateMobileEnv(BinaryMobileEnv):
         assert self.dr_cutoff == 'auto' or max_dr_req < self.dr_cutoff, \
             "dr_cutoff should be higher than max required dr. by UEs"
 
-        # TODO: try the Gym Dictspace for obs if it's supported by Ray (box for dr, binary for conn)
         # define observation space
         if self.dr_cutoff == 'auto':
             # normalized to [-1, 1]
@@ -238,11 +239,10 @@ class DatarateMobileEnv(BinaryMobileEnv):
                 dr_low = np.zeros(self.num_bs)
             dr_high = np.full(shape=(self.num_bs,), fill_value=self.dr_cutoff)
         # 2. Connected BS --> MultiBinary
-        conn_low = np.zeros(self.num_bs)
-        conn_high = np.ones(self.num_bs)
-        # Dict space would be most suitable but not supported by stable baselines 2 --> Box
-        self.observation_space = gym.spaces.Box(low=np.concatenate([dr_low, conn_low]),
-                                                high=np.concatenate([dr_high, conn_high]))
+        self.observation_space = gym.spaces.Dict({
+            'dr': gym.spaces.Box(low=dr_low, high=dr_high),
+            'connected': gym.spaces.MultiBinary(self.num_bs)
+        })
         # same action space as binary env: select a BS to be connected to/disconnect from or noop
 
     def get_obs(self, ue):
@@ -262,7 +262,7 @@ class DatarateMobileEnv(BinaryMobileEnv):
             # just cut off at dr_cutoff
             bs_dr = [min(bs.data_rate(ue), self.dr_cutoff) for bs in self.bs_list]
         connected_bs = [int(bs in ue.conn_bs) for bs in self.bs_list]
-        return np.array(bs_dr + connected_bs)
+        return {'dr': bs_dr, 'connected': connected_bs}
 
 
 class CentralMultiUserEnv(MobileEnv):
@@ -278,11 +278,10 @@ class CentralMultiUserEnv(MobileEnv):
         dr_low = np.full(shape=(self.num_ue * self.num_bs,), fill_value=-1)
         dr_high = np.ones(self.num_ue * self.num_bs)
         # 2. Connected BS --> MultiBinary
-        conn_low = np.zeros(self.num_ue * self.num_bs)
-        conn_high = np.ones(self.num_ue * self.num_bs)
-        # Dict space would be most suitable but not supported by stable baselines 2 --> Box
-        self.observation_space = gym.spaces.Box(low=np.concatenate([dr_low, conn_low]),
-                                                high=np.concatenate([dr_high, conn_high]))
+        self.observation_space = gym.spaces.Dict({
+            'dr': gym.spaces.Box(low=dr_low, high=dr_high),
+            'connected': gym.spaces.MultiBinary(self.num_ue * self.num_bs)
+        })
 
         # actions: FOR EACH UE: select a BS to be connected to/disconnect from or noop
         self.action_space = gym.spaces.MultiDiscrete([self.num_bs + 1 for _ in range(self.num_ue)])
@@ -303,7 +302,7 @@ class CentralMultiUserEnv(MobileEnv):
             # connected BS
             ue_conn_bs = [int(bs in ue.conn_bs) for bs in self.bs_list]
             conn_bs.extend(ue_conn_bs)
-        return np.array(bs_dr + conn_bs)
+        return {'dr': bs_dr, 'connected': conn_bs}
 
     def calc_reward(self, penalty):
         """Calc reward for ALL UEs, similar to normal MobileEnv"""
@@ -343,7 +342,9 @@ class CentralMultiUserEnv(MobileEnv):
         # TODO: usually before & after are the same anyways; so I can drop this if the simulator becomes too slow
         reward_before = self.calc_reward(penalty)
         for ue in self.ue_list:
-            ue.move()
+            num_lost_conn = ue.move()
+            # add penalty of -1 for each lost connection through movement (rather than actively disconnected)
+            penalty -= num_lost_conn
         reward_after = self.calc_reward(penalty)
 
         self.time += 1
@@ -356,3 +357,13 @@ class CentralMultiUserEnv(MobileEnv):
         self.log.info("Step", time=self.time, prev_obs=prev_obs, action=action, reward_before=reward_before,
                       reward_after=reward_after, reward=reward, next_obs=self.obs, done=done)
         return self.obs, reward, done, info
+
+
+class CentralRemainingDrEnv(CentralMultiUserEnv):
+    """
+    Variant of the central multi-agent environment with different observations.
+    Rather than normalizing data rate based on the total requested UE dr, normalize it based on the still remaining dr
+    that is not yet satisfied from other connections.
+    Set it to 0 if the demand is satisfied.
+    """
+    pass

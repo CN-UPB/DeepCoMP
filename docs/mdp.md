@@ -1,13 +1,20 @@
 # MDP Formulation & Release Details
 
-## [v0.5](https://github.com/CN-UPB/deep-rl-mobility-management/releases/tag/v0.5): Improved radio model and observations (WIP)
+## [v0.5](https://github.com/CN-UPB/deep-rl-mobility-management/releases/tag/v0.5): Improved radio model (week 26)
 
 * Improved [radio model](https://github.com/CN-UPB/deep-rl-mobility-management/blob/master/docs/model.md):
     * Configurable model for sharing resources/data rate between connected UEs at a BS. Support capacity maximization, rate-fair, and resource-fair sharing. Use rate-fair as new default.
     * Allow UEs to connect based on SNR not data rate threshold
     * Clean up: Removed unused interference calculation from model (assume no interference)
-* TODO: Improved observations (see readme)
+* Improved observations:
+    * 
+    * Dict space obs allow distinguishing continuous data rate obs and binary connected obs. Were both treated as binary (Box) before --> smaller obs space
+* Penalty for losing connection to BS through movement rather than actively disconnecting --> Agent learns to disconnect
 * Small improvements in RLlib setup & workflow and in visualization (show rough BS range for accepting connections in gray)
+
+Example: Centralized PPO agent controlling two UEs after 30k training with RLlib (30 iter with 2 workers). Using the new rate-fair sharing model.
+
+![v0.5 example](gifs/v05.gif)
 
 ## [v0.4](https://github.com/CN-UPB/deep-rl-mobility-management/releases/tag/v0.4): Replaced stable_baselines with ray's RLlib (week 26)
 

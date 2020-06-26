@@ -98,6 +98,7 @@ class User:
         """
         Do one step in movement direction and update position
         Reverse movement direction to avoid moving out of the map
+        :return: Number of connections lost through movement
         """
         # seems like points are immutable --> replace by new point
         new_pos = Point(self.pos.x + self.move_x, self.pos.y + self.move_y)
@@ -110,10 +111,15 @@ class User:
 
         # self.log = self.log.bind(pos=str(new_pos), move=(self.move_x, self.move_y))
         # self.log.debug("User move")
-        self.check_bs_connection()
+        num_lost_connections = self.check_bs_connection()
+        # print(f"UE {self.id} lost {num_lost_connections} thru movement")
+        return num_lost_connections
 
     def check_bs_connection(self):
-        """Check if assigned BS connections are still stable (after move), else remove."""
+        """
+        Check if assigned BS connections are still stable (after move), else remove.
+        :return: Number of removed/lost connections
+        """
         remove_bs = []
         for bs in self.conn_bs:
             if not bs.can_connect(self.pos):
@@ -122,6 +128,7 @@ class User:
         # remove/disconnect bs
         for bs in remove_bs:
             self.disconnect_from_bs(bs)
+        return len(remove_bs)
 
     def connect_to_bs(self, bs, disconnect=False):
         """
@@ -134,6 +141,7 @@ class User:
         # already connected
         if bs in self.conn_bs:
             if disconnect:
+                # print(f"UE {self.id} actively disconnected from BS {bs.id}")
                 self.disconnect_from_bs(bs)
                 # log.info("Disconnected")
             # else:

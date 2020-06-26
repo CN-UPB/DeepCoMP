@@ -66,12 +66,12 @@ if __name__ == "__main__":
     train = True
     agent_name = 'ppo'
     # name of the RLlib dir to load the agent from for testing
-    agent_path = '../training/PPO/PPO_CentralMultiUserEnv_0_2020-06-24_16-42-21tp6f0w12/checkpoint_20/checkpoint-20'
+    agent_path = '../training/PPO/PPO_CentralMultiUserEnv_0_2020-06-26_11-20-38bujrkr9e/checkpoint_30/checkpoint-30'
     # seed for agent & env
     seed = 42
 
     # create RLlib config (with env inside) & simulator
-    config = create_env_config(eps_length=30, num_workers=2, train_batch_size=1000, seed=seed)
+    config = create_env_config(eps_length=30, num_workers=3, train_batch_size=1000, seed=seed)
     sim = Simulation(config=config, agent_name=agent_name, debug=False)
 
     # train
@@ -83,4 +83,4 @@ if __name__ == "__main__":
     # simulate one episode and render
     sim.run(render='video', log_steps=True)
     # evaluate over multiple episodes
-    sim.run(num_episodes=10, log_steps=False)
+    sim.run(num_episodes=30, log_steps=False)

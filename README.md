@@ -57,11 +57,11 @@ Run the command in a WSL not a PyCharm terminal. Tensorboard is available at htt
 ### Todos
 
 * Update obs for CoMP: BS drs shouldn't be normalized by total dr requested by a UE, but instead by the remaining dr (minus the already served dr from other BS)!
-    * Probalby requires caching of conn dr as described below?
+    * Probalby requires caching of conn dr as described below? Not necessarily
+    * The agent should learn to disconnect manually to save dr. 
 * Multiple UEs: 
     * Multi-agent: Separate agents for each UE. I should look into ray/rllib: https://docs.ray.io/en/latest/rllib-env.html#multi-agent-and-hierarchical
     * Collaborative learning: Share experience or gradients to train agents together. Use same NN. Later separate NNs? Federated learing.
-* Improve radio model: See notes in model.md (fairness, scheduling, freq. reuse, S*c > N)
 * Generic utlitiy function: Currently, reward is a step function (pos if enough rate, neg if not). Could also be any other function of the rate, eg, logarithmic
 * Efficient caching of connection data rate:
     * Currently always recalculate the data rate per connection per UE, eg, when calculating reward or checking whether we can connect
@@ -79,6 +79,8 @@ Run the command in a WSL not a PyCharm terminal. Tensorboard is available at htt
 * Agent keeps trying to connect to all BS, even if out of range. --> Subtracting req. dr by UE + higher penalty (both!) solves the issue
 * Normalizing loses info about which BS has enough dr and connectivity --> does not work as well
 * Central agent with observations and actions for all UEs in every time step works fine with 2 UEs
+* Even with rate-fair sharing, agent tends to connect UEs as long as possible (until connection drops) rather than actively disconnecting UEs that are far away
+
 
 ## Development
 
