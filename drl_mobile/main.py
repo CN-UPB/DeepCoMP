@@ -3,7 +3,7 @@ import structlog
 from shapely.geometry import Point
 from ray.rllib.agents.ppo import DEFAULT_CONFIG
 
-from drl_mobile.env.env import BinaryMobileEnv, DatarateMobileEnv, CentralMultiUserEnv
+from drl_mobile.env.env import BinaryMobileEnv, DatarateMobileEnv, CentralMultiUserEnv, CentralRemainingDrEnv
 from drl_mobile.env.simulation import Simulation
 from drl_mobile.util.logs import config_logging
 from drl_mobile.env.user import User
@@ -29,7 +29,7 @@ def create_env_config(eps_length, num_workers=1, train_batch_size=1000, seed=Non
     ue2 = User('ue2', map, color='red', pos_x='random', pos_y=30, move_x='fast')
     bs1 = Basestation('bs1', pos=Point(50, 50))
     bs2 = Basestation('bs2', pos=Point(100, 50))
-    env_class = CentralMultiUserEnv
+    env_class = CentralRemainingDrEnv
 
     env_config = {
         'episode_length': eps_length, 'map': map, 'bs_list': [bs1, bs2], 'ue_list': [ue1, ue2],
@@ -63,10 +63,10 @@ if __name__ == "__main__":
         # 'episode_reward_mean': 250
     }
     # train or load trained agent; only set train=True for ppo agent
-    train = True
+    train = False
     agent_name = 'ppo'
     # name of the RLlib dir to load the agent from for testing
-    agent_path = '../training/PPO/PPO_CentralMultiUserEnv_0_2020-06-26_11-20-38bujrkr9e/checkpoint_30/checkpoint-30'
+    agent_path = '../training/PPO/PPO_CentralRemainingDrEnv_0_2020-06-26_15-32-50raq5e_od/checkpoint_30/checkpoint-30'
     # seed for agent & env
     seed = 42
 
@@ -81,6 +81,6 @@ if __name__ == "__main__":
     # load & test agent
     sim.load_agent(rllib_path=agent_path, rand_seed=seed, fixed_action=[1, 1])
     # simulate one episode and render
-    sim.run(render='video', log_steps=True)
+    sim.run(render='gif', log_steps=True)
     # evaluate over multiple episodes
     sim.run(num_episodes=30, log_steps=False)

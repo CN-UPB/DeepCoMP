@@ -361,9 +361,39 @@ class CentralMultiUserEnv(MobileEnv):
 
 class CentralRemainingDrEnv(CentralMultiUserEnv):
     """
-    Variant of the central multi-agent environment with different observations.
-    Rather than normalizing data rate based on the total requested UE dr, normalize it based on the still remaining dr
-    that is not yet satisfied from other connections.
-    Set it to 0 if the demand is satisfied.
+    Variant of the central multi-agent environment with an additional observation indicating if a UE's rate is
+    fulfilled by combining all its connections or not.
     """
-    pass
+    def __init__(self, env_config):
+        """Create multi-UE env. Here, just with a slightly extended observation space"""
+        super().__init__(env_config)
+        # same observations as in CentralMultiUserEnv + extra obs
+        # 1. Achievable data rate for given UE for all BS (normalized to [-1, 1]) --> Box;
+        dr_low = np.full(shape=(self.num_ue * self.num_bs,), fill_value=-1)
+        dr_high = np.ones(self.num_ue * self.num_bs)
+        # 2. dr total per UE over all connected BS: 0 = exactly fulfilled, -1 = not fulfilled at all,
+        # 1 = twice as much as need
+        dr_total_low = np.full(shape=(self.num_ue), fill_value=-1)
+        dr_total_high = np.ones(self.num_ue)
+        # 3. binary connected BS as before
+
+        self.observation_space = gym.spaces.Dict({
+            'dr': gym.spaces.Box(low=dr_low, high=dr_high),
+            'dr_total': gym.spaces.Box(low=dr_total_low, high=dr_total_high),
+            'connected': gym.spaces.MultiBinary(self.num_ue * self.num_bs)
+        })
+
+    def get_obs(self):
+        obs_dict = super().get_obs()
+        # extend by new observation
+        total_dr_list = []
+        for ue in self.ue_list:
+            total_dr = sum(bs.data_rate(ue) for bs in ue.conn_bs)
+            # process by subtracting dr_req, clipping to [-dr_req, dr_req], normalizing to [-1, 1]
+            total_dr -= ue.dr_req
+            total_dr = min(total_dr, ue.dr_req)
+            total_dr = total_dr / ue.dr_req
+            total_dr_list.append(total_dr)
+
+        obs_dict['dr_total'] = total_dr_list
+        return obs_dict

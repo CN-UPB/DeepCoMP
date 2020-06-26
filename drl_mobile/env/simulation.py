@@ -206,5 +206,5 @@ class Simulation:
         mean_eps_reward = np.mean(eps_rewards)
         mean_step_reward = mean_eps_reward / self.episode_length
         self.log.info("Simulation complete", mean_eps_reward=mean_eps_reward, std_eps_reward=np.std(eps_rewards),
-                      mean_step_reward=mean_step_reward)
+                      mean_step_reward=mean_step_reward, num_episodes=num_episodes)
         return eps_rewards

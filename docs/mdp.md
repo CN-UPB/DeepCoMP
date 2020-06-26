@@ -7,12 +7,13 @@
     * Allow UEs to connect based on SNR not data rate threshold
     * Clean up: Removed unused interference calculation from model (assume no interference)
 * Improved observations:
-    * 
-    * Dict space obs allow distinguishing continuous data rate obs and binary connected obs. Were both treated as binary (Box) before --> smaller obs space
+    * Variant `CentralRemainingDrEnv` with extra observation indicating each UE's total current data rate in `[-1, 1]`: 0 = requirements exactly fulfilled
+    * Improves avg. episode reward from 343 (+- 92) to 388 (+- 111); after 30k train, tested over 30 eps
+    * Dict space obs allow distinguishing continuous data rate obs and binary connected obs. Were both treated as binary (Box) before --> smaller obs space now
 * Penalty for losing connection to BS through movement rather than actively disconnecting --> Agent learns to disconnect
 * Small improvements in RLlib setup & workflow and in visualization (show rough BS range for accepting connections in gray)
 
-Example: Centralized PPO agent controlling two UEs after 30k training with RLlib (30 iter with 2 workers). Using the new rate-fair sharing model.
+Example: Centralized PPO agent controlling two UEs after 30k training with RLlib. Using the new rate-fair sharing model and obs.
 
 ![v0.5 example](gifs/v05.gif)
 

@@ -56,9 +56,6 @@ Run the command in a WSL not a PyCharm terminal. Tensorboard is available at htt
 
 ### Todos
 
-* Update obs for CoMP: BS drs shouldn't be normalized by total dr requested by a UE, but instead by the remaining dr (minus the already served dr from other BS)!
-    * Probalby requires caching of conn dr as described below? Not necessarily
-    * The agent should learn to disconnect manually to save dr. 
 * Multiple UEs: 
     * Multi-agent: Separate agents for each UE. I should look into ray/rllib: https://docs.ray.io/en/latest/rllib-env.html#multi-agent-and-hierarchical
     * Collaborative learning: Share experience or gradients to train agents together. Use same NN. Later separate NNs? Federated learing.
@@ -80,7 +77,7 @@ Run the command in a WSL not a PyCharm terminal. Tensorboard is available at htt
 * Normalizing loses info about which BS has enough dr and connectivity --> does not work as well
 * Central agent with observations and actions for all UEs in every time step works fine with 2 UEs
 * Even with rate-fair sharing, agent tends to connect UEs as long as possible (until connection drops) rather than actively disconnecting UEs that are far away
-
+* This is improved by adding a penalty for losing connections (without active disconnect) and adding obs about the total current dr of each UE (from all connections combined)
 
 ## Development
 
