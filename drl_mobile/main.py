@@ -3,12 +3,13 @@ import structlog
 from shapely.geometry import Point
 from ray.rllib.agents.ppo import DEFAULT_CONFIG
 
-from drl_mobile.env.env import BinaryMobileEnv, DatarateMobileEnv, CentralMultiUserEnv, CentralRemainingDrEnv
-from drl_mobile.env.simulation import Simulation
+from drl_mobile.env.single_ue.variants import BinaryMobileEnv, DatarateMobileEnv
+from drl_mobile.env.multi_ue.central import CentralMultiUserEnv, CentralRemainingDrEnv
+from drl_mobile.util.simulation import Simulation
 from drl_mobile.util.logs import config_logging
-from drl_mobile.env.user import User
-from drl_mobile.env.station import Basestation
-from drl_mobile.env.map import Map
+from drl_mobile.env.entities.user import User
+from drl_mobile.env.entities.station import Basestation
+from drl_mobile.env.entities.map import Map
 
 
 log = structlog.get_logger()
@@ -71,7 +72,7 @@ if __name__ == "__main__":
     seed = 42
 
     # create RLlib config (with env inside) & simulator
-    config = create_env_config(eps_length=30, num_workers=3, train_batch_size=1000, seed=seed)
+    config = create_env_config(eps_length=10, num_workers=1, train_batch_size=200, seed=seed)
     sim = Simulation(config=config, agent_name=agent_name, debug=False)
 
     # train

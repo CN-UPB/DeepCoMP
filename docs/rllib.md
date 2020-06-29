@@ -7,6 +7,7 @@ These notes are referring to `ray[rllib]==0.8.6`.
 * Seems like rllib already supports multi-agent environments
 * Anyway seems like the (by far) most complex/feature rich but also mature RL framework
 * Doesn't run on Windows yet: https://github.com/ray-project/ray/issues/631 (but should on WSL)
+* Overview of policies: https://docs.ray.io/en/latest/rllib.html#policies
 * Multi agent environments: https://docs.ray.io/en/latest/rllib-env.html#multi-agent-and-hierarchical
 * Multi agent concept/policies: https://docs.ray.io/en/latest/rllib-concepts.html#policies-in-multi-agent
 * Also supports parameter sharing for joint learning; hierarchical RL etc --> rllib is the way to go

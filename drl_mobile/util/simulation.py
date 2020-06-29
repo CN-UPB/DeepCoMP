@@ -168,9 +168,9 @@ class Simulation:
         # instantiate env and set logging level
         env = self.env_class(self.env_config)
         if log_steps:
-            env.set_log_level('drl_mobile.env.simulation', logging.DEBUG)
+            env.set_log_level('drl_mobile.util.simulation', logging.DEBUG)
         else:
-            env.set_log_level('drl_mobile.env.simulation', logging.INFO)
+            env.set_log_level('drl_mobile.util.simulation', logging.INFO)
 
         # simulate for given number of episodes
         for _ in range(num_episodes):

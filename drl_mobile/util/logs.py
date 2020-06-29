@@ -10,7 +10,7 @@ def config_logging(round_digits):
     """Configure logging using structlog, stdlib logging, and custom FloatRounder to round to spec numb digits"""
     logging.basicConfig(level=logging.INFO)
     logging.getLogger('drl_mobile').setLevel(logging.WARNING)
-    logging.getLogger('drl_mobile.env.simulation').setLevel(logging.INFO)
+    logging.getLogger('drl_mobile.util.simulation').setLevel(logging.INFO)
     logging.getLogger('matplotlib').setLevel(logging.WARNING)
     logging.getLogger('tensorflow').setLevel(logging.ERROR)
     gym.logger.set_level(gym.logger.ERROR)
@@ -32,7 +32,7 @@ def config_logging(round_digits):
                         ])
 
 
-# TODO: I could publish this in a separate small PyPi module. structlog-round
+# TODO: I could publish this in a separate small PyPi module in the end. structlog-round
 class FloatRounder:
     """
     A structlog processor for rounding floats.

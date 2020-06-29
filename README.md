@@ -58,7 +58,10 @@ Run the command in a WSL not a PyCharm terminal. Tensorboard is available at htt
 
 * Multiple UEs: 
     * Multi-agent: Separate agents for each UE. I should look into ray/rllib: https://docs.ray.io/en/latest/rllib-env.html#multi-agent-and-hierarchical
-    * Collaborative learning: Share experience or gradients to train agents together. Use same NN. Later separate NNs? Federated learing.
+    * Collaborative learning: Share experience or gradients to train agents together. Use same NN. Later separate NNs? Federated learing
+    * Possibilities: Higher=better
+        1. Use & train exactly same NN for all UEs (still per UE decisions).
+        2. Separate NNs for each agent, but share gradient updates or experiences occationally
 * Generic utlitiy function: Currently, reward is a step function (pos if enough rate, neg if not). Could also be any other function of the rate, eg, logarithmic
 * Efficient caching of connection data rate:
     * Currently always recalculate the data rate per connection per UE, eg, when calculating reward or checking whether we can connect
