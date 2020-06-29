@@ -5,6 +5,7 @@ from ray.rllib.agents.ppo import DEFAULT_CONFIG
 
 from drl_mobile.env.single_ue.variants import BinaryMobileEnv, DatarateMobileEnv
 from drl_mobile.env.multi_ue.central import CentralMultiUserEnv, CentralRemainingDrEnv
+from drl_mobile.env.multi_ue.multi_agent import MultiAgentMobileEnv
 from drl_mobile.util.simulation import Simulation
 from drl_mobile.util.logs import config_logging
 from drl_mobile.env.entities.user import User
@@ -28,13 +29,15 @@ def create_env_config(eps_length, num_workers=1, train_batch_size=1000, seed=Non
     map = Map(width=150, height=100)
     ue1 = User('ue1', map, color='blue', pos_x='random', pos_y=40, move_x='slow')
     ue2 = User('ue2', map, color='red', pos_x='random', pos_y=30, move_x='fast')
+    ue_list = [ue1, ue2]
     bs1 = Basestation('bs1', pos=Point(50, 50))
     bs2 = Basestation('bs2', pos=Point(100, 50))
-    env_class = CentralRemainingDrEnv
+    bs_list = [bs1, bs2]
+    env_class = MultiAgentMobileEnv
 
     env_config = {
-        'episode_length': eps_length, 'map': map, 'bs_list': [bs1, bs2], 'ue_list': [ue1, ue2],
-        'dr_cutoff': 'auto', 'sub_req_dr': True, 'seed': seed
+        'episode_length': eps_length, 'map': map, 'bs_list': bs_list, 'ue_list': ue_list, 'dr_cutoff': 'auto',
+        'sub_req_dr': True, 'seed': seed
     }
 
     # create and return the config
@@ -51,6 +54,22 @@ def create_env_config(eps_length, num_workers=1, train_batch_size=1000, seed=Non
     config['env'] = env_class
     config['env_config'] = env_config
 
+    # for multi-agent env: https://docs.ray.io/en/latest/rllib-env.html#multi-agent-and-hierarchical
+    # TODO: necessary to disable for single-agent envs?
+    # for now, all UEs use the same policy (and NN?)
+    # TODO: does this mean they all use the same NN or different NNs with the same policy? I guess the same one
+    config['multiagent'] = {
+        'policies': {
+            'ue': (
+                None,
+                MultiAgentMobileEnv.static_obs_space(bs_list, ue_list, env_config['dr_cutoff'], env_config['sub_req_dr']),
+                MultiAgentMobileEnv.static_action_space(len(bs_list)),
+                {}
+            )
+        },
+        'policy_mapping_fn': lambda agent_id: 'ue'
+    }
+
     return config
 
 
@@ -60,11 +79,11 @@ if __name__ == "__main__":
     # settings
     # stop training when any of the criteria is met
     stop_criteria = {
-        'training_iteration': 30,
+        'training_iteration': 1,
         # 'episode_reward_mean': 250
     }
     # train or load trained agent; only set train=True for ppo agent
-    train = False
+    train = True
     agent_name = 'ppo'
     # name of the RLlib dir to load the agent from for testing
     agent_path = '../training/PPO/PPO_CentralRemainingDrEnv_0_2020-06-26_15-32-50raq5e_od/checkpoint_30/checkpoint-30'

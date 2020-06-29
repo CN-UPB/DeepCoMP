@@ -8,7 +8,7 @@ import seaborn as sns
 import numpy as np
 import ray
 import ray.tune
-import ray.rllib.agents.ppo as ppo
+from ray.rllib.agents.ppo import PPOTrainer
 
 from drl_mobile.agent.dummy import RandomAgent, FixedAgent
 
@@ -83,7 +83,7 @@ class Simulation:
         :return: Return the path to the saved agent (checkpoint) and tune's ExperimentAnalysis object
             See https://docs.ray.io/en/latest/tune/api_docs/analysis.html#experimentanalysis-tune-experimentanalysis
         """
-        analysis = ray.tune.run(ppo.PPOTrainer, config=self.config, local_dir=self.save_dir, stop=stop_criteria,
+        analysis = ray.tune.run(PPOTrainer, config=self.config, local_dir=self.save_dir, stop=stop_criteria,
                                 checkpoint_at_end=True)
         # tune returns an ExperimentAnalysis that can be cast to a Pandas data frame
         # object https://docs.ray.io/en/latest/tune/api_docs/analysis.html#experimentanalysis
@@ -114,7 +114,7 @@ class Simulation:
         :param fixed_action: Fixed action performed by the fixed agent (ignored by the others)
         """
         if self.agent_name == 'ppo':
-            self.agent = ppo.PPOTrainer(config=self.config, env=self.env_class)
+            self.agent = PPOTrainer(config=self.config, env=self.env_class)
             self.agent.restore(rllib_path)
         if self.agent_name == 'random':
             # instantiate the environment to get the action space
@@ -190,7 +190,9 @@ class Simulation:
                     patches.append(env.render())
                     if render == 'plot':
                         plt.show()
-                action = self.agent.compute_action(obs)
+                # TODO: automatically set policy_id for multi-agent
+                # FIXME: fix testing with multi-agent. probably sth wrong with action/obs shape
+                action = self.agent.compute_action(obs, policy_id='ue')
                 obs, reward, done, info = env.step(action)
                 self.log.debug("Step", t=info['time'], action=action, reward=reward, next_obs=obs, done=done)
                 episode_reward += reward

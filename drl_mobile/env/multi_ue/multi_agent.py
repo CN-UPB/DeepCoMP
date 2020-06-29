@@ -66,6 +66,9 @@ class MultiAgentMobileEnv(MultiAgentEnv, DatarateMobileEnv):
         # done and info are the same for all UEs
         done = self.time >= self.episode_length
         dones = {ue.id: done for ue in self.ue_list}
-        infos = {ue.id: self.time for ue in self.ue_list}
+        dones['__all__'] = done
+        infos = {ue.id: {'time': self.time} for ue in self.ue_list}
         self.log.info("Step", time=self.time, prev_obs=prev_obs, action=action_dict, rewards=rewards, next_obs=self.obs, done=done)
         return self.obs, rewards, dones, infos
+
+# TODO: implement similar variant with total current dr as in the central env

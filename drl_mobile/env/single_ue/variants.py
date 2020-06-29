@@ -12,7 +12,12 @@ class BinaryMobileEnv(MobileEnv):
         # observations: binary vector of BS availability (in range and dr >= req_dr) + already connected BS
         self.observation_space = gym.spaces.MultiBinary(2 * self.num_bs)
         # actions: select a BS to be connected to/disconnect from or noop
-        self.action_space = gym.spaces.Discrete(self.num_bs + 1)
+        self.action_space = self.static_action_space(self.num_bs)
+
+    @staticmethod
+    def static_action_space(num_bs):
+        """Static function to return the action space before instantiation"""
+        return gym.spaces.Discrete(num_bs + 1)
 
     def get_obs(self, ue):
         """
@@ -56,33 +61,39 @@ class DatarateMobileEnv(BinaryMobileEnv):
         super().__init__(env_config)
         self.dr_cutoff = env_config['dr_cutoff']
         self.sub_req_dr = env_config['sub_req_dr']
-        assert not (self.dr_cutoff == 'auto' and not self.sub_req_dr), "For dr_cutoff auto, sub_req_dr must be True."
+        self.observation_space = self.static_obs_space(self.bs_list, self.ue_list, self.dr_cutoff, self.sub_req_dr)
+        # same action space as binary env: select a BS to be connected to/disconnect from or noop
+
+    @staticmethod
+    def static_obs_space(bs_list, ue_list, dr_cutoff, sub_req_dr):
+        """Static function to get observation space before init"""
+        num_bs = len(bs_list)
+
+        assert not (dr_cutoff == 'auto' and not sub_req_dr), "For dr_cutoff auto, sub_req_dr must be True."
         # observations: binary vector of BS availability (in range & free cap) + already connected BS
         # 1. Achievable data rate for given UE for all BS --> Box;
         # cut off dr at given dr level. here, dr is below 200 anyways --> default doesn't cut off
-        max_dr_req = max([ue.dr_req for ue in self.ue_list])
-        self.log.info('Max dr req', max_dr_req=max_dr_req, dr_cutoff=self.dr_cutoff, sub_req_dr=self.sub_req_dr)
-        assert self.dr_cutoff == 'auto' or max_dr_req < self.dr_cutoff, \
-            "dr_cutoff should be higher than max required dr. by UEs"
+        max_dr_req = max([ue.dr_req for ue in ue_list])
+        # self.log.info('Max dr req', max_dr_req=max_dr_req, dr_cutoff=self.dr_cutoff, sub_req_dr=self.sub_req_dr)
+        assert dr_cutoff == 'auto' or max_dr_req < dr_cutoff, "dr_cutoff should be higher than max required dr. by UEs"
 
         # define observation space
-        if self.dr_cutoff == 'auto':
+        if dr_cutoff == 'auto':
             # normalized to [-1, 1]
-            dr_low = np.full(shape=(self.num_bs,), fill_value=-1)
-            dr_high = np.ones(self.num_bs)
+            dr_low = np.full(shape=(num_bs,), fill_value=-1)
+            dr_high = np.ones(num_bs)
         else:
             # if we subtract the required data rate, observations may become negative
-            if self.sub_req_dr:
-                dr_low = np.full(shape=(self.num_bs,), fill_value=-max_dr_req)
+            if sub_req_dr:
+                dr_low = np.full(shape=(num_bs,), fill_value=-max_dr_req)
             else:
-                dr_low = np.zeros(self.num_bs)
-            dr_high = np.full(shape=(self.num_bs,), fill_value=self.dr_cutoff)
+                dr_low = np.zeros(num_bs)
+            dr_high = np.full(shape=(num_bs,), fill_value=dr_cutoff)
         # 2. Connected BS --> MultiBinary
-        self.observation_space = gym.spaces.Dict({
+        return gym.spaces.Dict({
             'dr': gym.spaces.Box(low=dr_low, high=dr_high),
-            'connected': gym.spaces.MultiBinary(self.num_bs)
+            'connected': gym.spaces.MultiBinary(num_bs)
         })
-        # same action space as binary env: select a BS to be connected to/disconnect from or noop
 
     def get_obs(self, ue):
         """Observation: Achievable data rate per BS (processed) + currently connected BS (binary)"""
