@@ -58,12 +58,14 @@ def create_env_config(eps_length, num_workers=1, train_batch_size=1000, seed=Non
     # TODO: necessary to disable for single-agent envs?
     # for now, all UEs use the same policy (and NN?)
     # TODO: does this mean they all use the same NN or different NNs with the same policy? I guess the same one
+    # instantiate env to access obs and action space
+    env = env_class(env_config)
     config['multiagent'] = {
         'policies': {
             'ue': (
                 None,
-                MultiAgentMobileEnv.static_obs_space(bs_list, ue_list, env_config['dr_cutoff'], env_config['sub_req_dr']),
-                MultiAgentMobileEnv.static_action_space(bs_list, ue_list),
+                env.observation_space,
+                env.action_space,
                 {}
             )
         },

@@ -9,6 +9,7 @@ import numpy as np
 import ray
 import ray.tune
 from ray.rllib.agents.ppo import PPOTrainer
+from ray.rllib.env.multi_agent_env import MultiAgentEnv
 
 from drl_mobile.agent.dummy import RandomAgent, FixedAgent
 
@@ -28,6 +29,8 @@ class Simulation:
         self.env_name = config['env'].__name__
         self.env_config = config['env_config']
         self.episode_length = self.env_config['episode_length']
+        # detect automatically if the env is a multi-agent env by checking all (not just immediate) ancestors
+        self.multi_agent_env = MultiAgentEnv in self.env_class.__mro__
 
         # agent
         supported_agents = ('ppo', 'random', 'fixed')
@@ -43,6 +46,8 @@ class Simulation:
         os.makedirs(self.save_dir, exist_ok=True)
 
         self.log = structlog.get_logger()
+        self.log.debug('Simulation init', env=self.env_name, eps_length=self.episode_length, agent=self.agent_name,
+                       multi_agent=self.multi_agent_env)
 
     def plot_learning_curve(self, eps_steps, eps_rewards, plot_eps=True):
         """
@@ -152,6 +157,40 @@ class Simulation:
             except TypeError:
                 self.log.error('ImageMagick needs to be installed for saving gifs.')
 
+    def apply_action_single_agent(self, obs, env):
+        """
+        For the given observation and a trained/loaded agent, get and apply the next action. Only single-agent envs.
+        :param obs: Current observation
+        :param env: The environment to which the action should be applied
+        :return: Immediate reward, done
+        """
+        assert not self.multi_agent_env, "Use apply_action_multi_agent for multi-agent envs"
+        assert self.agent is not None, "Train or load an agent before running the simulation"
+        action = self.agent.compute_action(obs)
+        obs, reward, done, info = env.step(action)
+        self.log.debug("Step", t=info['time'], action=action, reward=reward, next_obs=obs, done=done)
+        return reward, done
+
+    def apply_action_multi_agent(self, obs, env):
+        """
+        Same as apply_action_single_agent, but for multi-agent envs. For each agent, unpack obs & choose action,
+        before applying it to the env.
+        :param obs: Dict of observations for all agents
+        :param env: The environment to which to apply the actions to
+        :return: The summed up immediate reward for all agents, done['__all__']
+        """
+        assert self.multi_agent_env, "Use apply_action_single_agent for single-agent envs"
+        assert self.agent is not None, "Train or load an agent before running the simulation"
+        action = {}
+        for agent_id, agent_obs in obs.items():
+            policy_id = self.config['multiagent']['policy_mapping_fn'](agent_id)
+            action[agent_id] = self.agent.compute_action(agent_obs, policy_id=policy_id)
+        obs, reward, done, info = env.step(action)
+        # time is the same for all agents; just retrieve it from the last one
+        time = info[agent_id]['time']
+        self.log.debug("Step", t=time, action=action, reward=reward, next_obs=obs, done=done['__all__'])
+        return sum(reward.values()), done['__all__']
+
     def run(self, num_episodes=1, render=None, log_steps=False):
         """
         Run one or more simulation episodes. Render situation at beginning of each time step. Return episode rewards.
@@ -190,11 +229,12 @@ class Simulation:
                     patches.append(env.render())
                     if render == 'plot':
                         plt.show()
-                # TODO: automatically set policy_id for multi-agent
-                # FIXME: fix testing with multi-agent. probably sth wrong with action/obs shape
-                action = self.agent.compute_action(obs, policy_id='ue')
-                obs, reward, done, info = env.step(action)
-                self.log.debug("Step", t=info['time'], action=action, reward=reward, next_obs=obs, done=done)
+
+                # get and apply action, increment episode reward
+                if self.multi_agent_env:
+                    reward, done = self.apply_action_multi_agent(obs, env)
+                else:
+                    reward, done = self.apply_action_single_agent(obs, env)
                 episode_reward += reward
 
             # create the animation
