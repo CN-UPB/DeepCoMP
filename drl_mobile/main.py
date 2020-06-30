@@ -2,6 +2,7 @@
 import structlog
 from shapely.geometry import Point
 from ray.rllib.agents.ppo import DEFAULT_CONFIG
+from ray.rllib.env.multi_agent_env import MultiAgentEnv
 
 from drl_mobile.env.single_ue.variants import BinaryMobileEnv, DatarateMobileEnv
 from drl_mobile.env.multi_ue.central import CentralMultiUserEnv, CentralRemainingDrEnv
@@ -55,22 +56,17 @@ def create_env_config(eps_length, num_workers=1, train_batch_size=1000, seed=Non
     config['env_config'] = env_config
 
     # for multi-agent env: https://docs.ray.io/en/latest/rllib-env.html#multi-agent-and-hierarchical
-    # TODO: necessary to disable for single-agent envs?
-    # for now, all UEs use the same policy (and NN?)
-    # TODO: does this mean they all use the same NN or different NNs with the same policy? I guess the same one
-    # instantiate env to access obs and action space
-    env = env_class(env_config)
-    config['multiagent'] = {
-        'policies': {
-            'ue': (
-                None,
-                env.observation_space,
-                env.action_space,
-                {}
-            )
-        },
-        'policy_mapping_fn': lambda agent_id: 'ue'
-    }
+    if MultiAgentEnv in env_class.__mro__:
+        # for now, all UEs use the same policy (and NN?)
+        # TODO: does this mean they all use the same NN or different NNs with the same policy? I guess the same one
+        # instantiate env to access obs and action space
+        env = env_class(env_config)
+        config['multiagent'] = {
+            'policies': {
+                'ue': (None, env.observation_space, env.action_space, {})
+            },
+            'policy_mapping_fn': lambda agent_id: 'ue'
+        }
 
     return config
 

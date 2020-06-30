@@ -1,5 +1,4 @@
 import numpy as np
-import gym.spaces
 from ray.rllib.env.multi_agent_env import MultiAgentEnv
 
 from drl_mobile.env.single_ue.variants import DatarateMobileEnv
@@ -15,21 +14,7 @@ class MultiAgentMobileEnv(MultiAgentEnv, DatarateMobileEnv):
     def __init__(self, env_config):
         # this calls DatarateMobileEnv.__ini__() since MultiAgentEnv doesn't have an __init__
         super().__init__(env_config)
-        # inherits attributes from parent env
-    #     self.observation_space = self.static_obs_space(self.bs_list, self.ue_list, self.dr_cutoff, self.sub_req_dr)
-    #     self.action_space = self.static_action_space(self.bs_list, self.ue_list)
-    #
-    # @staticmethod
-    # def static_obs_space(bs_list, ue_list, dr_cutoff, sub_req_dr):
-    #     return gym.spaces.Dict({
-    #         ue.id: DatarateMobileEnv.static_obs_space(bs_list, ue_list, dr_cutoff, sub_req_dr) for ue in ue_list
-    #     })
-    #
-    # @staticmethod
-    # def static_action_space(bs_list, ue_list):
-    #     return gym.spaces.Dict({
-    #         ue.id: DatarateMobileEnv.static_action_space(bs_list, ue_list) for ue in ue_list
-    #     })
+        # inherits attributes, obs and action space from parent env
 
     def reset(self):
         """Reset the env and return observations from all UEs"""
