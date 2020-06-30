@@ -12,11 +12,12 @@ class BinaryMobileEnv(MobileEnv):
         # observations: binary vector of BS availability (in range and dr >= req_dr) + already connected BS
         self.observation_space = gym.spaces.MultiBinary(2 * self.num_bs)
         # actions: select a BS to be connected to/disconnect from or noop
-        self.action_space = self.static_action_space(self.num_bs)
+        self.action_space = self.static_action_space(self.bs_list, self.ue_list)
 
     @staticmethod
-    def static_action_space(num_bs):
+    def static_action_space(bs_list, ue_list):
         """Static function to return the action space before instantiation"""
+        num_bs = len(bs_list)
         return gym.spaces.Discrete(num_bs + 1)
 
     def get_obs(self, ue):

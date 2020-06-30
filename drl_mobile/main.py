@@ -63,7 +63,7 @@ def create_env_config(eps_length, num_workers=1, train_batch_size=1000, seed=Non
             'ue': (
                 None,
                 MultiAgentMobileEnv.static_obs_space(bs_list, ue_list, env_config['dr_cutoff'], env_config['sub_req_dr']),
-                MultiAgentMobileEnv.static_action_space(len(bs_list)),
+                MultiAgentMobileEnv.static_action_space(bs_list, ue_list),
                 {}
             )
         },
