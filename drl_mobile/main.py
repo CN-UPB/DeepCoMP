@@ -19,7 +19,7 @@ from drl_mobile.env.entities.map import Map
 log = structlog.get_logger()
 
 
-def create_env_config(eps_length, num_workers=1, train_batch_size=1000, seed=None):
+def create_env_config(eps_length, num_workers=1, train_batch_size=1000, seed=None, agents_share_nn=True):
     """
     Create environment and RLlib config. Return config.
 
@@ -27,6 +27,7 @@ def create_env_config(eps_length, num_workers=1, train_batch_size=1000, seed=Non
     :param num_workers: Number of RLlib workers for training. For longer training, num_workers = cpu_cores-1 makes sense
     :param train_batch_size: Number of sampled env steps in a single training iteration
     :param seed: Seed for reproducible results
+    :param agents_share_nn: Whether all agents in a multi-agent env should share the same NN or have separate copies
     :return: The complete config for an RLlib agent, including the env & env_config
     """
     # create the environment and env_config
@@ -60,16 +61,21 @@ def create_env_config(eps_length, num_workers=1, train_batch_size=1000, seed=Non
 
     # for multi-agent env: https://docs.ray.io/en/latest/rllib-env.html#multi-agent-and-hierarchical
     if MultiAgentEnv in env_class.__mro__:
-        # for now, all UEs use the same policy (and NN?)
-        # TODO: does this mean they all use the same NN or different NNs with the same policy? I guess the same one
         # instantiate env to access obs and action space
         env = env_class(env_config)
-        config['multiagent'] = {
-            'policies': {
-                'ue': (None, env.observation_space, env.action_space, {})
-            },
-            'policy_mapping_fn': lambda agent_id: 'ue'
-        }
+
+        # all UEs use the same policy and NN
+        if agents_share_nn:
+            config['multiagent'] = {
+                'policies': {'ue': (None, env.observation_space, env.action_space, {})},
+                'policy_mapping_fn': lambda agent_id: 'ue'
+            }
+        # or: use separate policies (and NNs) for each agent
+        else:
+            config['multiagent'] = {
+                'policies': {ue.id: (None, env.observation_space, env.action_space, {}) for ue in ue_list},
+                'policy_mapping_fn': lambda agent_id: agent_id
+            }
 
     return config
 
@@ -84,7 +90,7 @@ if __name__ == "__main__":
         # 'episode_reward_mean': 250
     }
     # train or load trained agent; only set train=True for ppo agent
-    train = False
+    train = True
     agent_name = 'ppo'
     # name of the RLlib dir to load the agent from for testing
     agent_path = '../training/PPO/PPO_MultiAgentMobileEnv_0_2020-07-01_15-42-31ypyfzmte/checkpoint_25/checkpoint-25'

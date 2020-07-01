@@ -56,14 +56,15 @@ Run the command in a WSL not a PyCharm terminal. Tensorboard is available at htt
 
 ### Todos
 
+* Nicer visualization: Show total curr dr for each UE in legend; change conn color to green if req dr is satisfied
+* Larger scenarios with more UEs and BS. Auto create rand BS, UE; just configure number in env.
 * Fix structlog: Once deepcopy is included in release, update requirements to new version & test
 * Multiple UEs: 
     * Multi-agent: Separate agents for each UE. I should look into ray/rllib: https://docs.ray.io/en/latest/rllib-env.html#multi-agent-and-hierarchical
     * Collaborative learning: Share experience or gradients to train agents together. Use same NN. Later separate NNs? Federated learing
     * Possibilities: Higher=better
         1. DONE: Use & train exactly same NN for all UEs (still per UE decisions).
-        2. Separate NNs for each agent, but share gradient updates or experiences occationally
-* Larger scenarios with more UEs and BS. Auto create rand BS, UE; just configure number in env.
+        2. Separate NNs for each agent, but share gradient updates or experiences occationally: https://docs.ray.io/en/latest/rllib-env.html#implementing-a-centralized-critic
 * Generic utlitiy function: Currently, reward is a step function (pos if enough rate, neg if not). Could also be any other function of the rate, eg, logarithmic
 * Efficient caching of connection data rate:
     * Currently always recalculate the data rate per connection per UE, eg, when calculating reward or checking whether we can connect
@@ -85,6 +86,8 @@ Run the command in a WSL not a PyCharm terminal. Tensorboard is available at htt
 * This is improved by adding a penalty for losing connections (without active disconnect) and adding obs about the total current dr of each UE (from all connections combined)
 * Adding this extra obs about total UE dr (over all BS connections) seems to slightly improve reward, but not a lot
 * Multi-agent RL learns better results more quickly than a centralized RL agent
+    * Multi-agents using the same NN vs. separate NNs results in comparable performance (slightly worse with separate NN). 
+    * Theoretically, separate NNs should take more training as they only see one agent's obs, but allow learning different policies for different agents (eg, slow vs fast UEs)
 
 ## Development
 
