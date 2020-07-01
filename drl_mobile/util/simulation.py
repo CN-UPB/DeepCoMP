@@ -18,6 +18,7 @@ class Simulation:
     def __init__(self, config, agent_name, debug=False):
         """
         Create a new simulation object to hold the agent and environment, train & test & visualize the agent + env.
+
         :param config: RLlib agent config
         :param agent_name: String identifying the agent. Supported: 'ppo', 'random', 'fixed'
         :param debug: Whether or not to enable ray's local_mode for debugging
@@ -51,6 +52,7 @@ class Simulation:
     def plot_learning_curve(self, eps_steps, eps_rewards, plot_eps=True):
         """
         Plot episode rewards over time. Currently not used.
+
         :param eps_steps: List of time steps per episode (should always be the same here)
         :param eps_rewards: List of reward per episode
         :param plot_eps: If true, plot episodes on the xlabel instead of steps
@@ -82,6 +84,7 @@ class Simulation:
     def train(self, stop_criteria):
         """
         Train an RLlib agent using tune until any of the configured stopping criteria is met.
+
         :param stop_criteria: Dict with stopping criteria.
             See https://docs.ray.io/en/latest/tune/api_docs/execution.html#tune-run
         :return: Return the path to the saved agent (checkpoint) and tune's ExperimentAnalysis object
@@ -113,6 +116,7 @@ class Simulation:
     def load_agent(self, rllib_path=None, rand_seed=None, fixed_action=1):
         """
         Load a trained RLlib agent from the specified rllib_path. Call this before testing a trained agent.
+
         :param rllib_path: Path pointing to the agent's saved checkpoint (only used for RLlib agents)
         :param rand_seed: RNG seed used by the random agent (ignored by other agents)
         :param fixed_action: Fixed action performed by the fixed agent (ignored by the others)
@@ -132,6 +136,7 @@ class Simulation:
     def save_animation(self, fig, patches, mode, save_dir):
         """
         Create and save matplotlib animation
+
         :param fig: Matplotlib figure
         :param patches: List of patches to draw for each step in the animation
         :param mode: How to save the animation. Options: 'video' (=html5) or 'gif' (requires ImageMagick)
@@ -159,24 +164,32 @@ class Simulation:
     def apply_action_single_agent(self, obs, env):
         """
         For the given observation and a trained/loaded agent, get and apply the next action. Only single-agent envs.
-        :param obs: Current observation
-        :param env: The environment to which the action should be applied
-        :return: Immediate reward, done
+
+        :param dict obs: Dict of observations for all agents
+        :param env: The environment to which to apply the actions to
+        :returns: tuple (obs, r, done) WHERE
+            obs is the next observation
+            r is the immediate reward
+            done is done['__all__'] indicating if all agents are done
         """
         assert not self.multi_agent_env, "Use apply_action_multi_agent for multi-agent envs"
         assert self.agent is not None, "Train or load an agent before running the simulation"
         action = self.agent.compute_action(obs)
         obs, reward, done, info = env.step(action)
         self.log.debug("Step", t=info['time'], action=action, reward=reward, next_obs=obs, done=done)
-        return reward, done
+        return obs, reward, done
 
     def apply_action_multi_agent(self, obs, env):
         """
         Same as apply_action_single_agent, but for multi-agent envs. For each agent, unpack obs & choose action,
         before applying it to the env.
-        :param obs: Dict of observations for all agents
+
+        :param dict obs: Dict of observations for all agents
         :param env: The environment to which to apply the actions to
-        :return: The summed up immediate reward for all agents, done['__all__']
+        :returns: tuple (obs, r, done) WHERE
+            obs is the next observation
+            r is the summed up immediate reward for all agents
+            done is done['__all__'] indicating if all agents are done
         """
         assert self.multi_agent_env, "Use apply_action_single_agent for single-agent envs"
         assert self.agent is not None, "Train or load an agent before running the simulation"
@@ -188,11 +201,12 @@ class Simulation:
         # time is the same for all agents; just retrieve it from the last one
         time = info[agent_id]['time']
         self.log.debug("Step", t=time, action=action, reward=reward, next_obs=obs, done=done['__all__'])
-        return sum(reward.values()), done['__all__']
+        return obs, sum(reward.values()), done['__all__']
 
     def run(self, num_episodes=1, render=None, log_dict=None):
         """
         Run one or more simulation episodes. Render situation at beginning of each time step. Return episode rewards.
+
         :param int num_episodes: Number of episodes to run
         :param str render: If and how to render the simulation. Options: None, 'plot', 'video', 'gif'
         :param dict log_dict: Dict of logger names --> logging level used to configure logging in the environment
@@ -228,9 +242,9 @@ class Simulation:
 
                 # get and apply action, increment episode reward
                 if self.multi_agent_env:
-                    reward, done = self.apply_action_multi_agent(obs, env)
+                    obs, reward, done = self.apply_action_multi_agent(obs, env)
                 else:
-                    reward, done = self.apply_action_single_agent(obs, env)
+                    obs, reward, done = self.apply_action_single_agent(obs, env)
                 episode_reward += reward
 
             # create the animation

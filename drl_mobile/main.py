@@ -107,7 +107,6 @@ if __name__ == "__main__":
         # 'drl_mobile.env.entities': logging.DEBUG
     }
     sim.run(render='video', log_dict=log_dict)
-    # FIXME: testing reward is much lower than training with CentralRemainingDrEnv!
 
     # evaluate over multiple episodes
     sim.run(num_episodes=30)
