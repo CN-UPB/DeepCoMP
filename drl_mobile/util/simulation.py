@@ -1,5 +1,4 @@
 import os
-import logging
 
 import structlog
 import matplotlib.pyplot as plt
@@ -191,14 +190,13 @@ class Simulation:
         self.log.debug("Step", t=time, action=action, reward=reward, next_obs=obs, done=done['__all__'])
         return sum(reward.values()), done['__all__']
 
-    def run(self, num_episodes=1, render=None, log_steps=False):
+    def run(self, num_episodes=1, render=None, log_dict=None):
         """
         Run one or more simulation episodes. Render situation at beginning of each time step. Return episode rewards.
-        :param config: RLlib config to create a new trainer/agent
-        :param num_episodes: Number of episodes to run
-        :param render: If and how to render the simulation. Options: None, 'plot', 'video', 'gif'
-        :param log_steps: Whether or not to log infos about each step or just about each episode
-        :return: Return list of episode rewards
+        :param int num_episodes: Number of episodes to run
+        :param str render: If and how to render the simulation. Options: None, 'plot', 'video', 'gif'
+        :param dict log_dict: Dict of logger names --> logging level used to configure logging in the environment
+        :return list: Return list of episode rewards
         """
         assert self.agent is not None, "Train or load an agent before running the simulation"
         assert (num_episodes == 1) or (render == None), "Turn off rendering when running for multiple episodes"
@@ -206,10 +204,8 @@ class Simulation:
 
         # instantiate env and set logging level
         env = self.env_class(self.env_config)
-        if log_steps:
-            env.set_log_level('drl_mobile.util.simulation', logging.DEBUG)
-        else:
-            env.set_log_level('drl_mobile.util.simulation', logging.INFO)
+        if log_dict is not None:
+            env.set_log_level(log_dict)
 
         # simulate for given number of episodes
         for _ in range(num_episodes):

@@ -56,7 +56,7 @@ Run the command in a WSL not a PyCharm terminal. Tensorboard is available at htt
 
 ### Todos
 
-* Fix structlog
+* Fix structlog: Once deepcopy is included in release, update requirements to new version & test
 * Multiple UEs: 
     * Multi-agent: Separate agents for each UE. I should look into ray/rllib: https://docs.ray.io/en/latest/rllib-env.html#multi-agent-and-hierarchical
     * Collaborative learning: Share experience or gradients to train agents together. Use same NN. Later separate NNs? Federated learing

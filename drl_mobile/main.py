@@ -1,4 +1,6 @@
 """Main execution script used for experimentation"""
+import logging
+
 import structlog
 from shapely.geometry import Point
 from ray.rllib.agents.ppo import DEFAULT_CONFIG
@@ -34,7 +36,7 @@ def create_env_config(eps_length, num_workers=1, train_batch_size=1000, seed=Non
     bs1 = Basestation('bs1', pos=Point(50, 50))
     bs2 = Basestation('bs2', pos=Point(100, 50))
     bs_list = [bs1, bs2]
-    env_class = MultiAgentMobileEnv
+    env_class = CentralRemainingDrEnv
 
     env_config = {
         'episode_length': eps_length, 'map': map, 'bs_list': bs_list, 'ue_list': ue_list, 'dr_cutoff': 'auto',
@@ -98,7 +100,13 @@ if __name__ == "__main__":
 
     # load & test agent
     sim.load_agent(rllib_path=agent_path, rand_seed=seed, fixed_action=[1, 1])
+
     # simulate one episode and render
-    sim.run(render='gif', log_steps=True)
+    log_dict = {
+        'drl_mobile.util.simulation': logging.DEBUG,
+        # 'drl_mobile.env.entities': logging.DEBUG
+    }
+    sim.run(render='gif', log_dict=log_dict)
+
     # evaluate over multiple episodes
-    # sim.run(num_episodes=30, log_steps=False)
+    sim.run(num_episodes=30)

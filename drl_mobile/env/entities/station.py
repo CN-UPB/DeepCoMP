@@ -29,11 +29,10 @@ class Basestation:
         self.range_conn = pos.buffer(69)
         self.range_1mbit = pos.buffer(46)
 
-        # FIXME: enabling logging still shows deepcopy error. See https://github.com/hynek/structlog/issues/268
         # TODO: log num conn ues
-        # self.log = structlog.get_logger(id=self.id, pos=str(self.pos))
-        # self.log.debug('BS init', sharing_model=self.sharing_model, bw=self.bw, freq=self.frequency, noise=self.noise,
-        #                tx_power=self.tx_power, height=self.height)
+        self.log = structlog.get_logger(id=self.id, pos=str(self.pos))
+        self.log.info('BS init', sharing_model=self.sharing_model, bw=self.bw, freq=self.frequency, noise=self.noise,
+                      tx_power=self.tx_power, height=self.height)
 
     def __repr__(self):
         return str(self.id)
@@ -61,8 +60,7 @@ class Basestation:
         """Return the signal-to-noise (SNR) ratio given a UE position."""
         distance = self.pos.distance(ue_pos)
         signal = self.received_power(distance)
-        # self.log.debug('SNR to UE', ue_pos=str(ue_pos), distance=distance, signal=signal)
-        # print(f"SNR: bs={self.id}, {distance=}, {signal=}, {self.noise=}")
+        self.log.debug('SNR to UE', ue_pos=str(ue_pos), distance=distance, signal=signal)
         return signal / self.noise
 
     def data_rate_unshared(self, ue):
@@ -129,9 +127,8 @@ class Basestation:
         dr_ue_unshared = self.data_rate_unshared(ue)
         # final, shared data rate depends on sharing model
         dr_ue_shared = self.data_rate_shared(ue, dr_ue_unshared)
-        # print(f"bs={self.id}, {dr_ue_unshared=}, {dr_ue_shared=}")
-        # self.log.debug('Achievable data rate', ue=ue.id, snr=snr, dr_ue=dr_ue, dr_ue_shared=dr_ue_shared,
-        # split_by=split_by)
+        self.log.debug('Achievable data rate', ue=ue.id, dr_ue_unshared=dr_ue_unshared, dr_ue_shared=dr_ue_shared,
+                       num_conn_ues=self.num_conn_ues)
         return dr_ue_shared
 
     # TODO: without interference, this really just translates to a fixed distance. so decide based on distance instead?
@@ -139,5 +136,5 @@ class Basestation:
     def can_connect(self, ue_pos):
         """Return if a UE at a given pos can connect to this BS. That's the case if its SNR is above a threshold."""
         can_connect = self.snr(ue_pos) > SNR_THRESHOLD
-        # print(f"bs={self.id}, {ue_pos=}, {can_connect=}")
+        self.log.debug('Can connect?', ue_pos=ue_pos, can_connect=can_connect)
         return can_connect
