@@ -1,13 +1,50 @@
 # MDP Formulation & Release Details
 
-## [v0.5](https://github.com/CN-UPB/deep-rl-mobility-management/releases/tag/v0.5): Improved radio model (week 26)
+## Latest MDP Formulation
+
+Using the multi-agent environment with the latest common configuration.
+
+Observations: Observation for each agent (controlling a single UE)
+
+* Achievable data rate to each BS. Processed/normlaized to `[-1, 1]` depending on the UE's requested data rate
+* Total current data rate of the UE over all its current connections. Also normalized to `[-1,1]`.
+* Currently connected BS (binary vector).
+
+Actions:
+
+* Discrete selection of either noop (0) or one of the BS.
+* The latter toggles the connection status and either tries to connects or disconnect the UE to/from the BS, depending on whether it currently already is connected.
+
+Reward: Immediate rewards for each time step
+
+* For each UE:
+    * +10 if its requested data rate is covered by all its combined connections, -10 otherwise
+    * -3 for unsuccessful connection attempts (because the BS is out of range)
+    * -x where x is the number of lost connections during movement (that were not actively disconnected)
+* In multi-UE envs, the total reward is summed up for all UEs
+    * In multi-agent RL, each agent still only learns from its own reward
+
+
+## Release Details and MDP Changes
+
+### [v0.6](https://github.com/CN-UPB/deep-rl-mobility-management/releases/tag/v0.6): Multi-agent RL (week 27)
+
+* Support for multi-agent RL: Each UE is trained by its own RL agent
+* Currently, all agents share the same RL algorithm and NN
+* Already with 2 UEs, multi-agent leads to better results more quickly than a central agent
+
+Example: Multi-agent PPO after 25k training
+
+![v0.5 example](gifs/v06.gif)
+
+### [v0.5](https://github.com/CN-UPB/deep-rl-mobility-management/releases/tag/v0.5): Improved radio model (week 26)
 
 * Improved [radio model](https://github.com/CN-UPB/deep-rl-mobility-management/blob/master/docs/model.md):
     * Configurable model for sharing resources/data rate between connected UEs at a BS. Support capacity maximization, rate-fair, and resource-fair sharing. Use rate-fair as new default.
     * Allow UEs to connect based on SNR not data rate threshold
     * Clean up: Removed unused interference calculation from model (assume no interference)
 * Improved observations:
-    * Variant `CentralRemainingDrEnv` with extra observation indicating each UE's total current data rate in `[-1, 1]`: 0 = requirements exactly fulfilled
+    * Environment variant with extra observation indicating each UE's total current data rate in `[-1, 1]`: 0 = requirements exactly fulfilled
     * Improves avg. episode reward from 343 (+- 92) to 388 (+- 111); after 30k train, tested over 30 eps
     * Dict space obs allow distinguishing continuous data rate obs and binary connected obs. Were both treated as binary (Box) before --> smaller obs space now
 * Penalty for losing connection to BS through movement rather than actively disconnecting --> Agent learns to disconnect
@@ -17,7 +54,7 @@ Example: Centralized PPO agent controlling two UEs after 30k training with RLlib
 
 ![v0.5 example](gifs/v05.gif)
 
-## [v0.4](https://github.com/CN-UPB/deep-rl-mobility-management/releases/tag/v0.4): Replaced stable_baselines with ray's RLlib (week 26)
+### [v0.4](https://github.com/CN-UPB/deep-rl-mobility-management/releases/tag/v0.4): Replaced stable_baselines with ray's RLlib (week 26)
 
 * Replaced the RL framework: [RLlib](https://docs.ray.io/en/latest/rllib.html) instead of [stable_baselines](https://stable-baselines.readthedocs.io/en/master/)
 * Benefit: RLlib is more powerful and supports multi-agent environments
@@ -28,7 +65,7 @@ Example: Centralized PPO agent controlling two UEs after 20k training with RLlib
 
 ![v0.4 example](gifs/v04.gif)
 
-## [v0.3](https://github.com/CN-UPB/deep-rl-mobility-management/releases/tag/v0.3): Centralized, single-agent, multi-UE-BS selection, basic radio model (week 25)
+### [v0.3](https://github.com/CN-UPB/deep-rl-mobility-management/releases/tag/v0.3): Centralized, single-agent, multi-UE-BS selection, basic radio model (week 25)
 
 * Simple but improved radio load model: 
     * Split achievable load equally among connected UEs
@@ -53,7 +90,7 @@ Example: Centralized PPO agent controlling two UEs after 20k training
 
 ![v0.3 example](gifs/v03.gif)
 
-## [v0.2](https://github.com/CN-UPB/deep-rl-mobility-management/releases/tag/v0.2): Just BS selection, basic radio model (week 21)
+### [v0.2](https://github.com/CN-UPB/deep-rl-mobility-management/releases/tag/v0.2): Just BS selection, basic radio model (week 21)
 
 * Same as v0, but with path loss, SNR to data rate calculation. No interference or scheduling yet.
 * State/Observation: S = [Achievable data rates per BS (processed), connected BS]
@@ -73,7 +110,7 @@ Example: PPO with auto clipping & normalization observations after 10k training
 
 ![v0.2 example](gifs/v02.gif)
 
-## [v0.1](https://github.com/CN-UPB/deep-rl-mobility-management/releases/tag/v0.1): Just BS selection, no radio model (week 19)
+### [v0.1](https://github.com/CN-UPB/deep-rl-mobility-management/releases/tag/v0.1): Just BS selection, no radio model (week 19)
 
 Env. dynamics:
 

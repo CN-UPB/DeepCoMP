@@ -7,7 +7,7 @@ from ray.rllib.agents.ppo import DEFAULT_CONFIG
 from ray.rllib.env.multi_agent_env import MultiAgentEnv
 
 from drl_mobile.env.single_ue.variants import BinaryMobileEnv, DatarateMobileEnv
-from drl_mobile.env.multi_ue.central import CentralMultiUserEnv, CentralRemainingDrEnv
+from drl_mobile.env.multi_ue.central import CentralMultiUserEnv
 from drl_mobile.env.multi_ue.multi_agent import MultiAgentMobileEnv
 from drl_mobile.util.simulation import Simulation
 from drl_mobile.util.logs import config_logging
@@ -22,6 +22,7 @@ log = structlog.get_logger()
 def create_env_config(eps_length, num_workers=1, train_batch_size=1000, seed=None):
     """
     Create environment and RLlib config. Return config.
+
     :param eps_length: Number of time steps per episode (parameter of the environment)
     :param num_workers: Number of RLlib workers for training. For longer training, num_workers = cpu_cores-1 makes sense
     :param train_batch_size: Number of sampled env steps in a single training iteration
@@ -36,11 +37,11 @@ def create_env_config(eps_length, num_workers=1, train_batch_size=1000, seed=Non
     bs1 = Basestation('bs1', pos=Point(50, 50))
     bs2 = Basestation('bs2', pos=Point(100, 50))
     bs_list = [bs1, bs2]
-    env_class = CentralMultiUserEnv
+    env_class = MultiAgentMobileEnv
 
     env_config = {
         'episode_length': eps_length, 'map': map, 'bs_list': bs_list, 'ue_list': ue_list, 'dr_cutoff': 'auto',
-        'sub_req_dr': True, 'curr_dr_obs': False, 'seed': seed
+        'sub_req_dr': True, 'curr_dr_obs': True, 'seed': seed
     }
 
     # create and return the config
@@ -83,10 +84,10 @@ if __name__ == "__main__":
         # 'episode_reward_mean': 250
     }
     # train or load trained agent; only set train=True for ppo agent
-    train = True
+    train = False
     agent_name = 'ppo'
     # name of the RLlib dir to load the agent from for testing
-    agent_path = '../training/PPO/PPO_CentralRemainingDrEnv_0_2020-07-01_11-12-05vmts7p3t/checkpoint_25/checkpoint-25'
+    agent_path = '../training/PPO/PPO_MultiAgentMobileEnv_0_2020-07-01_15-42-31ypyfzmte/checkpoint_25/checkpoint-25'
     # seed for agent & env
     seed = 42
 

@@ -2,7 +2,7 @@
 
 Using deep RL for mobility management.
 
-![example](docs/gifs/v05.gif)
+![example](docs/gifs/v06.gif)
 
 ## Setup
 
@@ -61,8 +61,9 @@ Run the command in a WSL not a PyCharm terminal. Tensorboard is available at htt
     * Multi-agent: Separate agents for each UE. I should look into ray/rllib: https://docs.ray.io/en/latest/rllib-env.html#multi-agent-and-hierarchical
     * Collaborative learning: Share experience or gradients to train agents together. Use same NN. Later separate NNs? Federated learing
     * Possibilities: Higher=better
-        1. Use & train exactly same NN for all UEs (still per UE decisions).
+        1. DONE: Use & train exactly same NN for all UEs (still per UE decisions).
         2. Separate NNs for each agent, but share gradient updates or experiences occationally
+* Larger scenarios with more UEs and BS. Auto create rand BS, UE; just configure number in env.
 * Generic utlitiy function: Currently, reward is a step function (pos if enough rate, neg if not). Could also be any other function of the rate, eg, logarithmic
 * Efficient caching of connection data rate:
     * Currently always recalculate the data rate per connection per UE, eg, when calculating reward or checking whether we can connect
@@ -73,7 +74,7 @@ Run the command in a WSL not a PyCharm terminal. Tensorboard is available at htt
 
 ### Findings
 
-* Binary observations: [BS available?, BS connected?] work very well
+* Binary observations: (BS available?, BS connected?) work very well
 * Replacing binary "BS available?" with achievable data rate by BS does not work at all
 * Probably, because data rate is magnitudes larger (up to 150x) than "BS connected?" --> agent becomes blind to 2nd part of obs
 * Just cutting the data rate off at some small value (eg, 3 Mbit/s) leads to much better results
@@ -82,6 +83,8 @@ Run the command in a WSL not a PyCharm terminal. Tensorboard is available at htt
 * Central agent with observations and actions for all UEs in every time step works fine with 2 UEs
 * Even with rate-fair sharing, agent tends to connect UEs as long as possible (until connection drops) rather than actively disconnecting UEs that are far away
 * This is improved by adding a penalty for losing connections (without active disconnect) and adding obs about the total current dr of each UE (from all connections combined)
+* Adding this extra obs about total UE dr (over all BS connections) seems to slightly improve reward, but not a lot
+* Multi-agent RL learns better results more quickly than a centralized RL agent
 
 ## Development
 

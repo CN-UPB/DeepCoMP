@@ -30,6 +30,7 @@ class MultiAgentMobileEnv(MultiAgentEnv, DatarateMobileEnv):
     def step(self, action_dict):
         """
         Apply actions of all agents (here UEs) and step the environment
+
         :param action_dict: Dict of UE IDs --> selected action
         :return: obs, rewards, dones, infos. Again in the form of dicts: UE ID --> value
         """
@@ -70,5 +71,3 @@ class MultiAgentMobileEnv(MultiAgentEnv, DatarateMobileEnv):
         infos = {ue.id: {'time': self.time} for ue in self.ue_list}
         self.log.info("Step", time=self.time, prev_obs=prev_obs, action=action_dict, rewards=rewards, next_obs=self.obs, done=done)
         return self.obs, rewards, dones, infos
-
-# TODO: implement similar variant with total current dr as in the central env
