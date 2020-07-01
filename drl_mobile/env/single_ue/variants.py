@@ -52,6 +52,7 @@ class DatarateMobileEnv(BinaryMobileEnv):
 
         * dr_cutoff: Any data rate above this value will be cut off --> help have obs in same range
         * sub_req_dr: If true, subtract a UE's required data rate from the achievable dr --> neg obs if too little
+        * TODO: curr_dr_obs: If true, add a UE's current total data rate (over all BS) to the observations
         """
         super().__init__(env_config)
         self.dr_cutoff = env_config['dr_cutoff']

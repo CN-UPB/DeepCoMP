@@ -45,7 +45,7 @@ class CentralMultiUserEnv(MobileEnv):
         return {'dr': bs_dr, 'connected': conn_bs}
 
     def calc_reward(self, penalty):
-        """Calc reward for ALL UEs, similar to normal MobileEnv"""
+        """Calc reward summed up for ALL UEs, similar to normal MobileEnv"""
         reward = penalty
         for ue in self.ue_list:
             reward += super().calc_reward(ue, penalty=0)
@@ -99,10 +99,11 @@ class CentralMultiUserEnv(MobileEnv):
         return self.obs, reward, done, info
 
 
+# TODO: make it a variant of the central class, configurable
 class CentralRemainingDrEnv(CentralMultiUserEnv):
     """
-    Variant of the central multi-agent environment with an additional observation indicating if a UE's rate is
-    fulfilled by combining all its connections or not.
+    Variant of the central multi-agent environment with an additional observation indicating if a UE's total current dr
+    over all connected BS.
     """
     def __init__(self, env_config):
         """Create multi-UE env. Here, just with a slightly extended observation space"""
