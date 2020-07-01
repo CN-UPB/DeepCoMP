@@ -52,21 +52,26 @@ class DatarateMobileEnv(BinaryMobileEnv):
 
         * dr_cutoff: Any data rate above this value will be cut off --> help have obs in same range
         * sub_req_dr: If true, subtract a UE's required data rate from the achievable dr --> neg obs if too little
-        * TODO: curr_dr_obs: If true, add a UE's current total data rate (over all BS) to the observations
+        * curr_dr_obs: If true, add a UE's current total data rate (over all BS) to the observations
         """
         super().__init__(env_config)
         self.dr_cutoff = env_config['dr_cutoff']
         self.sub_req_dr = env_config['sub_req_dr']
+        self.curr_dr_obs = env_config['curr_dr_obs']
         assert not (self.dr_cutoff == 'auto' and not self.sub_req_dr), "For dr_cutoff auto, sub_req_dr must be True."
+        assert (not self.curr_dr_obs) or (self.dr_cutoff == 'auto' and self.sub_req_dr), \
+            "Enable all processing to add extra obs"
 
-        # observations: binary vector of BS availability (in range & free cap) + already connected BS
-        # 1. Achievable data rate for given UE for all BS --> Box;
+        # observations: vector of dr to each BS + (optionally: total curr dr of UE) + already connected BS
         # cut off dr at given dr level. here, dr is below 200 anyways --> default doesn't cut off
         max_dr_req = max([ue.dr_req for ue in self.ue_list])
-        self.log.info('Max dr req', max_dr_req=max_dr_req, dr_cutoff=self.dr_cutoff, sub_req_dr=self.sub_req_dr)
-        assert self.dr_cutoff == 'auto' or max_dr_req < self.dr_cutoff, "dr_cutoff should be higher than max required dr. by UEs"
+        self.log.info('Max dr req', max_dr_req=max_dr_req, dr_cutoff=self.dr_cutoff, sub_req_dr=self.sub_req_dr,
+                      curr_dr_obs=self.curr_dr_obs)
+        assert self.dr_cutoff == 'auto' or max_dr_req < self.dr_cutoff, \
+            "dr_cutoff should be higher than max required dr. by UEs"
+        obs_space = {}
 
-        # define observation space
+        # 1. Achievable data rate for given UE for all BS --> Box;
         if self.dr_cutoff == 'auto':
             # normalized to [-1, 1]
             dr_low = np.full(shape=(self.num_bs,), fill_value=-1)
@@ -78,15 +83,25 @@ class DatarateMobileEnv(BinaryMobileEnv):
             else:
                 dr_low = np.zeros(self.num_bs)
             dr_high = np.full(shape=(self.num_bs,), fill_value=self.dr_cutoff)
-        # 2. Connected BS --> MultiBinary
-        self.observation_space = gym.spaces.Dict({
-            'dr': gym.spaces.Box(low=dr_low, high=dr_high),
-            'connected': gym.spaces.MultiBinary(self.num_bs)
-        })
+        obs_space['dr'] = gym.spaces.Box(low=dr_low, high=dr_high)
+
+        # 2. total current dr of the UE over all BS connections. Normalized to [-1, 1]. 0 = exactly fulfilled --> 1D box
+        if self.curr_dr_obs:
+            obs_space['dr_total'] = gym.spaces.Box(low=-1, high=1, shape=(1,))
+
+        # 3. Connected BS --> MultiBinary
+        obs_space['connected'] = gym.spaces.MultiBinary(self.num_bs)
+
+        self.observation_space = gym.spaces.Dict(obs_space)
         # same action space as binary env: select a BS to be connected to/disconnect from or noop
 
     def get_obs(self, ue):
-        """Observation: Achievable data rate per BS (processed) + currently connected BS (binary)"""
+        """
+        Observation: Achievable data rate per BS (processed) + currently connected BS (binary)
+        + optionally: total curr dr
+        """
+        obs_dict = {}
+
         if self.dr_cutoff == 'auto':
             # subtract req_dr and auto clip & normalize to [-1, 1]
             bs_dr = []
@@ -101,5 +116,16 @@ class DatarateMobileEnv(BinaryMobileEnv):
         else:
             # just cut off at dr_cutoff
             bs_dr = [min(bs.data_rate(ue), self.dr_cutoff) for bs in self.bs_list]
-        connected_bs = [int(bs in ue.conn_bs) for bs in self.bs_list]
-        return {'dr': bs_dr, 'connected': connected_bs}
+        obs_dict['dr'] = bs_dr
+
+        obs_dict['connected'] = [int(bs in ue.conn_bs) for bs in self.bs_list]
+
+        if self.curr_dr_obs:
+            total_dr = sum(bs.data_rate(ue) for bs in ue.conn_bs)
+            # process by subtracting dr_req, clipping to [-dr_req, dr_req], normalizing to [-1, 1]
+            total_dr -= ue.dr_req
+            total_dr = min(total_dr, ue.dr_req)
+            total_dr = total_dr / ue.dr_req
+            obs_dict['dr_total'] = [total_dr]
+
+        return obs_dict

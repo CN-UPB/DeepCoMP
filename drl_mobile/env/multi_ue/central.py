@@ -13,23 +13,28 @@ class CentralMultiUserEnv(MobileEnv):
     def __init__(self, env_config):
         """Similar to DatarateMobileEnv but with multi-UEs controlled at once and fixed dr_cutoff, sub_req_dr"""
         super().__init__(env_config)
-        # observations: FOR EACH UE: binary vector of BS availability (in range & free cap) + already connected BS
+        self.curr_dr_obs = env_config['curr_dr_obs']
+
+        # observations: FOR EACH UE: vector of BS dr + already connected BS + optionally: total curr dr per UE
+        obs_space = {}
         # 1. Achievable data rate for given UE for all BS (normalized to [-1, 1]) --> Box;
-        dr_low = np.full(shape=(self.num_ue * self.num_bs,), fill_value=-1)
-        dr_high = np.ones(self.num_ue * self.num_bs)
+        obs_space['dr'] = gym.spaces.Box(low=-1, high=1, shape=(self.num_ue * self.num_bs,))
         # 2. Connected BS --> MultiBinary
-        self.observation_space = gym.spaces.Dict({
-            'dr': gym.spaces.Box(low=dr_low, high=dr_high),
-            'connected': gym.spaces.MultiBinary(self.num_ue * self.num_bs)
-        })
+        obs_space['connected'] = gym.spaces.MultiBinary(self.num_ue * self.num_bs)
+        # 3. Total curr. dr for each UE summed up over all BS connection. Normalized to [-1,1]. Optional
+        if self.curr_dr_obs:
+            obs_space['dr_total'] = gym.spaces.Box(low=-1, high=1, shape=(self.num_ue,))
+
+        self.observation_space = gym.spaces.Dict(obs_space)
 
         # actions: FOR EACH UE: select a BS to be connected to/disconnect from or noop
         self.action_space = gym.spaces.MultiDiscrete([self.num_bs + 1 for _ in range(self.num_ue)])
 
     def get_obs(self):
-        """Observation: Available data rate + connected BS - FOR ALL UEs --> no ue arg"""
+        """Observation: Available data rate + connected BS (+ total curr dr) - FOR ALL UEs --> no ue arg"""
         bs_dr = []
         conn_bs = []
+        total_dr = []
         for ue in self.ue_list:
             # subtract req_dr and auto clip & normalize to [-1, 1]
             ue_bs_dr = []
@@ -42,6 +47,17 @@ class CentralMultiUserEnv(MobileEnv):
             # connected BS
             ue_conn_bs = [int(bs in ue.conn_bs) for bs in self.bs_list]
             conn_bs.extend(ue_conn_bs)
+            # total curr data rate over all BS
+            if self.curr_dr_obs:
+                ue_total_dr = sum(bs.data_rate(ue) for bs in ue.conn_bs)
+                # process by subtracting dr_req, clipping to [-dr_req, dr_req], normalizing to [-1, 1]
+                ue_total_dr -= ue.dr_req
+                ue_total_dr = min(ue_total_dr, ue.dr_req)
+                ue_total_dr = ue_total_dr / ue.dr_req
+                total_dr.append(ue_total_dr)
+
+        if self.curr_dr_obs:
+            return {'dr': bs_dr, 'connected': conn_bs, 'dr_total': total_dr}
         return {'dr': bs_dr, 'connected': conn_bs}
 
     def calc_reward(self, penalty):
@@ -97,44 +113,3 @@ class CentralMultiUserEnv(MobileEnv):
         self.log.info("Step", time=self.time, prev_obs=prev_obs, action=action, reward_before=reward_before,
                       reward_after=reward_after, reward=reward, next_obs=self.obs, done=done)
         return self.obs, reward, done, info
-
-
-# TODO: make it a variant of the central class, configurable
-class CentralRemainingDrEnv(CentralMultiUserEnv):
-    """
-    Variant of the central multi-agent environment with an additional observation indicating if a UE's total current dr
-    over all connected BS.
-    """
-    def __init__(self, env_config):
-        """Create multi-UE env. Here, just with a slightly extended observation space"""
-        super().__init__(env_config)
-        # same observations as in CentralMultiUserEnv + extra obs
-        # 1. Achievable data rate for given UE for all BS (normalized to [-1, 1]) --> Box;
-        dr_low = np.full(shape=(self.num_ue * self.num_bs,), fill_value=-1)
-        dr_high = np.ones(self.num_ue * self.num_bs)
-        # 2. dr total per UE over all connected BS: 0 = exactly fulfilled, -1 = not fulfilled at all,
-        # 1 = twice as much as need
-        dr_total_low = np.full(shape=(self.num_ue), fill_value=-1)
-        dr_total_high = np.ones(self.num_ue)
-        # 3. binary connected BS as before
-
-        self.observation_space = gym.spaces.Dict({
-            'dr': gym.spaces.Box(low=dr_low, high=dr_high),
-            'dr_total': gym.spaces.Box(low=dr_total_low, high=dr_total_high),
-            'connected': gym.spaces.MultiBinary(self.num_ue * self.num_bs)
-        })
-
-    def get_obs(self):
-        obs_dict = super().get_obs()
-        # extend by new observation
-        total_dr_list = []
-        for ue in self.ue_list:
-            total_dr = sum(bs.data_rate(ue) for bs in ue.conn_bs)
-            # process by subtracting dr_req, clipping to [-dr_req, dr_req], normalizing to [-1, 1]
-            total_dr -= ue.dr_req
-            total_dr = min(total_dr, ue.dr_req)
-            total_dr = total_dr / ue.dr_req
-            total_dr_list.append(total_dr)
-
-        obs_dict['dr_total'] = total_dr_list
-        return obs_dict
