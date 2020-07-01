@@ -148,9 +148,14 @@ class MobileEnv(gym.Env):
 
         # users & connections
         for ue in self.ue_list:
+            dr_curr = ue.curr_dr
             patch.append(plt.scatter(*ue.pos.xy, label=ue.id, color=ue.color))
+            # change the connection color to green if the UE's dr requirement is satisfied (orange otherwise)
+            conn_color = 'orange'
+            if dr_curr >= ue.dr_req:
+                conn_color = 'green'
             for bs in ue.conn_bs:
-                patch.extend(plt.plot([ue.pos.x, bs.pos.x], [ue.pos.y, bs.pos.y], color='orange'))
+                patch.extend(plt.plot([ue.pos.x, bs.pos.x], [ue.pos.y, bs.pos.y], color=conn_color))
         # base stations
         for bs in self.bs_list:
             patch.append(plt.scatter(*bs.pos.xy, marker='^', c='black'))
@@ -159,7 +164,9 @@ class MobileEnv(gym.Env):
 
         # title isn't redrawn in animation (out of box) --> static --> show time as text inside box, top-right corner
         patch.append(plt.title(type(self).__name__))
+        # extra info: time step, curr data rate
         patch.append(plt.text(0.9*self.map.width, 0.9*self.map.height, f"t={self.time}"))
+        # TODO: show curr dr of each UE below plot
 
         # legend doesn't change --> only draw once at the beginning
         if self.time == 0:

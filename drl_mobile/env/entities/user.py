@@ -56,6 +56,11 @@ class User:
         self.log.debug("Current data rate", curr_dr=dr)
         return dr
 
+    @property
+    def dr_req_satisfied(self):
+        """Whether or not the UE's data rate requirement is satisfied by its current total data rate"""
+        return self.curr_dr >= self.dr_req
+
     def reset_pos(self):
         """(Re)set position based on initial position x and y as Point. Resolve 'random'."""
         # set pos_x
