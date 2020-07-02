@@ -151,12 +151,8 @@ class MobileEnv(gym.Env):
             # plot connections to all BS
             for bs in ue.conn_bs:
                 patch.extend(plt.plot([ue.pos.x, bs.pos.x], [ue.pos.y, bs.pos.y], color='blue'))
-            # plot UE in green if their demand is satisfied, orange otherwise
-            dr_curr = ue.curr_dr
-            if dr_curr >= ue.dr_req:
-                patch.extend(ue.plot(color='green'))
-            else:
-                patch.extend(ue.plot(color='orange'))
+            # plot UE
+            patch.extend(ue.plot())
 
         # base stations
         for bs in self.bs_list:

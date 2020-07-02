@@ -60,16 +60,24 @@ class User:
         """Whether or not the UE's data rate requirement is satisfied by its current total data rate"""
         return self.curr_dr >= self.dr_req
 
-    def plot(self, color, radius=3):
+    def plot(self, radius=3):
         """
-        Plot the UE as filled circle with a given color and radius and the ID.
-        :param color: Color of the circle
+        Plot the UE as filled circle with a given radius and the ID. Green if demand satisfied, else orange.
         :param radius: Radius of the circle
         :return: A list of created matplotlib artists
         """
+        curr_dr = self.curr_dr
+        color = 'orange'
+        if curr_dr >= self.dr_req:
+            color = 'green'
+
         artists = plt.plot(*self.pos.buffer(radius).exterior.xy, color=color)
         artists.extend(plt.fill(*self.pos.buffer(radius).exterior.xy, color=color))
         artists.append(plt.annotate(self.id, xy=(self.pos.x, self.pos.y), ha='center', va='center'))
+
+        # show curr data rate below the UE
+        artists.append(plt.annotate(f'dr: {curr_dr:.2f}', xy=(self.pos.x, self.pos.y -radius -2),
+                                    ha='center', va='center', fontweight='light'))
         return artists
 
     def reset_pos(self):
