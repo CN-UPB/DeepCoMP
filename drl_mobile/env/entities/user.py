@@ -2,8 +2,7 @@ import random
 
 import structlog
 from shapely.geometry import Point
-
-from drl_mobile.util.logs import config_logging
+import matplotlib.pyplot as plt
 
 
 class User:
@@ -60,6 +59,18 @@ class User:
     def dr_req_satisfied(self):
         """Whether or not the UE's data rate requirement is satisfied by its current total data rate"""
         return self.curr_dr >= self.dr_req
+
+    def plot(self, color, radius=3):
+        """
+        Plot the UE as filled circle with a given color and radius and the ID.
+        :param color: Color of the circle
+        :param radius: Radius of the circle
+        :return: A list of created matplotlib artists
+        """
+        artists = plt.plot(*self.pos.buffer(radius).exterior.xy, color=color)
+        artists.extend(plt.fill(*self.pos.buffer(radius).exterior.xy, color=color))
+        artists.append(plt.annotate(self.id, xy=(self.pos.x, self.pos.y), ha='center', va='center'))
+        return artists
 
     def reset_pos(self):
         """(Re)set position based on initial position x and y as Point. Resolve 'random'."""

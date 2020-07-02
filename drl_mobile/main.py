@@ -32,13 +32,13 @@ def create_env_config(eps_length, num_workers=1, train_batch_size=1000, seed=Non
     """
     # create the environment and env_config
     map = Map(width=150, height=100)
-    ue1 = User('ue1', map, color='blue', pos_x='random', pos_y=40, move_x='slow')
-    ue2 = User('ue2', map, color='red', pos_x='random', pos_y=30, move_x='fast')
+    ue1 = User(1, map, color='blue', pos_x='random', pos_y=40, move_x='slow')
+    ue2 = User(2, map, color='red', pos_x='random', pos_y=30, move_x='fast')
     ue_list = [ue1, ue2]
     bs1 = Basestation('bs1', pos=Point(50, 50))
     bs2 = Basestation('bs2', pos=Point(100, 50))
     bs_list = [bs1, bs2]
-    env_class = MultiAgentMobileEnv
+    env_class = CentralMultiUserEnv
 
     env_config = {
         'episode_length': eps_length, 'map': map, 'bs_list': bs_list, 'ue_list': ue_list, 'dr_cutoff': 'auto',
@@ -91,14 +91,14 @@ if __name__ == "__main__":
     }
     # train or load trained agent; only set train=True for ppo agent
     train = False
-    agent_name = 'ppo'
+    agent_name = 'random'
     # name of the RLlib dir to load the agent from for testing
     agent_path = '../training/PPO/PPO_MultiAgentMobileEnv_0_2020-07-01_15-42-31ypyfzmte/checkpoint_25/checkpoint-25'
     # seed for agent & env
     seed = 42
 
     # create RLlib config (with env inside) & simulator
-    config = create_env_config(eps_length=30, num_workers=2, train_batch_size=1000, seed=seed)
+    config = create_env_config(eps_length=10, num_workers=2, train_batch_size=1000, seed=seed)
     sim = Simulation(config=config, agent_name=agent_name, debug=False)
 
     # train
