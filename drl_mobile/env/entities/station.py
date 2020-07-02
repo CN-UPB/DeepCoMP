@@ -1,5 +1,7 @@
 import structlog
 import numpy as np
+from shapely.geometry import Polygon
+import matplotlib.pyplot as plt
 
 
 # SNR threshold required for UEs to connect to this BS. This threshold corresponds roughly to a distance of 69m.
@@ -28,6 +30,12 @@ class Basestation:
         # for visualization: circles around BS that show connection range (69m) and 1 Mbit range (46m); no interference
         self.range_conn = pos.buffer(69)
         self.range_1mbit = pos.buffer(46)
+        # also rectangle around pos
+        symbol_size = 3
+        self.symbol = Polygon([(self.pos.x-symbol_size, self.pos.y-symbol_size),
+                               (self.pos.x+symbol_size, self.pos.y-symbol_size),
+                               (self.pos.x+symbol_size, self.pos.y+symbol_size),
+                               (self.pos.x-symbol_size, self.pos.y+symbol_size)])
 
         # TODO: log num conn ues
         self.log = structlog.get_logger(id=self.id, pos=str(self.pos))
@@ -40,6 +48,19 @@ class Basestation:
     @property
     def num_conn_ues(self):
         return len(self.conn_ues)
+
+    def plot(self):
+        """
+        Plot the BS as square with the ID inside as well as circles around it indicating the range.
+        :return: A list of created matplotlib artists
+        """
+        # plot BS
+        artists = plt.plot(*self.symbol.exterior.xy, color='black')
+        artists.append(plt.annotate(self.id, xy=(self.pos.x, self.pos.y), ha='center', va='center'))
+        # plot range
+        artists.extend(plt.plot(*self.range_1mbit.exterior.xy, color='black'))
+        artists.extend(plt.plot(*self.range_conn.exterior.xy, color='gray'))
+        return artists
 
     def reset(self):
         """Reset BS to having no connected UEs"""

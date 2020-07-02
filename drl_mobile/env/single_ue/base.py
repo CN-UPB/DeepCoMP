@@ -160,9 +160,7 @@ class MobileEnv(gym.Env):
 
         # base stations
         for bs in self.bs_list:
-            patch.append(plt.scatter(*bs.pos.xy, marker='^', c='black'))
-            patch.extend(plt.plot(*bs.range_1mbit.exterior.xy, color='black'))
-            patch.extend(plt.plot(*bs.range_conn.exterior.xy, color='gray'))
+            patch.extend(bs.plot())
 
         # title isn't redrawn in animation (out of box) --> static --> show time as text inside box, top-right corner
         patch.append(plt.title(type(self).__name__))

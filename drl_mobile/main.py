@@ -35,8 +35,8 @@ def create_env_config(eps_length, num_workers=1, train_batch_size=1000, seed=Non
     ue1 = User(1, map, color='blue', pos_x='random', pos_y=40, move_x='slow')
     ue2 = User(2, map, color='red', pos_x='random', pos_y=30, move_x='fast')
     ue_list = [ue1, ue2]
-    bs1 = Basestation('bs1', pos=Point(50, 50))
-    bs2 = Basestation('bs2', pos=Point(100, 50))
+    bs1 = Basestation(1, pos=Point(50, 50))
+    bs2 = Basestation(2, pos=Point(100, 50))
     bs_list = [bs1, bs2]
     env_class = CentralMultiUserEnv
 
