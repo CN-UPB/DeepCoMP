@@ -37,6 +37,15 @@ python main.py
 
 Training logs, results, videos, and trained agents are saved in the `training` directory.
 
+When running remotely, you can serve the replay video by running:
+
+```
+cd training
+python -m http.server
+```
+
+Then access at `<remote-ip>:8000`.
+
 #### Tensorboard
 
 To view learning curves (and other metrics) when training an agent, use Tensorboard:
