@@ -9,7 +9,7 @@ Using deep RL for mobility management.
 To install everything, run
 
 ```
-pip install -r requirements
+python setup.py install
 ```
 
 Tested on Ubuntu 20.04 (on WSL) with Python 3.8. RLlib does not ([yet](https://github.com/ray-project/ray/issues/631)) run on Windows, but it does on WSL.
@@ -25,15 +25,22 @@ On Ubuntu:
 sudo apt install ffmpeg imagemagick
 ```
 
+**While structlog doesn't support deepcopy:**
+
+Install patched version from my `structlog` fork & branch:
+
+```
+pip install git+https://github.com/stefanbschneider/structlog.git@dev
+```
+
 
 ## Usage
 
-Adjust and run `main.py` in `drl_mobile`:
+```
+deepcomp -h
+```
 
-```
-cd drl_mobile
-python main.py
-```
+Adjust further settings in `drl_mobile/main.py`.
 
 Training logs, results, videos, and trained agents are saved in the `training` directory.
 

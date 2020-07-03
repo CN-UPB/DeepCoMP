@@ -22,7 +22,7 @@ log = structlog.get_logger()
 
 def setup_cli():
     """Create CLI parser and return parsed args"""
-    parser = argparse.ArgumentParser()
+    parser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     parser.add_argument('--workers', type=int, default=1, help="Number of ray workers")
     parser.add_argument('--eps-length', type=int, default=30, help="Number of time steps per episode")
     parser.add_argument('--train-iter', type=int, default=1, help="Number of training iterations")
@@ -94,7 +94,7 @@ def create_env_config(eps_length, num_workers=1, train_batch_size=1000, seed=Non
     return config
 
 
-if __name__ == "__main__":
+def main():
     config_logging(round_digits=3)
     args = setup_cli()
 
@@ -134,3 +134,7 @@ if __name__ == "__main__":
 
     # evaluate over multiple episodes
     sim.run(num_episodes=30)
+
+
+if __name__ == '__main__':
+    main()
