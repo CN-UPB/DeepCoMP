@@ -27,6 +27,11 @@ Reward: Immediate rewards for each time step
 
 ## Release Details and MDP Changes
 
+## [v0.7](https://github.com/CN-UPB/deep-rl-mobility-management/releases/tag/v0.6): Multi-agent RL (week 27)
+
+* Extra observation (optional) showing number of connected UEs per BS. To help learn
+* Improved visualization
+
 ### [v0.6](https://github.com/CN-UPB/deep-rl-mobility-management/releases/tag/v0.6): Multi-agent RL (week 27)
 
 * Support for multi-agent RL: Each UE is trained by its own RL agent

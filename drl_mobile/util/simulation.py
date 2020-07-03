@@ -149,15 +149,15 @@ class Simulation:
         # save html5 video
         if mode == 'video':
             html = anim.to_html5_video()
-            with open(f'{save_dir}/replay.html', 'w') as f:
+            with open(f'{save_dir}/{self.env_name}.html', 'w') as f:
                 f.write(html)
-            self.log.info('Video saved', path=f'{save_dir}/replay.html')
+            self.log.info('Video saved', path=f'{save_dir}/{self.env_name}.html')
 
         # save gif; requires external dependency ImageMagick
         if mode == 'gif':
             try:
-                anim.save(f'{save_dir}/replay.gif', writer='imagemagick')
-                self.log.info('Gif saved', path=f'{save_dir}/replay.gif')
+                anim.save(f'{save_dir}/{self.env_name}.gif', writer='imagemagick')
+                self.log.info('Gif saved', path=f'{save_dir}/{self.env_name}.gif')
             except TypeError:
                 self.log.error('ImageMagick needs to be installed for saving gifs.')
 

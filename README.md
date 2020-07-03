@@ -108,7 +108,9 @@ Run the command in a WSL not a PyCharm terminal. Tensorboard is available at htt
 * Multi-agent RL learns better results more quickly than a centralized RL agent
     * Multi-agents using the same NN vs. separate NNs results in comparable performance (slightly worse with separate NN). 
     * Theoretically, separate NNs should take more training as they only see one agent's obs, but allow learning different policies for different agents (eg, slow vs fast UEs)
-* Training many workers in parallel on a server for much longer (eg, 100 iters), does improve performance! At least for the centralized agent
+* Training many workers in parallel on a server for much longer (eg, 100 iters), does improve performance!
+* More training + extra observation on the number of connecte UEs --> central agents learns to not be too greedy and only connect to 1 BS to not take away resources from other UE
+    * Seems like this is due to longer training, not the additional observation (even though eps reward is slightly higher with the obs)
 
 ## Development
 

@@ -52,7 +52,7 @@ def create_env_config(eps_length, num_workers=1, train_batch_size=1000, seed=Non
     bs1 = Basestation(1, pos=Point(50, 50))
     bs2 = Basestation(2, pos=Point(100, 50))
     bs_list = [bs1, bs2]
-    env_class = CentralMultiUserEnv
+    env_class = MultiAgentMobileEnv
 
     # create larger env with 3 BS
     # map = Map(widht=205, height=165)
@@ -60,7 +60,7 @@ def create_env_config(eps_length, num_workers=1, train_batch_size=1000, seed=Non
 
     env_config = {
         'episode_length': eps_length, 'map': map, 'bs_list': bs_list, 'ue_list': ue_list, 'dr_cutoff': 'auto',
-        'sub_req_dr': True, 'curr_dr_obs': True, 'ues_at_bs_obs': True, 'seed': seed
+        'sub_req_dr': True, 'curr_dr_obs': True, 'ues_at_bs_obs': False, 'seed': seed
     }
 
     # create and return the config
