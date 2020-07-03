@@ -56,10 +56,9 @@ Run the command in a WSL not a PyCharm terminal. Tensorboard is available at htt
 
 ### Todos
 
-* Nicer visualization: 
-    * Show UE/BS ID inside circle/square with ID inside
-    * Show total curr dr for each UE textbox
-    * change conn color to green if req dr is satisfied
+* Learn fairness: Don't connect to 2 BS if you only need 1. 
+    * Train longer
+    * num conn UEs per BS in obs
 * Larger scenarios with more UEs and BS. Auto create rand BS, UE; just configure number in env.
 * Fix structlog: Once deepcopy is included in release, update requirements to new version & test
 * Multiple UEs: 

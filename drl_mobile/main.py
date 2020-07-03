@@ -1,5 +1,6 @@
 """Main execution script used for experimentation"""
 import logging
+import argparse
 
 import structlog
 from shapely.geometry import Point
@@ -17,6 +18,19 @@ from drl_mobile.env.entities.map import Map
 
 
 log = structlog.get_logger()
+
+
+def setup_cli():
+    """Create CLI parser and return parsed args"""
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--workers', type=int, default=1, help="Number of ray workers")
+    parser.add_argument('--eps-length', type=int, default=30, help="Number of time steps per episode")
+    parser.add_argument('--train-iter', type=int, default=1, help="Number of training iterations")
+    parser.add_argument('--batch-size', type=int, default=1000, help="Number of training iterations per training batch")
+
+    args = parser.parse_args()
+    log.info('CLI args', args=args)
+    return args
 
 
 def create_env_config(eps_length, num_workers=1, train_batch_size=1000, seed=None, agents_share_nn=True):
@@ -82,23 +96,26 @@ def create_env_config(eps_length, num_workers=1, train_batch_size=1000, seed=Non
 
 if __name__ == "__main__":
     config_logging(round_digits=3)
+    args = setup_cli()
+
 
     # settings
     # stop training when any of the criteria is met
     stop_criteria = {
-        'training_iteration': 25,
+        'training_iteration': args.train_iter,
         # 'episode_reward_mean': 250
     }
     # train or load trained agent; only set train=True for ppo agent
-    train = False
-    agent_name = 'random'
+    train = True
+    agent_name = 'ppo'
     # name of the RLlib dir to load the agent from for testing
     agent_path = '../training/PPO/PPO_MultiAgentMobileEnv_0_2020-07-01_15-42-31ypyfzmte/checkpoint_25/checkpoint-25'
     # seed for agent & env
     seed = 42
 
     # create RLlib config (with env inside) & simulator
-    config = create_env_config(eps_length=10, num_workers=2, train_batch_size=1000, seed=seed)
+    config = create_env_config(eps_length=args.eps_length, num_workers=args.workers, train_batch_size=args.batch_size,
+                               seed=seed)
     sim = Simulation(config=config, agent_name=agent_name, debug=False)
 
     # train
@@ -116,4 +133,4 @@ if __name__ == "__main__":
     sim.run(render='video', log_dict=log_dict)
 
     # evaluate over multiple episodes
-    # sim.run(num_episodes=30)
+    sim.run(num_episodes=30)

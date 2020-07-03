@@ -162,7 +162,6 @@ class MobileEnv(gym.Env):
         patch.append(plt.title(type(self).__name__))
         # extra info: time step, curr data rate
         patch.append(plt.text(0.9*self.map.width, 0.9*self.map.height, f"t={self.time}"))
-        # TODO: show curr dr of each UE below plot
 
         # legend doesn't change --> only draw once at the beginning
         # if self.time == 0:
