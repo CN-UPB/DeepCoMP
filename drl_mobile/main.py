@@ -22,7 +22,7 @@ def setup_cli():
     parser.add_argument('--alg', type=str, choices=['ppo', 'random', 'fixed'], default='ppo', help="Algorithm")
     parser.add_argument('--agent', type=str, choices=['single', 'central', 'multi'], required=True,
                         help="Whether to use a single agent for 1 UE, a central agent, or multi agents")
-    parser.add_argument('--env-size', type=str, choices=['small', 'large'], default='small', help="Environment size")
+    parser.add_argument('--env', type=str, choices=['small', 'medium', 'large'], default='small')
 
     args = parser.parse_args()
     log.info('CLI args', args=args)
@@ -46,7 +46,7 @@ def main():
     seed = 42
 
     # create RLlib config (with env inside) & simulator
-    config = create_env_config(agent=args.agent, env_size=args.env_size, eps_length=args.eps_length,
+    config = create_env_config(agent=args.agent, env=args.env, eps_length=args.eps_length,
                                num_workers=args.workers, train_batch_size=args.batch_size, seed=seed)
     sim = Simulation(config=config, agent_name=args.alg, debug=False)
 
@@ -65,7 +65,7 @@ def main():
     sim.run(render='video', log_dict=log_dict)
 
     # evaluate over multiple episodes
-    sim.run(num_episodes=30)
+    # sim.run(num_episodes=30)
 
 
 if __name__ == '__main__':

@@ -40,6 +40,24 @@ def create_small_env():
     return map, ue_list, bs_list
 
 
+def create_medium_env():
+    """
+    Same as large env, but with just 3 UEs and map restricted to areas with coverage.
+    Thus, optimal episode reward should be close to num_ues * eps_length * 10 (ie, all UEs are always connected)
+    """
+    map = Map(width=205, height=85)
+    ue1 = User(1, map, pos_x='random', pos_y=25, move_x='slow')
+    ue2 = User(2, map, pos_x='random', pos_y=45, move_x='fast')
+    ue3 = User(3, map, pos_x=130, pos_y='random', move_y='slow')
+    ue_list = [ue1, ue2, ue3]
+
+    bs1 = Basestation(1, pos=Point(45, 35))
+    bs2 = Basestation(2, pos=Point(160, 35))
+    bs3 = Basestation(3, pos=Point(100, 85))
+    bs_list = [bs1, bs2, bs3]
+    return map, ue_list, bs_list
+
+
 def create_large_env():
     """
     Create larger env with 5 UEs and 3 BS and return UE & BS list
@@ -47,12 +65,13 @@ def create_large_env():
     :returns: Tuple(map, ue_list, bs_list)
     """
     map = Map(width=205, height=165)
-    ue1 = User(1, map, pos_x='random', pos_y=60, move_x='fast')
-    ue2 = User(2, map, pos_x='random', pos_y=50, move_x='fast')
-    ue3 = User(3, map, pos_x=130, pos_y='random', move_x='slow')
-    ue4 = User(4, map, pos_x=60, pos_y='random', move_x='slow')
-    ue5 = User(5, map, pos_x='random', pos_y='random', move_x='fast', move_y='fast')
-    ue_list = [ue1, ue2, ue3, ue4, ue5]
+    ue_list = [
+        User(1, map, pos_x='random', pos_y=60, move_x='fast'),
+        User(2, map, pos_x='random', pos_y=50, move_x='fast'),
+        User(3, map, pos_x=130, pos_y='random', move_y='slow'),
+        User(4, map, pos_x=60, pos_y='random', move_y='slow')
+        # User(5, map, pos_x='random', pos_y='random', move_x='fast', move_y='fast')
+    ]
 
     bs1 = Basestation(1, pos=Point(45, 70))
     bs2 = Basestation(2, pos=Point(160, 70))
@@ -61,23 +80,25 @@ def create_large_env():
     return map, ue_list, bs_list
 
 
-def get_env(size):
-    """Create and return the environment corresponding to the given size"""
-    allowed_sizes = ('small', 'large')
-    assert size in allowed_sizes, f"Env size {allowed_sizes} is not one of {allowed_sizes}."
+def get_env(env_str):
+    """Create and return the environment corresponding to the given env_str"""
+    allowed_envs = ('small', 'medium', 'large')
+    assert env_str in allowed_envs, f"Environment {env_str} is not one of {allowed_envs}."
 
-    if size == 'small':
+    if env_str == 'small':
         return create_small_env()
-    if size == 'large':
+    if env_str == 'medium':
+        return create_medium_env()
+    if env_str == 'large':
         return create_large_env()
 
 
-def create_env_config(agent, env_size, eps_length, num_workers=1, train_batch_size=1000, seed=None, agents_share_nn=True):
+def create_env_config(agent, env, eps_length, num_workers=1, train_batch_size=1000, seed=None, agents_share_nn=True):
     """
     Create environment and RLlib config. Return config.
 
     :param agent: String indicating which environment version to use based on the agent type
-    :param env_size: Size of the environment (as string)
+    :param env: Size of the environment (as string)
     :param eps_length: Number of time steps per episode (parameter of the environment)
     :param num_workers: Number of RLlib workers for training. For longer training, num_workers = cpu_cores-1 makes sense
     :param train_batch_size: Number of sampled env steps in a single training iteration
@@ -86,7 +107,7 @@ def create_env_config(agent, env_size, eps_length, num_workers=1, train_batch_si
     :return: The complete config for an RLlib agent, including the env & env_config
     """
     env_class = get_env_class(agent)
-    map, ue_list, bs_list = get_env(env_size)
+    map, ue_list, bs_list = get_env(env)
 
     env_config = {
         'episode_length': eps_length, 'seed': seed,
