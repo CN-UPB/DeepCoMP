@@ -9,6 +9,7 @@ Observations: Observation for each agent (controlling a single UE)
 * Achievable data rate to each BS. Processed/normlaized to `[-1, 1]` depending on the UE's requested data rate
 * Total current data rate of the UE over all its current connections. Also normalized to `[-1,1]`.
 * Currently connected BS (binary vector).
+* (Turned off: Number of connected UEs per BS)
 
 Actions:
 
@@ -27,12 +28,21 @@ Reward: Immediate rewards for each time step
 
 ## Release Details and MDP Changes
 
-## [v0.7](https://github.com/CN-UPB/deep-rl-mobility-management/releases/tag/v0.6): Multi-agent RL (week 27)
+## [v0.7](https://github.com/CN-UPB/deep-rl-mobility-management/releases/tag/v0.7): Larger Environment (week 27)
 
-* Larger env
+* Larger environment with 3 BS and 4 moving UEs. 
+Can be solved by both multi- and central-agent RL, but needs much more training (see comparison below).
 * Extra observation (optional) showing number of connected UEs per BS. To help learn balancing connections. Seems not to be very useful.
 * Improved visualization
-* Improved install. Added CLI args.
+* Improved install. Added CLI support.
+
+Multi-agent (gray) learns much quicker, but central agent (orange) ultimately learns a slightly better policy:
+
+![v0.7 training comparison](plots/v07_central_vs_multi.png)
+
+Example: Multi-agent PPO on the new, larger env after 200k training
+
+![v0.7 multi-agent example](gifs/v07_multi.gif)
 
 ### [v0.6](https://github.com/CN-UPB/deep-rl-mobility-management/releases/tag/v0.6): Multi-agent RL (week 27)
 

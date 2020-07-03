@@ -2,7 +2,7 @@
 
 Using deep RL for mobility management.
 
-![example](docs/gifs/v06.gif)
+![example](docs/gifs/v07_multi.gif)
 
 ## Setup
 
@@ -74,11 +74,6 @@ Run the command in a WSL not a PyCharm terminal. Tensorboard is available at htt
 
 ### Todos
 
-* Learn fairness: Don't connect to 2 BS if you only need 1. 
-    * Train longer
-    * num conn UEs per BS in obs
-* Larger scenarios with more UEs and BS. Auto create rand BS, UE; just configure number in env.
-* Fix structlog: Once deepcopy is included in release, update requirements to new version & test
 * Multiple UEs: 
     * Multi-agent: Separate agents for each UE. I should look into ray/rllib: https://docs.ray.io/en/latest/rllib-env.html#multi-agent-and-hierarchical
     * Collaborative learning: Share experience or gradients to train agents together. Use same NN. Later separate NNs? Federated learing

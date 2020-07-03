@@ -80,6 +80,7 @@ def create_large_env():
     return map, ue_list, bs_list
 
 
+# TODO: at some point probably more convenient to specify num UEs and num BS and generate an env randomly
 def get_env(env_str):
     """Create and return the environment corresponding to the given env_str"""
     allowed_envs = ('small', 'medium', 'large')
