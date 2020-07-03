@@ -37,7 +37,6 @@ class Basestation:
                                (self.pos.x+symbol_size, self.pos.y+symbol_size),
                                (self.pos.x-symbol_size, self.pos.y+symbol_size)])
 
-        # TODO: log num conn ues
         self.log = structlog.get_logger(id=self.id, pos=str(self.pos))
         self.log.info('BS init', sharing_model=self.sharing_model, bw=self.bw, freq=self.frequency, noise=self.noise,
                       tx_power=self.tx_power, height=self.height)

@@ -23,6 +23,9 @@ def setup_cli():
     parser.add_argument('--agent', type=str, choices=['single', 'central', 'multi'], required=True,
                         help="Whether to use a single agent for 1 UE, a central agent, or multi agents")
     parser.add_argument('--env', type=str, choices=['small', 'medium', 'large'], default='small')
+    parser.add_argument('--test', type=str, help="Do not train, only test trained agent at given path (to checkpoint)")
+    parser.add_argument('--video', type=str, choices=['html', 'gif', 'both', None], default='html',
+                        help="How (and whether) to render the testing video.")
 
     args = parser.parse_args()
     log.info('CLI args', args=args)
@@ -39,9 +42,10 @@ def main():
         # 'episode_reward_mean': 250
     }
     # train or load trained agent; only set train=True for ppo agent
-    train = True
+    train = args.test is None
     # name of the RLlib dir to load the agent from for testing
-    agent_path = '../training/PPO/PPO_MultiAgentMobileEnv_0_2020-07-01_15-42-31ypyfzmte/checkpoint_25/checkpoint-25'
+    # agent_path = '../training/PPO/PPO_MultiAgentMobileEnv_0_2020-07-01_15-42-31ypyfzmte/checkpoint_25/checkpoint-25'
+    agent_path = f'../training/PPO/{args.test}'
     # seed for agent & env
     seed = 42
 
@@ -62,7 +66,7 @@ def main():
         'drl_mobile.util.simulation': logging.DEBUG,
         # 'drl_mobile.env.entities': logging.DEBUG
     }
-    sim.run(render='video', log_dict=log_dict)
+    sim.run(render=args.video, log_dict=log_dict)
 
     # evaluate over multiple episodes
     # sim.run(num_episodes=30)

@@ -133,31 +133,30 @@ class Simulation:
 
         self.log.info('Agent loaded', agent=type(self.agent).__name__, rllib_path=rllib_path)
 
-    def save_animation(self, fig, patches, mode, save_dir):
+    def save_animation(self, fig, patches, mode):
         """
         Create and save matplotlib animation
 
         :param fig: Matplotlib figure
         :param patches: List of patches to draw for each step in the animation
         :param mode: How to save the animation. Options: 'video' (=html5) or 'gif' (requires ImageMagick)
-        :param save_dir: In which directory to save the animation
         """
-        assert mode == 'video' or mode == 'gif', "Mode for saving animation must be 'video' or 'gif'"
-        assert save_dir is not None, 'You must specify a save_dir for saving video/gif'
+        render_modes = ('html', 'gif', 'both')
+        assert mode in render_modes, f"Render mode {mode} not in {render_modes}"
         anim = matplotlib.animation.ArtistAnimation(fig, patches, repeat=False)
 
         # save html5 video
-        if mode == 'video':
+        if mode == 'video' or mode == 'both':
             html = anim.to_html5_video()
-            with open(f'{save_dir}/{self.env_name}.html', 'w') as f:
+            with open(f'{self.save_dir}/{self.env_name}.html', 'w') as f:
                 f.write(html)
-            self.log.info('Video saved', path=f'{save_dir}/{self.env_name}.html')
+            self.log.info('Video saved', path=f'{self.save_dir}/{self.env_name}.html')
 
         # save gif; requires external dependency ImageMagick
-        if mode == 'gif':
+        if mode == 'gif' or mode == 'both':
             try:
-                anim.save(f'{save_dir}/{self.env_name}.gif', writer='imagemagick')
-                self.log.info('Gif saved', path=f'{save_dir}/{self.env_name}.gif')
+                anim.save(f'{self.save_dir}/{self.env_name}.gif', writer='imagemagick')
+                self.log.info('Gif saved', path=f'{self.save_dir}/{self.env_name}.gif')
             except TypeError:
                 self.log.error('ImageMagick needs to be installed for saving gifs.')
 
@@ -248,8 +247,8 @@ class Simulation:
                 episode_reward += reward
 
             # create the animation
-            if render == 'video' or render == 'gif':
-                self.save_animation(fig, patches, render, self.save_dir)
+            if render is not None:
+                self.save_animation(fig, patches, render)
 
             eps_rewards.append(episode_reward)
             self.log.info('Episode complete', episode_reward=episode_reward)
