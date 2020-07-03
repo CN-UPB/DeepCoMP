@@ -53,11 +53,13 @@ class DatarateMobileEnv(BinaryMobileEnv):
         * dr_cutoff: Any data rate above this value will be cut off --> help have obs in same range
         * sub_req_dr: If true, subtract a UE's required data rate from the achievable dr --> neg obs if too little
         * curr_dr_obs: If true, add a UE's current total data rate (over all BS) to the observations
+        * ues_at_bs_obs: If true, add obs showing the number of connected UEs at each BS. To help balance connections.
         """
         super().__init__(env_config)
         self.dr_cutoff = env_config['dr_cutoff']
         self.sub_req_dr = env_config['sub_req_dr']
         self.curr_dr_obs = env_config['curr_dr_obs']
+        self.ues_at_bs_obs = env_config['ues_at_bs_obs']
         assert not (self.dr_cutoff == 'auto' and not self.sub_req_dr), "For dr_cutoff auto, sub_req_dr must be True."
         assert (not self.curr_dr_obs) or (self.dr_cutoff == 'auto' and self.sub_req_dr), \
             "Enable all processing to add extra obs"
@@ -85,12 +87,16 @@ class DatarateMobileEnv(BinaryMobileEnv):
             dr_high = np.full(shape=(self.num_bs,), fill_value=self.dr_cutoff)
         obs_space['dr'] = gym.spaces.Box(low=dr_low, high=dr_high)
 
-        # 2. total current dr of the UE over all BS connections. Normalized to [-1, 1]. 0 = exactly fulfilled --> 1D box
+        # 2. Connected BS --> MultiBinary
+        obs_space['connected'] = gym.spaces.MultiBinary(self.num_bs)
+
+        # 3. Optional: total current dr of the UE over all BS connections. Normalized to [-1, 1]. 0 = exactly fulfilled
         if self.curr_dr_obs:
             obs_space['dr_total'] = gym.spaces.Box(low=-1, high=1, shape=(1,))
 
-        # 3. Connected BS --> MultiBinary
-        obs_space['connected'] = gym.spaces.MultiBinary(self.num_bs)
+        # 4. Optional: Number of connected UEs per BS. Discrete: 0 up to all UEs
+        if self.ues_at_bs_obs:
+            obs_space['ues_at_bs'] = gym.spaces.MultiDiscrete([self.num_ue+1 for _ in range(self.num_bs)])
 
         self.observation_space = gym.spaces.Dict(obs_space)
         # same action space as binary env: select a BS to be connected to/disconnect from or noop
@@ -98,7 +104,7 @@ class DatarateMobileEnv(BinaryMobileEnv):
     def get_obs(self, ue):
         """
         Observation: Achievable data rate per BS (processed) + currently connected BS (binary)
-        + optionally: total curr dr
+        + optionally: total curr dr + num UEs per BS
         """
         obs_dict = {}
 
@@ -127,5 +133,8 @@ class DatarateMobileEnv(BinaryMobileEnv):
             total_dr = min(total_dr, ue.dr_req)
             total_dr = total_dr / ue.dr_req
             obs_dict['dr_total'] = [total_dr]
+
+        if self.ues_at_bs_obs:
+            obs_dict['ues_at_bs'] = [bs.num_conn_ues for bs in self.bs_list]
 
         return obs_dict

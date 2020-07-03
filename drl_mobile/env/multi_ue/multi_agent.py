@@ -1,4 +1,5 @@
 import numpy as np
+import gym.spaces
 from ray.rllib.env.multi_agent_env import MultiAgentEnv
 
 from drl_mobile.env.single_ue.variants import DatarateMobileEnv
@@ -14,6 +15,7 @@ class MultiAgentMobileEnv(MultiAgentEnv, DatarateMobileEnv):
     def __init__(self, env_config):
         # this calls DatarateMobileEnv.__ini__() since MultiAgentEnv doesn't have an __init__
         super().__init__(env_config)
+        self.ues_at_bs_obs = env_config['ues_at_bs_obs']
         # inherits attributes, obs and action space from parent env
 
     def reset(self):

@@ -23,7 +23,7 @@ def create_small_env():
 
     env_config = {
         'map': map, 'bs_list': bs_list, 'ue_list': ue_list, 'dr_cutoff': 'auto', 'sub_req_dr': True,
-        'curr_dr_obs': True, 'ues_at_bs_obs': False
+        'curr_dr_obs': True, 'ues_at_bs_obs': True
     }
     return env_config
 
