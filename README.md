@@ -111,6 +111,7 @@ Run the command in a WSL not a PyCharm terminal. Tensorboard is available at htt
 * Training many workers in parallel on a server for much longer (eg, 100 iters), does improve performance!
 * More training + extra observation on the number of connecte UEs --> central agents learns to not be too greedy and only connect to 1 BS to not take away resources from other UE
     * Seems like this is due to longer training, not the additional observation (even though eps reward is slightly higher with the obs)
+    * It seems like the extra obs rather hurts the agent in the MultiAgent setting and leads to worse reward --> disable
 
 ## Development
 

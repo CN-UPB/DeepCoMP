@@ -12,27 +12,40 @@ from drl_mobile.env.entities.map import Map
 
 
 def create_small_env():
-    """Create and return small env with 2 UEs and 2 BS"""
+    """
+    Create small env with 2 UEs and 2 BS
+
+    :returns: tuple (map, ue_list, bs_list)
+    """
     map = Map(width=150, height=100)
     ue1 = User(1, map, pos_x='random', pos_y=40, move_x='slow')
     ue2 = User(2, map, pos_x='random', pos_y=30, move_x='fast')
-    ue_list = [ue1, ue2]
+    ue_list = [ue1]
     bs1 = Basestation(1, pos=Point(50, 50))
     bs2 = Basestation(2, pos=Point(100, 50))
     bs_list = [bs1, bs2]
-
-    env_config = {
-        'map': map, 'bs_list': bs_list, 'ue_list': ue_list, 'dr_cutoff': 'auto', 'sub_req_dr': True,
-        'curr_dr_obs': True, 'ues_at_bs_obs': True
-    }
-    return env_config
+    return map, ue_list, bs_list
 
 
 def create_large_env():
-    """Create and return larger env with 5 UEs and 3 BS"""
+    """
+    Create larger env with 5 UEs and 3 BS and return UE & BS list
+
+    :returns: Tuple(map, ue_list, bs_list)
+    """
     map = Map(width=205, height=165)
-    # ue1 = User(1, map, pos_x='random', pos)
-    # TODO:
+    ue1 = User(1, map, pos_x='random', pos_y=60, move_x='fast')
+    ue2 = User(2, map, pos_x='random', pos_y=50, move_x='fast')
+    ue3 = User(3, map, pos_x=130, pos_y='random', move_x='slow')
+    ue4 = User(4, map, pos_x=60, pos_y='random', move_x='slow')
+    ue5 = User(5, map, pos_x='random', pos_y='random', move_x='fast', move_y='fast')
+    ue_list = [ue1, ue2, ue3, ue4, ue5]
+
+    bs1 = Basestation(1, pos=Point(45, 70))
+    bs2 = Basestation(2, pos=Point(160, 70))
+    bs3 = Basestation(3, pos=Point(100, 120))
+    bs_list = [bs1, bs2, bs3]
+    return map, ue_list, bs_list
 
 
 def create_env_config(eps_length, num_workers=1, train_batch_size=1000, seed=None, agents_share_nn=True):
@@ -46,11 +59,16 @@ def create_env_config(eps_length, num_workers=1, train_batch_size=1000, seed=Non
     :param agents_share_nn: Whether all agents in a multi-agent env should share the same NN or have separate copies
     :return: The complete config for an RLlib agent, including the env & env_config
     """
-    env_class = MultiAgentMobileEnv
+    env_class = DatarateMobileEnv
 
-    env_config = create_small_env()
-    env_config['episode_length'] = eps_length
-    env_config['seed'] = seed
+    # map, ue_list, bs_list = create_small_env()
+    map, ue_list, bs_list = create_large_env()
+
+    env_config = {
+        'episode_length': eps_length, 'seed': seed,
+        'map': map, 'bs_list': bs_list, 'ue_list': ue_list, 'dr_cutoff': 'auto', 'sub_req_dr': True,
+        'curr_dr_obs': True, 'ues_at_bs_obs': False
+    }
 
     # create and return the config
     config = DEFAULT_CONFIG.copy()
@@ -80,7 +98,7 @@ def create_env_config(eps_length, num_workers=1, train_batch_size=1000, seed=Non
         # or: use separate policies (and NNs) for each agent
         else:
             config['multiagent'] = {
-                'policies': {ue.id: (None, env.observation_space, env.action_space, {}) for ue in env_config['ue_list']},
+                'policies': {ue.id: (None, env.observation_space, env.action_space, {}) for ue in ue_list},
                 'policy_mapping_fn': lambda agent_id: agent_id
             }
 

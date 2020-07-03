@@ -36,8 +36,8 @@ def main():
         # 'episode_reward_mean': 250
     }
     # train or load trained agent; only set train=True for ppo agent
-    train = True
-    agent_name = 'ppo'
+    train = False
+    agent_name = 'random'
     # name of the RLlib dir to load the agent from for testing
     agent_path = '../training/PPO/PPO_MultiAgentMobileEnv_0_2020-07-01_15-42-31ypyfzmte/checkpoint_25/checkpoint-25'
     # seed for agent & env
@@ -63,7 +63,7 @@ def main():
     sim.run(render='video', log_dict=log_dict)
 
     # evaluate over multiple episodes
-    sim.run(num_episodes=30)
+    # sim.run(num_episodes=30)
 
 
 if __name__ == '__main__':

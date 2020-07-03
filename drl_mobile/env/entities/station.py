@@ -31,7 +31,7 @@ class Basestation:
         self.range_conn = pos.buffer(69)
         self.range_1mbit = pos.buffer(46)
         # also rectangle around pos
-        symbol_size = 3
+        symbol_size = 4
         self.symbol = Polygon([(self.pos.x-symbol_size, self.pos.y-symbol_size),
                                (self.pos.x+symbol_size, self.pos.y-symbol_size),
                                (self.pos.x+symbol_size, self.pos.y+symbol_size),
