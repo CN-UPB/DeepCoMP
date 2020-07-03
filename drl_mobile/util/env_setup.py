@@ -11,6 +11,19 @@ from drl_mobile.env.entities.station import Basestation
 from drl_mobile.env.entities.map import Map
 
 
+def get_env_class(env_type):
+    """Return the env class corresponding to the string type (from CLI)"""
+    allowed_types = ('single', 'central', 'multi')
+    assert env_type in allowed_types, f"Environment type was {env_type} but has to be one of {allowed_types}."
+
+    if env_type == 'single':
+        return DatarateMobileEnv
+    if env_type == 'central':
+        return CentralMultiUserEnv
+    if env_type == 'multi':
+        return MultiAgentMobileEnv
+
+
 def create_small_env():
     """
     Create small env with 2 UEs and 2 BS
@@ -20,7 +33,7 @@ def create_small_env():
     map = Map(width=150, height=100)
     ue1 = User(1, map, pos_x='random', pos_y=40, move_x='slow')
     ue2 = User(2, map, pos_x='random', pos_y=30, move_x='fast')
-    ue_list = [ue1]
+    ue_list = [ue1, ue2]
     bs1 = Basestation(1, pos=Point(50, 50))
     bs2 = Basestation(2, pos=Point(100, 50))
     bs_list = [bs1, bs2]
@@ -48,10 +61,23 @@ def create_large_env():
     return map, ue_list, bs_list
 
 
-def create_env_config(eps_length, num_workers=1, train_batch_size=1000, seed=None, agents_share_nn=True):
+def get_env(size):
+    """Create and return the environment corresponding to the given size"""
+    allowed_sizes = ('small', 'large')
+    assert size in allowed_sizes, f"Env size {allowed_sizes} is not one of {allowed_sizes}."
+
+    if size == 'small':
+        return create_small_env()
+    if size == 'large':
+        return create_large_env()
+
+
+def create_env_config(agent, env_size, eps_length, num_workers=1, train_batch_size=1000, seed=None, agents_share_nn=True):
     """
     Create environment and RLlib config. Return config.
 
+    :param agent: String indicating which environment version to use based on the agent type
+    :param env_size: Size of the environment (as string)
     :param eps_length: Number of time steps per episode (parameter of the environment)
     :param num_workers: Number of RLlib workers for training. For longer training, num_workers = cpu_cores-1 makes sense
     :param train_batch_size: Number of sampled env steps in a single training iteration
@@ -59,10 +85,8 @@ def create_env_config(eps_length, num_workers=1, train_batch_size=1000, seed=Non
     :param agents_share_nn: Whether all agents in a multi-agent env should share the same NN or have separate copies
     :return: The complete config for an RLlib agent, including the env & env_config
     """
-    env_class = DatarateMobileEnv
-
-    # map, ue_list, bs_list = create_small_env()
-    map, ue_list, bs_list = create_large_env()
+    env_class = get_env_class(agent)
+    map, ue_list, bs_list = get_env(env_size)
 
     env_config = {
         'episode_length': eps_length, 'seed': seed,

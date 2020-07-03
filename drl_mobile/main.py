@@ -19,6 +19,10 @@ def setup_cli():
     parser.add_argument('--eps-length', type=int, default=30, help="Number of time steps per episode")
     parser.add_argument('--train-iter', type=int, default=1, help="Number of training iterations")
     parser.add_argument('--batch-size', type=int, default=1000, help="Number of training iterations per training batch")
+    parser.add_argument('--alg', type=str, choices=['ppo', 'random', 'fixed'], default='ppo', help="Algorithm")
+    parser.add_argument('--agent', type=str, choices=['single', 'central', 'multi'], required=True,
+                        help="Whether to use a single agent for 1 UE, a central agent, or multi agents")
+    parser.add_argument('--env-size', type=str, choices=['small', 'large'], default='small', help="Environment size")
 
     args = parser.parse_args()
     log.info('CLI args', args=args)
@@ -29,27 +33,25 @@ def main():
     config_logging(round_digits=3)
     args = setup_cli()
 
-    # settings
     # stop training when any of the criteria is met
     stop_criteria = {
         'training_iteration': args.train_iter,
         # 'episode_reward_mean': 250
     }
     # train or load trained agent; only set train=True for ppo agent
-    train = False
-    agent_name = 'random'
+    train = True
     # name of the RLlib dir to load the agent from for testing
     agent_path = '../training/PPO/PPO_MultiAgentMobileEnv_0_2020-07-01_15-42-31ypyfzmte/checkpoint_25/checkpoint-25'
     # seed for agent & env
     seed = 42
 
     # create RLlib config (with env inside) & simulator
-    config = create_env_config(eps_length=args.eps_length, num_workers=args.workers, train_batch_size=args.batch_size,
-                               seed=seed)
-    sim = Simulation(config=config, agent_name=agent_name, debug=False)
+    config = create_env_config(agent=args.agent, env_size=args.env_size, eps_length=args.eps_length,
+                               num_workers=args.workers, train_batch_size=args.batch_size, seed=seed)
+    sim = Simulation(config=config, agent_name=args.alg, debug=False)
 
     # train
-    if train:
+    if train and args.alg == 'ppo':
         agent_path, analysis = sim.train(stop_criteria)
 
     # load & test agent
@@ -63,7 +65,7 @@ def main():
     sim.run(render='video', log_dict=log_dict)
 
     # evaluate over multiple episodes
-    # sim.run(num_episodes=30)
+    sim.run(num_episodes=30)
 
 
 if __name__ == '__main__':

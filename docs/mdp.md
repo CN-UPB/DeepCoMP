@@ -29,8 +29,10 @@ Reward: Immediate rewards for each time step
 
 ## [v0.7](https://github.com/CN-UPB/deep-rl-mobility-management/releases/tag/v0.6): Multi-agent RL (week 27)
 
-* Extra observation (optional) showing number of connected UEs per BS. To help learn
+* Larger env
+* Extra observation (optional) showing number of connected UEs per BS. To help learn balancing connections. Seems not to be very useful.
 * Improved visualization
+* Improved install. Added CLI args.
 
 ### [v0.6](https://github.com/CN-UPB/deep-rl-mobility-management/releases/tag/v0.6): Multi-agent RL (week 27)
 
