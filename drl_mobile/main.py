@@ -56,7 +56,7 @@ def create_env_config(eps_length, num_workers=1, train_batch_size=1000, seed=Non
 
     env_config = {
         'episode_length': eps_length, 'map': map, 'bs_list': bs_list, 'ue_list': ue_list, 'dr_cutoff': 'auto',
-        'sub_req_dr': True, 'curr_dr_obs': True, 'seed': seed
+        'sub_req_dr': True, 'curr_dr_obs': True, 'ues_at_bs_obs': True, 'seed': seed
     }
 
     # create and return the config

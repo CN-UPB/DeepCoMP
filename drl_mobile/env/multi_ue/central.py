@@ -14,6 +14,7 @@ class CentralMultiUserEnv(MobileEnv):
         """Similar to DatarateMobileEnv but with multi-UEs controlled at once and fixed dr_cutoff, sub_req_dr"""
         super().__init__(env_config)
         self.curr_dr_obs = env_config['curr_dr_obs']
+        self.ues_at_bs_obs = env_config['ues_at_bs_obs']
 
         # observations: FOR EACH UE: vector of BS dr + already connected BS + optionally: total curr dr per UE
         obs_space = {}
@@ -24,6 +25,10 @@ class CentralMultiUserEnv(MobileEnv):
         # 3. Total curr. dr for each UE summed up over all BS connection. Normalized to [-1,1]. Optional
         if self.curr_dr_obs:
             obs_space['dr_total'] = gym.spaces.Box(low=-1, high=1, shape=(self.num_ue,))
+        # 4. number of connected UEs per BS --> help distribute UEs better. Optional
+        if self.ues_at_bs_obs:
+            # at each BS 0 up to all UEs can be connected (no normalization yet)
+            obs_space['ues_at_bs'] = gym.spaces.MultiDiscrete([self.num_ue+1 for _ in range(self.num_bs)])
 
         self.observation_space = gym.spaces.Dict(obs_space)
 
@@ -56,9 +61,13 @@ class CentralMultiUserEnv(MobileEnv):
                 ue_total_dr = ue_total_dr / ue.dr_req
                 total_dr.append(ue_total_dr)
 
+        obs = {'dr': bs_dr, 'connected': conn_bs}
         if self.curr_dr_obs:
-            return {'dr': bs_dr, 'connected': conn_bs, 'dr_total': total_dr}
-        return {'dr': bs_dr, 'connected': conn_bs}
+            obs['dr_total'] = total_dr
+        if self.ues_at_bs_obs:
+            obs['ues_at_bs'] = [bs.num_conn_ues for bs in self.bs_list]
+
+        return obs
 
     def calc_reward(self, penalty):
         """Calc reward summed up for ALL UEs, similar to normal MobileEnv"""

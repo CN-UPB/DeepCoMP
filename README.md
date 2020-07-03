@@ -40,6 +40,8 @@ pip install git+https://github.com/stefanbschneider/structlog.git@dev
 deepcomp -h
 ```
 
+FIXME: Run from inside `drl_mobile`, else the path to training will be created wrongly.
+
 Adjust further settings in `drl_mobile/main.py`.
 
 Training logs, results, videos, and trained agents are saved in the `training` directory.
@@ -58,7 +60,7 @@ Then access at `<remote-ip>:8000`.
 To view learning curves (and other metrics) when training an agent, use Tensorboard:
 
 ```
-tensorboard --logdir training
+tensorboard --logdir training (--host 0.0.0.0)
 ```
 
 Run the command in a WSL not a PyCharm terminal. Tensorboard is available at http://localhost:6006
@@ -106,6 +108,7 @@ Run the command in a WSL not a PyCharm terminal. Tensorboard is available at htt
 * Multi-agent RL learns better results more quickly than a centralized RL agent
     * Multi-agents using the same NN vs. separate NNs results in comparable performance (slightly worse with separate NN). 
     * Theoretically, separate NNs should take more training as they only see one agent's obs, but allow learning different policies for different agents (eg, slow vs fast UEs)
+* Training many workers in parallel on a server for much longer (eg, 100 iters), does improve performance! At least for the centralized agent
 
 ## Development
 

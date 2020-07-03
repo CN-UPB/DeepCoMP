@@ -45,9 +45,10 @@ class MobileEnv(gym.Env):
         self.observation_space = None
         self.action_space = None
 
-        self.log = structlog.get_logger()
         # configure logging inside env to ensure it works in ray/rllib. https://github.com/ray-project/ray/issues/9030
         config_logging(round_digits=3)
+        self.log = structlog.get_logger()
+        self.log.info('Env init', env_config=env_config)
 
     @property
     def num_bs(self):
