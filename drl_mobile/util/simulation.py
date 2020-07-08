@@ -146,7 +146,7 @@ class Simulation:
         anim = matplotlib.animation.ArtistAnimation(fig, patches, repeat=False)
 
         # save html5 video
-        if mode == 'video' or mode == 'both':
+        if mode == 'html' or mode == 'both':
             html = anim.to_html5_video()
             with open(f'{self.save_dir}/{self.env_name}.html', 'w') as f:
                 f.write(html)
@@ -212,7 +212,7 @@ class Simulation:
         :return list: Return list of episode rewards
         """
         assert self.agent is not None, "Train or load an agent before running the simulation"
-        assert (num_episodes == 1) or (render == None), "Turn off rendering when running for multiple episodes"
+        assert (num_episodes == 1) or (render is None), "Turn off rendering when running for multiple episodes"
         eps_rewards = []
 
         # instantiate env and set logging level
