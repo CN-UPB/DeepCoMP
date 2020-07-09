@@ -72,7 +72,7 @@ def main():
     sim.run(render=args.video, log_dict=log_dict)
 
     # evaluate over multiple episodes
-    sim.run(num_episodes=30)
+    # sim.run(num_episodes=30)
 
 
 if __name__ == '__main__':

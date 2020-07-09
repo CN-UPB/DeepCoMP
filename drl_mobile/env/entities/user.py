@@ -4,6 +4,8 @@ import structlog
 from shapely.geometry import Point
 import matplotlib.pyplot as plt
 
+from drl_mobile.env.util.utility import step_utility, log_utility
+
 
 class User:
     """
@@ -52,6 +54,11 @@ class User:
     def dr_req_satisfied(self):
         """Whether or not the UE's data rate requirement is satisfied by its current total data rate"""
         return self.curr_dr >= self.dr_req
+
+    @property
+    def utility(self):
+        """Utility based on the current data rate and utility function"""
+        return step_utility(self.curr_dr, self.dr_req)
 
     def plot(self, radius=3):
         """

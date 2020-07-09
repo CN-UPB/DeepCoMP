@@ -77,21 +77,16 @@ Run the command in a WSL not a PyCharm terminal. Tensorboard is available at htt
 * Custom utility function (eg, log)
 * (Proportional fair sharing)
 * (Add UE position and movement to observations; in multi-agent)
-* Larger scenario with more UEs: Also, train multi-agent RL on small scenario and test on large scenario - should work
 * Implement heuristics (select best BS; select all BS) and make comparison plots
 
-* Multiple UEs: 
-    * Multi-agent: Separate agents for each UE. I should look into ray/rllib: https://docs.ray.io/en/latest/rllib-env.html#multi-agent-and-hierarchical
-    * Collaborative learning: Share experience or gradients to train agents together. Use same NN. Later separate NNs? Federated learing
-    * Possibilities: Higher=better
-        1. DONE: Use & train exactly same NN for all UEs (still per UE decisions).
-        2. Separate NNs for each agent, but share gradient updates or experiences occationally: https://docs.ray.io/en/latest/rllib-env.html#implementing-a-centralized-critic
+* Evaluation: Also compare multi-agent & centralized with limited training time
 * Efficient caching of connection data rate:
     * Currently always recalculate the data rate per connection per UE, eg, when calculating reward or checking whether we can connect
     * Safe & easy, but probably slow for many UEs/BSs. Let's see
     * Instead, write the dr per connection into a dict (conn --> curr dr); then derive total curr connection etc from that in O(1)
     * Needs to be updated whenever the UE moves or any UE changes its connections (this or another UE)
     * Eg, 1st move all UEs, 2nd check & update connections of all UEs, 3rd calculate reward etc
+    
 
 ### Findings
 
@@ -112,6 +107,9 @@ Run the command in a WSL not a PyCharm terminal. Tensorboard is available at htt
 * More training + extra observation on the number of connecte UEs --> central agents learns to not be too greedy and only connect to 1 BS to not take away resources from other UE
     * Seems like this is due to longer training, not the additional observation (even though eps reward is slightly higher with the obs)
     * It seems like the extra obs rather hurts the agent in the MultiAgent setting and leads to worse reward --> disable
+* Agent learns well also with random waypoint UE movement. Multi-agent RL learns much faster than centralized.
+* Another benefit of multi-agent RL is that we can train with few UEs and then extend testing to many more UEs that use the same NN. 
+That doesn't work with centralized RL as the fixed NN size depends on the number of UEs.
 
 ## Development
 

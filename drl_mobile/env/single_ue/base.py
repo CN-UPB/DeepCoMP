@@ -75,19 +75,9 @@ class MobileEnv(gym.Env):
 
     def calc_reward(self, ue, penalty):
         """
-        Calculate and return reward for specific UE. Called before and after UE movement.
-        High positive if connected with enough data rate, high negative if otherwise.
-        Add penalty for undesired actions, eg, unsuccessful connection attempt; passed as arg.
+        Calculate and return reward for specific UE: The UE's utility (based on its data rate) + penalty
         """
-        reward = penalty
-        # +10 if UE is connected such that its dr requirement is satisfied
-        if ue.curr_dr >= ue.dr_req:
-            reward += 10
-        # -10 if not connected with sufficient data rate
-        else:
-            reward -= 10
-
-        return reward
+        return ue.utility + penalty
 
     def reset(self):
         """Reset environment by resetting time and all UEs (pos & movement) and their connections"""
