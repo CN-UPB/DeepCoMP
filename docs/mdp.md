@@ -28,7 +28,12 @@ Reward: Immediate rewards for each time step
 
 ## Release Details and MDP Changes
 
-## [v0.7](https://github.com/CN-UPB/deep-rl-mobility-management/releases/tag/v0.7): Larger Environment (week 27)
+### [v0.8](https://github.com/CN-UPB/deep-rl-mobility-management/releases/tag/v0.8): Environment & Model Improvements (WIP)
+
+* New, configurable UE movement: Either uniformly in one direction or following random waypoints
+* Configurable number of slow and fast UEs in the environment via CLI
+
+### [v0.7](https://github.com/CN-UPB/deep-rl-mobility-management/releases/tag/v0.7): Larger Environment (week 27)
 
 * Larger environment with 3 BS and 4 moving UEs. 
 Can be solved by both multi- and central-agent RL, but needs much more training (see comparison below).

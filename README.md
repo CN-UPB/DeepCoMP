@@ -74,7 +74,6 @@ Run the command in a WSL not a PyCharm terminal. Tensorboard is available at htt
 
 ### Todos
 
-* UE Movement: Random waypoint
 * Custom utility function (eg, log)
 * (Proportional fair sharing)
 * (Add UE position and movement to observations; in multi-agent)

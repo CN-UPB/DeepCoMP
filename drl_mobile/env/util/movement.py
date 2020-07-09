@@ -79,13 +79,14 @@ class RandomWaypoint(Movement):
     Create random waypoints, move towards them, pause, and move towards new random waypoint
     with new random velocity (within given range)
     """
-    def __init__(self, map, velocity, pause_duration=2):
+    def __init__(self, map, velocity, pause_duration=2, border_buffer=10):
         """
         Create random waypoint movement utility object. Instantiate new movement object for each UE!
 
         :param map: Map representing the area of movement that must not be left
         :param velocity: Distance to move within one step. Number or 'slow'/'fast'.
         :param pause_duration: Duration [in env steps] to pause after reaching each waypoint
+        :param border_buffer: Buffer to the map border in which no waypoints are placed
         """
         super().__init__(map)
         self.init_velocity = velocity
@@ -94,6 +95,8 @@ class RandomWaypoint(Movement):
         self.pause_duration = pause_duration
         self.pausing = False
         self.curr_pause = 0
+        assert border_buffer > 0, "Border Buffer must be >0 to avoid placing waypoints on or outside map borders."
+        self.border_buffer = border_buffer
         self.log = structlog.get_logger()
 
     def __str__(self):
@@ -115,8 +118,8 @@ class RandomWaypoint(Movement):
 
     def random_waypoint(self):
         """Return a new random waypoint inside the map"""
-        x = random.randint(0, self.map.width)
-        y = random.randint(0, self.map.height)
+        x = random.randint(self.border_buffer, self.map.width - self.border_buffer)
+        y = random.randint(self.border_buffer, self.map.height - self.border_buffer)
         new_waypoint = Point(x, y)
         assert new_waypoint.within(self.map.shape), f"Waypoint {str(new_waypoint)} is outside the map!"
         return new_waypoint
@@ -154,7 +157,8 @@ class RandomWaypoint(Movement):
         :param Point curr_pos: Current position of the moving entity (eg, UE)
         :return: New position after one step
         """
-        assert curr_pos.within(self.map.shape), f"Current position {str(curr_pos)} is outside the map!"
+        assert curr_pos.within(self.map.shape) or curr_pos.touches(self.map.shape), \
+            f"Current position {str(curr_pos)} is outside the map!"
 
         # start pausing when reaching the waypoint
         if curr_pos == self.waypoint:
