@@ -22,7 +22,9 @@ def setup_cli():
     parser.add_argument('--alg', type=str, choices=['ppo', 'random', 'fixed'], default='ppo', help="Algorithm")
     parser.add_argument('--agent', type=str, choices=['single', 'central', 'multi'], required=True,
                         help="Whether to use a single agent for 1 UE, a central agent, or multi agents")
-    parser.add_argument('--env', type=str, choices=['small', 'medium', 'large'], default='small')
+    parser.add_argument('--env', type=str, choices=['small', 'medium', 'large'], default='small', help="Env. size")
+    parser.add_argument('--slow-ues', type=int, default=0, help="Number of slow UEs in the environment")
+    parser.add_argument('--fast-ues', type=int, default=0, help="Number of fast UEs in the environment")
     parser.add_argument('--test', type=str, help="Do not train, only test trained agent at given path (to checkpoint)")
     parser.add_argument('--video', type=str, choices=['html', 'gif', 'both', None], default='html',
                         help="How (and whether) to render the testing video.")
@@ -50,7 +52,8 @@ def main():
     seed = 42
 
     # create RLlib config (with env inside) & simulator
-    config = create_env_config(agent=args.agent, env=args.env, eps_length=args.eps_length,
+    config = create_env_config(agent=args.agent, map_size=args.env, num_slow_ues=args.slow_ues,
+                               num_fast_ues=args.fast_ues, eps_length=args.eps_length,
                                num_workers=args.workers, train_batch_size=args.batch_size, seed=seed)
     sim = Simulation(config=config, agent_name=args.alg, debug=False)
 

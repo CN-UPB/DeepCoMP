@@ -79,38 +79,46 @@ class RandomWaypoint(Movement):
     Create random waypoints, move towards them, pause, and move towards new random waypoint
     with new random velocity (within given range)
     """
-    # TODO: test
-    def __init__(self, map, min_velocity, max_velocity, pause_duration=1):
+    def __init__(self, map, velocity, pause_duration=2):
         """
         Create random waypoint movement utility object. Instantiate new movement object for each UE!
 
         :param map: Map representing the area of movement that must not be left
-        :param min_velocity: Lower bound on distance to move within one step. Less if the waypoint is reached earlier.
-        :param max_velocity: Upper bound on distance to move within one step. Less if the waypoint is reached earlier.
+        :param velocity: Distance to move within one step. Number or 'slow'/'fast'.
         :param pause_duration: Duration [in env steps] to pause after reaching each waypoint
         """
         super().__init__(map)
-        self.min_velocity = min_velocity
-        self.max_velocity = max_velocity
+        self.init_velocity = velocity
         self.velocity = None
-        self.pause_duration = pause_duration
         self.waypoint = None
+        self.pause_duration = pause_duration
+        self.pausing = False
+        self.curr_pause = 0
         self.log = structlog.get_logger()
 
-        # reset to set velocity and waypoint
-        self.reset()
+    def __str__(self):
+        return f"RandomWaypoint({self.init_velocity})"
 
     def reset(self):
-        """Reset velocity and waypoint to new random values"""
-        self.velocity = random.randint(self.min_velocity, self.max_velocity)
+        """Reset velocity and waypoint to new random values. Reset current pause."""
+        if self.init_velocity == 'slow':
+            self.velocity = random.randint(2, 5)
+        elif self.init_velocity == 'fast':
+            self.velocity = random.randint(7, 15)
+        else:
+            self.velocity = self.init_velocity
+
         self.waypoint = self.random_waypoint()
+        self.pausing = False
+        self.curr_pause = 0
+        self.log.debug('Reset movement', new_velocity=self.velocity, new_waypoint=str(self.waypoint))
 
     def random_waypoint(self):
         """Return a new random waypoint inside the map"""
         x = random.randint(0, self.map.width)
         y = random.randint(0, self.map.height)
         new_waypoint = Point(x, y)
-        assert new_waypoint.within(self.map), f"Waypoint {str(new_waypoint)} is outside the map!"
+        assert new_waypoint.within(self.map.shape), f"Waypoint {str(new_waypoint)} is outside the map!"
         return new_waypoint
 
     def step_towards_waypoint(self, curr_pos):
@@ -142,15 +150,25 @@ class RandomWaypoint(Movement):
     def step(self, curr_pos):
         """
         Perform one movement step: Move towards waypoint, pause, select new waypoint & repeat.
+
         :param Point curr_pos: Current position of the moving entity (eg, UE)
         :return: New position after one step
         """
-        assert curr_pos.within(self.map), f"Current position {str(curr_pos)} is outside the map!"
+        assert curr_pos.within(self.map.shape), f"Current position {str(curr_pos)} is outside the map!"
 
-        # pick new waypoint and velocity when a waypoint is reached --> reset()
+        # start pausing when reaching the waypoint
         if curr_pos == self.waypoint:
-            self.reset()
+            self.pausing = True
 
-        # TODO: keep track of pausing: am I currently pausing? how long? --> pause further or stop
+        if self.pausing:
+            # continue pausing if pause duration is not yet reached
+            if self.curr_pause < self.pause_duration:
+                self.curr_pause += 1
+                return curr_pos
+            # else stop pausing and choose a new waypoint --> reset()
+            else:
+                self.reset()
+
+        # move towards (new) waypoint
         new_pos = self.step_towards_waypoint(curr_pos)
         return new_pos
