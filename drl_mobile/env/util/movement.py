@@ -1,4 +1,4 @@
-"""Utility functions for UE movement. Must """
+"""Utility functions for UE movement. Must inherit from abstract Movement class."""
 import random
 
 import structlog
@@ -19,8 +19,59 @@ class Movement:
 
 
 class UniformMovement(Movement):
-    pass
-    # TODO: move existing, old functionality here
+    """
+    Uniformly move with same speed in one direction. When hitting the borders of the map, "bounce off" like a ball
+    """
+    def __init__(self, map, move_x=0, move_y=0):
+        """
+        Create object for uniform movement into given direction. Instantiate new movement object for each UE!
+
+        :param map: Map representing the area of movement
+        :param move_x: How far to move in x direction per step. Number or 'slow'/'fast'.
+        :param move_y: How far to move in y direction per step. Number or 'slow'/'fast'.
+        """
+        super().__init__(map)
+        self.init_move_x = move_x
+        self.init_move_y = move_y
+        self.move_x = None
+        self.move_y = None
+
+    def __str__(self):
+        return f"UniformMovement({self.move_x}, {self.move_y})"
+
+    def reset(self):
+        """Reset to original movement direction (may change when hitting a map border)"""
+        if self.init_move_x == 'slow':
+            self.move_x = random.randint(1, 5)
+        elif self.init_move_x == 'fast':
+            self.move_x = random.randint(10, 20)
+        else:
+            # assume init_move_x was a specific number for how to move
+            self.move_x = self.init_move_x
+        # same for move_y
+        if self.init_move_y == 'slow':
+            self.move_y = random.randint(1, 5)
+        elif self.init_move_y == 'fast':
+            self.move_y = random.randint(10, 20)
+        else:
+            # assume init_move_y was a specific number for how to move
+            self.move_y = self.init_move_y
+
+    def step(self, curr_pos):
+        """
+        Make a step from the current position into the given direction. Bounce off at map borders.
+
+        :param Point curr_pos: Current position
+        :returns Point: New position after taking one step
+        """
+        # seems like points are immutable --> replace by new point
+        new_pos = Point(curr_pos.x + self.move_x, curr_pos.y + self.move_y)
+        # reverse movement if otherwise moving out of map
+        if not new_pos.within(self.map.shape):
+            self.move_x = -self.move_x
+            self.move_y = -self.move_y
+            new_pos = Point(curr_pos.x + self.move_x, curr_pos.y + self.move_y)
+        return new_pos
 
 
 class RandomWaypoint(Movement):
@@ -31,7 +82,7 @@ class RandomWaypoint(Movement):
     # TODO: test
     def __init__(self, map, min_velocity, max_velocity, pause_duration=1):
         """
-        Create random waypoint movement utility object.
+        Create random waypoint movement utility object. Instantiate new movement object for each UE!
 
         :param map: Map representing the area of movement that must not be left
         :param min_velocity: Lower bound on distance to move within one step. Less if the waypoint is reached earlier.

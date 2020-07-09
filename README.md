@@ -78,7 +78,8 @@ Run the command in a WSL not a PyCharm terminal. Tensorboard is available at htt
 * Custom utility function (eg, log)
 * (Proportional fair sharing)
 * (Add UE position and movement to observations; in multi-agent)
-* Larger scenario with more UEs
+* Larger scenario with more UEs: Also, train multi-agent RL on small scenario and test on large scenario - should work
+* Implement heuristics (select best BS; select all BS) and make comparison plots
 
 * Multiple UEs: 
     * Multi-agent: Separate agents for each UE. I should look into ray/rllib: https://docs.ray.io/en/latest/rllib-env.html#multi-agent-and-hierarchical

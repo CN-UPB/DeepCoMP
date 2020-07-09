@@ -9,6 +9,7 @@ from drl_mobile.env.multi_ue.multi_agent import MultiAgentMobileEnv
 from drl_mobile.env.entities.user import User
 from drl_mobile.env.entities.station import Basestation
 from drl_mobile.env.entities.map import Map
+from drl_mobile.env.util.movement import UniformMovement, RandomWaypoint
 
 
 def get_env_class(env_type):
@@ -31,8 +32,8 @@ def create_small_env():
     :returns: tuple (map, ue_list, bs_list)
     """
     map = Map(width=150, height=100)
-    ue1 = User(1, map, pos_x='random', pos_y=40, move_x='slow')
-    ue2 = User(2, map, pos_x='random', pos_y=30, move_x='fast')
+    ue1 = User(1, map, pos_x='random', pos_y=40, movement=UniformMovement(map, move_x='slow'))
+    ue2 = User(2, map, pos_x='random', pos_y=30, movement=UniformMovement(map, move_x='fast'))
     ue_list = [ue1, ue2]
     bs1 = Basestation(1, pos=Point(50, 50))
     bs2 = Basestation(2, pos=Point(100, 50))
