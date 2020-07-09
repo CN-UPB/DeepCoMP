@@ -58,7 +58,8 @@ class User:
     @property
     def utility(self):
         """Utility based on the current data rate and utility function"""
-        return step_utility(self.curr_dr, self.dr_req)
+        # return step_utility(self.curr_dr, self.dr_req)
+        return log_utility(self.curr_dr)
 
     def plot(self, radius=3):
         """
@@ -75,9 +76,11 @@ class User:
         artists.extend(plt.fill(*self.pos.buffer(radius).exterior.xy, color=color))
         artists.append(plt.annotate(self.id, xy=(self.pos.x, self.pos.y), ha='center', va='center'))
 
-        # show curr data rate below the UE
+        # show curr data rate and utility below the UE
         artists.append(plt.annotate(f'dr: {curr_dr:.2f}', xy=(self.pos.x, self.pos.y -radius -2),
-                                    ha='center', va='center', fontweight='light'))
+                                    ha='center', va='center'))
+        artists.append(plt.annotate(f'util: {self.utility:.2f}', xy=(self.pos.x, self.pos.y -radius -6),
+                                    ha='center', va='center'))
         return artists
 
     def reset_pos(self):
