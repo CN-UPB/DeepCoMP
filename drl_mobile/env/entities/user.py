@@ -3,6 +3,7 @@ import random
 import structlog
 from shapely.geometry import Point
 import matplotlib.pyplot as plt
+from matplotlib import cm
 
 from drl_mobile.env.util.utility import step_utility, log_utility
 
@@ -63,21 +64,21 @@ class User:
 
     def plot(self, radius=3):
         """
-        Plot the UE as filled circle with a given radius and the ID. Green if demand satisfied, else orange.
+        Plot the UE as filled circle with a given radius and the ID. Color from red to green indicating the utility.
         :param radius: Radius of the circle
         :return: A list of created matplotlib artists
         """
-        curr_dr = self.curr_dr
-        color = 'orange'
-        if curr_dr >= self.dr_req:
-            color = 'green'
+        # show utility as red to yellow to green. use color map for [0,1) --> normalize utiltiy first
+        colormap = cm.get_cmap('RdYlGn')
+        norm = plt.Normalize(-10, 10)
+        color = colormap(norm(self.utility))
 
         artists = plt.plot(*self.pos.buffer(radius).exterior.xy, color=color)
         artists.extend(plt.fill(*self.pos.buffer(radius).exterior.xy, color=color))
         artists.append(plt.annotate(self.id, xy=(self.pos.x, self.pos.y), ha='center', va='center'))
 
         # show curr data rate and utility below the UE
-        artists.append(plt.annotate(f'dr: {curr_dr:.2f}', xy=(self.pos.x, self.pos.y -radius -2),
+        artists.append(plt.annotate(f'dr: {self.curr_dr:.2f}', xy=(self.pos.x, self.pos.y -radius -2),
                                     ha='center', va='center'))
         artists.append(plt.annotate(f'util: {self.utility:.2f}', xy=(self.pos.x, self.pos.y -radius -6),
                                     ha='center', va='center'))
