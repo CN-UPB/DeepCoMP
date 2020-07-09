@@ -74,7 +74,7 @@ Run the command in a WSL not a PyCharm terminal. Tensorboard is available at htt
 
 ### Todos
 
-* Custom utility function (eg, log) --> when using log utility; I probably don't need to normalize dr anymore? or differently?
+* Normalize obs differently when using log utility function? Since there's no required data rate anymore (or it's irrelevant). Running mean normalization? https://docs.ray.io/en/latest/rllib-models.html
 * (Proportional fair sharing)
 * (Add UE position and movement to observations; in multi-agent)
 * Implement heuristics (select best BS; select all BS) and make comparison plots
@@ -110,7 +110,7 @@ Run the command in a WSL not a PyCharm terminal. Tensorboard is available at htt
 * Agent learns well also with random waypoint UE movement. Multi-agent RL learns much faster than centralized.
 * Another benefit of multi-agent RL is that we can train with few UEs and then extend testing to many more UEs that use the same NN. 
 That doesn't work with centralized RL as the fixed NN size depends on the number of UEs.
-* Log utility: Works? Absolute reward not comparable between step and log utility
+* Log utility: Also works well (at least multi agent)! Absolute reward not comparable between step and log utility
 
 ## Development
 
