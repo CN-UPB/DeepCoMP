@@ -26,8 +26,10 @@ def setup_cli():
     parser.add_argument('--slow-ues', type=int, default=0, help="Number of slow UEs in the environment")
     parser.add_argument('--fast-ues', type=int, default=0, help="Number of fast UEs in the environment")
     parser.add_argument('--test', type=str, help="Do not train, only test trained agent at given path (to checkpoint)")
+    # parser.add_argument('--cont-train', type=str, help="Load agent from given (checkpoint) path and continue training.")
     parser.add_argument('--video', type=str, choices=['html', 'gif', 'both', None], default='html',
                         help="How (and whether) to render the testing video.")
+    parser.add_argument('--no-eval', action='store_true', help="Disable additional evaluation episodes after testing.")
 
     args = parser.parse_args()
     log.info('CLI args', args=args)
@@ -57,6 +59,7 @@ def main():
                                num_workers=args.workers, train_batch_size=args.batch_size, seed=seed)
     sim = Simulation(config=config, agent_name=args.alg, debug=False)
 
+    # FIXME: infinite reward with log utility and crash when testing?
     # train
     if train and args.alg == 'ppo':
         agent_path, analysis = sim.train(stop_criteria)
@@ -72,7 +75,8 @@ def main():
     sim.run(render=args.video, log_dict=log_dict)
 
     # evaluate over multiple episodes
-    sim.run(num_episodes=30)
+    if not args.no_eval:
+        sim.run(num_episodes=30)
 
 
 if __name__ == '__main__':

@@ -1,4 +1,7 @@
-"""Auxiliary functions for calculating the utility of achieving a certain data rate (for a UE)"""
+"""
+Auxiliary functions for calculating the utility of achieving a certain data rate (for a UE).
+Attention: The absolute reward that's achieved with different utilities cannot be compared directly (diff ranges)!
+"""
 import numpy as np
 
 

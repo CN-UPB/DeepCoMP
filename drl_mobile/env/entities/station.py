@@ -70,7 +70,9 @@ class Basestation:
         ch = 0.8 + (1.1 * np.log10(self.frequency) - 0.7) * ue_height - 1.56 * np.log10(self.frequency)
         const1 = 69.55 + 26.16 * np.log10(self.frequency) - 13.82 * np.log10(self.height) - ch
         const2 = 44.9 - 6.55 * np.log10(self.height)
-        return const1 + const2 * np.log10(distance)
+        # add small epsilon to avoid log(0) if distance = 0
+        epsilon = 1e-16
+        return const1 + const2 * np.log10(distance + epsilon)
 
     def received_power(self, distance):
         """Return the received power at a given distance"""
@@ -86,6 +88,7 @@ class Basestation:
     def data_rate_unshared(self, ue):
         """
         Return the achievable data rate for a given UE assuming that it gets the BS' full, unshared data rate.
+
         :param ue: UE requesting the achievable data rate
         :return: Return the max. achievable data rate for the UE if it were/is connected to the BS.
         """
@@ -96,6 +99,7 @@ class Basestation:
     def data_rate_shared(self, ue, dr_ue_unshared):
         """
         Return the shared data rate the given UE would get based on its unshared data rate and a sharing model.
+
         :param ue: UE requesting the achievable data rate
         :param dr_ue_unshared: The UE's unshared achievable data rate
         :return: The UE's final, shared data rate that it (could/does) get from this BS
@@ -128,8 +132,6 @@ class Basestation:
             if self.conn_ues.index(ue) == max_ue_idx:
                 dr_ue_shared = self.data_rate_unshared(ue)
 
-        # print(f"Shared dr: bs={self.id}, {ue=}, {self.sharing_model=}, {self.num_conn_ues=}, {dr_ue_unshared=}, {dr_ue_shared=}")
-
         # disconnect UE again if it wasn't connected before
         if not ue_already_conn:
             self.conn_ues.remove(ue)
@@ -143,6 +145,9 @@ class Basestation:
         :param ue: UE requesting the achievable data rate
         :return: Return the max. achievable data rate for the UE if it were/is connected to the BS.
         """
+        # 0 data rate if the UE cannot connect because the SNR is too low
+        if not self.can_connect(ue.pos):
+            return 0
         # achievable data rate if it wasn't shared with any other connected UEs
         dr_ue_unshared = self.data_rate_unshared(ue)
         # final, shared data rate depends on sharing model
