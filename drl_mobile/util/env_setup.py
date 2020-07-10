@@ -78,9 +78,20 @@ def create_ues(map, num_slow_ues, num_fast_ues):
     return ue_list
 
 
+def create_custom_env():
+    """Hand-created custom env. For demos or specific experiments."""
+    map, bs_list = create_small_map()
+    # 2 stationary UEs
+    ue_list = [
+        User(1, map, pos_x=70, pos_y=50, movement=UniformMovement(map)),
+        User(2, map, pos_x=20, pos_y=30, movement=UniformMovement(map))
+    ]
+    return map, ue_list, bs_list
+
+
 def get_env(map_size, num_slow_ues, num_fast_ues):
     """Create and return the environment corresponding to the given map_size"""
-    allowed_sizes = ('small', 'medium', 'large')
+    allowed_sizes = ('small', 'medium', 'large', 'custom')
     assert map_size in allowed_sizes, f"Environment {map_size} is not one of {allowed_sizes}."
 
     # create map and BS list
@@ -91,6 +102,9 @@ def get_env(map_size, num_slow_ues, num_fast_ues):
         map, bs_list = create_medium_map()
     elif map_size == 'large':
         map, bs_list = create_large_map()
+    # custom env also defines UEs --> return directly
+    elif map_size == 'custom':
+        return create_custom_env()
 
     # create UEs
     ue_list = create_ues(map, num_slow_ues, num_fast_ues)

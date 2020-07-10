@@ -19,16 +19,38 @@ Radio model mostly implemented in [`drl_mobile/env/station.py`](https://github.c
     Hence, there is no cinterference between BSs.
 * We do not consider assignment of RBs explicitly, but assume that
     * BS assign all RBs to connected users, ie, transmit as much data rate as possible
-    * It's configurable how the data rate is shared among connected UEs: 
-        * Currently, we use rate-fair. But it's easy to switch to any of the following models.
-        * Capacity maximizing: Only send to the UE with the highes achievable data rate
-        * Resource/time/bandwidth-fair: Use the same amount of RBs for all UEs. Rate varies for each UE: `dr_nominal = dr / num_ues`
-        * Rate/volume-fair: Same rate for all UEs. Connecting to new, far-away UEs becomes *very* expensive for all other UEs and total BS rate.
-    * Time-wise fair share: RBs are split equally among connected UEs
-        * Rate r_i for UE i is split by the number k of all connected UEs: r_i^nominell = r_i / k
+    * It's configurable how the data rate is shared among connected UEs: See below
 * Based on the SNR and the number of connected users at a BS, I calculate the achievable data rate per UE from a BS
 * UEs can connect to multiple BS and their data rates add up
-* UEs can only connect to BS that are not too far away, ie, where the achievable data rate at the BS is at least 1/10 of the required rate    
+* UEs can only connect to BS that are not too far away, ie, where SNR is above a fixed threshold   
+
+### Radio sharing model
+
+BS support different, configurable sharing models: Max. capacity, resource-fair, or rate-fair sharing.
+
+#### Max. capacity
+
+Maximize capacity by assigning full data rate to the UE with highest achievable data rate. 0 to all other UEs.
+
+![max_cap](gifs/max_cap.gif)
+
+#### Resource-fair sharing
+
+Split RBs equally among all connected UEs. Assume infinitely many and small RBs. Results in different data rates based on distance/path loss: `dr_nominal = dr / num_ues`
+
+![res_fair](gifs/resource_fair.gif)
+
+#### Rate-fair sharing (current default)
+
+Ensure same data rate for all connected UEs. Connecting far-away UEs becomes very expensive and decreases total capacity and rate for all connected UEs.
+
+![rate_fair](gifs/rate_fair.gif)
+
+#### Proportional-fair sharing (TODO)
+
+Balance capacity maximization and resource-fair sharing, by calculating a priority for each UE: [Wikipedia](https://en.wikipedia.org/wiki/Proportionally_fair#User_prioritization).
+Split RBs proportional to that priority. Tune fairness using weights alpha and beta (between extremes max. cap. and resource-fair).
+
 
 ### Todo
 
