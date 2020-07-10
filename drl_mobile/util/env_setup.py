@@ -3,6 +3,7 @@ from shapely.geometry import Point
 from ray.rllib.agents.ppo import DEFAULT_CONFIG
 from ray.rllib.env.multi_agent_env import MultiAgentEnv
 
+from drl_mobile.util.constants import SUPPORTED_ENVS, SUPPORTED_AGENTS
 from drl_mobile.env.single_ue.variants import BinaryMobileEnv, DatarateMobileEnv
 from drl_mobile.env.multi_ue.central import CentralMultiUserEnv
 from drl_mobile.env.multi_ue.multi_agent import MultiAgentMobileEnv
@@ -14,8 +15,7 @@ from drl_mobile.env.util.movement import UniformMovement, RandomWaypoint
 
 def get_env_class(env_type):
     """Return the env class corresponding to the string type (from CLI)"""
-    allowed_types = ('single', 'central', 'multi')
-    assert env_type in allowed_types, f"Environment type was {env_type} but has to be one of {allowed_types}."
+    assert env_type in SUPPORTED_AGENTS, f"Environment type was {env_type} but has to be one of {SUPPORTED_AGENTS}."
 
     if env_type == 'single':
         return DatarateMobileEnv
@@ -91,8 +91,7 @@ def create_custom_env():
 
 def get_env(map_size, num_slow_ues, num_fast_ues):
     """Create and return the environment corresponding to the given map_size"""
-    allowed_sizes = ('small', 'medium', 'large', 'custom')
-    assert map_size in allowed_sizes, f"Environment {map_size} is not one of {allowed_sizes}."
+    assert map_size in SUPPORTED_ENVS, f"Environment {map_size} is not one of {SUPPORTED_ENVS}."
 
     # create map and BS list
     map, bs_list = None, None

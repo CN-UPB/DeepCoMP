@@ -10,6 +10,7 @@ import ray.tune
 from ray.rllib.agents.ppo import PPOTrainer
 from ray.rllib.env.multi_agent_env import MultiAgentEnv
 
+from drl_mobile.util.constants import SUPPORTED_ALGS, SUPPORTED_RENDER
 from drl_mobile.agent.dummy import RandomAgent, FixedAgent
 from drl_mobile.agent.heuristics import GreedyBestSelection, GreedyAllSelection
 
@@ -34,8 +35,7 @@ class Simulation:
         self.multi_agent_env = MultiAgentEnv in self.env_class.__mro__
 
         # agent
-        supported_agents = ('ppo', 'greedy-best', 'greedy-all', 'random', 'fixed')
-        assert agent_name in supported_agents, f"Agent {agent_name} not supported. Supported agents: {supported_agents}"
+        assert agent_name in SUPPORTED_ALGS, f"Agent {agent_name} not supported. Supported agents: {SUPPORTED_ALGS}"
         self.agent_name = agent_name
         self.agent = None
         # only init ray if necessary --> lower overhead for dummy agents
@@ -146,7 +146,7 @@ class Simulation:
         :param patches: List of patches to draw for each step in the animation
         :param mode: How to save the animation. Options: 'video' (=html5) or 'gif' (requires ImageMagick)
         """
-        render_modes = ('html', 'gif', 'both')
+        render_modes = SUPPORTED_RENDER - {None}
         assert mode in render_modes, f"Render mode {mode} not in {render_modes}"
         anim = matplotlib.animation.ArtistAnimation(fig, patches, repeat=False)
 

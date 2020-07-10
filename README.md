@@ -75,9 +75,9 @@ Run the command in a WSL not a PyCharm terminal. Tensorboard is available at htt
 ### Todos
 
 * (Proportional fair sharing)
-* Implement heuristics (select best BS; select all BS) and make comparison plots
 * (continue training after loading weights)
 * Evaluation: 
+    * Comparison with heuristics and random baseline
     * Also compare multi-agent & centralized with limited training time
     * Metrics: Total reward, total utility, total unsuccessful connect attempts, total lost connections, CDF of avg UE rate
 * Ideas for improving the observation space:

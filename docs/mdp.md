@@ -32,6 +32,7 @@ Reward: Immediate rewards for each time step
 
 * New, configurable UE movement: Either uniformly in one direction or following random waypoints
 * Configurable number of slow and fast UEs in the environment via CLI
+* Added 2 greedy heuristics as evaluation baselines: Connecting greedily to single best BS or to all BS
 
 ### [v0.7](https://github.com/CN-UPB/deep-rl-mobility-management/releases/tag/v0.7): Larger Environment (week 27)
 

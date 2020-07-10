@@ -4,6 +4,7 @@ import argparse
 
 import structlog
 
+from drl_mobile.util.constants import SUPPORTED_ALGS, SUPPORTED_ENVS, SUPPORTED_AGENTS, SUPPORTED_RENDER
 from drl_mobile.util.simulation import Simulation
 from drl_mobile.util.logs import config_logging
 from drl_mobile.util.env_setup import create_env_config
@@ -19,16 +20,15 @@ def setup_cli():
     parser.add_argument('--eps-length', type=int, default=30, help="Number of time steps per episode")
     parser.add_argument('--train-iter', type=int, default=1, help="Number of training iterations")
     parser.add_argument('--batch-size', type=int, default=1000, help="Number of training iterations per training batch")
-    parser.add_argument('--alg', type=str, choices=['ppo', 'greedy-best', 'greedy-all', 'random', 'fixed'],
-                        default='ppo', help="Algorithm to use. Greedy only work with multi-agent.")
-    parser.add_argument('--agent', type=str, choices=['single', 'central', 'multi'], required=True,
+    parser.add_argument('--alg', type=str, choices=SUPPORTED_ALGS, default='ppo', help="Algorithm")
+    parser.add_argument('--agent', type=str, choices=SUPPORTED_AGENTS, required=True,
                         help="Whether to use a single agent for 1 UE, a central agent, or multi agents")
-    parser.add_argument('--env', type=str, choices=['small', 'medium', 'large', 'custom'], default='small')
+    parser.add_argument('--env', type=str, choices=SUPPORTED_ENVS, default='small', help="Env/Map size")
     parser.add_argument('--slow-ues', type=int, default=0, help="Number of slow UEs in the environment")
     parser.add_argument('--fast-ues', type=int, default=0, help="Number of fast UEs in the environment")
     parser.add_argument('--test', type=str, help="Do not train, only test trained agent at given path (to checkpoint)")
     # parser.add_argument('--cont-train', type=str, help="Load agent from given (checkpoint) path and continue training.")
-    parser.add_argument('--video', type=str, choices=['html', 'gif', 'both', None], default='html',
+    parser.add_argument('--video', type=str, choices=SUPPORTED_RENDER, default='html',
                         help="How (and whether) to render the testing video.")
     parser.add_argument('--no-eval', action='store_true', help="Disable additional evaluation episodes after testing.")
 
