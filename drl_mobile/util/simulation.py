@@ -11,6 +11,7 @@ from ray.rllib.agents.ppo import PPOTrainer
 from ray.rllib.env.multi_agent_env import MultiAgentEnv
 
 from drl_mobile.agent.dummy import RandomAgent, FixedAgent
+from drl_mobile.agent.heuristics import GreedyBestSelection
 
 
 class Simulation:
@@ -20,7 +21,7 @@ class Simulation:
         Create a new simulation object to hold the agent and environment, train & test & visualize the agent + env.
 
         :param config: RLlib agent config
-        :param agent_name: String identifying the agent. Supported: 'ppo', 'random', 'fixed'
+        :param agent_name: String identifying the agent. Supported: 'ppo', 'greedy-best', 'random', 'fixed'
         :param debug: Whether or not to enable ray's local_mode for debugging
         """
         # config and env
@@ -33,7 +34,7 @@ class Simulation:
         self.multi_agent_env = MultiAgentEnv in self.env_class.__mro__
 
         # agent
-        supported_agents = ('ppo', 'random', 'fixed')
+        supported_agents = ('ppo', 'greedy-best', 'random', 'fixed')
         assert agent_name in supported_agents, f"Agent {agent_name} not supported. Supported agents: {supported_agents}"
         self.agent_name = agent_name
         self.agent = None
@@ -124,6 +125,8 @@ class Simulation:
         if self.agent_name == 'ppo':
             self.agent = PPOTrainer(config=self.config, env=self.env_class)
             self.agent.restore(rllib_path)
+        if self.agent_name == 'greedy-best':
+            self.agent = GreedyBestSelection()
         if self.agent_name == 'random':
             # instantiate the environment to get the action space
             env = self.env_class(self.env_config)
