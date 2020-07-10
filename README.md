@@ -93,6 +93,10 @@ Run the command in a WSL not a PyCharm terminal. Tensorboard is available at htt
     * Needs to be updated whenever the UE moves or any UE changes its connections (this or another UE)
     * Eg, 1st move all UEs, 2nd check & update connections of all UEs, 3rd calculate reward etc
     
+Later:
+
+* Let agent coordinate the number/amount of RBs per connected UE actively. With log utility, a centralized agent should learn proportional-fair scheduling by itself.
+    
 
 ### Findings
 
