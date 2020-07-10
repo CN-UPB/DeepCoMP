@@ -35,8 +35,11 @@ class User:
         self.reset_pos()
         self.movement.reset()
 
-        self.log = structlog.get_logger(id=self.id, pos=str(self.pos), move=self.movement,
-                                        conn_bs=self.conn_bs, dr_req=self.dr_req)
+        # exponentially weighted moving average data rate
+        self.ewma_dr = 0
+
+        self.log = structlog.get_logger(id=self.id, pos=str(self.pos), ewma_dr=self.ewma_dr, conn_bs=self.conn_bs,
+                                        dr_req=self.dr_req)
         self.log.info('UE init')
 
     def __repr__(self):
@@ -103,16 +106,30 @@ class User:
         self.movement.reset()
         self.conn_bs = []
 
+    def update_ewma_dr(self, weight=0.5):
+        """
+        Update the exp. weighted moving avg. of this UE's current data rate:
+        `EWMA(t) = weight * dr + (1-weight) * EWMA(t-1)`
+        Used as historic avg. rate for proportional-fair sharing. Called after movement.
+
+        :param weight: Weight for EWMA in [0, 1]. The higher, the more focus on new/current dr and less on previous.
+        """
+        self.ewma_dr = weight * self.curr_dr + (1 - weight) * self.ewma_dr
+        self.log = self.log.bind(ewma_dr=self.ewma_dr)
+
     def move(self):
         """
-        Do one step according to movement object and update position
+        Do one step: Move according to own movement pattern. Check for lost connections. Update EWMA data rate.
 
         :return: Number of connections lost through movement
         """
         self.pos = self.movement.step(self.pos)
 
         num_lost_connections = self.check_bs_connection()
-        self.log = self.log.bind(pos=str(self.pos), move=self.movement)
+        self.log = self.log.bind(pos=str(self.pos))
+
+        self.update_ewma_dr()
+
         self.log.debug("User move", lost_connections=num_lost_connections)
         return num_lost_connections
 

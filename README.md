@@ -74,8 +74,9 @@ Run the command in a WSL not a PyCharm terminal. Tensorboard is available at htt
 
 ### Todos
 
-* (Proportional fair sharing)
-* (continue training after loading weights)
+* Proportional fair sharing
+* Plot training results of RL agent compare with results from heuristics. Then testing.
+* Write evaluation metrics to file from simulator. 
 * Evaluation: 
     * Comparison with heuristics and random baseline
     * Also compare multi-agent & centralized with limited training time
@@ -86,6 +87,7 @@ Run the command in a WSL not a PyCharm terminal. Tensorboard is available at htt
     * Instead of normalized dr, use normalized utility in the observation --> apply log utility function to achievable dr and use that in obs. Normalize with -10, +10 as reward range
     * Or just do automatic running mean normalization: https://github.com/ray-project/ray/issues/9399 Didn't work at all for step utility, but might for log utility
     * Add UE position and movement to observations; in multi-agent
+* (continue training after loading weights)
 * Efficient caching of connection data rate:
     * Currently always recalculate the data rate per connection per UE, eg, when calculating reward or checking whether we can connect
     * Safe & easy, but probably slow for many UEs/BSs. Let's see

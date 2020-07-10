@@ -3,6 +3,8 @@ import numpy as np
 from shapely.geometry import Polygon
 import matplotlib.pyplot as plt
 
+from drl_mobile.util.constants import SUPPORTED_SHARING
+
 
 # SNR threshold required for UEs to connect to this BS. This threshold corresponds roughly to a distance of 69m.
 SNR_THRESHOLD = 2e-8
@@ -104,8 +106,7 @@ class Basestation:
         :param dr_ue_unshared: The UE's unshared achievable data rate
         :return: The UE's final, shared data rate that it (could/does) get from this BS
         """
-        supported_models = ('resource-fair', 'rate-fair', 'max-cap')
-        assert self.sharing_model in supported_models, f"{self.sharing_model=} not supported. {supported_models=}"
+        assert self.sharing_model in SUPPORTED_SHARING, f"{self.sharing_model=} not supported. {SUPPORTED_SHARING=}"
         dr_ue_shared = None
 
         # if the UE isn't connected yet, temporarily add it to the connected UEs to properly calculate sharing

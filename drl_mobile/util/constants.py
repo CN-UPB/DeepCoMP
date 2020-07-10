@@ -7,3 +7,4 @@ SUPPORTED_ALGS = {'ppo', 'greedy-best', 'greedy-all', 'random', 'fixed'}
 SUPPORTED_AGENTS = {'single', 'central', 'multi'}
 SUPPORTED_ENVS = {'small', 'medium', 'large', 'custom'}
 SUPPORTED_RENDER = {'html', 'gif', 'both', None}
+SUPPORTED_SHARING = {'max-cap', 'resource-fair', 'rate-fair', 'proportional-fair'}
