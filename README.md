@@ -74,12 +74,16 @@ Run the command in a WSL not a PyCharm terminal. Tensorboard is available at htt
 
 ### Todos
 
-* Normalize obs differently when using log utility function? Since there's no required data rate anymore (or it's irrelevant). Running mean normalization? https://docs.ray.io/en/latest/rllib-models.html
 * (Proportional fair sharing)
-* (Add UE position and movement to observations; in multi-agent)
 * Implement heuristics (select best BS; select all BS) and make comparison plots
-* continue training after loading weights
+* (continue training after loading weights)
 * Evaluation: Also compare multi-agent & centralized with limited training time
+* Ideas for improving the observation space:
+    * Curr normalization of dr based on required dr is taylored to step function
+    * For log utility it still somewhat makes sense to normalize for req_dr 1, since `f(x)=4log(0.1+x)=0 <=> x=0.9` --> Normalize based on where the utility function has y=0?
+    * Instead of normalized dr, use normalized utility in the observation --> apply log utility function to achievable dr and use that in obs. Normalize with -10, +10 as reward range
+    * Or just do automatic running mean normalization: https://github.com/ray-project/ray/issues/9399 Didn't work at all for step utility, but might for log utility
+    * Add UE position and movement to observations; in multi-agent
 * Efficient caching of connection data rate:
     * Currently always recalculate the data rate per connection per UE, eg, when calculating reward or checking whether we can connect
     * Safe & easy, but probably slow for many UEs/BSs. Let's see
