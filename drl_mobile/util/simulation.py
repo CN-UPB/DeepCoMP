@@ -11,7 +11,7 @@ from ray.rllib.agents.ppo import PPOTrainer
 from ray.rllib.env.multi_agent_env import MultiAgentEnv
 
 from drl_mobile.agent.dummy import RandomAgent, FixedAgent
-from drl_mobile.agent.heuristics import GreedyBestSelection
+from drl_mobile.agent.heuristics import GreedyBestSelection, GreedyAllSelection
 
 
 class Simulation:
@@ -34,7 +34,7 @@ class Simulation:
         self.multi_agent_env = MultiAgentEnv in self.env_class.__mro__
 
         # agent
-        supported_agents = ('ppo', 'greedy-best', 'random', 'fixed')
+        supported_agents = ('ppo', 'greedy-best', 'greedy-all', 'random', 'fixed')
         assert agent_name in supported_agents, f"Agent {agent_name} not supported. Supported agents: {supported_agents}"
         self.agent_name = agent_name
         self.agent = None
@@ -127,6 +127,8 @@ class Simulation:
             self.agent.restore(rllib_path)
         if self.agent_name == 'greedy-best':
             self.agent = GreedyBestSelection()
+        if self.agent_name == 'greedy-all':
+            self.agent = GreedyAllSelection()
         if self.agent_name == 'random':
             # instantiate the environment to get the action space
             env = self.env_class(self.env_config)

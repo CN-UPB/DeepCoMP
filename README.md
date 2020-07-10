@@ -77,7 +77,9 @@ Run the command in a WSL not a PyCharm terminal. Tensorboard is available at htt
 * (Proportional fair sharing)
 * Implement heuristics (select best BS; select all BS) and make comparison plots
 * (continue training after loading weights)
-* Evaluation: Also compare multi-agent & centralized with limited training time
+* Evaluation: 
+    * Also compare multi-agent & centralized with limited training time
+    * Metrics: Total reward, total utility, total unsuccessful connect attempts, total lost connections, CDF of avg UE rate
 * Ideas for improving the observation space:
     * Curr normalization of dr based on required dr is taylored to step function
     * For log utility it still somewhat makes sense to normalize for req_dr 1, since `f(x)=4log(0.1+x)=0 <=> x=0.9` --> Normalize based on where the utility function has y=0?

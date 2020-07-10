@@ -19,7 +19,8 @@ def setup_cli():
     parser.add_argument('--eps-length', type=int, default=30, help="Number of time steps per episode")
     parser.add_argument('--train-iter', type=int, default=1, help="Number of training iterations")
     parser.add_argument('--batch-size', type=int, default=1000, help="Number of training iterations per training batch")
-    parser.add_argument('--alg', type=str, choices=['ppo', 'greedy-best', 'random', 'fixed'], default='ppo')
+    parser.add_argument('--alg', type=str, choices=['ppo', 'greedy-best', 'greedy-all', 'random', 'fixed'],
+                        default='ppo', help="Algorithm to use. Greedy only work with multi-agent.")
     parser.add_argument('--agent', type=str, choices=['single', 'central', 'multi'], required=True,
                         help="Whether to use a single agent for 1 UE, a central agent, or multi agents")
     parser.add_argument('--env', type=str, choices=['small', 'medium', 'large', 'custom'], default='small')
