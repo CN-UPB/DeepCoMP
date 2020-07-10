@@ -3,7 +3,7 @@ import numpy as np
 from shapely.geometry import Polygon
 import matplotlib.pyplot as plt
 
-from drl_mobile.util.constants import SUPPORTED_SHARING
+from drl_mobile.util.constants import SUPPORTED_SHARING, EPSILON
 
 
 # SNR threshold required for UEs to connect to this BS. This threshold corresponds roughly to a distance of 69m.
@@ -16,8 +16,9 @@ class Basestation:
         self.id = id
         self.pos = pos
         self.conn_ues = []
-        # model for sharing rate/resources among connected UEs. One of: 'resource-fair', 'rate-fair', 'max-cap'
+        # model for sharing rate/resources among connected UEs. One of SUPPORTED_SHARING models
         self.sharing_model = 'rate-fair'
+        assert self.sharing_model in SUPPORTED_SHARING, f"{self.sharing_model=} not supported. {SUPPORTED_SHARING=}"
 
         # set constants for SINR and data rate calculation
         # numbers originally from https://sites.google.com/site/lteencyclopedia/lte-radio-link-budgeting-and-rf-planning
@@ -53,6 +54,7 @@ class Basestation:
     def plot(self):
         """
         Plot the BS as square with the ID inside as well as circles around it indicating the range.
+
         :return: A list of created matplotlib artists
         """
         # plot BS
@@ -73,8 +75,7 @@ class Basestation:
         const1 = 69.55 + 26.16 * np.log10(self.frequency) - 13.82 * np.log10(self.height) - ch
         const2 = 44.9 - 6.55 * np.log10(self.height)
         # add small epsilon to avoid log(0) if distance = 0
-        epsilon = 1e-16
-        return const1 + const2 * np.log10(distance + epsilon)
+        return const1 + const2 * np.log10(distance + EPSILON)
 
     def received_power(self, distance):
         """Return the received power at a given distance"""
@@ -132,6 +133,18 @@ class Basestation:
             dr_ue_shared = 0
             if self.conn_ues.index(ue) == max_ue_idx:
                 dr_ue_shared = self.data_rate_unshared(ue)
+
+        # proportional-fair: https://en.wikipedia.org/wiki/Proportionally_fair#User_prioritization
+        # calc priority per UE based on its curr achievable dr and its historic avg dr
+        # assign RBs proprotional to priority
+        if self.sharing_model == 'proportional-fair':
+            # get UE priority --> fraction of RBs assigned to UE --> corresponding shared dr
+            # FIXME: using ue.priority here leads to unlimited recursion because priority is also defined based on dr
+            #  --> instead calc data rate and set it as attribute; update it periodically with each step
+            #  --> check notes in readme/todos; easy to make errors and updated wrong/too early/late
+            # ue_frac_rbs = ue.priority / (sum([other_ue.priority for other_ue in self.conn_ues]) + EPSILON)
+            ue_frac_rbs = ue.priority
+            dr_ue_shared = ue_frac_rbs * dr_ue_unshared
 
         # disconnect UE again if it wasn't connected before
         if not ue_already_conn:
