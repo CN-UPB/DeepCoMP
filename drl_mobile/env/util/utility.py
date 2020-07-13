@@ -18,7 +18,7 @@ def step_utility(curr_dr, req_dr):
     return -10
 
 
-def log_utility(curr_dr, factor=100, add=0.9):
+def log_utility(curr_dr, factor=4, add=0.1):
     """
     More data rate increases the utility following a log function: High initial increase, then flattens.
 
