@@ -20,7 +20,7 @@ class BinaryMobileEnv(MobileEnv):
         It consists of 2 binary vectors: BS availability and already connected BS
         """
         bs_availability = [int(bs.can_connect(ue.pos)) for bs in self.bs_list]
-        connected_bs = [int(bs in ue.conn_bs) for bs in self.bs_list]
+        connected_bs = [int(bs in ue.bs_dr.keys()) for bs in self.bs_list]
         return np.array(bs_availability + connected_bs)
 
 
@@ -34,7 +34,7 @@ class JustConnectedObsMobileEnv(BinaryMobileEnv):
 
     def get_obs(self, ue):
         """Observation: Currently connected BS"""
-        connected_bs = [int(bs in ue.conn_bs) for bs in self.bs_list]
+        connected_bs = [int(bs in ue.bs_dr.keys()) for bs in self.bs_list]
         return np.array(connected_bs)
 
 
@@ -124,10 +124,10 @@ class DatarateMobileEnv(BinaryMobileEnv):
             bs_dr = [min(bs.data_rate(ue), self.dr_cutoff) for bs in self.bs_list]
         obs_dict['dr'] = bs_dr
 
-        obs_dict['connected'] = [int(bs in ue.conn_bs) for bs in self.bs_list]
+        obs_dict['connected'] = [int(bs in ue.bs_dr.keys()) for bs in self.bs_list]
 
         if self.curr_dr_obs:
-            total_dr = sum(bs.data_rate(ue) for bs in ue.conn_bs)
+            total_dr = sum(bs.data_rate(ue) for bs in ue.bs_dr.keys())
             # process by subtracting dr_req, clipping to [-dr_req, dr_req], normalizing to [-1, 1]
             total_dr -= ue.dr_req
             total_dr = min(total_dr, ue.dr_req)

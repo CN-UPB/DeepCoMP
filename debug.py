@@ -18,4 +18,3 @@ print(ue.priority)
 
 ue2 = deepcopy(ue)
 print(ue2.priority)
-

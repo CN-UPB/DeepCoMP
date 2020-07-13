@@ -38,28 +38,41 @@ class MultiAgentMobileEnv(MultiAgentEnv, DatarateMobileEnv):
         """
         # TODO: avoid duplicate code; write function for joint parts of step in base, central, and multi-agent
         prev_obs = self.obs
-        obs = {}
-        rewards = {}
+        obs = dict()
+        rewards = dict()
+        penalties = dict()
 
-        # step all UEs
+        # step all UEs: 1) apply actions, 2) update dr and reward, 3) move, 4) update dr and reward, 5) get next obs
+        # 1) apply actions of all UEs
         for ue in self.ue_list:
-            penalty = 0
+            penalties[ue] = 0
 
-            # apply action for each UE; 0= noop
+            # apply action for UE; 0= noop
             if action_dict[ue.id] > 0:
                 bs = self.bs_list[action_dict[ue.id] - 1]
                 # penalty of -3 for unsuccessful connection attempt
-                penalty -= 3 * (not ue.connect_to_bs(bs, disconnect=True))
+                penalties[ue] -= 3 * (not ue.connect_to_bs(bs, disconnect=True))
 
-            # move and calc reward for UE
-            reward_before = self.calc_reward(ue, penalty)
+        # 2) update data rates and reward
+        for ue in self.ue_list:
+            ue.update_curr_dr()
+            rewards[ue] = self.calc_reward(ue, penalties[ue])
+
+        # 3) move UEs and update penalty
+        for ue in self.ue_list:
             num_lost_conn = ue.move()
             # add penalty of -1 for each lost connection through movement (rather than actively disconnected)
-            penalty -= num_lost_conn
-            reward_after = self.calc_reward(ue, penalty)
-            rewards[ue.id] = np.mean([reward_before, reward_after])
+            # TODO: instead of -= I now used =; may affect reward in the end
+            penalties[ue] = num_lost_conn
 
-            # next obs
+        # 4) update data rates and reward (avg with reward before); get new observation
+        for ue in self.ue_list:
+            ue.update_curr_dr()
+            reward_after = self.calc_reward(ue, penalties[ue])
+            rewards[ue] = np.mean([rewards[ue], reward_after])
+
+        # 5) get next obs next obs
+        for ue in self.ue_list:
             obs[ue.id] = self.get_obs(ue)
 
         self.time += 1

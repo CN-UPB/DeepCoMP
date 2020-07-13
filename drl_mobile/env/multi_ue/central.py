@@ -50,11 +50,11 @@ class CentralMultiUserEnv(MobileEnv):
                 ue_bs_dr.append(dr_norm)
             bs_dr.extend(ue_bs_dr)
             # connected BS
-            ue_conn_bs = [int(bs in ue.conn_bs) for bs in self.bs_list]
+            ue_conn_bs = [int(bs in ue.bs_dr.keys()) for bs in self.bs_list]
             conn_bs.extend(ue_conn_bs)
             # total curr data rate over all BS
             if self.curr_dr_obs:
-                ue_total_dr = sum(bs.data_rate(ue) for bs in ue.conn_bs)
+                ue_total_dr = sum(bs.data_rate(ue) for bs in ue.bs_dr.keys())
                 # process by subtracting dr_req, clipping to [-dr_req, dr_req], normalizing to [-1, 1]
                 ue_total_dr -= ue.dr_req
                 ue_total_dr = min(ue_total_dr, ue.dr_req)

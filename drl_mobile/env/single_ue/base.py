@@ -140,7 +140,7 @@ class MobileEnv(gym.Env):
         # users & connections
         for ue in self.ue_list:
             # plot connections to all BS
-            for bs in ue.conn_bs:
+            for bs in ue.bs_dr.keys():
                 patch.extend(plt.plot([ue.pos.x, bs.pos.x], [ue.pos.y, bs.pos.y], color='blue'))
             # plot UE
             patch.extend(ue.plot())

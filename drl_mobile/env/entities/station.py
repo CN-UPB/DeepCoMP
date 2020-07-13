@@ -139,6 +139,7 @@ class Basestation:
         # assign RBs proprotional to priority
         if self.sharing_model == 'proportional-fair':
             # get UE priority --> fraction of RBs assigned to UE --> corresponding shared dr
+            # TODO: NO: define priority not based on data rate but on UNSHARED data rate, which is indep from data rate!
             # FIXME: using ue.priority here leads to unlimited recursion because priority is also defined based on dr
             #  --> instead calc data rate and set it as attribute; update it periodically with each step
             #  --> check notes in readme/todos; easy to make errors and updated wrong/too early/late
