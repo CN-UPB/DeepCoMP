@@ -2,6 +2,10 @@
 Utility module holding constants that are used across different places.
 Such that this is the single point in the code to adjust these constants.
 """
+import os
+import pathlib
+
+
 # if order doesn't matter, prefer sets for O(1) include checks
 SUPPORTED_ALGS = {'ppo', 'greedy-best', 'greedy-all', 'random', 'fixed'}
 SUPPORTED_AGENTS = {'single', 'central', 'multi'}
@@ -17,3 +21,12 @@ EPSILON = 1e-16
 # https://en.wikipedia.org/wiki/Proportionally_fair#User_prioritization
 FAIR_WEIGHT_ALPHA = 1
 FAIR_WEIGHT_BETA = 1
+
+# constants regarding result and trainig files
+# project root (= repo root; where the readme is) for file access
+_this_dir = pathlib.Path(__file__).parent.absolute()
+PROJECT_ROOT = _this_dir.parent.parent.absolute()
+RESULT_DIR = os.path.join(PROJECT_ROOT, 'results')
+TRAIN_DIR = os.path.join(RESULT_DIR, 'PPO')
+TEST_DIR = os.path.join(RESULT_DIR, 'testing')
+VIDEO_DIR = os.path.join(RESULT_DIR, 'videos')

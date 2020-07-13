@@ -1,10 +1,11 @@
 """Useful scripts for evaluation"""
 import os
-import pathlib
 from ast import literal_eval
 
 import pandas as pd
 import matplotlib.pyplot as plt
+
+from drl_mobile.util.constants import PROJECT_ROOT, TRAIN_DIR, TEST_DIR
 
 
 def read_training_progress(dir_name):
@@ -14,12 +15,7 @@ def read_training_progress(dir_name):
     :param dir_name: Dir name of the training run, eg, 'PPO_MultiAgentMobileEnv_0_2020-07-13_15-42-542fjkk2px'
     :return: Pandas data frame holding the contents
     """
-    # construct path that works independent from where the script is run
-    this_dir = pathlib.Path(__file__).parent.absolute()
-    project_root = this_dir.parent.parent.absolute()
-    progress_file = os.path.join(project_root, f'training/PPO/{dir_name}/progress.csv')
-
-    # read progress.csv
+    progress_file = os.path.join(TRAIN_DIR, f'{dir_name}/progress.csv')
     print(f"Reading file {progress_file}")
     df = pd.read_csv(progress_file)
     # convert hist eps rewards into proper lists (are read as strings): https://stackoverflow.com/a/32743458/2745116
@@ -28,6 +24,28 @@ def read_training_progress(dir_name):
     return df
 
 
+def read_testing_results(filename):
+    """
+    Read simulation testing results from csv file.
+
+    :param filename: Filename, eg, 'RandomAgent_DatarateMobileEnv_2020-07-13_17-34-07.csv'
+    :return: Data frame containing the results
+    """
+    result_file = os.path.join(TEST_DIR, filename)
+    df = pd.read_csv(result_file)
+    return df
+
+
+# for testing results
+def plot_eps_reward(df):
+    """Plot the testing episode rewards over time"""
+    plt.plot(df['episode'], df['eps_reward'])
+    plt.xlabel('Episode')
+    plt.ylabel('Episode Reward')
+    plt.show()
+
+
+# for training results
 def plot_mean_eps_reward(df):
     """Plot the mean episode reward per training iteration"""
     plt.plot(df['training_iteration'], df['episode_reward_mean'])
@@ -51,6 +69,9 @@ def plot_full_eps_reward(df):
 
 
 if __name__ == '__main__':
-    df = read_training_progress('PPO_MultiAgentMobileEnv_0_2020-07-13_15-42-542fjkk2px')
-    plot_mean_eps_reward(df)
-    plot_full_eps_reward(df)
+    # df = read_training_progress('PPO_MultiAgentMobileEnv_0_2020-07-13_17-17-15pe9vn3ul')
+    # plot_mean_eps_reward(df)
+    # plot_full_eps_reward(df)
+
+    df = read_testing_results('RandomAgent_DatarateMobileEnv_2020-07-13_17-34-07.csv')
+    plot_eps_reward(df)
