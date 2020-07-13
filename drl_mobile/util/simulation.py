@@ -231,8 +231,8 @@ class Simulation:
         for _ in range(num_episodes):
             eps_start = time.time()
             if render is not None:
-                # square figure and equal aspect ratio to avoid distortions
-                fig = plt.figure(figsize=(5, 5))
+                fig = plt.figure(figsize=(9, 6))
+                # equal aspect ratio to avoid distortions
                 plt.gca().set_aspect('equal')
                 fig.tight_layout()
 
