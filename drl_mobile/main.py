@@ -58,7 +58,7 @@ def main():
     config = create_env_config(agent=args.agent, map_size=args.env, num_slow_ues=args.slow_ues,
                                num_fast_ues=args.fast_ues, eps_length=args.eps_length,
                                num_workers=args.workers, train_batch_size=args.batch_size, seed=seed)
-    sim = Simulation(config=config, agent_name=args.alg, debug=False)
+    sim = Simulation(config=config, agent_name=args.alg, debug=True)
 
     # train
     if train and args.alg == 'ppo':
