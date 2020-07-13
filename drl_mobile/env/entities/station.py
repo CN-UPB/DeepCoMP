@@ -17,7 +17,7 @@ class Basestation:
         self.pos = pos
         self.conn_ues = []
         # model for sharing rate/resources among connected UEs. One of SUPPORTED_SHARING models
-        self.sharing_model = 'rate-fair'
+        self.sharing_model = 'proportional-fair'
         assert self.sharing_model in SUPPORTED_SHARING, f"{self.sharing_model=} not supported. {SUPPORTED_SHARING=}"
 
         # set constants for SINR and data rate calculation
@@ -136,15 +136,10 @@ class Basestation:
 
         # proportional-fair: https://en.wikipedia.org/wiki/Proportionally_fair#User_prioritization
         # calc priority per UE based on its curr achievable dr and its historic avg dr
-        # assign RBs proprotional to priority
+        # assign RBs proportional to priority
         if self.sharing_model == 'proportional-fair':
             # get UE priority --> fraction of RBs assigned to UE --> corresponding shared dr
-            # TODO: NO: define priority not based on data rate but on UNSHARED data rate, which is indep from data rate!
-            # FIXME: using ue.priority here leads to unlimited recursion because priority is also defined based on dr
-            #  --> instead calc data rate and set it as attribute; update it periodically with each step
-            #  --> check notes in readme/todos; easy to make errors and updated wrong/too early/late
-            # ue_frac_rbs = ue.priority / (sum([other_ue.priority for other_ue in self.conn_ues]) + EPSILON)
-            ue_frac_rbs = ue.priority
+            ue_frac_rbs = ue.priority / (sum([other_ue.priority for other_ue in self.conn_ues]) + EPSILON)
             dr_ue_shared = ue_frac_rbs * dr_ue_unshared
 
         # disconnect UE again if it wasn't connected before

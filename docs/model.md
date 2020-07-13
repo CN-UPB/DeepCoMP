@@ -40,16 +40,19 @@ Split RBs equally among all connected UEs. Assume infinitely many and small RBs.
 
 ![res_fair](gifs/resource_fair.gif)
 
-#### Rate-fair sharing (current default)
+#### Rate-fair sharing (prev default)
 
 Ensure same data rate for all connected UEs. Connecting far-away UEs becomes very expensive and decreases total capacity and rate for all connected UEs.
 
 ![rate_fair](gifs/rate_fair.gif)
 
-#### Proportional-fair sharing (TODO)
+#### Proportional-fair sharing (new default)
 
 Balance capacity maximization and resource-fair sharing, by calculating a priority for each UE: [Wikipedia](https://en.wikipedia.org/wiki/Proportionally_fair#User_prioritization).
 Split RBs proportional to that priority. Tune fairness using weights alpha and beta (between extremes max. cap. and resource-fair).
+
+By default, the EWMA is calculated with weight 0.9: `self.ewma_dr = weight * self.curr_dr + (1 - weight) * self.ewma_dr` and the priority
+uses fairness weights `alpha=beta=1`, similar to 3G.
 
 
 ### Todo
@@ -68,4 +71,3 @@ Model considerations after reading recent paper (26.06.):
 * What do I optimize? Should I also just optimize sum of all UE data rates? Wouldn't that lead to exploitation of best UEs and starvation of remaining?
 * Co-channel interference + power control or sub-channel/RB assignment?
 * Add UE positions (or distances?) to observations?
-* UE movement following Brownian motion?

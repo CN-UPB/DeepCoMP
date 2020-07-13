@@ -120,7 +120,7 @@ class User:
         for bs in self.bs_dr.keys():
             self.bs_dr[bs] = bs.data_rate(self)
 
-    def update_ewma_dr(self, weight=0.5):
+    def update_ewma_dr(self, weight=0.9):
         """
         Update the exp. weighted moving avg. of this UE's current data rate:
         `EWMA(t) = weight * dr + (1-weight) * EWMA(t-1)`
@@ -180,8 +180,10 @@ class User:
             return True
         # not yet connected
         if bs.can_connect(self.pos):
-            # add BS to connections; data rate will be set/updated for all UEs later in the env's step call
-            self.bs_dr[bs] = None
+            # add BS to connections; important: initialize with unshared data rate
+            # shared data rate will be calculated and updated later but depends on priority,
+            # which is 0 for all UEs initially --> would result in 0 shared dr for all UEs
+            self.bs_dr[bs] = bs.data_rate_unshared(self)
             bs.conn_ues.append(self)
             self.log = self.log.bind(conn_bs=list(self.bs_dr.keys()))
             log.info("Connected")

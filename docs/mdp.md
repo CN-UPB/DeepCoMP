@@ -35,10 +35,11 @@ Reward: Immediate rewards for each time step
 * New, configurable UE utility model: New default is log utility (`util(dr) = 4*log(0.1+dr)`) and replaces the step utility based on a required data rate
 * Fixed & refactored environment step function: Properly updated *all* UEs' actions before moving them and calculating the reward
 * Cache UE-BS data rates for considerably faster simulations (episodes are roughly 30-40% faster)
+* Added [proportional-fair sharing](https://en.wikipedia.org/wiki/Proportionally_fair) as new default radio sharing model. See [visualization of different sharing models](https://github.com/CN-UPB/deep-rl-mobility-management/blob/master/docs/model.md#radio-sharing-model).
 * Added 2 greedy heuristics as evaluation baselines: Connecting greedily to single best BS or to all BS
 * Improved visualization: Continuous color indicates utility + utility is shown directly
 
-Example: Multi-agent PPO with new UE movement and utility after 200k training
+Example: Multi-agent PPO with new UE movement and proportional-fair sharing and utility after 200k training
 
 ![v0.8 example](gifs/v08.gif)
 
