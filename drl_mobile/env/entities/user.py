@@ -74,7 +74,7 @@ class User:
         # add epsilon in denominator to avoid division by 0
         return (self.curr_dr**FAIR_WEIGHT_ALPHA) / (self.ewma_dr**FAIR_WEIGHT_BETA + EPSILON)
 
-    def plot(self, radius=3):
+    def plot(self, radius=2):
         """
         Plot the UE as filled circle with a given radius and the ID. Color from red to green indicating the utility.
         :param radius: Radius of the circle
