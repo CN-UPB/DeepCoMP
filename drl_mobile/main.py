@@ -77,7 +77,7 @@ def main():
 
     # evaluate over multiple episodes
     if not args.no_eval:
-        sim.run(num_episodes=30)
+        sim.run(num_episodes=30, write_results=True)
 
 
 if __name__ == '__main__':

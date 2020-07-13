@@ -1,6 +1,8 @@
 import os
 import time
+from datetime import datetime
 
+import pandas as pd
 import structlog
 import matplotlib.pyplot as plt
 import matplotlib.animation
@@ -44,8 +46,10 @@ class Simulation:
             ray.init(local_mode=debug)
 
         # save dir
-        self.save_dir = f'../training'
+        self.save_dir = f'../results'
         os.makedirs(self.save_dir, exist_ok=True)
+        # filename is set when loading the agent
+        self.result_filename = None
 
         self.log = structlog.get_logger()
         self.log.debug('Simulation init', env=self.env_name, eps_length=self.episode_length, agent=self.agent_name,
@@ -139,6 +143,16 @@ class Simulation:
 
         self.log.info('Agent loaded', agent=type(self.agent).__name__, rllib_path=rllib_path)
 
+        # set a suitable filename for saving testing videos and results later
+        self.set_result_filename()
+
+    def set_result_filename(self):
+        """Return a suitable filename (without file ending) in the format 'agent_env_timestamp'"""
+        assert self.agent is not None, "Set the filename after loading the agent"
+        timestamp = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
+        agent_name = type(self.agent).__name__
+        self.result_filename = f'{agent_name}_{self.env_name}_{timestamp}'
+
     def save_animation(self, fig, patches, mode):
         """
         Create and save matplotlib animation
@@ -151,18 +165,22 @@ class Simulation:
         assert mode in render_modes, f"Render mode {mode} not in {render_modes}"
         anim = matplotlib.animation.ArtistAnimation(fig, patches, repeat=False)
 
+        # create video save dir
+        video_dir = f'{self.save_dir}/videos'
+        os.makedirs(video_dir, exist_ok=True)
+
         # save html5 video
         if mode == 'html' or mode == 'both':
             html = anim.to_html5_video()
-            with open(f'{self.save_dir}/{self.env_name}.html', 'w') as f:
+            with open(f'{video_dir}/{self.result_filename}.html', 'w') as f:
                 f.write(html)
-            self.log.info('Video saved', path=f'{self.save_dir}/{self.env_name}.html')
+            self.log.info('Video saved', path=f'{video_dir}/{self.result_filename}.html')
 
         # save gif; requires external dependency ImageMagick
         if mode == 'gif' or mode == 'both':
             try:
-                anim.save(f'{self.save_dir}/{self.env_name}.gif', writer='imagemagick')
-                self.log.info('Gif saved', path=f'{self.save_dir}/{self.env_name}.gif')
+                anim.save(f'{video_dir}/{self.result_filename}.gif', writer='imagemagick')
+                self.log.info('Gif saved', path=f'{video_dir}/{self.result_filename}.gif')
             except TypeError:
                 self.log.error('ImageMagick needs to be installed for saving gifs.')
 
@@ -208,13 +226,14 @@ class Simulation:
         self.log.debug("Step", t=time, action=action, reward=reward, next_obs=obs, done=done['__all__'])
         return obs, sum(reward.values()), done['__all__']
 
-    def run(self, num_episodes=1, render=None, log_dict=None):
+    def run(self, num_episodes=1, render=None, log_dict=None, write_results=False):
         """
         Run one or more simulation episodes. Render situation at beginning of each time step. Return episode rewards.
 
         :param int num_episodes: Number of episodes to run
         :param str render: If and how to render the simulation. Options: None, 'plot', 'video', 'gif'
         :param dict log_dict: Dict of logger names --> logging level used to configure logging in the environment
+        :param bool write_results: Whether or not to write experiment results to file
         :return list: Return list of episode rewards
         """
         assert self.agent is not None, "Train or load an agent before running the simulation"
@@ -270,4 +289,20 @@ class Simulation:
         self.log.info("Simulation complete", mean_eps_reward=mean_eps_reward, std_eps_reward=np.std(eps_rewards),
                       mean_step_reward=mean_step_reward, num_episodes=num_episodes,
                       mean_eps_time=np.mean(eps_times), std_eps_time=np.std(eps_times))
+
+        # write results to file
+        if write_results:
+            # create result dir and file
+            result_dir = f'{self.save_dir}/testing'
+            os.makedirs(result_dir, exist_ok=True)
+            result_file = f'{result_dir}/{self.result_filename}.csv'
+            self.log.info("Writing results", file=result_file)
+            # prepare and write result data
+            data = {
+                'episode': [i+1 for i in range(len(eps_rewards))],
+                'eps_reward': eps_rewards
+            }
+            df = pd.DataFrame(data=data)
+            df.to_csv(result_file)
+
         return eps_rewards

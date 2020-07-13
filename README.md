@@ -44,12 +44,12 @@ FIXME: Run from inside `drl_mobile`, else the path to training will be created w
 
 Adjust further settings in `drl_mobile/main.py`.
 
-Training logs, results, videos, and trained agents are saved in the `training` directory.
+Training logs, results, videos, and trained agents are saved in the `results` directory.
 
 When running remotely, you can serve the replay video by running:
 
 ```
-cd training
+cd results
 python -m http.server
 ```
 
@@ -60,7 +60,7 @@ Then access at `<remote-ip>:8000`.
 To view learning curves (and other metrics) when training an agent, use Tensorboard:
 
 ```
-tensorboard --logdir training (--host 0.0.0.0)
+tensorboard --logdir results (--host 0.0.0.0)
 ```
 
 Run the command in a WSL not a PyCharm terminal. Tensorboard is available at http://localhost:6006

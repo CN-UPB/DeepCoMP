@@ -11,13 +11,14 @@ requirements = [
     'gym==0.17.1',
     'tensorflow==2.2.0',
     'ray[rllib]==0.8.6',
-    'gputil==1.4.0'
+    'gputil==1.4.0',
+    'pandas==1.0.5'
 ]
 
 # TODO: update on final release
 setup(
     name='deepcomp',
-    version=0.8,
+    version=0.9,
     description="DeepCoMP: Coordinated Multipoint Using Multi-Agent Deep Reinforcement Learning",
     url=None,
     packages=find_packages(),
