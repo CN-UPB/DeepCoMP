@@ -63,7 +63,7 @@ class MultiAgentMobileEnv(MultiAgentEnv, DatarateMobileEnv):
             num_lost_conn = ue.move()
             # add penalty of -1 for each lost connection through movement (rather than actively disconnected)
             # TODO: instead of -= I now used =; may affect reward in the end
-            penalties[ue] = num_lost_conn
+            penalties[ue] = -num_lost_conn
 
         # 4) update data rates and reward (avg with reward before); get new observation
         for ue in self.ue_list:

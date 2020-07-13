@@ -90,7 +90,118 @@ class MobileEnv(gym.Env):
         self.obs = self.get_obs(self.ue_list[0])
         return self.obs
 
-    def step(self, action: int):
+    def apply_ue_actions(self, action):
+        """
+        Apply actions of UEs. In this base case, just of one UE (selected based on current time).
+        In extended env version, apply actions of all UEs.
+
+        :param: Action to be applied (here: for a single UE)
+        :return: Dict of penalties for each UE based on unsuccessful connection attempts (-3)
+        """
+        assert self.action_space.contains(action), f"Action {action} does not fit action space {self.action_space}"
+        penalties = {ue: 0 for ue in self.ue_list}
+        # select active UE (to update in this step) using round robin
+        ue = self.ue_list[self.time % self.num_ue]
+
+        # apply action: try to connect to BS; or: 0 = no op
+        if action > 0:
+            bs = self.bs_list[action-1]
+            # penalty of -3 for unsuccessful connection attempt
+            penalties[ue] = -3 * (not ue.connect_to_bs(bs, disconnect=True))
+
+        return penalties
+
+    def update_ue_drs_rewards(self, penalties):
+        """
+        Update cached data rates of all UE-BS connections.
+        Calculate and return corresponding rewards based on given penalties.
+
+        :param penalties: Dict of penalties for all UEs. Used for calculating rewards.
+        :return: Dict of rewards: UE --> reward (incl. penalty)
+        """
+        rewards = dict()
+        for ue in self.ue_list:
+            ue.update_curr_dr()
+            rewards[ue] = self.calc_reward(ue, penalties[ue])
+        return rewards
+
+    def move_ues(self):
+        """
+        Move all UEs and return dict of penalties corresponding to number of lost connections.
+
+        :return: Penalties for lost connections: UE --> -1 * num. lost connections
+        """
+        penalties = dict()
+        for ue in self.ue_list:
+            num_lost_conn = ue.move()
+            # add penalty of -1 for each lost connection through movement (rather than actively disconnected)
+            # TODO: instead of -= I now used =; may affect reward in the end
+            penalties[ue] = -num_lost_conn
+        return penalties
+
+    def next_obs(self):
+        """
+        Return next observation after a step.
+        Here, the obs for the next UE. Overwritten by env vars as needed.
+
+        :returns: Next observation
+        """
+        next_ue = self.ue_list[self.time % self.num_ue]
+        return self.get_obs(next_ue)
+
+    def step_reward(self, rewards):
+        """
+        Return the overall reward for the step (called at the end of a step). Overwritten by variants.
+
+        :param rewards: Dict of avg rewards per UE (before and after movement)
+        :returns: Reward for the step (depends on the env variant; here just for one UE)
+        """
+        # here: get reward for UE that applied the action (at time - 1)
+        ue = self.ue_list[(self.time-1) % self.num_ue]
+        return rewards[ue]
+
+    def done(self):
+        """
+        Return whether the episode is done.
+
+        :return: Whether the current episode is done or not
+        """
+        return self.time >= self.episode_length
+
+    def info(self):
+        """Return info dict that's returned after a step"""
+        return {'time': self.time}
+
+    def step(self, action):
+        """
+        Environment step consisting of 1) Applying actions, 2) Updating data rates and rewards, 3) Moving UEs,
+        4) Updating data rates and rewards again (avg with reward before), 5) Updating the observation
+
+        In the base env here, only one UE applies actions per time step. This is overwritten in other env variants.
+
+        :param action: Action to be applied. Here, for a single UE. In other env variants, for all UEs.
+        :return: Tuple of next observation, reward, done, info
+        """
+        prev_obs = self.obs
+
+        # perform step: apply action, move UEs, update data rates and rewards in between; increment time
+        penalties = self.apply_ue_actions(action)
+        rewards_before = self.update_ue_drs_rewards(penalties)
+        penalties = self.move_ues()
+        rewards_after = self.update_ue_drs_rewards(penalties)
+        rewards = {ue: np.mean([rewards_before[ue], rewards_after[ue]]) for ue in self.ue_list}
+        self.time += 1
+
+        # get and return next obs, reward, done, info
+        self.obs = self.next_obs()
+        reward = self.step_reward(rewards)
+        done = self.done()
+        info = self.info()
+        self.log.info("Step", time=self.time, prev_obs=prev_obs, action=action, reward=reward, next_obs=self.obs,
+                      done=done)
+        return self.obs, reward, done, info
+
+    def old_step(self, action: int):
         """
         Do 1 time step: Apply action and update UE position. Return new state, reward.
         Only update one UE at a time. With multiple UEs, select active UE using round robin.
@@ -100,7 +211,7 @@ class MobileEnv(gym.Env):
         ue = self.ue_list[self.time % self.num_ue]
         prev_obs = self.obs
 
-        # apply action; 0 = no op
+        # apply action: try to connect to BS; or: 0 = no op
         if action > 0:
             bs = self.bs_list[action-1]
             # penalty of -3 for unsuccessful connection attempt
