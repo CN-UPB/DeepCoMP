@@ -56,8 +56,11 @@ class MultiAgentMobileEnv(DatarateMobileEnv, MultiAgentEnv):
         return obs
 
     def step_reward(self, rewards):
-        """Return rewards as they are: Dict with UE --> reward"""
-        return rewards
+        """
+        Return rewards as they are but use UE ID as key instead of UE itself.
+        The reward key needs to be same as obs key & sortable not just hashable.
+        """
+        return {ue.id: r for ue, r in rewards.items()}
 
     def done(self):
         """Return dict of dones: UE --> done?"""

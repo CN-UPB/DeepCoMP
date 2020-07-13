@@ -17,7 +17,7 @@ class Basestation:
         self.pos = pos
         self.conn_ues = []
         # model for sharing rate/resources among connected UEs. One of SUPPORTED_SHARING models
-        self.sharing_model = 'proportional-fair'
+        self.sharing_model = 'rate-fair'
         assert self.sharing_model in SUPPORTED_SHARING, f"{self.sharing_model=} not supported. {SUPPORTED_SHARING=}"
 
         # set constants for SINR and data rate calculation
@@ -162,7 +162,7 @@ class Basestation:
         dr_ue_unshared = self.data_rate_unshared(ue)
         # final, shared data rate depends on sharing model
         dr_ue_shared = self.data_rate_shared(ue, dr_ue_unshared)
-        self.log.debug('Achievable data rate', ue=ue.id, dr_ue_unshared=dr_ue_unshared, dr_ue_shared=dr_ue_shared,
+        self.log.debug('Achievable data rate', ue=ue, dr_ue_unshared=dr_ue_unshared, dr_ue_shared=dr_ue_shared,
                        num_conn_ues=self.num_conn_ues)
         return dr_ue_shared
 

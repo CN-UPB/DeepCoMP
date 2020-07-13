@@ -54,6 +54,7 @@ Split RBs proportional to that priority. Tune fairness using weights alpha and b
 By default, the EWMA is calculated with weight 0.9: `self.ewma_dr = weight * self.curr_dr + (1 - weight) * self.ewma_dr` and the priority
 uses fairness weights `alpha=beta=1`, similar to 3G.
 
+![proportional_fair](gifs/proportional_fair.gif)
 
 ### Todo
 

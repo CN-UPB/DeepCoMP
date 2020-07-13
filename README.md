@@ -74,13 +74,6 @@ Run the command in a WSL not a PyCharm terminal. Tensorboard is available at htt
 
 ### Todos
 
-* Proportional fair sharing (WIP)
-* Efficient caching of connection data rate: Needed for proportional fair!
-    * Currently always recalculate the data rate per connection per UE, eg, when calculating reward or checking whether we can connect
-    * Safe & easy, but probably slow for many UEs/BSs. Let's see
-    * Instead, write the dr per connection into a dict (conn --> curr dr); then derive total curr connection etc from that in O(1)
-    * Needs to be updated whenever the UE moves or any UE changes its connections (this or another UE)
-    * Eg, 1st move all UEs, 2nd check & update connections of all UEs, 3rd calculate reward etc
 * Plot training results of RL agent compare with results from heuristics. Then testing.
 * Write evaluation metrics to file from simulator. 
 * Evaluation: 
