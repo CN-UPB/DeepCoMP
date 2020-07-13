@@ -135,7 +135,6 @@ class MobileEnv(gym.Env):
         for ue in self.ue_list:
             num_lost_conn = ue.move()
             # add penalty of -1 for each lost connection through movement (rather than actively disconnected)
-            # TODO: instead of -= I now used =; may affect reward in the end
             penalties[ue] = -num_lost_conn
         return penalties
 

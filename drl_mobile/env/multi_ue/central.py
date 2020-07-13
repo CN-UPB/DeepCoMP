@@ -69,12 +69,12 @@ class CentralMultiUserEnv(MobileEnv):
 
         return obs
 
-    def calc_reward(self, penalty):
-        """Calc reward summed up for ALL UEs, similar to normal MobileEnv"""
-        reward = penalty
-        for ue in self.ue_list:
-            reward += super().calc_reward(ue, penalty=0)
-        return reward
+    # def calc_reward(self, penalty):
+    #     """Calc reward summed up for ALL UEs, similar to normal MobileEnv"""
+    #     reward = penalty
+    #     for ue in self.ue_list:
+    #         reward += super().calc_reward(ue, penalty=0)
+    #     return reward
 
     def reset(self):
         """Reset environment: Reset all UEs, BS"""
@@ -86,7 +86,30 @@ class CentralMultiUserEnv(MobileEnv):
         self.obs = self.get_obs()
         return self.obs
 
-    def step(self, action):
+    # overwrite modular functions used within step that are different in the centralized case
+    def apply_ue_actions(self, action):
+        """Apply action. Here: Actions for all UEs. Return penalty for unsuccessful connection attempts."""
+        assert self.action_space.contains(action), f"Action {action} does not fit action space {self.action_space}"
+        penalties = dict()
+
+        # apply action: try to connect to BS; or: 0 = no op
+        for i, ue in enumerate(self.ue_list):
+            if action[i] > 0:
+                bs = self.bs_list[action[i] - 1]
+                # penalty of -3 for unsuccessful connection attempt
+                penalties[ue] = -3 * (not ue.connect_to_bs(bs, disconnect=True))
+
+        # FIXME: there are not all UE's in the list?! --> key error
+        return penalties
+
+    def next_obs(self):
+        return self.get_obs()
+
+    def step_reward(self, rewards):
+        """Return sum of all UE rewards as step reward"""
+        return sum(rewards.values())
+
+    def old_step(self, action):
         """
         Do 1 time step: Apply action of all UEs and update their position.
         :param action: Array of actions to be applied for each UE
