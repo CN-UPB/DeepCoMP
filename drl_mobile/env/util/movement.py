@@ -105,9 +105,9 @@ class RandomWaypoint(Movement):
     def reset(self):
         """Reset velocity and waypoint to new random values. Reset current pause."""
         if self.init_velocity == 'slow':
-            self.velocity = random.randint(2, 5)
+            self.velocity = random.randint(1, 3)
         elif self.init_velocity == 'fast':
-            self.velocity = random.randint(7, 15)
+            self.velocity = random.randint(5, 10)
         else:
             self.velocity = self.init_velocity
 
