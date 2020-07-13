@@ -58,7 +58,7 @@ def main():
     config = create_env_config(agent=args.agent, map_size=args.env, num_slow_ues=args.slow_ues,
                                num_fast_ues=args.fast_ues, eps_length=args.eps_length,
                                num_workers=args.workers, train_batch_size=args.batch_size, seed=seed)
-    sim = Simulation(config=config, agent_name=args.alg, debug=True)
+    sim = Simulation(config=config, agent_name=args.alg, debug=False)
 
     # train
     if train and args.alg == 'ppo':
@@ -70,7 +70,8 @@ def main():
     # simulate one episode and render
     log_dict = {
         'drl_mobile.util.simulation': logging.DEBUG,
-        'drl_mobile.env.entities.user': logging.DEBUG
+        # 'drl_mobile.env.entities.user': logging.DEBUG,
+        # 'drl_mobile.env.entities.station': logging.DEBUG
     }
     sim.run(render=args.video, log_dict=log_dict)
 

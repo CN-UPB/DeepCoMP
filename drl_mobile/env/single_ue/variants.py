@@ -127,7 +127,7 @@ class DatarateMobileEnv(BinaryMobileEnv):
         obs_dict['connected'] = [int(bs in ue.bs_dr.keys()) for bs in self.bs_list]
 
         if self.curr_dr_obs:
-            total_dr = sum(bs.data_rate(ue) for bs in ue.bs_dr.keys())
+            total_dr = ue.curr_dr
             # process by subtracting dr_req, clipping to [-dr_req, dr_req], normalizing to [-1, 1]
             total_dr -= ue.dr_req
             total_dr = min(total_dr, ue.dr_req)

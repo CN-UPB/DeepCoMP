@@ -28,7 +28,6 @@ class User:
         self.map = map
         self.movement = movement
         self.dr_req = dr_req
-        self.conn_bs = []
         # dict of connected BS: BS (only connected BS are keys!) --> data rate of connection
         self.bs_dr = dict()
 
@@ -41,29 +40,18 @@ class User:
         # exponentially weighted moving average data rate
         self.ewma_dr = 0
 
-        self.log = structlog.get_logger(id=self.id, pos=str(self.pos), ewma_dr=self.ewma_dr, conn_bs=self.conn_bs_list,
-                                        dr_req=self.dr_req)
+        self.log = structlog.get_logger(id=self.id, pos=str(self.pos), ewma_dr=self.ewma_dr,
+                                        conn_bs=list(self.bs_dr.keys()), dr_req=self.dr_req)
         self.log.info('UE init')
 
     def __repr__(self):
         return str(self.id)
 
     @property
-    def conn_bs_list(self):
-        """Return list of currently connected BS"""
-        return list(self.bs_dr.keys())
-
-    @property
     def curr_dr(self):
         """Current data rate the UE gets through all its BS connections"""
-        dr = 0
-        for bs in self.conn_bs:
-            dr += bs.data_rate(self)
-
-        # TODO: replace with fast dict access
-        dict_dr = sum([dr for dr in self.bs_dr.values()])
-
-        self.log.debug("Current data rate", curr_dr=dr, dict_dr=dict_dr)
+        dr = sum([dr for dr in self.bs_dr.values()])
+        self.log.debug("Current data rate", curr_dr=dr)
         return dr
 
     @property
@@ -125,8 +113,6 @@ class User:
         """Reset UE to initial position and movement. Disconnect from all BS."""
         self.reset_pos()
         self.movement.reset()
-        self.conn_bs = []
-        # TODO: replace
         self.bs_dr = dict()
 
     def update_curr_dr(self):
@@ -183,7 +169,7 @@ class User:
         :param disconnect: If True, disconnect from BS if it was previously connected.
         :return: True if (dis-)connected successfully. False if out of range.
         """
-        log = self.log.bind(bs=bs, disconnect=disconnect, conn_bs=self.conn_bs_list)
+        log = self.log.bind(bs=bs, disconnect=disconnect, conn_bs=list(self.bs_dr.keys()))
         # already connected
         if bs in self.bs_dr.keys():
             if disconnect:
@@ -194,11 +180,10 @@ class User:
             return True
         # not yet connected
         if bs.can_connect(self.pos):
-            self.conn_bs.append(bs)
-            # TODO: replace; what dr to assign? None since it gets updated afterwards anyways and still depends on other UEs
+            # add BS to connections; data rate will be set/updated for all UEs later in the env's step call
             self.bs_dr[bs] = None
             bs.conn_ues.append(self)
-            self.log = self.log.bind(conn_bs=self.conn_bs_list)
+            self.log = self.log.bind(conn_bs=list(self.bs_dr.keys()))
             log.info("Connected")
             return True
         else:
@@ -208,8 +193,6 @@ class User:
     def disconnect_from_bs(self, bs):
         """Disconnect from given BS. Assume BS is currently connected."""
         assert bs in self.bs_dr.keys(), "Not connected to BS --> Cannot disconnect"
-        self.conn_bs.remove(bs)
-        # TODO: replace
         del self.bs_dr[bs]
         bs.conn_ues.remove(self)
-        self.log = self.log.bind(conn_bs=self.conn_bs_list)
+        self.log = self.log.bind(conn_bs=list(self.bs_dr.keys()))
