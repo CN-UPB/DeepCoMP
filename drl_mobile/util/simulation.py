@@ -13,7 +13,7 @@ import ray.tune
 from ray.rllib.agents.ppo import PPOTrainer
 from ray.rllib.env.multi_agent_env import MultiAgentEnv
 
-from drl_mobile.util.constants import SUPPORTED_ALGS, SUPPORTED_RENDER
+from drl_mobile.util.constants import SUPPORTED_ALGS, SUPPORTED_RENDER, RESULT_DIR, TRAIN_DIR, TEST_DIR, VIDEO_DIR
 from drl_mobile.agent.dummy import RandomAgent, FixedAgent
 from drl_mobile.agent.heuristics import GreedyBestSelection, GreedyAllSelection
 
@@ -45,47 +45,21 @@ class Simulation:
         if self.agent_name == 'ppo':
             ray.init(local_mode=debug)
 
-        # save dir
-        self.save_dir = f'../results'
-        os.makedirs(self.save_dir, exist_ok=True)
-        # filename is set when loading the agent
+        # filename for saving is set when loading the agent
         self.result_filename = None
+        self.create_result_dirs()
 
         self.log = structlog.get_logger()
         self.log.debug('Simulation init', env=self.env_name, eps_length=self.episode_length, agent=self.agent_name,
                        multi_agent=self.multi_agent_env)
 
-    def plot_learning_curve(self, eps_steps, eps_rewards, plot_eps=True):
-        """
-        Plot episode rewards over time. Currently not used.
-
-        :param eps_steps: List of time steps per episode (should always be the same here)
-        :param eps_rewards: List of reward per episode
-        :param plot_eps: If true, plot episodes on the xlabel instead of steps
-        """
-        x = []
-        if plot_eps:
-            # just create a list of training episodes (not time steps)
-            x = [i+1 for i in range(len(eps_rewards))]
-        else:
-            # sum up episode time steps
-            for i, t in enumerate(eps_steps):
-                if i == 0:
-                    x.append(t)
-                else:
-                    x.append(t + x[i-1])
-
-        # plot
-        sns.regplot(x, eps_rewards, x_estimator=np.mean)
-        plt.title(f'Learning Curve for {self.env_name}')
-        if plot_eps:
-            plt.xlabel('Training episodes')
-        else:
-            plt.xlabel('Training steps')
-        plt.ylabel('Episode reward')
-        train_steps = sum(eps_steps)
-        plt.savefig(f'{self.save_dir}/rllib_ppo_{train_steps}.png')
-        plt.show()
+    @staticmethod
+    def create_result_dirs():
+        """Create directories for saving training, testing results and videos"""
+        os.makedirs(RESULT_DIR, exist_ok=True)
+        os.makedirs(TRAIN_DIR, exist_ok=True)
+        os.makedirs(TEST_DIR, exist_ok=True)
+        os.makedirs(VIDEO_DIR, exist_ok=True)
 
     def train(self, stop_criteria):
         """
@@ -96,7 +70,7 @@ class Simulation:
         :return: Return the path to the saved agent (checkpoint) and tune's ExperimentAnalysis object
             See https://docs.ray.io/en/latest/tune/api_docs/analysis.html#experimentanalysis-tune-experimentanalysis
         """
-        analysis = ray.tune.run(PPOTrainer, config=self.config, local_dir=self.save_dir, stop=stop_criteria,
+        analysis = ray.tune.run(PPOTrainer, config=self.config, local_dir=RESULT_DIR, stop=stop_criteria,
                                 checkpoint_at_end=True)
         # tune returns an ExperimentAnalysis that can be cast to a Pandas data frame
         # object https://docs.ray.io/en/latest/tune/api_docs/analysis.html#experimentanalysis
@@ -165,22 +139,18 @@ class Simulation:
         assert mode in render_modes, f"Render mode {mode} not in {render_modes}"
         anim = matplotlib.animation.ArtistAnimation(fig, patches, repeat=False)
 
-        # create video save dir
-        video_dir = f'{self.save_dir}/videos'
-        os.makedirs(video_dir, exist_ok=True)
-
         # save html5 video
         if mode == 'html' or mode == 'both':
             html = anim.to_html5_video()
-            with open(f'{video_dir}/{self.result_filename}.html', 'w') as f:
+            with open(f'{VIDEO_DIR}/{self.result_filename}.html', 'w') as f:
                 f.write(html)
-            self.log.info('Video saved', path=f'{video_dir}/{self.result_filename}.html')
+            self.log.info('Video saved', path=f'{VIDEO_DIR}/{self.result_filename}.html')
 
         # save gif; requires external dependency ImageMagick
         if mode == 'gif' or mode == 'both':
             try:
-                anim.save(f'{video_dir}/{self.result_filename}.gif', writer='imagemagick')
-                self.log.info('Gif saved', path=f'{video_dir}/{self.result_filename}.gif')
+                anim.save(f'{VIDEO_DIR}/{self.result_filename}.gif', writer='imagemagick')
+                self.log.info('Gif saved', path=f'{VIDEO_DIR}/{self.result_filename}.gif')
             except TypeError:
                 self.log.error('ImageMagick needs to be installed for saving gifs.')
 
@@ -292,10 +262,7 @@ class Simulation:
 
         # write results to file
         if write_results:
-            # create result dir and file
-            result_dir = f'{self.save_dir}/testing'
-            os.makedirs(result_dir, exist_ok=True)
-            result_file = f'{result_dir}/{self.result_filename}.csv'
+            result_file = f'{TEST_DIR}/{self.result_filename}.csv'
             self.log.info("Writing results", file=result_file)
             # prepare and write result data
             data = {
