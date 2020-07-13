@@ -70,7 +70,7 @@ def main():
     # simulate one episode and render
     log_dict = {
         'drl_mobile.util.simulation': logging.DEBUG,
-        'drl_mobile.env.entities.user': logging.DEBUG
+        # 'drl_mobile.env.entities.user': logging.DEBUG
     }
     sim.run(render=args.video, log_dict=log_dict)
 

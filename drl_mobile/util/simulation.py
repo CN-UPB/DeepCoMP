@@ -1,4 +1,5 @@
 import os
+import time
 
 import structlog
 import matplotlib.pyplot as plt
@@ -225,8 +226,10 @@ class Simulation:
         if log_dict is not None:
             env.set_log_level(log_dict)
 
-        # simulate for given number of episodes
+        # simulate for given number of episodes; time each episode
+        eps_times = []
         for _ in range(num_episodes):
+            eps_start = time.time()
             if render is not None:
                 # square figure and equal aspect ratio to avoid distortions
                 fig = plt.figure(figsize=(5, 5))
@@ -256,11 +259,15 @@ class Simulation:
                 self.save_animation(fig, patches, render)
 
             eps_rewards.append(episode_reward)
-            self.log.info('Episode complete', episode_reward=episode_reward)
+            # episode time in seconds (to measure simulation efficiency)
+            eps_time = time.time() - eps_start
+            eps_times.append(eps_time)
+            self.log.info('Episode complete', episode_reward=episode_reward, episode_time=eps_time)
 
         # summarize episode rewards
         mean_eps_reward = np.mean(eps_rewards)
         mean_step_reward = mean_eps_reward / self.episode_length
         self.log.info("Simulation complete", mean_eps_reward=mean_eps_reward, std_eps_reward=np.std(eps_rewards),
-                      mean_step_reward=mean_step_reward, num_episodes=num_episodes)
+                      mean_step_reward=mean_step_reward, num_episodes=num_episodes,
+                      mean_eps_time=np.mean(eps_times), std_eps_time=np.std(eps_times))
         return eps_rewards
