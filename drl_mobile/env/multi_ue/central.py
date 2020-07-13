@@ -69,13 +69,6 @@ class CentralMultiUserEnv(MobileEnv):
 
         return obs
 
-    # def calc_reward(self, penalty):
-    #     """Calc reward summed up for ALL UEs, similar to normal MobileEnv"""
-    #     reward = penalty
-    #     for ue in self.ue_list:
-    #         reward += super().calc_reward(ue, penalty=0)
-    #     return reward
-
     def reset(self):
         """Reset environment: Reset all UEs, BS"""
         self.time = 0
@@ -107,40 +100,3 @@ class CentralMultiUserEnv(MobileEnv):
     def step_reward(self, rewards):
         """Return sum of all UE rewards as step reward"""
         return sum(rewards.values())
-
-    def old_step(self, action):
-        """
-        Do 1 time step: Apply action of all UEs and update their position.
-        :param action: Array of actions to be applied for each UE
-        :return: next observation, reward, done, info
-        """
-        penalty = 0
-        prev_obs = self.obs
-
-        # apply action for each UE; 0 = noop
-        for i, ue in enumerate(self.ue_list):
-            if action[i] > 0:
-                bs = self.bs_list[action[i] - 1]
-                # penalty of -3 for unsuccessful connection attempt
-                penalty -= 3 * (not ue.connect_to_bs(bs, disconnect=True))
-
-        # move all UEs
-        # check connections and reward before and after moving; then avg
-        # TODO: usually before & after are the same anyways; so I can drop this if the simulator becomes too slow
-        reward_before = self.calc_reward(penalty)
-        for ue in self.ue_list:
-            num_lost_conn = ue.move()
-            # add penalty of -1 for each lost connection through movement (rather than actively disconnected)
-            penalty -= num_lost_conn
-        reward_after = self.calc_reward(penalty)
-
-        self.time += 1
-
-        # return next observation, reward, done, info
-        self.obs = self.get_obs()
-        reward = np.mean([reward_before, reward_after])
-        done = self.time >= self.episode_length
-        info = {'time': self.time}
-        self.log.info("Step", time=self.time, prev_obs=prev_obs, action=action, reward_before=reward_before,
-                      reward_after=reward_after, reward=reward, next_obs=self.obs, done=done)
-        return self.obs, reward, done, info
