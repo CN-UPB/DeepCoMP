@@ -16,6 +16,7 @@ from ray.rllib.env.multi_agent_env import MultiAgentEnv
 from drl_mobile.util.constants import SUPPORTED_ALGS, SUPPORTED_RENDER, RESULT_DIR, TRAIN_DIR, EVAL_DIR, VIDEO_DIR
 from drl_mobile.agent.dummy import RandomAgent, FixedAgent
 from drl_mobile.agent.heuristics import GreedyBestSelection, GreedyAllSelection
+from drl_mobile.util.logs import config_logging
 
 
 class Simulation:
@@ -200,6 +201,7 @@ class Simulation:
         """
         # no need to instantiate new env since each joblib iteration has its own copy
         # that's why we need to set the logging level again for each iteration
+        config_logging(round_digits=3)
         if log_dict is not None:
             env.set_log_level(log_dict)
 
