@@ -13,7 +13,8 @@ requirements = [
     'ray[rllib]==0.8.6',
     'gputil==1.4.0',
     'pandas==1.0.5',
-    'tqdm==4.47.0'
+    'tqdm==4.47.0',
+    'joblib==0.16.0'
 ]
 
 # TODO: update on final release

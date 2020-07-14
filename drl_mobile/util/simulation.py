@@ -1,4 +1,3 @@
-import os
 import time
 from datetime import datetime
 
@@ -6,9 +5,9 @@ import pandas as pd
 import structlog
 import matplotlib.pyplot as plt
 import matplotlib.animation
-import seaborn as sns
 import numpy as np
 from tqdm import tqdm
+from joblib import Parallel, delayed
 import ray
 import ray.tune
 from ray.rllib.agents.ppo import PPOTrainer
@@ -37,6 +36,8 @@ class Simulation:
         self.episode_length = self.env_config['episode_length']
         # detect automatically if the env is a multi-agent env by checking all (not just immediate) ancestors
         self.multi_agent_env = MultiAgentEnv in self.env_class.__mro__
+        # num workers for parallel execution of eval episodes
+        self.num_workers = config['num_workers']
 
         # agent
         assert agent_name in SUPPORTED_ALGS, f"Agent {agent_name} not supported. Supported agents: {SUPPORTED_ALGS}"
@@ -51,7 +52,7 @@ class Simulation:
 
         self.log = structlog.get_logger()
         self.log.debug('Simulation init', env=self.env_name, eps_length=self.episode_length, agent=self.agent_name,
-                       multi_agent=self.multi_agent_env)
+                       multi_agent=self.multi_agent_env, num_workers=self.num_workers)
 
     def train(self, stop_criteria):
         """
@@ -188,6 +189,54 @@ class Simulation:
         self.log.debug("Step", t=time, action=action, reward=reward, next_obs=obs, done=done['__all__'])
         return obs, sum(reward.values()), done['__all__']
 
+    def run_episode(self, env, render=None, log_dict=None):
+        """
+        Run a single episode on the given environment. Append episode reward and exec time to list and return.
+
+        :param env: Instance of the environment to use (each joblib iteration will still use its own instance)
+        :param render: Whether/How to render the episode
+        :param log_dict: Dict with logging levels to set
+        :return: Tuple(episode reward, execution time)
+        """
+        # no need to instantiate new env since each joblib iteration has its own copy
+        # that's why we need to set the logging level again for each iteration
+        if log_dict is not None:
+            env.set_log_level(log_dict)
+
+        eps_start = time.time()
+        if render is not None:
+            fig = plt.figure(figsize=(9, 6))
+            # equal aspect ratio to avoid distortions
+            plt.gca().set_aspect('equal')
+            fig.tight_layout()
+
+        # run until episode ends
+        patches = []
+        episode_reward = 0
+        done = False
+        obs = env.reset()
+        while not done:
+            if render is not None:
+                patches.append(env.render())
+                if render == 'plot':
+                    plt.show()
+
+            # get and apply action, increment episode reward
+            if self.multi_agent_env:
+                obs, reward, done = self.apply_action_multi_agent(obs, env)
+            else:
+                obs, reward, done = self.apply_action_single_agent(obs, env)
+            episode_reward += reward
+
+        # create the animation
+        if render is not None:
+            self.save_animation(fig, patches, render)
+
+        # episode time in seconds (to measure simulation efficiency)
+        eps_time = time.time() - eps_start
+        self.log.debug('Episode complete', episode_reward=episode_reward, episode_time=eps_time)
+        return episode_reward, eps_time
+
     def run(self, num_episodes=1, render=None, log_dict=None, write_results=False):
         """
         Run one or more simulation episodes. Render situation at beginning of each time step. Return episode rewards.
@@ -200,51 +249,24 @@ class Simulation:
         """
         assert self.agent is not None, "Train or load an agent before running the simulation"
         assert (num_episodes == 1) or (render is None), "Turn off rendering when running for multiple episodes"
-        eps_rewards = []
 
         # instantiate env and set logging level
         env = self.env_class(self.env_config)
         if log_dict is not None:
             env.set_log_level(log_dict)
 
-        # simulate for given number of episodes; time each episode
-        eps_times = []
-        self.log.info('Starting evaluation', num_episodes=num_episodes)
-        for _ in tqdm(range(num_episodes), disable=(num_episodes == 1)):
-            eps_start = time.time()
-            if render is not None:
-                fig = plt.figure(figsize=(9, 6))
-                # equal aspect ratio to avoid distortions
-                plt.gca().set_aspect('equal')
-                fig.tight_layout()
-
-            # run until episode ends
-            patches = []
-            episode_reward = 0
-            done = False
-            obs = env.reset()
-            while not done:
-                if render is not None:
-                    patches.append(env.render())
-                    if render == 'plot':
-                        plt.show()
-
-                # get and apply action, increment episode reward
-                if self.multi_agent_env:
-                    obs, reward, done = self.apply_action_multi_agent(obs, env)
-                else:
-                    obs, reward, done = self.apply_action_single_agent(obs, env)
-                episode_reward += reward
-
-            # create the animation
-            if render is not None:
-                self.save_animation(fig, patches, render)
-
-            eps_rewards.append(episode_reward)
-            # episode time in seconds (to measure simulation efficiency)
-            eps_time = time.time() - eps_start
-            eps_times.append(eps_time)
-            self.log.debug('Episode complete', episode_reward=episode_reward, episode_time=eps_time)
+        # simulate episodes in parallel; show progress with tqdm if running for more than one episode
+        self.log.info('Starting evaluation', num_episodes=num_episodes, num_workers=self.num_workers)
+        # run episodes sequentially
+        # for _ in tqdm(range(num_episodes), disable=(num_episodes == 1)):
+        #     self.run_episode(env, render)
+        # run episodes in parallel using joblib
+        zipped_results = Parallel(n_jobs=self.num_workers)(
+            delayed(self.run_episode)(env, render, log_dict)
+            for _ in tqdm(range(num_episodes), disable=(num_episodes == 1))
+        )
+        # unzip results, ie, convert list of tuples to two separate lists
+        eps_rewards, eps_times = map(list, zip(*zipped_results))
 
         # summarize episode rewards
         mean_eps_reward = np.mean(eps_rewards)
