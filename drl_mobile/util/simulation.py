@@ -47,19 +47,10 @@ class Simulation:
 
         # filename for saving is set when loading the agent
         self.result_filename = None
-        self.create_result_dirs()
 
         self.log = structlog.get_logger()
         self.log.debug('Simulation init', env=self.env_name, eps_length=self.episode_length, agent=self.agent_name,
                        multi_agent=self.multi_agent_env)
-
-    @staticmethod
-    def create_result_dirs():
-        """Create directories for saving training, testing results and videos"""
-        os.makedirs(RESULT_DIR, exist_ok=True)
-        os.makedirs(TRAIN_DIR, exist_ok=True)
-        os.makedirs(TEST_DIR, exist_ok=True)
-        os.makedirs(VIDEO_DIR, exist_ok=True)
 
     def train(self, stop_criteria):
         """

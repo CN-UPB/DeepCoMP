@@ -40,8 +40,6 @@ pip install git+https://github.com/stefanbschneider/structlog.git@dev
 deepcomp -h
 ```
 
-FIXME: Run from inside `drl_mobile`, else the path to training will be created wrongly.
-
 Adjust further settings in `drl_mobile/main.py`.
 
 Training logs, results, videos, and trained agents are saved in the `results` directory.
@@ -85,7 +83,11 @@ Run the command in a WSL not a PyCharm terminal. Tensorboard is available at htt
     * For log utility it still somewhat makes sense to normalize for req_dr 1, since `f(x)=4log(0.1+x)=0 <=> x=0.9` --> Normalize based on where the utility function has y=0?
     * Instead of normalized dr, use normalized utility in the observation --> apply log utility function to achievable dr and use that in obs. Normalize with -10, +10 as reward range
     * Or just do automatic running mean normalization: https://github.com/ray-project/ray/issues/9399 Didn't work at all for step utility, but might for log utility
+    * Add extra obs for indicating whether a UE can connect or not: Either binary or cont. in `[-1,1]`, where 0= can just connect --> helps planning to disconnect?
+        * Or just distance to a BS somehow. Eg, normalized with the distance for connecting. Then extra obs for the data rate
     * Add UE position and movement to observations; in multi-agent
+* Optimization approach: Numerical optimization of instantaneous total utility?
+* Real-world traces for UE movement somewhere?
 * (continue training after loading weights)
     
 Later:
