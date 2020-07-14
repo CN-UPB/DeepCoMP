@@ -21,12 +21,13 @@ from drl_mobile.util.logs import config_logging
 
 class Simulation:
     """Simulation class for training and testing agents."""
-    def __init__(self, config, agent_name, debug=False):
+    def __init__(self, config, agent_name, cli_args, debug=False):
         """
         Create a new simulation object to hold the agent and environment, train & test & visualize the agent + env.
 
         :param config: RLlib agent config
         :param agent_name: String identifying the agent. Supported: 'ppo', 'greedy-best', 'random', 'fixed'
+        :param cli_args: Dict of CLI args
         :param debug: Whether or not to enable ray's local_mode for debugging
         """
         # config and env
@@ -39,7 +40,7 @@ class Simulation:
         self.multi_agent_env = MultiAgentEnv in self.env_class.__mro__
         # num workers for parallel execution of eval episodes
         self.num_workers = config['num_workers']
-        self.cli_args = config['cli_args']
+        self.cli_args = cli_args
 
         # agent
         assert agent_name in SUPPORTED_ALGS, f"Agent {agent_name} not supported. Supported agents: {SUPPORTED_ALGS}"

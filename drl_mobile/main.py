@@ -63,8 +63,7 @@ def main():
                                num_fast_ues=args.fast_ues, eps_length=args.eps_length,
                                num_workers=args.workers, train_batch_size=args.batch_size, seed=args.seed)
     # add cli args to the config for saving inputs
-    config['cli_args'] = args
-    sim = Simulation(config=config, agent_name=args.alg, debug=False)
+    sim = Simulation(config=config, agent_name=args.alg, cli_args=args, debug=False)
 
     # train
     if train and args.alg == 'ppo':
