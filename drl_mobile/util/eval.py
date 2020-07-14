@@ -3,6 +3,7 @@ import os
 from ast import literal_eval
 
 import pandas as pd
+import numpy as np
 import matplotlib.pyplot as plt
 
 from drl_mobile.util.constants import TRAIN_DIR, EVAL_DIR, PLOT_DIR
@@ -26,8 +27,11 @@ def read_training_progress(dir_name):
     # create 2nd df for plotting with just episodes and eps_rewards
     # read all episode rewards from hist stats into long list
     eps_rewards = []
-    for eps in df['hist_stats/episode_reward']:
-        eps_rewards.extend([r for r in eps])
+    for i, eps in enumerate(df['hist_stats/episode_reward']):
+        # attention: the lists overlap for different iterations! only read the results from this iteration
+        # FIXME: they still do
+        num_eps = df['episodes_this_iter'][i]
+        eps_rewards.extend([r for r in eps[:-num_eps]])
     episodes = [i+1 for i in range(len(eps_rewards))]
     df2 = pd.DataFrame(data={'episode': episodes, 'eps_reward': eps_rewards})
 
@@ -47,7 +51,7 @@ def read_testing_results(filename):
 
 
 # for testing results
-def plot_eps_reward(dfs, labels, filename=None):
+def plot_eps_reward(dfs, labels, roll_mean_window=1, filename=None):
     """
     Plot the testing episode rewards over time
 
@@ -59,11 +63,12 @@ def plot_eps_reward(dfs, labels, filename=None):
 
     # plot different data frames
     for i, df in enumerate(dfs):
-        plt.plot(df['episode'], df['eps_reward'], label=labels[i])
+        plt.plot(df['episode'], df['eps_reward'].rolling(window=roll_mean_window).mean(), label=labels[i])
 
     # axis and legend
+    plt.xlim([0, 800])
     plt.xlabel('Episode')
-    plt.ylabel('Episode Reward')
+    plt.ylabel(f'Mean Episode Reward (Rolling Window of {roll_mean_window})')
     plt.legend()
 
     # saving
@@ -74,18 +79,23 @@ def plot_eps_reward(dfs, labels, filename=None):
 
 
 # for training results
-def plot_mean_eps_reward(df):
+def plot_ppo_mean_eps_reward(df):
     """Plot the mean episode reward per training iteration"""
-    plt.plot(df['training_iteration'], df['episode_reward_mean'])
-    plt.xlabel('Training Iteration')
+    plt.plot(df['episodes_total'], df['episode_reward_mean'], label='PPO')
+    plt.xlabel('Episodes')
     plt.ylabel('Mean Episode Reward')
-    plt.show()
+    eps_per_iter = np.mean(df['episodes_this_iter'])
+    return int(eps_per_iter)
 
 
 if __name__ == '__main__':
-    df_ppo_org, df_ppo = read_training_progress('PPO_MultiAgentMobileEnv_0_2020-07-13_17-17-15pe9vn3ul')
-    # plot_mean_eps_reward(df_ppo_org)
-    df_rand = read_testing_results('RandomAgent_DatarateMobileEnv_2020-07-13_17-34-07.csv')
-    df_rand2 = read_testing_results('RandomAgent_DatarateMobileEnv_2020-07-13_17-25-15.csv')
+    df_ppo_org, df_ppo = read_training_progress('PPO_MultiAgentMobileEnv_0_2020-07-14_09-34-32asp5wtp5')
+    df_greedy_best = read_testing_results('GreedyBestSelection_MultiAgentMobileEnv_2020-07-14_10-52-16.csv')
+    df_greedy_all = read_testing_results('GreedyAllSelection_MultiAgentMobileEnv_2020-07-14_10-56-44.csv')
+    df_rand = read_testing_results('RandomAgent_CentralMultiUserEnv_2020-07-14_11-07-26.csv')
 
-    plot_eps_reward([df_rand, df_rand2, df_ppo], ['rand1', 'rand2', 'ppo'], filename='eps_reward.pdf')
+    dfs = [df_greedy_best, df_greedy_all, df_rand]
+    labels = ['Greedy-Best', 'Greedy-All', 'Random']
+
+    eps_per_iter = plot_ppo_mean_eps_reward(df_ppo_org)
+    plot_eps_reward(dfs, labels, roll_mean_window=eps_per_iter, filename='eps_reward.pdf')
