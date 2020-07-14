@@ -9,14 +9,16 @@ Using deep RL for mobility management.
 To install everything, run
 
 ```
+# on ubuntu
+sudo apt update
+sudo apt upgrade
+sudo apt install cmake build-essential zlib1g-dev
+
+# on all systems
 python setup.py install
 ```
 
 Tested on Ubuntu 20.04 (on WSL) with Python 3.8. RLlib does not ([yet](https://github.com/ray-project/ray/issues/631)) run on Windows, but it does on WSL.
-
-It may fail installing `gym[atari]`, which needs the following dependencies that can be installed with `apt`:
-`cmake, zlib1g-dev`.
-
 
 For saving videos and gifs, you also need to install ffmpeg (not on Windows) and [ImageMagick](https://imagemagick.org/index.php). 
 On Ubuntu:

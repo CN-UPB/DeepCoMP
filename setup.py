@@ -10,7 +10,7 @@ requirements = [
     'numpy==1.18.3',
     'gym==0.17.1',
     'tensorflow==2.2.0',
-    'ray==0.8.6',
+    'ray[rllib]==0.8.6',
     'gputil==1.4.0',
     'pandas==1.0.5',
     'tqdm==4.47.0',

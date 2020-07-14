@@ -32,6 +32,7 @@ def setup_cli():
     parser.add_argument('--video', type=str, choices=SUPPORTED_RENDER, default='html',
                         help="How (and whether) to render the testing video.")
     parser.add_argument('--eval', type=int, default=30, help="Number of evaluation episodes after testing")
+    parser.add_argument('--seed', type=int, default=None, help="Seed for the RNG (algorithms and environment)")
 
     args = parser.parse_args()
     log.info('CLI args', args=args)
@@ -53,13 +54,11 @@ def main():
     train = args.test is None
     # name of the RLlib dir to load the agent from for testing; when training always loads the just trained agent
     agent_path = f'{TRAIN_DIR}/{args.test}'
-    # seed for agent & env
-    seed = 42
 
     # create RLlib config (with env inside) & simulator
     config = create_env_config(agent=args.agent, map_size=args.env, num_slow_ues=args.slow_ues,
                                num_fast_ues=args.fast_ues, eps_length=args.eps_length,
-                               num_workers=args.workers, train_batch_size=args.batch_size, seed=seed)
+                               num_workers=args.workers, train_batch_size=args.batch_size, seed=args.seed)
     sim = Simulation(config=config, agent_name=args.alg, debug=False)
 
     # train
@@ -67,7 +66,7 @@ def main():
         agent_path, analysis = sim.train(stop_criteria)
 
     # load & test agent
-    sim.load_agent(rllib_path=agent_path, rand_seed=seed, fixed_action=[1, 1])
+    sim.load_agent(rllib_path=agent_path, rand_seed=args.seed, fixed_action=[1, 1])
 
     # simulate one episode and render
     log_dict = {
