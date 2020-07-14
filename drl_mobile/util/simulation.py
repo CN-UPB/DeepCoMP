@@ -155,7 +155,7 @@ class Simulation:
 
         :param dict obs: Dict of observations for all agents
         :param env: The environment to which to apply the actions to
-        :returns: tuple (obs, r, done) WHERE
+        :returns: tuple (obs, r, done, info) WHERE
             obs is the next observation
             r is the immediate reward
             done is done['__all__'] indicating if all agents are done
@@ -165,7 +165,7 @@ class Simulation:
         action = self.agent.compute_action(obs)
         obs, reward, done, info = env.step(action)
         self.log.debug("Step", t=info['time'], action=action, reward=reward, next_obs=obs, done=done)
-        return obs, reward, done
+        return obs, reward, done, info
 
     def apply_action_multi_agent(self, obs, env):
         """
@@ -174,7 +174,7 @@ class Simulation:
 
         :param dict obs: Dict of observations for all agents
         :param env: The environment to which to apply the actions to
-        :returns: tuple (obs, r, done) WHERE
+        :returns: tuple (obs, r, done, info) WHERE
             obs is the next observation
             r is the summed up immediate reward for all agents
             done is done['__all__'] indicating if all agents are done
@@ -186,10 +186,10 @@ class Simulation:
             policy_id = self.config['multiagent']['policy_mapping_fn'](agent_id)
             action[agent_id] = self.agent.compute_action(agent_obs, policy_id=policy_id)
         obs, reward, done, info = env.step(action)
-        # time is the same for all agents; just retrieve it from the last one
-        time = info[agent_id]['time']
-        self.log.debug("Step", t=time, action=action, reward=reward, next_obs=obs, done=done['__all__'])
-        return obs, sum(reward.values()), done['__all__']
+        # info is currently the same for all agents; just get the info from the last agent
+        info = info[agent_id]
+        self.log.debug("Step", t=info['time'], action=action, reward=reward, next_obs=obs, done=done['__all__'])
+        return obs, sum(reward.values()), done['__all__'], info
 
     def run_episode(self, env, render=None, log_dict=None):
         """
@@ -215,7 +215,9 @@ class Simulation:
 
         # run until episode ends
         patches = []
-        episode_reward = 0
+        eps_reward = 0
+        eps_dr = 0
+        eps_utility = 0
         done = False
         obs = env.reset()
         while not done:
@@ -224,12 +226,17 @@ class Simulation:
                 if render == 'plot':
                     plt.show()
 
-            # get and apply action, increment episode reward
+            # get and apply action
             if self.multi_agent_env:
-                obs, reward, done = self.apply_action_multi_agent(obs, env)
+                obs, reward, done, info = self.apply_action_multi_agent(obs, env)
             else:
-                obs, reward, done = self.apply_action_single_agent(obs, env)
-            episode_reward += reward
+                obs, reward, done, info = self.apply_action_single_agent(obs, env)
+
+            # increment metrics according to reward and info
+            eps_reward += reward
+            # total dr and utility for all UEs; later normalized by eps_length
+            eps_dr += sum(info['dr'].values())
+            eps_utility += sum(info['utility'].values())
 
         # create the animation
         if render is not None:
@@ -237,10 +244,14 @@ class Simulation:
 
         # episode time in seconds (to measure simulation efficiency)
         eps_time = time.time() - eps_start
-        self.log.debug('Episode complete', episode_reward=episode_reward, episode_time=eps_time)
-        return episode_reward, eps_time
+        # step dr and utlity: normalized by steps per episode
+        step_dr = eps_dr / self.episode_length
+        step_utility = eps_utility / self.episode_length
+        self.log.debug('Episode complete', episode_reward=eps_reward, episode_time=eps_time, step_dr=step_dr,
+                       step_utility=step_utility)
+        return eps_reward, eps_time, step_dr, step_utility
 
-    def write_results(self, eps_rewards, eps_times):
+    def write_results(self, eps_rewards, eps_times, step_drs, step_utilities):
         """Write experiment results to CSV file. Include all relevant info."""
         result_file = f'{TEST_DIR}/{self.result_filename}.csv'
         self.log.info("Writing results", file=result_file)
@@ -260,7 +271,9 @@ class Simulation:
             # actual results
             'episode': [i+1 for i in range(len(eps_rewards))],
             'eps_reward': eps_rewards,
-            'eps_time': eps_times
+            'eps_time': eps_times,
+            'avg_step_dr': step_drs,
+            'avg_step_util': step_utilities
         }
 
         # training data for PPO
@@ -306,7 +319,7 @@ class Simulation:
             for _ in tqdm(range(num_episodes), disable=(num_episodes == 1))
         )
         # unzip results, ie, convert list of tuples to two separate lists
-        eps_rewards, eps_times = map(list, zip(*zipped_results))
+        eps_rewards, eps_times, step_drs, step_utilities = map(list, zip(*zipped_results))
 
         # summarize episode rewards
         mean_eps_reward = np.mean(eps_rewards)
@@ -317,6 +330,6 @@ class Simulation:
 
         # write results to file
         if write_results:
-            self.write_results(eps_rewards, eps_times)
+            self.write_results(eps_rewards, eps_times, step_drs, step_utilities)
 
         return eps_rewards

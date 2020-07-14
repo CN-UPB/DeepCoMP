@@ -74,12 +74,11 @@ Run the command in a WSL not a PyCharm terminal. Tensorboard is available at htt
 
 ### Todos
 
-* Plot training results of RL agent compare with results from heuristics. Then testing.
 * Write evaluation metrics to file from simulator. 
 * Evaluation: 
     * Comparison with heuristics and random baseline
     * Also compare multi-agent & centralized with limited training time
-    * Metrics: Total reward, total utility, total unsuccessful connect attempts, total lost connections, CDF of avg UE rate
+    * Metrics: Total & avg reward, total data rate, total utility, total unsuccessful connect attempts, total lost connections, CDF of avg UE rate
 * Ideas for improving the observation space:
     * Curr normalization of dr based on required dr is taylored to step function
     * For log utility it still somewhat makes sense to normalize for req_dr 1, since `f(x)=4log(0.1+x)=0 <=> x=0.9` --> Normalize based on where the utility function has y=0?

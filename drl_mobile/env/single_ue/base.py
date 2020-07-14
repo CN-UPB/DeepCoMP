@@ -169,7 +169,13 @@ class MobileEnv(gym.Env):
 
     def info(self):
         """Return info dict that's returned after a step"""
-        return {'time': self.time}
+        info_dict = {
+            'time': self.time,
+            'dr': {ue: ue.curr_dr for ue in self.ue_list},
+            'utility': {ue: ue.utility for ue in self.ue_list}
+        }
+        # TODO: add info about unsuccessful conn. attempts and dropped connections
+        return info_dict
 
     def step(self, action):
         """
