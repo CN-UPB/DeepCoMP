@@ -28,7 +28,7 @@ _this_dir = pathlib.Path(__file__).parent.absolute()
 PROJECT_ROOT = _this_dir.parent.parent.absolute()
 RESULT_DIR = os.path.join(PROJECT_ROOT, 'results')
 TRAIN_DIR = os.path.join(RESULT_DIR, 'PPO')
-TEST_DIR = os.path.join(RESULT_DIR, 'testing')
+EVAL_DIR = os.path.join(RESULT_DIR, 'eval')
 VIDEO_DIR = os.path.join(RESULT_DIR, 'videos')
 PLOT_DIR = os.path.join(RESULT_DIR, 'plots')
 
@@ -37,7 +37,7 @@ def create_result_dirs():
     """Create directories for saving training, testing results and videos"""
     os.makedirs(RESULT_DIR, exist_ok=True)
     os.makedirs(TRAIN_DIR, exist_ok=True)
-    os.makedirs(TEST_DIR, exist_ok=True)
+    os.makedirs(EVAL_DIR, exist_ok=True)
     os.makedirs(VIDEO_DIR, exist_ok=True)
     os.makedirs(PLOT_DIR, exist_ok=True)
 

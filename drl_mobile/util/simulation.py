@@ -8,12 +8,13 @@ import matplotlib.pyplot as plt
 import matplotlib.animation
 import seaborn as sns
 import numpy as np
+from tqdm import tqdm
 import ray
 import ray.tune
 from ray.rllib.agents.ppo import PPOTrainer
 from ray.rllib.env.multi_agent_env import MultiAgentEnv
 
-from drl_mobile.util.constants import SUPPORTED_ALGS, SUPPORTED_RENDER, RESULT_DIR, TRAIN_DIR, TEST_DIR, VIDEO_DIR
+from drl_mobile.util.constants import SUPPORTED_ALGS, SUPPORTED_RENDER, RESULT_DIR, TRAIN_DIR, EVAL_DIR, VIDEO_DIR
 from drl_mobile.agent.dummy import RandomAgent, FixedAgent
 from drl_mobile.agent.heuristics import GreedyBestSelection, GreedyAllSelection
 
@@ -208,7 +209,8 @@ class Simulation:
 
         # simulate for given number of episodes; time each episode
         eps_times = []
-        for _ in range(num_episodes):
+        self.log.info('Starting evaluation', num_episodes=num_episodes)
+        for _ in tqdm(range(num_episodes), disable=(num_episodes == 1)):
             eps_start = time.time()
             if render is not None:
                 fig = plt.figure(figsize=(9, 6))
@@ -242,7 +244,7 @@ class Simulation:
             # episode time in seconds (to measure simulation efficiency)
             eps_time = time.time() - eps_start
             eps_times.append(eps_time)
-            self.log.info('Episode complete', episode_reward=episode_reward, episode_time=eps_time)
+            self.log.debug('Episode complete', episode_reward=episode_reward, episode_time=eps_time)
 
         # summarize episode rewards
         mean_eps_reward = np.mean(eps_rewards)
@@ -253,7 +255,7 @@ class Simulation:
 
         # write results to file
         if write_results:
-            result_file = f'{TEST_DIR}/{self.result_filename}.csv'
+            result_file = f'{EVAL_DIR}/{self.result_filename}.csv'
             self.log.info("Writing results", file=result_file)
             # prepare and write result data
             data = {

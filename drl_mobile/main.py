@@ -30,7 +30,7 @@ def setup_cli():
     # parser.add_argument('--cont-train', type=str, help="Load agent from given (checkpoint) path and continue training.")
     parser.add_argument('--video', type=str, choices=SUPPORTED_RENDER, default='html',
                         help="How (and whether) to render the testing video.")
-    parser.add_argument('--no-eval', action='store_true', help="Disable additional evaluation episodes after testing.")
+    parser.add_argument('--eval', type=int, default=30, help="Number of evaluation episodes after testing")
 
     args = parser.parse_args()
     log.info('CLI args', args=args)
@@ -76,8 +76,7 @@ def main():
     sim.run(render=args.video, log_dict=log_dict)
 
     # evaluate over multiple episodes
-    if not args.no_eval:
-        sim.run(num_episodes=30, write_results=True)
+    sim.run(num_episodes=args.eval, write_results=True)
 
 
 if __name__ == '__main__':

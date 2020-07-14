@@ -58,7 +58,7 @@ Then access at `<remote-ip>:8000`.
 To view learning curves (and other metrics) when training an agent, use Tensorboard:
 
 ```
-tensorboard --logdir results (--host 0.0.0.0)
+tensorboard --logdir results/PPO/ (--host 0.0.0.0)
 ```
 
 Run the command in a WSL not a PyCharm terminal. Tensorboard is available at http://localhost:6006

@@ -5,7 +5,7 @@ from ast import literal_eval
 import pandas as pd
 import matplotlib.pyplot as plt
 
-from drl_mobile.util.constants import TRAIN_DIR, TEST_DIR, PLOT_DIR
+from drl_mobile.util.constants import TRAIN_DIR, EVAL_DIR, PLOT_DIR
 
 
 def read_training_progress(dir_name):
@@ -41,7 +41,7 @@ def read_testing_results(filename):
     :param filename: Filename, eg, 'RandomAgent_DatarateMobileEnv_2020-07-13_17-34-07.csv'
     :return: Data frame containing the results
     """
-    result_file = os.path.join(TEST_DIR, filename)
+    result_file = os.path.join(EVAL_DIR, filename)
     df = pd.read_csv(result_file)
     return df
 

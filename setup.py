@@ -12,7 +12,8 @@ requirements = [
     'tensorflow==2.2.0',
     'ray[rllib]==0.8.6',
     'gputil==1.4.0',
-    'pandas==1.0.5'
+    'pandas==1.0.5',
+    'tqdm==4.47.0'
 ]
 
 # TODO: update on final release
