@@ -18,6 +18,7 @@ def setup_cli():
     parser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     parser.add_argument('--workers', type=int, default=1, help="Number of ray workers")
     parser.add_argument('--eps-length', type=int, default=30, help="Number of time steps per episode")
+    parser.add_argument('--train-steps', type=int, default=None, help="Max. number of training time steps (if any)")
     parser.add_argument('--train-iter', type=int, default=None, help="Max. number of training iterations (if any)")
     parser.add_argument('--target-reward', type=int, default=None, help="Target mean episode reward for training")
     parser.add_argument('--batch-size', type=int, default=1000, help="Number of training iterations per training batch")
@@ -45,6 +46,8 @@ def main():
 
     # stop training when any of the criteria is met
     stop_criteria = dict()
+    if args.train_steps is not None:
+        stop_criteria['timesteps_total'] = args.train_steps
     if args.train_iter is not None:
         stop_criteria['training_iteration'] = args.train_iter
     if args.target_reward is not None:
