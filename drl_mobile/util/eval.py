@@ -94,6 +94,7 @@ def plot_ppo_mean_eps_reward(df):
 def summarize_results(dir=EVAL_DIR):
     """Read and summarize all results in a directory. Return a df."""
     config_cols = ['alg', 'agent', 'num_ue_slow', 'num_ue_fast', 'eps_length', 'env_size']
+    result_cols = ['eps_reward', 'avg_step_dr', 'avg_step_util']
     files = os.listdir(dir)
     data = defaultdict(list)
 
@@ -105,10 +106,12 @@ def summarize_results(dir=EVAL_DIR):
             data[conf].append(df[conf][0])
         # summarize num ues
         data['num_ue'].append(df['num_ue_slow'][0] + df['num_ue_fast'][0])
-        # summarize eps reward
+        # summarize eps reward and other stats
         data['num_eps'].append(len(df['eps_reward']))
-        data['eps_reward_mean'].append(np.mean(df['eps_reward']))
-        data['eps_reward_std'].append(np.std(df['eps_reward']))
+        # calc mean and std for all results
+        for res in result_cols:
+            data[f'{res}_mean'].append(np.mean(df[res]))
+            data[f'{res}_std'].append(np.std(df[res]))
 
     # create and return combined df
     return pd.DataFrame(data=data)
@@ -122,15 +125,15 @@ def concat_results(dir=EVAL_DIR):
     return pd.concat(dfs)
 
 
-def plot_increasing_ues(df, filename=None):
+def plot_increasing_ues(df, metric, filename=None):
     """Plot results for increasing num. UEs. Takes summarized df as input."""
     for alg in df['alg'].unique():
         df_alg = df[df['alg'] == alg]
-        plt.errorbar(df_alg['num_ue'], df_alg['eps_reward_mean'], yerr=df_alg['eps_reward_std'], capsize=5, label=alg)
+        plt.errorbar(df_alg['num_ue'], df_alg[f'{metric}_mean'], yerr=df_alg[f'{metric}_std'], capsize=5, label=alg)
 
     # axes and legend
     plt.xlabel("Num. UEs")
-    plt.ylabel("Episode Reward")
+    plt.ylabel(metric)
 
     # remove error bars from legend: https://stackoverflow.com/a/15551976/2745116
     # get handles
@@ -161,7 +164,9 @@ if __name__ == '__main__':
     # eps_per_iter = plot_ppo_mean_eps_reward(df_ppo_org)
     # plot_eps_reward(dfs, labels, roll_mean_window=eps_per_iter, filename='eps_reward.pdf')
 
-    df = summarize_results()
+    df = summarize_results(dir=TEST_DIR)
     # df = concat_results()
-    plot_increasing_ues(df, filename='reward_incr_ues.pdf')
+    plot_increasing_ues(df, metric='eps_reward', filename='reward_incr_ues.pdf')
+    plot_increasing_ues(df, metric='avg_step_dr', filename='dr_incr_ues.pdf')
+    plot_increasing_ues(df, metric='avg_step_util', filename='utility_incr_ues.pdf')
 
