@@ -96,20 +96,19 @@ class MobileEnv(gym.Env):
         In extended env version, apply actions of all UEs.
 
         :param: Action to be applied (here: for a single UE)
-        :return: Dict of penalties for each UE based on unsuccessful connection attempts (-3)
+        :return: Dict of num. unsuccessful connections attempts for each UE (at most one per UE)
         """
         assert self.action_space.contains(action), f"Action {action} does not fit action space {self.action_space}"
-        penalties = {ue: 0 for ue in self.ue_list}
+        unsucc_conn = {ue: 0 for ue in self.ue_list}
         # select active UE (to update in this step) using round robin
         ue = self.ue_list[self.time % self.num_ue]
 
         # apply action: try to connect to BS; or: 0 = no op
         if action > 0:
             bs = self.bs_list[action-1]
-            # penalty of -3 for unsuccessful connection attempt
-            penalties[ue] = -3 * (not ue.connect_to_bs(bs, disconnect=True))
+            unsucc_conn[ue] = not ue.connect_to_bs(bs, disconnect=True)
 
-        return penalties
+        return unsucc_conn
 
     def update_ue_drs_rewards(self, penalties):
         """
@@ -129,14 +128,14 @@ class MobileEnv(gym.Env):
         """
         Move all UEs and return dict of penalties corresponding to number of lost connections.
 
-        :return: Penalties for lost connections: UE --> -1 * num. lost connections
+        :return: Dict with num lost connections: UE --> num. lost connections
         """
-        penalties = dict()
+        lost_conn = dict()
         for ue in self.ue_list:
             num_lost_conn = ue.move()
             # add penalty of -1 for each lost connection through movement (rather than actively disconnected)
-            penalties[ue] = -num_lost_conn
-        return penalties
+            lost_conn[ue] = num_lost_conn
+        return lost_conn
 
     def next_obs(self):
         """
@@ -167,14 +166,15 @@ class MobileEnv(gym.Env):
         """
         return self.time >= self.episode_length
 
-    def info(self):
-        """Return info dict that's returned after a step"""
+    def info(self, unsucc_conn, lost_conn):
+        """Return info dict that's returned after a step. Includes info about unsuccessful and lost connections."""
         info_dict = {
             'time': self.time,
             'dr': {ue: ue.curr_dr for ue in self.ue_list},
-            'utility': {ue: ue.utility for ue in self.ue_list}
+            'utility': {ue: ue.utility for ue in self.ue_list},
+            'unsucc_conn': unsucc_conn,
+            'lost_conn': lost_conn
         }
-        # TODO: add info about unsuccessful conn. attempts and dropped connections
         return info_dict
 
     def step(self, action):
@@ -190,9 +190,13 @@ class MobileEnv(gym.Env):
         prev_obs = self.obs
 
         # perform step: apply action, move UEs, update data rates and rewards in between; increment time
-        penalties = self.apply_ue_actions(action)
+        unsucc_conn = self.apply_ue_actions(action)
+        # penalty of -3 for unsuccessful connection attempt
+        penalties = {ue: -3 * unsucc_conn[ue] for ue in self.ue_list}
         rewards_before = self.update_ue_drs_rewards(penalties)
-        penalties = self.move_ues()
+        lost_conn = self.move_ues()
+        # penalty of -1 for lost connections due to movement (rather than active disconnect)
+        penalties = {ue: -1 * lost_conn[ue] for ue in self.ue_list}
         rewards_after = self.update_ue_drs_rewards(penalties)
         rewards = {ue: np.mean([rewards_before[ue], rewards_after[ue]]) for ue in self.ue_list}
         self.time += 1
@@ -201,7 +205,7 @@ class MobileEnv(gym.Env):
         self.obs = self.next_obs()
         reward = self.step_reward(rewards)
         done = self.done()
-        info = self.info()
+        info = self.info(unsucc_conn, lost_conn)
         self.log.info("Step", time=self.time, prev_obs=prev_obs, action=action, reward=reward, next_obs=self.obs,
                       done=done)
         return self.obs, reward, done, info

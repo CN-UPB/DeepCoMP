@@ -200,6 +200,13 @@ class Simulation:
         :param log_dict: Dict with logging levels to set
         :return: Tuple of episode results
         """
+        # init eps metrics
+        eps_reward = 0
+        eps_dr = 0
+        eps_utility = 0
+        eps_unsucc_conn = 0
+        eps_lost_conn = 0
+
         # no need to instantiate new env since each joblib iteration has its own copy
         # that's why we need to set the logging level again for each iteration
         config_logging(round_digits=3)
@@ -215,9 +222,6 @@ class Simulation:
 
         # run until episode ends
         patches = []
-        eps_reward = 0
-        eps_dr = 0
-        eps_utility = 0
         done = False
         obs = env.reset()
         while not done:
@@ -234,9 +238,11 @@ class Simulation:
 
             # increment metrics according to reward and info
             eps_reward += reward
-            # total dr and utility for all UEs; later normalized by eps_length
+            # total dr, utility, unsucc. conn, and lost conn for all UEs
             eps_dr += sum(info['dr'].values())
             eps_utility += sum(info['utility'].values())
+            eps_unsucc_conn += sum(info['unsucc_conn'].values())
+            eps_lost_conn += sum(info['lost_conn'].values())
 
         # create the animation
         if render is not None:
@@ -244,11 +250,11 @@ class Simulation:
 
         # episode time in seconds (to measure simulation efficiency)
         eps_time = time.time() - eps_start
-        self.log.debug('Episode complete', episode_reward=eps_reward, episode_time=eps_time, episode_dr=eps_dr,
-                       episode_utility=eps_utility)
-        return eps_reward, eps_time, eps_dr, eps_utility
+        self.log.debug('Episode complete', eps_reward=eps_reward, eps_time=eps_time, eps_dr=eps_dr,
+                       eps_utility=eps_utility, eps_unsucc_conn=eps_unsucc_conn, eps_lost_conn=eps_lost_conn)
+        return eps_reward, eps_time, eps_dr, eps_utility, eps_unsucc_conn, eps_lost_conn
 
-    def write_results(self, eps_rewards, eps_times, eps_drs, eps_util):
+    def write_results(self, eps_rewards, eps_times, eps_drs, eps_util, eps_unsucc_conn, eps_lost_conn):
         """Write experiment results to CSV file. Include all relevant info."""
         result_file = f'{TEST_DIR}/{self.result_filename}.csv'
         self.log.info("Writing results", file=result_file)
@@ -270,7 +276,9 @@ class Simulation:
             'eps_reward': eps_rewards,
             'eps_time': eps_times,
             'eps_dr': eps_drs,
-            'eps_util': eps_util
+            'eps_util': eps_util,
+            'eps_unsucc_conn': eps_unsucc_conn,
+            'eps_lost_conn': eps_lost_conn
         }
 
         # training data for PPO
@@ -316,7 +324,7 @@ class Simulation:
             for _ in tqdm(range(num_episodes), disable=(num_episodes == 1))
         )
         # unzip results, ie, convert list of tuples to two separate lists
-        eps_rewards, eps_times, eps_drs, eps_util = map(list, zip(*zipped_results))
+        eps_rewards, eps_times, eps_drs, eps_util, eps_unsucc_con, eps_lost_conn = map(list, zip(*zipped_results))
 
         # summarize episode rewards
         mean_eps_reward = np.mean(eps_rewards)
@@ -327,6 +335,6 @@ class Simulation:
 
         # write results to file
         if write_results:
-            self.write_results(eps_rewards, eps_times, eps_drs, eps_util)
+            self.write_results(eps_rewards, eps_times, eps_drs, eps_util, eps_unsucc_con, eps_lost_conn)
 
         return eps_rewards

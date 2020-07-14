@@ -32,21 +32,20 @@ class MultiAgentMobileEnv(DatarateMobileEnv, MultiAgentEnv):
         Apply actions of all UEs.
 
         :param: Dict of actions: UE --> action
-        :return: Dict of penalties for each UE based on unsuccessful connection attempts (-3)
+        :return: Dict of for each UE based on unsuccessful connection attempts
         """
-        penalties = dict()
+        unsucc_conn = dict()
 
         # apply action: try to connect to BS; or: 0 = no op
         for ue in self.ue_list:
-            penalties[ue] = 0
+            unsucc_conn[ue] = 0
 
             # apply action for UE; 0= noop
             if action[ue.id] > 0:
                 bs = self.bs_list[action[ue.id] - 1]
-                # penalty of -3 for unsuccessful connection attempt
-                penalties[ue] -= 3 * (not ue.connect_to_bs(bs, disconnect=True))
+                unsucc_conn[ue] = not ue.connect_to_bs(bs, disconnect=True)
 
-        return penalties
+        return unsucc_conn
 
     def next_obs(self):
         """Return next obs: Dict with UE --> obs"""
@@ -69,7 +68,7 @@ class MultiAgentMobileEnv(DatarateMobileEnv, MultiAgentEnv):
         dones['__all__'] = done
         return dones
 
-    def info(self):
+    def info(self, unsucc_conn, lost_conn):
         """Return info for each UE as dict"""
-        info_dict = super().info()
+        info_dict = super().info(unsucc_conn, lost_conn)
         return {ue.id: info_dict for ue in self.ue_list}

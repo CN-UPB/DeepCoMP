@@ -81,18 +81,17 @@ class CentralMultiUserEnv(MobileEnv):
 
     # overwrite modular functions used within step that are different in the centralized case
     def apply_ue_actions(self, action):
-        """Apply action. Here: Actions for all UEs. Return penalty for unsuccessful connection attempts."""
+        """Apply action. Here: Actions for all UEs. Return unsuccessful connection attempts."""
         assert self.action_space.contains(action), f"Action {action} does not fit action space {self.action_space}"
-        penalties = {ue: 0 for ue in self.ue_list}
+        unsucc_conn = {ue: 0 for ue in self.ue_list}
 
         # apply action: try to connect to BS; or: 0 = no op
         for i, ue in enumerate(self.ue_list):
             if action[i] > 0:
                 bs = self.bs_list[action[i] - 1]
-                # penalty of -3 for unsuccessful connection attempt
-                penalties[ue] = -3 * (not ue.connect_to_bs(bs, disconnect=True))
+                unsucc_conn[ue] = not ue.connect_to_bs(bs, disconnect=True)
 
-        return penalties
+        return unsucc_conn
 
     def next_obs(self):
         return self.get_obs()
