@@ -4,7 +4,7 @@ import argparse
 
 import structlog
 
-from drl_mobile.util.constants import SUPPORTED_ALGS, SUPPORTED_ENVS, SUPPORTED_AGENTS, SUPPORTED_RENDER
+from drl_mobile.util.constants import SUPPORTED_ALGS, SUPPORTED_ENVS, SUPPORTED_AGENTS, SUPPORTED_RENDER, TRAIN_DIR
 from drl_mobile.util.simulation import Simulation
 from drl_mobile.util.logs import config_logging
 from drl_mobile.util.env_setup import create_env_config
@@ -43,17 +43,16 @@ def main():
     args = setup_cli()
 
     # stop training when any of the criteria is met
-    # stop_criteria = dict()
-    # if args.
+    stop_criteria = dict()
+    if args.train_iter is not None:
+        stop_criteria['training_iteration'] = args.train_iter
+    if args.target_reward is not None:
+        stop_criteria['episode_reward_mean'] = args.target_reward
 
-    stop_criteria = {
-        'training_iteration': args.train_iter,
-        # 'episode_reward_mean': 50
-    }
     # train or load trained agent; only set train=True for ppo agent
     train = args.test is None
-    # name of the RLlib dir to load the agent from for testing
-    # agent_path = '../training/PPO/PPO_MultiAgentMobileEnv_0_2020-07-01_15-42-31ypyfzmte/checkpoint_25/checkpoint-25'
+    # name of the RLlib dir to load the agent from for testing; when training always loads the just trained agent
+    agent_path = f'{TRAIN_DIR}/{args.test}'
     # seed for agent & env
     seed = 42
 
@@ -68,7 +67,7 @@ def main():
         agent_path, analysis = sim.train(stop_criteria)
 
     # load & test agent
-    sim.load_agent(rllib_path=args.test, rand_seed=seed, fixed_action=[1, 1])
+    sim.load_agent(rllib_path=agent_path, rand_seed=seed, fixed_action=[1, 1])
 
     # simulate one episode and render
     log_dict = {

@@ -97,7 +97,7 @@ class Simulation:
         """
         if self.agent_name == 'ppo':
             self.agent = PPOTrainer(config=self.config, env=self.env_class)
-            self.agent.restore(f'{TRAIN_DIR}/{rllib_path}')
+            self.agent.restore(rllib_path)
         if self.agent_name == 'greedy-best':
             self.agent = GreedyBestSelection()
         if self.agent_name == 'greedy-all':
