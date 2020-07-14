@@ -94,7 +94,7 @@ def plot_ppo_mean_eps_reward(df):
 def summarize_results(dir=EVAL_DIR):
     """Read and summarize all results in a directory. Return a df."""
     config_cols = ['alg', 'agent', 'num_ue_slow', 'num_ue_fast', 'eps_length', 'env_size']
-    result_cols = ['eps_reward', 'avg_step_dr', 'avg_step_util']
+    result_cols = ['eps_reward', 'eps_dr', 'eps_util']
     files = os.listdir(dir)
     data = defaultdict(list)
 
@@ -167,6 +167,6 @@ if __name__ == '__main__':
     df = summarize_results(dir=TEST_DIR)
     # df = concat_results()
     plot_increasing_ues(df, metric='eps_reward', filename='reward_incr_ues.pdf')
-    plot_increasing_ues(df, metric='avg_step_dr', filename='dr_incr_ues.pdf')
-    plot_increasing_ues(df, metric='avg_step_util', filename='utility_incr_ues.pdf')
+    plot_increasing_ues(df, metric='eps_dr', filename='dr_incr_ues.pdf')
+    plot_increasing_ues(df, metric='eps_util', filename='utility_incr_ues.pdf')
 

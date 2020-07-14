@@ -198,7 +198,7 @@ class Simulation:
         :param env: Instance of the environment to use (each joblib iteration will still use its own instance)
         :param render: Whether/How to render the episode
         :param log_dict: Dict with logging levels to set
-        :return: Tuple(episode reward, execution time)
+        :return: Tuple of episode results
         """
         # no need to instantiate new env since each joblib iteration has its own copy
         # that's why we need to set the logging level again for each iteration
@@ -244,14 +244,11 @@ class Simulation:
 
         # episode time in seconds (to measure simulation efficiency)
         eps_time = time.time() - eps_start
-        # step dr and utlity: normalized by steps per episode
-        step_dr = eps_dr / self.episode_length
-        step_utility = eps_utility / self.episode_length
-        self.log.debug('Episode complete', episode_reward=eps_reward, episode_time=eps_time, step_dr=step_dr,
-                       step_utility=step_utility)
-        return eps_reward, eps_time, step_dr, step_utility
+        self.log.debug('Episode complete', episode_reward=eps_reward, episode_time=eps_time, episode_dr=eps_dr,
+                       episode_utility=eps_utility)
+        return eps_reward, eps_time, eps_dr, eps_utility
 
-    def write_results(self, eps_rewards, eps_times, step_drs, step_utilities):
+    def write_results(self, eps_rewards, eps_times, eps_drs, eps_util):
         """Write experiment results to CSV file. Include all relevant info."""
         result_file = f'{TEST_DIR}/{self.result_filename}.csv'
         self.log.info("Writing results", file=result_file)
@@ -272,8 +269,8 @@ class Simulation:
             'episode': [i+1 for i in range(len(eps_rewards))],
             'eps_reward': eps_rewards,
             'eps_time': eps_times,
-            'avg_step_dr': step_drs,
-            'avg_step_util': step_utilities
+            'eps_dr': eps_drs,
+            'eps_util': eps_util
         }
 
         # training data for PPO
@@ -319,7 +316,7 @@ class Simulation:
             for _ in tqdm(range(num_episodes), disable=(num_episodes == 1))
         )
         # unzip results, ie, convert list of tuples to two separate lists
-        eps_rewards, eps_times, step_drs, step_utilities = map(list, zip(*zipped_results))
+        eps_rewards, eps_times, eps_drs, eps_util = map(list, zip(*zipped_results))
 
         # summarize episode rewards
         mean_eps_reward = np.mean(eps_rewards)
@@ -330,6 +327,6 @@ class Simulation:
 
         # write results to file
         if write_results:
-            self.write_results(eps_rewards, eps_times, step_drs, step_utilities)
+            self.write_results(eps_rewards, eps_times, eps_drs, eps_util)
 
         return eps_rewards
