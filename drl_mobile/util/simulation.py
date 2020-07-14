@@ -97,7 +97,7 @@ class Simulation:
         """
         if self.agent_name == 'ppo':
             self.agent = PPOTrainer(config=self.config, env=self.env_class)
-            self.agent.restore(rllib_path)
+            self.agent.restore(f'{TRAIN_DIR}/{rllib_path}')
         if self.agent_name == 'greedy-best':
             self.agent = GreedyBestSelection()
         if self.agent_name == 'greedy-all':
@@ -251,6 +251,9 @@ class Simulation:
         """
         assert self.agent is not None, "Train or load an agent before running the simulation"
         assert (num_episodes == 1) or (render is None), "Turn off rendering when running for multiple episodes"
+        if self.agent_name == 'ppo' and self.num_workers > 1:
+            self.log.warning('PPO testing and evaluation cannot be parallelized. Continuing with 1 worker.')
+            self.num_workers = 1
 
         # instantiate env and set logging level
         env = self.env_class(self.env_config)

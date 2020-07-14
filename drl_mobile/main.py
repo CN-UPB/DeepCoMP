@@ -18,7 +18,8 @@ def setup_cli():
     parser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     parser.add_argument('--workers', type=int, default=1, help="Number of ray workers")
     parser.add_argument('--eps-length', type=int, default=30, help="Number of time steps per episode")
-    parser.add_argument('--train-iter', type=int, default=1, help="Number of training iterations")
+    parser.add_argument('--train-iter', type=int, default=None, help="Max. number of training iterations (if any)")
+    parser.add_argument('--target-reward', type=int, default=None, help="Target mean episode reward for training")
     parser.add_argument('--batch-size', type=int, default=1000, help="Number of training iterations per training batch")
     parser.add_argument('--alg', type=str, choices=SUPPORTED_ALGS, default='ppo', help="Algorithm")
     parser.add_argument('--agent', type=str, choices=SUPPORTED_AGENTS, required=True,
@@ -42,15 +43,17 @@ def main():
     args = setup_cli()
 
     # stop training when any of the criteria is met
+    # stop_criteria = dict()
+    # if args.
+
     stop_criteria = {
         'training_iteration': args.train_iter,
-        # 'episode_reward_mean': 250
+        # 'episode_reward_mean': 50
     }
     # train or load trained agent; only set train=True for ppo agent
     train = args.test is None
     # name of the RLlib dir to load the agent from for testing
     # agent_path = '../training/PPO/PPO_MultiAgentMobileEnv_0_2020-07-01_15-42-31ypyfzmte/checkpoint_25/checkpoint-25'
-    agent_path = f'../training/PPO/{args.test}'
     # seed for agent & env
     seed = 42
 
@@ -65,7 +68,7 @@ def main():
         agent_path, analysis = sim.train(stop_criteria)
 
     # load & test agent
-    sim.load_agent(rllib_path=agent_path, rand_seed=seed, fixed_action=[1, 1])
+    sim.load_agent(rllib_path=args.test, rand_seed=seed, fixed_action=[1, 1])
 
     # simulate one episode and render
     log_dict = {
