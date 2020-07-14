@@ -39,6 +39,7 @@ class Simulation:
         self.multi_agent_env = MultiAgentEnv in self.env_class.__mro__
         # num workers for parallel execution of eval episodes
         self.num_workers = config['num_workers']
+        self.cli_args = config['cli_args']
 
         # agent
         assert agent_name in SUPPORTED_ALGS, f"Agent {agent_name} not supported. Supported agents: {SUPPORTED_ALGS}"
@@ -239,6 +240,40 @@ class Simulation:
         self.log.debug('Episode complete', episode_reward=episode_reward, episode_time=eps_time)
         return episode_reward, eps_time
 
+    def write_results(self, eps_rewards, eps_times):
+        """Write experiment results to CSV file. Include all relevant info."""
+        result_file = f'{EVAL_DIR}/{self.result_filename}.csv'
+        self.log.info("Writing results", file=result_file)
+
+        # prepare and write result data
+        data = {
+            # input/configuration data to track to what the results belong to
+            'alg': self.cli_args.alg,
+            'agent': self.cli_args.agent,
+            'env': self.env_name,
+            'env_size': self.cli_args.env,
+            'eps_length': self.episode_length,
+            'num_bs': len(self.env_config['bs_list']),
+            'num_ue_slow': self.cli_args.slow_ues,
+            'num_ue_fast': self.cli_args.fast_ues,
+
+            # actual results
+            'episode': [i+1 for i in range(len(eps_rewards))],
+            'eps_reward': eps_rewards,
+            'eps_time': eps_times
+        }
+
+        # training data for PPO
+        if self.agent_name == 'ppo':
+            data.update({
+                'train_steps': self.cli_args.train_steps,
+                'train-iter': self.cli_args.train_iter,
+                'target_reward': self.cli_args.target_reward
+            })
+
+        df = pd.DataFrame(data=data)
+        df.to_csv(result_file)
+
     def run(self, num_episodes=1, render=None, log_dict=None, write_results=False):
         """
         Run one or more simulation episodes. Render situation at beginning of each time step. Return episode rewards.
@@ -282,14 +317,6 @@ class Simulation:
 
         # write results to file
         if write_results:
-            result_file = f'{EVAL_DIR}/{self.result_filename}.csv'
-            self.log.info("Writing results", file=result_file)
-            # prepare and write result data
-            data = {
-                'episode': [i+1 for i in range(len(eps_rewards))],
-                'eps_reward': eps_rewards
-            }
-            df = pd.DataFrame(data=data)
-            df.to_csv(result_file)
+            self.write_results(eps_rewards, eps_times)
 
         return eps_rewards
