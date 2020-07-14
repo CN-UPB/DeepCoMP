@@ -8,7 +8,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
 
-from drl_mobile.util.constants import TRAIN_DIR, EVAL_DIR, PLOT_DIR
+from drl_mobile.util.constants import TRAIN_DIR, TEST_DIR, EVAL_DIR, PLOT_DIR
 
 
 def read_training_progress(dir_name):
@@ -47,7 +47,7 @@ def read_testing_results(filename):
     :param filename: Filename, eg, 'RandomAgent_DatarateMobileEnv_2020-07-13_17-34-07.csv'
     :return: Data frame containing the results
     """
-    result_file = os.path.join(EVAL_DIR, filename)
+    result_file = os.path.join(TEST_DIR, filename)
     df = pd.read_csv(result_file)
     return df
 
@@ -122,7 +122,7 @@ def concat_results(dir=EVAL_DIR):
     return pd.concat(dfs)
 
 
-def plot_increasing_ues(df):
+def plot_increasing_ues(df, filename=None):
     """Plot results for increasing num. UEs. Takes summarized df as input."""
     for alg in df['alg'].unique():
         df_alg = df[df['alg'] == alg]
@@ -142,6 +142,10 @@ def plot_increasing_ues(df):
 
     plt.legend()
 
+    # saving
+    if filename is not None:
+        plt.tight_layout()
+        plt.savefig(f'{PLOT_DIR}/{filename}')
     plt.show()
 
 
@@ -159,5 +163,5 @@ if __name__ == '__main__':
 
     df = summarize_results()
     # df = concat_results()
-    plot_increasing_ues(df)
+    plot_increasing_ues(df, filename='reward_incr_ues.pdf')
 

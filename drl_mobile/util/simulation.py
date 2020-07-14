@@ -13,7 +13,7 @@ import ray.tune
 from ray.rllib.agents.ppo import PPOTrainer
 from ray.rllib.env.multi_agent_env import MultiAgentEnv
 
-from drl_mobile.util.constants import SUPPORTED_ALGS, SUPPORTED_RENDER, RESULT_DIR, TRAIN_DIR, EVAL_DIR, VIDEO_DIR
+from drl_mobile.util.constants import SUPPORTED_ALGS, SUPPORTED_RENDER, RESULT_DIR, TRAIN_DIR, TEST_DIR, VIDEO_DIR
 from drl_mobile.agent.dummy import RandomAgent, FixedAgent
 from drl_mobile.agent.heuristics import GreedyBestSelection, GreedyAllSelection
 from drl_mobile.util.logs import config_logging
@@ -242,7 +242,7 @@ class Simulation:
 
     def write_results(self, eps_rewards, eps_times):
         """Write experiment results to CSV file. Include all relevant info."""
-        result_file = f'{EVAL_DIR}/{self.result_filename}.csv'
+        result_file = f'{TEST_DIR}/{self.result_filename}.csv'
         self.log.info("Writing results", file=result_file)
 
         # prepare and write result data

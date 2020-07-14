@@ -28,9 +28,10 @@ _this_dir = pathlib.Path(__file__).parent.absolute()
 PROJECT_ROOT = _this_dir.parent.parent.absolute()
 RESULT_DIR = os.path.join(PROJECT_ROOT, 'results')
 TRAIN_DIR = os.path.join(RESULT_DIR, 'PPO')
-EVAL_DIR = os.path.join(RESULT_DIR, 'eval')
+TEST_DIR = os.path.join(RESULT_DIR, 'test')
 VIDEO_DIR = os.path.join(RESULT_DIR, 'videos')
 PLOT_DIR = os.path.join(RESULT_DIR, 'plots')
+EVAL_DIR = os.path.join(PROJECT_ROOT, 'eval')
 
 
 def create_result_dirs():
