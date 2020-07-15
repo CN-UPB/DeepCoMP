@@ -4,7 +4,8 @@ import argparse
 
 import structlog
 
-from drl_mobile.util.constants import SUPPORTED_ALGS, SUPPORTED_ENVS, SUPPORTED_AGENTS, SUPPORTED_RENDER, TRAIN_DIR
+from drl_mobile.util.constants import SUPPORTED_ALGS, SUPPORTED_ENVS, SUPPORTED_AGENTS, SUPPORTED_RENDER, \
+    SUPPORTED_SHARING
 from drl_mobile.util.simulation import Simulation
 from drl_mobile.util.logs import config_logging
 from drl_mobile.util.env_setup import create_env_config
@@ -16,18 +17,24 @@ log = structlog.get_logger()
 def setup_cli():
     """Create CLI parser and return parsed args"""
     parser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter)
-    parser.add_argument('--workers', type=int, default=1, help="Number of ray workers")
-    parser.add_argument('--eps-length', type=int, default=30, help="Number of time steps per episode")
+    # required args
+    parser.add_argument('--agent', type=str, choices=SUPPORTED_AGENTS, required=True,
+                        help="Whether to use a single agent for 1 UE, a central agent, or multi agents")
+    # algorithm & training
+    parser.add_argument('--alg', type=str, choices=SUPPORTED_ALGS, default='ppo', help="Algorithm")
+    parser.add_argument('--workers', type=int, default=1, help="Number of workers for RLlib training and evaluation")
+    parser.add_argument('--batch-size', type=int, default=1000, help="Number of training iterations per training batch")
     parser.add_argument('--train-steps', type=int, default=None, help="Max. number of training time steps (if any)")
     parser.add_argument('--train-iter', type=int, default=None, help="Max. number of training iterations (if any)")
     parser.add_argument('--target-reward', type=int, default=None, help="Target mean episode reward for training")
-    parser.add_argument('--batch-size', type=int, default=1000, help="Number of training iterations per training batch")
-    parser.add_argument('--alg', type=str, choices=SUPPORTED_ALGS, default='ppo', help="Algorithm")
-    parser.add_argument('--agent', type=str, choices=SUPPORTED_AGENTS, required=True,
-                        help="Whether to use a single agent for 1 UE, a central agent, or multi agents")
+    # environment
     parser.add_argument('--env', type=str, choices=SUPPORTED_ENVS, default='small', help="Env/Map size")
+    parser.add_argument('--eps-length', type=int, default=30, help="Number of time steps per episode")
     parser.add_argument('--slow-ues', type=int, default=0, help="Number of slow UEs in the environment")
     parser.add_argument('--fast-ues', type=int, default=0, help="Number of fast UEs in the environment")
+    parser.add_argument('--sharing', type=str, choices=SUPPORTED_SHARING, default='proportional-fair',
+                        help="Sharing model used by BS to split resources and/or rate among connected UEs.")
+    # evaluation
     parser.add_argument('--test', type=str, help="Test trained agent at given path (auto. loads last checkpoint)")
     # parser.add_argument('--cont-train', type=str, help="Load agent from given (checkpoint) path and continue training.")
     parser.add_argument('--video', type=str, choices=SUPPORTED_RENDER, default='html',
@@ -61,7 +68,7 @@ def main():
 
     # create RLlib config (with env inside) & simulator
     config = create_env_config(agent=args.agent, map_size=args.env, num_slow_ues=args.slow_ues,
-                               num_fast_ues=args.fast_ues, eps_length=args.eps_length,
+                               num_fast_ues=args.fast_ues, sharing_model=args.sharing, eps_length=args.eps_length,
                                num_workers=args.workers, train_batch_size=args.batch_size, seed=args.seed)
     # add cli args to the config for saving inputs
     sim = Simulation(config=config, agent_name=args.alg, cli_args=args, debug=False)

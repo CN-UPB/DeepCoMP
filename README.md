@@ -78,7 +78,7 @@ tango4, tango5
 
 ### Todos
 
-* Write evaluation metrics to file from simulator. 
+* Add total dr and utility in rendered video (below time)
 * Evaluation: 
     * Comparison with heuristics and random baseline
     * Also compare multi-agent & centralized with limited training time

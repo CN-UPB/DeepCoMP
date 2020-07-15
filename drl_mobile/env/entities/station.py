@@ -12,12 +12,12 @@ SNR_THRESHOLD = 2e-8
 
 class Basestation:
     """A base station sending data to connected UEs"""
-    def __init__(self, id, pos):
+    def __init__(self, id, pos, sharing_model):
         self.id = id
         self.pos = pos
         self.conn_ues = []
         # model for sharing rate/resources among connected UEs. One of SUPPORTED_SHARING models
-        self.sharing_model = 'rate-fair'
+        self.sharing_model = sharing_model
         assert self.sharing_model in SUPPORTED_SHARING, f"{self.sharing_model=} not supported. {SUPPORTED_SHARING=}"
 
         # set constants for SINR and data rate calculation

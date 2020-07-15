@@ -289,6 +289,7 @@ class Simulation:
             'env_size': self.cli_args.env,
             'eps_length': self.episode_length,
             'num_bs': len(self.env_config['bs_list']),
+            'sharing_model': self.cli_args.sharing,
             'num_ue_slow': self.cli_args.slow_ues,
             'num_ue_fast': self.cli_args.fast_ues,
 

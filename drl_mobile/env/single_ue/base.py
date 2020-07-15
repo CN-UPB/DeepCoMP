@@ -58,6 +58,14 @@ class MobileEnv(gym.Env):
     def num_ue(self):
         return len(self.ue_list)
 
+    @property
+    def total_dr(self):
+        return sum([ue.curr_dr for ue in self.ue_list])
+
+    @property
+    def total_utility(self):
+        return sum([ue.utility for ue in self.ue_list])
+
     def seed(self, seed=None):
         random.seed(seed)
 
@@ -233,8 +241,10 @@ class MobileEnv(gym.Env):
 
         # title isn't redrawn in animation (out of box) --> static --> show time as text inside box, top-right corner
         patch.append(plt.title(type(self).__name__))
-        # extra info: time step, curr data rate
-        patch.append(plt.text(0.9*self.map.width, 0.9*self.map.height, f"t={self.time}"))
+        # extra info: time step, total data rate & utility
+        patch.append(plt.text(0.9*self.map.width, 0.95*self.map.height, f"t={self.time}"))
+        patch.append(plt.text(0.9*self.map.width, 0.9*self.map.height, f"dr={self.total_dr:.2f}"))
+        patch.append(plt.text(0.9*self.map.width, 0.85*self.map.height, f"util={self.total_utility:.2f}"))
 
         # legend doesn't change --> only draw once at the beginning
         # if self.time == 0:
