@@ -129,7 +129,16 @@ def plot_increasing_ues(df, metric, filename=None):
     """Plot results for increasing num. UEs. Takes summarized df as input."""
     for alg in df['alg'].unique():
         df_alg = df[df['alg'] == alg]
-        plt.errorbar(df_alg['num_ue'], df_alg[f'{metric}_mean'], yerr=df_alg[f'{metric}_std'], capsize=5, label=alg)
+
+        # for PPO, distinguish between centralized and multi-agent
+        if alg == 'ppo':
+            for agent in df_alg['agent'].unique():
+                df_ppo = df_alg[df_alg['agent'] == agent]
+                plt.errorbar(df_ppo['num_ue'], df_ppo[f'{metric}_mean'], yerr=df_ppo[f'{metric}_std'], capsize=5,
+                             label=f'{alg}_{agent}')
+
+        else:
+            plt.errorbar(df_alg['num_ue'], df_alg[f'{metric}_mean'], yerr=df_alg[f'{metric}_std'], capsize=5, label=alg)
 
     # axes and legend
     plt.xlabel("Num. UEs")
@@ -164,7 +173,7 @@ if __name__ == '__main__':
     # eps_per_iter = plot_ppo_mean_eps_reward(df_ppo_org)
     # plot_eps_reward(dfs, labels, roll_mean_window=eps_per_iter, filename='eps_reward.pdf')
 
-    df = summarize_results(dir=TEST_DIR)
+    df = summarize_results(dir=f'{EVAL_DIR}/comparison/')
     # df = concat_results()
     plot_increasing_ues(df, metric='eps_reward', filename='reward_incr_ues.pdf')
     plot_increasing_ues(df, metric='eps_dr', filename='dr_incr_ues.pdf')
