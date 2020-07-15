@@ -1,5 +1,5 @@
 """Main execution script used for experimentation"""
-import logging
+import os
 import argparse
 
 import structlog
@@ -28,7 +28,7 @@ def setup_cli():
     parser.add_argument('--env', type=str, choices=SUPPORTED_ENVS, default='small', help="Env/Map size")
     parser.add_argument('--slow-ues', type=int, default=0, help="Number of slow UEs in the environment")
     parser.add_argument('--fast-ues', type=int, default=0, help="Number of fast UEs in the environment")
-    parser.add_argument('--test', type=str, help="Do not train, only test trained agent at given path (to checkpoint)")
+    parser.add_argument('--test', type=str, help="Test trained agent at given path (auto. loads last checkpoint)")
     # parser.add_argument('--cont-train', type=str, help="Load agent from given (checkpoint) path and continue training.")
     parser.add_argument('--video', type=str, choices=SUPPORTED_RENDER, default='html',
                         help="How (and whether) to render the testing video.")
@@ -55,8 +55,8 @@ def main():
 
     # train or load trained agent; only set train=True for ppo agent
     train = args.test is None
-    # name of the RLlib dir to load the agent from for testing; when training always loads the just trained agent
-    agent_path = f'{TRAIN_DIR}/{args.test}'
+    if args.test is not None:
+        agent_path = os.path.abspath(args.test)
 
     # create RLlib config (with env inside) & simulator
     config = create_env_config(agent=args.agent, map_size=args.env, num_slow_ues=args.slow_ues,
@@ -70,7 +70,7 @@ def main():
         agent_path, analysis = sim.train(stop_criteria)
 
     # load & test agent
-    sim.load_agent(rllib_path=agent_path, rand_seed=args.seed, fixed_action=[1, 1])
+    sim.load_agent(rllib_dir=agent_path, rand_seed=args.seed, fixed_action=[1, 1])
 
     # simulate one episode and render
     log_dict = {

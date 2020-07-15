@@ -1,3 +1,4 @@
+import os
 import time
 from datetime import datetime
 
@@ -89,17 +90,35 @@ class Simulation:
         # self.plot_learning_curve(eps_results['episode_lengths'], eps_results['episode_reward'])
         return checkpoint_path, analysis
 
-    def load_agent(self, rllib_path=None, rand_seed=None, fixed_action=1):
+    @staticmethod
+    def get_last_checkpoint_path(rllib_dir):
+        """Given an RLlib training dir, return the full path to the last checkpoint"""
+        # check if rllib_dir is really already a pointer to a specific checkpoint; in that case, just return it
+        if 'checkpoint' in rllib_dir and os.path.isfile(rllib_dir):
+            return rllib_dir
+
+        rllib_dir = os.path.abspath(rllib_dir)
+        checkpoints = [f for f in os.listdir(rllib_dir) if f.startswith('checkpoint')]
+        last_checkpoint_dir = os.path.join(rllib_dir, checkpoints[-1])
+        # eg, retrieve '10' from '...PPO_MultiAgentMobileEnv_0_2020-07-14_17-28-33je5r1lov/checkpoint_10'
+        last_checkpoint_no = last_checkpoint_dir.split('_')[-1]
+        # construct full checkpoint path, eg, '...r1lov/checkpoint_10/checkpoint-10'
+        last_checkpoint_path = os.path.join(last_checkpoint_dir, f'checkpoint-{last_checkpoint_no}')
+        return last_checkpoint_path
+
+    def load_agent(self, rllib_dir=None, rand_seed=None, fixed_action=1):
         """
         Load a trained RLlib agent from the specified rllib_path. Call this before testing a trained agent.
 
-        :param rllib_path: Path pointing to the agent's saved checkpoint (only used for RLlib agents)
+        :param rllib_dir: Path pointing to the agent's training dir (only used for RLlib agents)
         :param rand_seed: RNG seed used by the random agent (ignored by other agents)
         :param fixed_action: Fixed action performed by the fixed agent (ignored by the others)
         """
         if self.agent_name == 'ppo':
             self.agent = PPOTrainer(config=self.config, env=self.env_class)
-            self.agent.restore(rllib_path)
+            checkpoint_path = self.get_last_checkpoint_path(rllib_dir)
+            self.log.info('Loading PPO agent', checkpoint=checkpoint_path)
+            self.agent.restore(checkpoint_path)
         if self.agent_name == 'greedy-best':
             self.agent = GreedyBestSelection()
         if self.agent_name == 'greedy-all':
@@ -111,7 +130,7 @@ class Simulation:
         if self.agent_name == 'fixed':
             self.agent = FixedAgent(action=fixed_action, noop_interval=4)
 
-        self.log.info('Agent loaded', agent=type(self.agent).__name__, rllib_path=rllib_path)
+        self.log.info('Agent loaded', agent=type(self.agent).__name__, rllib_dir=rllib_dir, checkpoint=checkpoint_path)
 
         # set a suitable filename for saving testing videos and results later
         self.set_result_filename()
