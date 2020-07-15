@@ -55,6 +55,7 @@ def main():
 
     # train or load trained agent; only set train=True for ppo agent
     train = args.test is None
+    agent_path = None
     if args.test is not None:
         agent_path = os.path.abspath(args.test)
 

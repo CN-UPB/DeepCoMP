@@ -72,6 +72,10 @@ Run the command in a WSL not a PyCharm terminal. Tensorboard is available at htt
 
 ## Research
 
+### Available VMs
+
+tango4, tango5
+
 ### Todos
 
 * Write evaluation metrics to file from simulator. 

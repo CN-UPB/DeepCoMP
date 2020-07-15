@@ -114,6 +114,7 @@ class Simulation:
         :param rand_seed: RNG seed used by the random agent (ignored by other agents)
         :param fixed_action: Fixed action performed by the fixed agent (ignored by the others)
         """
+        checkpoint_path = None
         if self.agent_name == 'ppo':
             self.agent = PPOTrainer(config=self.config, env=self.env_class)
             checkpoint_path = self.get_last_checkpoint_path(rllib_dir)
