@@ -82,7 +82,7 @@ tango4, tango5
     * Also compare multi-agent & centralized with limited training time
     * CDF of avg UE rate
 * Ideas for improving the observation space:
-    * Curr normalization of dr based on required dr is taylored to step function
+    * Curr normalization of dr based on required dr is taylored to step function; it's often just -1 or +1 since data rates are seldom exactly between 0 and 2. But it still matters to utility
     * For log utility it still somewhat makes sense to normalize for req_dr 1, since `f(x)=4log(0.1+x)=0 <=> x=0.9` --> Normalize based on where the utility function has y=0?
     * Instead of normalized dr, use normalized utility in the observation --> apply log utility function to achievable dr and use that in obs. Normalize with -10, +10 as reward range
     * Or just do automatic running mean normalization: https://github.com/ray-project/ray/issues/9399 Didn't work at all for step utility, but might for log utility
