@@ -94,8 +94,8 @@ def plot_ppo_mean_eps_reward(df):
 def summarize_results(dir=EVAL_DIR):
     """Read and summarize all results in a directory. Return a df."""
     config_cols = ['alg', 'agent', 'num_ue_slow', 'num_ue_fast', 'eps_length', 'env_size']
-    result_cols = ['eps_reward', 'eps_dr', 'eps_util']
-    files = os.listdir(dir)
+    result_cols = ['eps_reward', 'eps_dr', 'eps_util', 'eps_unsucc_conn', 'eps_lost_conn']
+    files = [f for f in os.listdir(dir) if f.endswith('.csv')]
     data = defaultdict(list)
 
     # read all files and save relevant data
@@ -173,9 +173,10 @@ if __name__ == '__main__':
     # eps_per_iter = plot_ppo_mean_eps_reward(df_ppo_org)
     # plot_eps_reward(dfs, labels, roll_mean_window=eps_per_iter, filename='eps_reward.pdf')
 
-    df = summarize_results(dir=f'{EVAL_DIR}/comparison/')
+    df = summarize_results(dir=f'{EVAL_DIR}/comparison/incr_ues')
     # df = concat_results()
     plot_increasing_ues(df, metric='eps_reward', filename='reward_incr_ues.pdf')
     plot_increasing_ues(df, metric='eps_dr', filename='dr_incr_ues.pdf')
     plot_increasing_ues(df, metric='eps_util', filename='utility_incr_ues.pdf')
-
+    plot_increasing_ues(df, metric='eps_unsucc_conn', filename='unsucc_conn_incr_ues.pdf')
+    plot_increasing_ues(df, metric='eps_lost_conn', filename='lost_conn_incr_ues.pdf')
