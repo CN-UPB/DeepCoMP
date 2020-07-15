@@ -110,10 +110,11 @@ class User:
         self.pos = Point(pos_x, pos_y)
 
     def reset(self):
-        """Reset UE to initial position and movement. Disconnect from all BS."""
+        """Reset UE position, movement, and connections."""
         self.reset_pos()
         self.movement.reset()
         self.bs_dr = dict()
+        self.ewma_dr = 0
 
     def update_curr_dr(self):
         """Update the current data rate of all BS connections according to the current situation (pos & assignment)"""
@@ -180,10 +181,9 @@ class User:
             return True
         # not yet connected
         if bs.can_connect(self.pos):
-            # add BS to connections; important: initialize with unshared data rate
-            # shared data rate will be calculated and updated later but depends on priority,
-            # which is 0 for all UEs initially --> would result in 0 shared dr for all UEs
-            self.bs_dr[bs] = bs.data_rate_unshared(self)
+            # add BS to connections; important: initialize with data rate
+            # also important: initialize before adding connection to bs.conn_ues; affects how data rate is calc
+            self.bs_dr[bs] = bs.data_rate(self)
             bs.conn_ues.append(self)
             self.log = self.log.bind(conn_bs=list(self.bs_dr.keys()))
             log.info("Connected")

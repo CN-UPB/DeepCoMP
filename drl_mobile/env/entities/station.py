@@ -113,6 +113,8 @@ class Basestation:
         # if the UE isn't connected yet, temporarily add it to the connected UEs to properly calculate sharing
         ue_already_conn = ue in self.conn_ues
         if not ue_already_conn:
+            # also temporarily add the connection & dr for the UE because it affects its priority (used for prop-fair)
+            ue.bs_dr[self] = self.data_rate_unshared(ue)
             self.conn_ues.append(ue)
 
         # resource-fair = time/bandwidth-fair: split time slots/bandwidth/RBs equally among all connected UEs
@@ -144,6 +146,7 @@ class Basestation:
 
         # disconnect UE again if it wasn't connected before
         if not ue_already_conn:
+            del ue.bs_dr[self]
             self.conn_ues.remove(ue)
 
         return dr_ue_shared

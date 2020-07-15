@@ -72,17 +72,15 @@ Run the command in a WSL not a PyCharm terminal. Tensorboard is available at htt
 
 ## Research
 
-### Available VMs
+### Available Machines
 
 tango4, tango5
 
 ### Todos
 
-* Add total dr and utility in rendered video (below time)
 * Evaluation: 
-    * Comparison with heuristics and random baseline
     * Also compare multi-agent & centralized with limited training time
-    * Metrics: Total & avg reward, total data rate, total utility, total unsuccessful connect attempts, total lost connections, CDF of avg UE rate
+    * CDF of avg UE rate
 * Ideas for improving the observation space:
     * Curr normalization of dr based on required dr is taylored to step function
     * For log utility it still somewhat makes sense to normalize for req_dr 1, since `f(x)=4log(0.1+x)=0 <=> x=0.9` --> Normalize based on where the utility function has y=0?

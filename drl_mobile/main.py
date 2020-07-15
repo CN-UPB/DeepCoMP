@@ -1,6 +1,7 @@
 """Main execution script used for experimentation"""
 import os
 import argparse
+import logging
 
 import structlog
 
@@ -23,7 +24,7 @@ def setup_cli():
     # algorithm & training
     parser.add_argument('--alg', type=str, choices=SUPPORTED_ALGS, default='ppo', help="Algorithm")
     parser.add_argument('--workers', type=int, default=1, help="Number of workers for RLlib training and evaluation")
-    parser.add_argument('--batch-size', type=int, default=1000, help="Number of training iterations per training batch")
+    parser.add_argument('--batch-size', type=int, default=4000, help="Number of training iterations per training batch")
     parser.add_argument('--train-steps', type=int, default=None, help="Max. number of training time steps (if any)")
     parser.add_argument('--train-iter', type=int, default=None, help="Max. number of training iterations (if any)")
     parser.add_argument('--target-reward', type=int, default=None, help="Target mean episode reward for training")
@@ -82,7 +83,7 @@ def main():
 
     # simulate one episode and render
     log_dict = {
-        # 'drl_mobile.util.simulation': logging.DEBUG,
+        'drl_mobile.util.simulation': logging.DEBUG,
         # 'drl_mobile.env.entities.user': logging.DEBUG,
         # 'drl_mobile.env.entities.station': logging.DEBUG
     }
