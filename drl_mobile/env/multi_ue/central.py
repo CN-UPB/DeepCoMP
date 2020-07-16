@@ -5,6 +5,7 @@ import numpy as np
 from drl_mobile.env.single_ue.base import MobileEnv
 
 
+# TODO: adjust to obs space in single & multi!
 class CentralMultiUserEnv(MobileEnv):
     """
     Env where all UEs move, observe and act at all time steps, controlled by a single central agent.

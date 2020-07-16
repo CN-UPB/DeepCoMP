@@ -84,12 +84,9 @@ tango4, tango5
     * CDF of avg UE rate
     * Consider blocking by obstacles, eg, cars/buildings?
 * Ideas for improving the observation space:
-    * Curr normalization of dr based on required dr is taylored to step function; it's often just -1 or +1 since data rates are seldom exactly between 0 and 2. But it still matters to utility
-    * For log utility it still somewhat makes sense to normalize for req_dr 1, since `f(x)=4log(0.1+x)=0 <=> x=0.9` --> Normalize based on where the utility function has y=0?
-    * Instead of normalized dr, use normalized utility in the observation --> apply log utility function to achievable dr and use that in obs. Normalize with -10, +10 as reward range
+    * Total UE dr
+    * Number of connected UEs per BS
     * Or just do automatic running mean normalization: https://github.com/ray-project/ray/issues/9399 Didn't work at all for step utility, but might for log utility
-    * Add extra obs for indicating whether a UE can connect or not: Either binary or cont. in `[-1,1]`, where 0= can just connect --> helps planning to disconnect?
-        * Or just distance to a BS somehow. Eg, normalized with the distance for connecting. Then extra obs for the data rate
     * Add UE position and movement to observations; in multi-agent
 * Optimization approach: Numerical optimization of instantaneous total utility?
 * Real-world traces for UE movement somewhere? From 5G measurement mmW paper?
@@ -123,6 +120,7 @@ Later:
 * Another benefit of multi-agent RL is that we can train with few UEs and then extend testing to many more UEs that use the same NN. 
 That doesn't work with centralized RL as the fixed NN size depends on the number of UEs.
 * Log utility: Also works well (at least multi agent)! Absolute reward not comparable between step and log utility
+* Different normalization and cutoff works better for log utility
 
 ## Development
 
