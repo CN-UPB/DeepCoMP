@@ -49,7 +49,7 @@ def setup_cli():
 
 
 def main():
-    config_logging(round_digits=3)
+    config_logging(round_digits=2)
     args = setup_cli()
 
     # stop training when any of the criteria is met

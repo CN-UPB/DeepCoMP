@@ -38,6 +38,22 @@ class JustConnectedObsMobileEnv(BinaryMobileEnv):
         return np.array(connected_bs)
 
 
+# class PlainDrMobileEnv(BinaryMobileEnv):
+#     """Same as DatarateMobileEnv but without any extra processing. Drs are not clipped/normalized/anything."""
+#     def __init__(self, env_config):
+#         super().__init__(env_config)
+#         # ok, we have to clip data rates to limit the observation space
+#         self.dr_cutoff = env_config['dr_cutoff']
+#         obs_space = {
+#             'dr': gym.spaces.Box(low=0, high=self.dr_cutoff, shape=(self.num_bs,)),
+#             'connected': gym.spaces.MultiBinary(self.num_bs)
+#         }
+#         self.observation_space = gym.spaces.Dict(obs_space)
+#
+#     def get_obs(self, ue):
+#         """Obs: Data rate (cut off, but not further processed) & """
+
+
 class DatarateMobileEnv(BinaryMobileEnv):
     """Subclass of the binary MobileEnv that uses the achievable data rate as observations"""
     def __init__(self, env_config):
@@ -47,6 +63,9 @@ class DatarateMobileEnv(BinaryMobileEnv):
             1. Subtract required data rate --> negative if data rate is too low
             2. Clip/cut off at req. dr --> symmetric range [-req_dr, +req_dr]; doesn't matter if dr is much higher
             3. Normalize by dividing by req_dr --> range [-1, 1] similar to other obs
+
+        These are highly tailored to a step utility functions where UEs have a fixed req. dr and flat utility.
+        Not great for log utility function.
 
         Extra fields in the env_config:
 

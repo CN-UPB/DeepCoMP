@@ -46,7 +46,7 @@ class MobileEnv(gym.Env):
         self.action_space = None
 
         # configure logging inside env to ensure it works in ray/rllib. https://github.com/ray-project/ray/issues/9030
-        config_logging(round_digits=3)
+        config_logging(round_digits=2)
         self.log = structlog.get_logger()
         self.log.info('Env init', env_config=env_config)
 

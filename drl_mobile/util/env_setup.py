@@ -131,10 +131,15 @@ def create_env_config(agent, map_size, num_slow_ues, num_fast_ues, sharing_model
     env_class = get_env_class(agent)
     map, ue_list, bs_list = get_env(map_size, num_slow_ues, num_fast_ues, sharing_model)
 
+    # env_config = {
+    #     'episode_length': eps_length, 'seed': seed,
+    #     'map': map, 'bs_list': bs_list, 'ue_list': ue_list, 'dr_cutoff': 'auto', 'sub_req_dr': True,
+    #     'curr_dr_obs': True, 'ues_at_bs_obs': False
+    # }
     env_config = {
         'episode_length': eps_length, 'seed': seed,
-        'map': map, 'bs_list': bs_list, 'ue_list': ue_list, 'dr_cutoff': 'auto', 'sub_req_dr': True,
-        'curr_dr_obs': True, 'ues_at_bs_obs': False
+        'map': map, 'bs_list': bs_list, 'ue_list': ue_list, 'dr_cutoff': 1000, 'sub_req_dr': False,
+        'curr_dr_obs': False, 'ues_at_bs_obs': False
     }
 
     # create and return the config

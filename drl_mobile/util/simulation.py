@@ -230,7 +230,7 @@ class Simulation:
 
         # no need to instantiate new env since each joblib iteration has its own copy
         # that's why we need to set the logging level again for each iteration
-        config_logging(round_digits=3)
+        config_logging(round_digits=2)
         if log_dict is not None:
             env.set_log_level(log_dict)
 
