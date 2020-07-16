@@ -138,7 +138,7 @@ def create_env_config(agent, map_size, num_slow_ues, num_fast_ues, sharing_model
     # }
     env_config = {
         'episode_length': eps_length, 'seed': seed,
-        'map': map, 'bs_list': bs_list, 'ue_list': ue_list, 'dr_cutoff': 1000, 'sub_req_dr': False,
+        'map': map, 'bs_list': bs_list, 'ue_list': ue_list, 'dr_cutoff': 100, 'sub_req_dr': False,
         'curr_dr_obs': False, 'ues_at_bs_obs': False
     }
 
