@@ -38,22 +38,6 @@ class JustConnectedObsMobileEnv(BinaryMobileEnv):
         return np.array(connected_bs)
 
 
-# class PlainDrMobileEnv(BinaryMobileEnv):
-#     """Same as DatarateMobileEnv but without any extra processing. Drs are not clipped/normalized/anything."""
-#     def __init__(self, env_config):
-#         super().__init__(env_config)
-#         # ok, we have to clip data rates to limit the observation space
-#         self.dr_cutoff = env_config['dr_cutoff']
-#         obs_space = {
-#             'dr': gym.spaces.Box(low=0, high=self.dr_cutoff, shape=(self.num_bs,)),
-#             'connected': gym.spaces.MultiBinary(self.num_bs)
-#         }
-#         self.observation_space = gym.spaces.Dict(obs_space)
-#
-#     def get_obs(self, ue):
-#         """Obs: Data rate (cut off, but not further processed) & """
-
-
 class DatarateMobileEnv(BinaryMobileEnv):
     """Subclass of the binary MobileEnv that uses the achievable data rate as observations"""
     def __init__(self, env_config):
@@ -157,3 +141,30 @@ class DatarateMobileEnv(BinaryMobileEnv):
             obs_dict['ues_at_bs'] = [bs.num_conn_ues for bs in self.bs_list]
 
         return obs_dict
+
+
+class NormDrMobileEnv(BinaryMobileEnv):
+    """Similar to DatarateMobileEnv but with different data rate processing."""
+    def __init__(self, env_config):
+        super().__init__(env_config)
+        # clip & normalize data rates according to utility.
+        # we clip utility at +20, which is reached for a dr of 100
+        self.dr_cutoff = 100
+        obs_space = {
+            'dr': gym.spaces.Box(low=0, high=1, shape=(self.num_bs,)),
+            'connected': gym.spaces.MultiBinary(self.num_bs)
+        }
+        self.observation_space = gym.spaces.Dict(obs_space)
+
+    def get_obs(self, ue):
+        """Obs: Data rate (cut off, but not further processed) & """
+        # data rates: clipped and normalized according to dr_cutoff
+        bs_dr = []
+        for bs in self.bs_list:
+            dr_clip = min(bs.data_rate(ue), self.dr_cutoff)
+            dr_norm = dr_clip / self.dr_cutoff
+            bs_dr.append(dr_norm)
+
+        # connected UEs
+        bs_conn = [int(bs in ue.bs_dr.keys()) for bs in self.bs_list]
+        return {'dr': bs_dr, 'connected': bs_conn}

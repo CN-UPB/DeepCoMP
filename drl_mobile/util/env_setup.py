@@ -4,7 +4,7 @@ from ray.rllib.agents.ppo import DEFAULT_CONFIG
 from ray.rllib.env.multi_agent_env import MultiAgentEnv
 
 from drl_mobile.util.constants import SUPPORTED_ENVS, SUPPORTED_AGENTS
-from drl_mobile.env.single_ue.variants import BinaryMobileEnv, DatarateMobileEnv
+from drl_mobile.env.single_ue.variants import BinaryMobileEnv, DatarateMobileEnv, NormDrMobileEnv
 from drl_mobile.env.multi_ue.central import CentralMultiUserEnv
 from drl_mobile.env.multi_ue.multi_agent import MultiAgentMobileEnv
 from drl_mobile.env.entities.user import User
@@ -18,7 +18,8 @@ def get_env_class(env_type):
     assert env_type in SUPPORTED_AGENTS, f"Environment type was {env_type} but has to be one of {SUPPORTED_AGENTS}."
 
     if env_type == 'single':
-        return DatarateMobileEnv
+        # return DatarateMobileEnv
+        return NormDrMobileEnv
     if env_type == 'central':
         return CentralMultiUserEnv
     if env_type == 'multi':

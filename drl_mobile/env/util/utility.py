@@ -32,4 +32,6 @@ def log_utility(curr_dr):
     # with many UEs where each UE only gets around 0.1 data rate, 100*log(0.9+x) looks good (eg, 50 UEs on medium env)
 
     # better: 10*log10(x) --> clip to [-20, 20]; -20 for <= 0.01 dr; +20 for >= 100 dr
+    if curr_dr == 0:
+        return -20
     return np.clip(10 * np.log10(curr_dr), -20, 20)
