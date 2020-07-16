@@ -80,9 +80,9 @@ class User:
         :param radius: Radius of the circle
         :return: A list of created matplotlib artists
         """
-        # show utility as red to yellow to green. use color map for [0,1) --> normalize utiltiy first
+        # show utility as red to yellow to green. use color map for [0,1) --> normalize utility first
         colormap = cm.get_cmap('RdYlGn')
-        norm = plt.Normalize(-10, 10)
+        norm = plt.Normalize(-20, 20)
         color = colormap(norm(self.utility))
 
         artists = plt.plot(*self.pos.buffer(radius).exterior.xy, color=color)
