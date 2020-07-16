@@ -79,8 +79,10 @@ tango4, tango5
 ### Todos
 
 * Evaluation: 
+    * Double check all units in my scenario, esp. for movement, distance, dr. Makes sense?
     * Also compare multi-agent & centralized with limited training time
     * CDF of avg UE rate
+    * Consider blocking by obstacles, eg, cars/buildings?
 * Ideas for improving the observation space:
     * Curr normalization of dr based on required dr is taylored to step function; it's often just -1 or +1 since data rates are seldom exactly between 0 and 2. But it still matters to utility
     * For log utility it still somewhat makes sense to normalize for req_dr 1, since `f(x)=4log(0.1+x)=0 <=> x=0.9` --> Normalize based on where the utility function has y=0?
@@ -90,7 +92,7 @@ tango4, tango5
         * Or just distance to a BS somehow. Eg, normalized with the distance for connecting. Then extra obs for the data rate
     * Add UE position and movement to observations; in multi-agent
 * Optimization approach: Numerical optimization of instantaneous total utility?
-* Real-world traces for UE movement somewhere?
+* Real-world traces for UE movement somewhere? From 5G measurement mmW paper?
 * (continue training after loading weights)
     
 Later:

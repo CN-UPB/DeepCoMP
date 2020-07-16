@@ -18,7 +18,7 @@ def step_utility(curr_dr, req_dr):
     return -10
 
 
-def log_utility(curr_dr, factor=4, add=0.1):
+def log_utility(curr_dr, factor=10, add=0.1):
     """
     More data rate increases the utility following a log function: High initial increase, then flattens.
 
@@ -28,5 +28,6 @@ def log_utility(curr_dr, factor=4, add=0.1):
     :return: Utility
     """
     # 4*log(0.1+x) looks good: around -10 for no dr; 0 for 0.9 dr; slightly positive for more
+    # 10*log10(0.1+x) is even better because it's steeper, is exactly -10 for dr=0, and flatter for larger dr
     # with many UEs where each UE only gets around 0.1 data rate, 100*log(0.9+x) looks good (eg, 50 UEs on medium env)
-    return factor * np.log(add + curr_dr)
+    return factor * np.log10(add + curr_dr)
