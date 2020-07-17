@@ -84,9 +84,6 @@ class CentralMultiUserEnv(MobileEnv):
 
         return unsucc_conn
 
-    def next_obs(self):
-        return self.get_obs()
-
     def step_reward(self, rewards):
         """Return sum of all UE rewards as step reward"""
         return sum(rewards.values())

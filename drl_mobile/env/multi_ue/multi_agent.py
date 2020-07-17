@@ -36,11 +36,11 @@ class MultiAgentMobileEnv(NormDrMobileEnv, MultiAgentEnv):
 
         return unsucc_conn
 
-    def next_obs(self):
+    def get_obs(self):
         """Return next obs: Dict with UE --> obs"""
         obs = dict()
         for ue in self.ue_list:
-            obs[ue.id] = self.get_obs(ue)
+            obs[ue.id] = self.get_ue_obs(ue)
         return obs
 
     def step_reward(self, rewards):

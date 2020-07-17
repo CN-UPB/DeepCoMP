@@ -77,7 +77,7 @@ class MobileEnv(gym.Env):
         for logger_name, level in log_dict.items():
             logging.getLogger(logger_name).setLevel(level)
 
-    def get_obs(self, ue):
+    def get_ue_obs(self, ue):
         """Return the an observation of the current world for a given UE"""
         raise NotImplementedError('Implement in subclass')
 
@@ -94,7 +94,7 @@ class MobileEnv(gym.Env):
             ue.reset()
         for bs in self.bs_list:
             bs.reset()
-        return self.next_obs()
+        return self.get_obs()
 
     def apply_ue_actions(self, action):
         """
@@ -143,15 +143,15 @@ class MobileEnv(gym.Env):
             lost_conn[ue] = num_lost_conn
         return lost_conn
 
-    def next_obs(self):
+    def get_obs(self):
         """
-        Return next observation after a step.
+        Return the current observation. Called to get the next observation after a step.
         Here, the obs for the next UE. Overwritten by env vars as needed.
 
         :returns: Next observation
         """
         next_ue = self.ue_list[self.time % self.num_ue]
-        return self.get_obs(next_ue)
+        return self.get_ue_obs(next_ue)
 
     def step_reward(self, rewards):
         """
@@ -208,7 +208,7 @@ class MobileEnv(gym.Env):
         self.time += 1
 
         # get and return next obs, reward, done, info
-        self.obs = self.next_obs()
+        self.obs = self.get_obs()
         reward = self.step_reward(rewards)
         done = self.done()
         info = self.info(unsucc_conn, lost_conn)

@@ -14,7 +14,7 @@ class BinaryMobileEnv(MobileEnv):
         # actions: select a BS to be connected to/disconnect from or noop
         self.action_space = gym.spaces.Discrete(self.num_bs + 1)
 
-    def get_obs(self, ue):
+    def get_ue_obs(self, ue):
         """
         Return the an observation of the current world for a given UE
         It consists of 2 binary vectors: BS availability and already connected BS
@@ -32,7 +32,7 @@ class JustConnectedObsMobileEnv(BinaryMobileEnv):
         self.observation_space = gym.spaces.MultiBinary(self.num_bs)
         # same action space as binary env: select a BS to be connected to/disconnect from or noop
 
-    def get_obs(self, ue):
+    def get_ue_obs(self, ue):
         """Observation: Currently connected BS"""
         connected_bs = [int(bs in ue.bs_dr.keys()) for bs in self.bs_list]
         return np.array(connected_bs)
@@ -104,7 +104,7 @@ class DatarateMobileEnv(BinaryMobileEnv):
         self.observation_space = gym.spaces.Dict(obs_space)
         # same action space as binary env: select a BS to be connected to/disconnect from or noop
 
-    def get_obs(self, ue):
+    def get_ue_obs(self, ue):
         """
         Observation: Achievable data rate per BS (processed) + currently connected BS (binary)
         + optionally: total curr dr + num UEs per BS
@@ -156,7 +156,7 @@ class NormDrMobileEnv(BinaryMobileEnv):
         }
         self.observation_space = gym.spaces.Dict(obs_space)
 
-    def get_obs(self, ue):
+    def get_ue_obs(self, ue):
         """Obs: Data rate (cut off, but not further processed) & """
         # data rates: clipped and normalized according to dr_cutoff
         bs_dr = []
