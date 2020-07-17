@@ -5,8 +5,39 @@ import numpy as np
 from drl_mobile.env.single_ue.base import MobileEnv
 
 
+class CentralBaseEnv(MobileEnv):
+    """Abstract base env for central multi-UE coordination. Variants need to inherit from this class."""
+    def __init__(self, env_config):
+        super().__init__(env_config)
+
+        # observation space to be defined in sub classes!
+        # actions: FOR EACH UE: select a BS to be connected to/disconnect from or noop
+        self.action_space = gym.spaces.MultiDiscrete([self.num_bs + 1 for _ in range(self.num_ue)])
+
+    def get_obs(self):
+        raise NotImplementedError("Implement this function in subclasses.")
+
+    # overwrite modular functions used within step that are different in the centralized case
+    def apply_ue_actions(self, action):
+        """Apply action. Here: Actions for all UEs. Return unsuccessful connection attempts."""
+        assert self.action_space.contains(action), f"Action {action} does not fit action space {self.action_space}"
+        unsucc_conn = {ue: 0 for ue in self.ue_list}
+
+        # apply action: try to connect to BS; or: 0 = no op
+        for i, ue in enumerate(self.ue_list):
+            if action[i] > 0:
+                bs = self.bs_list[action[i] - 1]
+                unsucc_conn[ue] = not ue.connect_to_bs(bs, disconnect=True)
+
+        return unsucc_conn
+
+    def step_reward(self, rewards):
+        """Return sum of all UE rewards as step reward"""
+        return sum(rewards.values())
+
+
 # TODO: adjust to obs space in single & multi!
-class CentralMultiUserEnv(MobileEnv):
+class CentralMultiUserEnv(CentralBaseEnv):
     """
     Env where all UEs move, observe and act at all time steps, controlled by a single central agent.
     Otherwise similar to DatarateMobileEnv with auto dr_cutoff and sub_req_dr.
@@ -33,8 +64,7 @@ class CentralMultiUserEnv(MobileEnv):
 
         self.observation_space = gym.spaces.Dict(obs_space)
 
-        # actions: FOR EACH UE: select a BS to be connected to/disconnect from or noop
-        self.action_space = gym.spaces.MultiDiscrete([self.num_bs + 1 for _ in range(self.num_ue)])
+        # actions are defined in the parent class; they are the same for all central envs
 
     def get_obs(self):
         """Observation: Available data rate + connected BS (+ total curr dr) - FOR ALL UEs --> no ue arg"""
@@ -70,20 +100,18 @@ class CentralMultiUserEnv(MobileEnv):
 
         return obs
 
-    # overwrite modular functions used within step that are different in the centralized case
-    def apply_ue_actions(self, action):
-        """Apply action. Here: Actions for all UEs. Return unsuccessful connection attempts."""
-        assert self.action_space.contains(action), f"Action {action} does not fit action space {self.action_space}"
-        unsucc_conn = {ue: 0 for ue in self.ue_list}
 
-        # apply action: try to connect to BS; or: 0 = no op
-        for i, ue in enumerate(self.ue_list):
-            if action[i] > 0:
-                bs = self.bs_list[action[i] - 1]
-                unsucc_conn[ue] = not ue.connect_to_bs(bs, disconnect=True)
+class CentralNormDrEnv(CentralMultiUserEnv):
+    """Variant of the central UE env with different observations (dr is normalized differently)"""
+    def __init__(self, env_config):
+        super().__init__(env_config)
+        # clip & normalize data rates according to utility.
+        # TODO
+        # we clip utility at +20, which is reached for a dr of 100
+        self.dr_cutoff = 100
+        obs_space = {
+            'dr': gym.spaces.Box(low=0, high=1, shape=(self.num_bs,)),
+            'connected': gym.spaces.MultiBinary(self.num_bs)
+        }
+        self.observation_space = gym.spaces.Dict(obs_space)
 
-        return unsucc_conn
-
-    def step_reward(self, rewards):
-        """Return sum of all UE rewards as step reward"""
-        return sum(rewards.values())
