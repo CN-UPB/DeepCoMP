@@ -1,8 +1,8 @@
 """Multi-UE envs with single, centralized agent controlling all UEs at once."""
 import gym.spaces
-import numpy as np
 
 from drl_mobile.env.single_ue.base import MobileEnv
+from drl_mobile.env.single_ue.variants import NormDrMobileEnv
 
 
 class CentralBaseEnv(MobileEnv):
@@ -13,9 +13,6 @@ class CentralBaseEnv(MobileEnv):
         # observation space to be defined in sub classes!
         # actions: FOR EACH UE: select a BS to be connected to/disconnect from or noop
         self.action_space = gym.spaces.MultiDiscrete([self.num_bs + 1 for _ in range(self.num_ue)])
-
-    def get_obs(self):
-        raise NotImplementedError("Implement this function in subclasses.")
 
     # overwrite modular functions used within step that are different in the centralized case
     def apply_ue_actions(self, action):
@@ -101,17 +98,33 @@ class CentralMultiUserEnv(CentralBaseEnv):
         return obs
 
 
-class CentralNormDrEnv(CentralMultiUserEnv):
-    """Variant of the central UE env with different observations (dr is normalized differently)"""
+class CentralNormDrEnv(CentralBaseEnv, NormDrMobileEnv):
+    """
+    Variant of the central UE env with different observations (dr is normalized differently).
+    Inherits apply actions and action space from central base env, but get_obs from NormDrEnv
+    (bc not implemented in central base env);
+    """
     def __init__(self, env_config):
+        # get action space and env basics from parent
         super().__init__(env_config)
+        # same obs as NormDrMobileEnv, just for each UE
         # clip & normalize data rates according to utility.
-        # TODO
         # we clip utility at +20, which is reached for a dr of 100
         self.dr_cutoff = 100
         obs_space = {
-            'dr': gym.spaces.Box(low=0, high=1, shape=(self.num_bs,)),
-            'connected': gym.spaces.MultiBinary(self.num_bs)
+            'dr': gym.spaces.Box(low=0, high=1, shape=(self.num_ue * self.num_bs,)),
+            'connected': gym.spaces.MultiBinary(self.num_ue * self.num_bs)
         }
         self.observation_space = gym.spaces.Dict(obs_space)
+
+    def get_obs(self):
+        """Get obs for all UEs."""
+        obs = {'dr': [], 'connected': []}
+        for ue in self.ue_list:
+            # get properly normalized observations from NormDrMobileEnv for each UE
+            ue_obs = super().get_ue_obs(ue)
+            # extend central obs
+            obs['dr'].extend(ue_obs['dr'])
+            obs['connected'].extend(ue_obs['connected'])
+        return obs
 
