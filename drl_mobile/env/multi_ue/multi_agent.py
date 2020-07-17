@@ -16,17 +16,6 @@ class MultiAgentMobileEnv(NormDrMobileEnv, MultiAgentEnv):
         self.ues_at_bs_obs = env_config['ues_at_bs_obs']
         # inherits attributes, obs and action space from parent env
 
-    def reset(self):
-        """Reset the env and return observations from all UEs"""
-        self.time = 0
-        for ue in self.ue_list:
-            ue.reset()
-        for bs in self.bs_list:
-            bs.reset()
-        # multi-agent: get obs for all UEs and return dict with ue.id --> ue's obs
-        self.obs = {ue.id: self.get_obs(ue) for ue in self.ue_list}
-        return self.obs
-
     def apply_ue_actions(self, action):
         """
         Apply actions of all UEs.

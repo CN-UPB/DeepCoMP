@@ -70,16 +70,6 @@ class CentralMultiUserEnv(MobileEnv):
 
         return obs
 
-    def reset(self):
-        """Reset environment: Reset all UEs, BS"""
-        self.time = 0
-        for ue in self.ue_list:
-            ue.reset()
-        for bs in self.bs_list:
-            bs.reset()
-        self.obs = self.get_obs()
-        return self.obs
-
     # overwrite modular functions used within step that are different in the centralized case
     def apply_ue_actions(self, action):
         """Apply action. Here: Actions for all UEs. Return unsuccessful connection attempts."""

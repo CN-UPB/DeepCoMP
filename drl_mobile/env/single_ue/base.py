@@ -94,9 +94,7 @@ class MobileEnv(gym.Env):
             ue.reset()
         for bs in self.bs_list:
             bs.reset()
-        # TODO: this just returns the observation for the 1st UE
-        self.obs = self.get_obs(self.ue_list[0])
-        return self.obs
+        return self.next_obs()
 
     def apply_ue_actions(self, action):
         """
