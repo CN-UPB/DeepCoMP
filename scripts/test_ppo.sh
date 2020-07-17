@@ -11,6 +11,6 @@ num_ues=1
 for dir in "$@"
 do
   echo Dir: "$dir", Num. UEs: $num_ues
-  deepcomp --eps-length 100 --alg ppo --agent central --env medium --slow-ues $num_ues --eval 50 --test "$dir"
+  deepcomp --eps-length 100 --alg ppo --agent central --env medium --slow-ues $num_ues --sharing proportional-fair --eval 50 --test "$dir"
   num_ues=$((num_ues + 1))
 done
