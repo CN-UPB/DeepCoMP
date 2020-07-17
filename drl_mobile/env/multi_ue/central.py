@@ -2,7 +2,18 @@
 import gym.spaces
 
 from drl_mobile.env.single_ue.base import MobileEnv
-from drl_mobile.env.single_ue.variants import NormDrMobileEnv
+from drl_mobile.env.single_ue.variants import NormDrMobileEnv, DatarateMobileEnv
+
+
+class CentralWrapperEnv(DatarateMobileEnv):
+    """Generic central env for multi-UE that completely derives the observations from the env it inherits from"""
+    def __init__(self, env_config):
+        super().__init__(env_config)
+
+        # observations: same as parent env, but for each UE!
+        # TODO: access super dict and use to construct obs space: super().observation_space.spaces is the obs_dict
+
+    # TODO: same action classes as central base env; then derive get_obs from the parent class (similar to obs space)
 
 
 class CentralBaseEnv(MobileEnv):
