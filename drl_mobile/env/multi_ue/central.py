@@ -5,19 +5,13 @@ from drl_mobile.env.single_ue.base import MobileEnv
 from drl_mobile.env.single_ue.variants import NormDrMobileEnv, DatarateMobileEnv
 
 
-class CentralWrapperEnv(DatarateMobileEnv):
-    """Generic central env for multi-UE that completely derives the observations from the env it inherits from"""
-    def __init__(self, env_config):
-        super().__init__(env_config)
-
-        # observations: same as parent env, but for each UE!
-        # TODO: access super dict and use to construct obs space: super().observation_space.spaces is the obs_dict
-
-    # TODO: same action classes as central base env; then derive get_obs from the parent class (similar to obs space)
-
-
 class CentralBaseEnv(MobileEnv):
-    """Abstract base env for central multi-UE coordination. Variants need to inherit from this class."""
+    """
+    Abstract base env for central multi-UE coordination.
+    Variants need to inherit first from this class, 2nd from the single-UE base env.
+    Other than that, they only need to define the obs space accordingly.
+    All methods are adjusted to centralized by this wrapper.
+    """
     def __init__(self, env_config):
         super().__init__(env_config)
 
@@ -26,6 +20,17 @@ class CentralBaseEnv(MobileEnv):
         self.action_space = gym.spaces.MultiDiscrete([self.num_bs + 1 for _ in range(self.num_ue)])
 
     # overwrite modular functions used within step that are different in the centralized case
+    def get_obs(self):
+        """Get obs for all UEs based on the parent environment's obs definition"""
+        obs = {key: [] for key in self.observation_space.spaces.keys()}
+        for ue in self.ue_list:
+            # get properly normalized observations from NormDrMobileEnv for each UE
+            ue_obs = super().get_ue_obs(ue)
+            # extend central obs
+            for key in self.observation_space.spaces.keys():
+                obs[key].extend(ue_obs[key])
+        return obs
+
     def apply_ue_actions(self, action):
         """Apply action. Here: Actions for all UEs. Return unsuccessful connection attempts."""
         assert self.action_space.contains(action), f"Action {action} does not fit action space {self.action_space}"
@@ -44,8 +49,7 @@ class CentralBaseEnv(MobileEnv):
         return sum(rewards.values())
 
 
-# TODO: adjust to obs space in single & multi!
-class CentralMultiUserEnv(CentralBaseEnv):
+class CentralDrEnv(CentralBaseEnv, DatarateMobileEnv):
     """
     Env where all UEs move, observe and act at all time steps, controlled by a single central agent.
     Otherwise similar to DatarateMobileEnv with auto dr_cutoff and sub_req_dr.
@@ -71,42 +75,7 @@ class CentralMultiUserEnv(CentralBaseEnv):
             obs_space['ues_at_bs'] = gym.spaces.MultiDiscrete([self.num_ue+1 for _ in range(self.num_bs)])
 
         self.observation_space = gym.spaces.Dict(obs_space)
-
         # actions are defined in the parent class; they are the same for all central envs
-
-    def get_obs(self):
-        """Observation: Available data rate + connected BS (+ total curr dr) - FOR ALL UEs --> no ue arg"""
-        bs_dr = []
-        conn_bs = []
-        total_dr = []
-        for ue in self.ue_list:
-            # subtract req_dr and auto clip & normalize to [-1, 1]
-            ue_bs_dr = []
-            for bs in self.bs_list:
-                dr_sub = bs.data_rate(ue) - ue.dr_req
-                dr_clip = min(dr_sub, ue.dr_req)        # clipped to range [-dr_req, dr_req]
-                dr_norm = dr_clip / ue.dr_req
-                ue_bs_dr.append(dr_norm)
-            bs_dr.extend(ue_bs_dr)
-            # connected BS
-            ue_conn_bs = [int(bs in ue.bs_dr.keys()) for bs in self.bs_list]
-            conn_bs.extend(ue_conn_bs)
-            # total curr data rate over all BS
-            if self.curr_dr_obs:
-                ue_total_dr = ue.curr_dr
-                # process by subtracting dr_req, clipping to [-dr_req, dr_req], normalizing to [-1, 1]
-                ue_total_dr -= ue.dr_req
-                ue_total_dr = min(ue_total_dr, ue.dr_req)
-                ue_total_dr = ue_total_dr / ue.dr_req
-                total_dr.append(ue_total_dr)
-
-        obs = {'dr': bs_dr, 'connected': conn_bs}
-        if self.curr_dr_obs:
-            obs['dr_total'] = total_dr
-        if self.ues_at_bs_obs:
-            obs['ues_at_bs'] = [bs.num_conn_ues for bs in self.bs_list]
-
-        return obs
 
 
 class CentralNormDrEnv(CentralBaseEnv, NormDrMobileEnv):
@@ -127,15 +96,3 @@ class CentralNormDrEnv(CentralBaseEnv, NormDrMobileEnv):
             'connected': gym.spaces.MultiBinary(self.num_ue * self.num_bs)
         }
         self.observation_space = gym.spaces.Dict(obs_space)
-
-    def get_obs(self):
-        """Get obs for all UEs."""
-        obs = {'dr': [], 'connected': []}
-        for ue in self.ue_list:
-            # get properly normalized observations from NormDrMobileEnv for each UE
-            ue_obs = super().get_ue_obs(ue)
-            # extend central obs
-            obs['dr'].extend(ue_obs['dr'])
-            obs['connected'].extend(ue_obs['connected'])
-        return obs
-

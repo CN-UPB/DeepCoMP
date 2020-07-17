@@ -5,7 +5,7 @@ from ray.rllib.env.multi_agent_env import MultiAgentEnv
 
 from drl_mobile.util.constants import SUPPORTED_ENVS, SUPPORTED_AGENTS
 from drl_mobile.env.single_ue.variants import BinaryMobileEnv, DatarateMobileEnv, NormDrMobileEnv
-from drl_mobile.env.multi_ue.central import CentralMultiUserEnv, CentralNormDrEnv
+from drl_mobile.env.multi_ue.central import CentralDrEnv, CentralNormDrEnv
 from drl_mobile.env.multi_ue.multi_agent import MultiAgentMobileEnv
 from drl_mobile.env.entities.user import User
 from drl_mobile.env.entities.station import Basestation
@@ -21,7 +21,7 @@ def get_env_class(env_type):
         # return DatarateMobileEnv
         return NormDrMobileEnv
     if env_type == 'central':
-        # return CentralMultiUserEnv
+        # return CentralDrEnv
         return CentralNormDrEnv
     if env_type == 'multi':
         return MultiAgentMobileEnv
@@ -133,16 +133,16 @@ def create_env_config(agent, map_size, num_slow_ues, num_fast_ues, sharing_model
     env_class = get_env_class(agent)
     map, ue_list, bs_list = get_env(map_size, num_slow_ues, num_fast_ues, sharing_model)
 
-    # env_config = {
-    #     'episode_length': eps_length, 'seed': seed,
-    #     'map': map, 'bs_list': bs_list, 'ue_list': ue_list, 'dr_cutoff': 'auto', 'sub_req_dr': True,
-    #     'curr_dr_obs': True, 'ues_at_bs_obs': False
-    # }
     env_config = {
         'episode_length': eps_length, 'seed': seed,
-        'map': map, 'bs_list': bs_list, 'ue_list': ue_list, 'dr_cutoff': 100, 'sub_req_dr': False,
-        'curr_dr_obs': False, 'ues_at_bs_obs': False
+        'map': map, 'bs_list': bs_list, 'ue_list': ue_list, 'dr_cutoff': 'auto', 'sub_req_dr': True,
+        'curr_dr_obs': True, 'ues_at_bs_obs': False
     }
+    # env_config = {
+    #     'episode_length': eps_length, 'seed': seed,
+    #     'map': map, 'bs_list': bs_list, 'ue_list': ue_list, 'dr_cutoff': 100, 'sub_req_dr': False,
+    #     'curr_dr_obs': False, 'ues_at_bs_obs': False
+    # }
 
     # create and return the config
     config = DEFAULT_CONFIG.copy()
