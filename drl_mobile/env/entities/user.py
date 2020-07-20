@@ -65,15 +65,6 @@ class User:
         # return step_utility(self.curr_dr, self.dr_req)
         return log_utility(self.curr_dr)
 
-    @property
-    def priority(self):
-        """
-        Priority based on current achievable rate and historic avg rate for proportional-fair sharing.
-        https://en.wikipedia.org/wiki/Proportionally_fair#User_prioritization
-        """
-        # add epsilon in denominator to avoid division by 0
-        return (self.curr_dr**FAIR_WEIGHT_ALPHA) / (self.ewma_dr**FAIR_WEIGHT_BETA + EPSILON)
-
     def plot(self, radius=2):
         """
         Plot the UE as filled circle with a given radius and the ID. Color from red to green indicating the utility.

@@ -3,7 +3,7 @@ import numpy as np
 from shapely.geometry import Polygon
 import matplotlib.pyplot as plt
 
-from drl_mobile.util.constants import SUPPORTED_SHARING, EPSILON
+from drl_mobile.util.constants import SUPPORTED_SHARING, EPSILON, FAIR_WEIGHT_ALPHA, FAIR_WEIGHT_BETA
 
 
 # SNR threshold required for UEs to connect to this BS. This threshold corresponds roughly to a distance of 69m.
@@ -99,6 +99,18 @@ class Basestation:
         dr_ue_unshared = self.bw * np.log2(1 + snr)
         return dr_ue_unshared
 
+    def priority(self, ue):
+        """
+        Priority based on current achievable rate (unshared!) and historic avg rate for proportional-fair sharing.
+        https://en.wikipedia.org/wiki/Proportionally_fair#User_prioritization
+
+        :param ue: UE for which to calculate the priority
+        :return: The calculated priority
+        """
+        # important: use unshared dr, since the shared dr is again defined based on the priority --> endless recursion
+        # add epsilon in denominator to avoid division by 0
+        return (self.data_rate_unshared(ue)**FAIR_WEIGHT_ALPHA) / (ue.ewma_dr**FAIR_WEIGHT_BETA + EPSILON)
+
     def data_rate_shared(self, ue, dr_ue_unshared):
         """
         Return the shared data rate the given UE would get based on its unshared data rate and a sharing model.
@@ -141,7 +153,7 @@ class Basestation:
         # assign RBs proportional to priority
         if self.sharing_model == 'proportional-fair':
             # get UE priority --> fraction of RBs assigned to UE --> corresponding shared dr
-            ue_frac_rbs = ue.priority / (sum([other_ue.priority for other_ue in self.conn_ues]) + EPSILON)
+            ue_frac_rbs = self.priority(ue) / (sum([self.priority(other_ue) for other_ue in self.conn_ues]) + EPSILON)
             dr_ue_shared = ue_frac_rbs * dr_ue_unshared
 
         # disconnect UE again if it wasn't connected before
