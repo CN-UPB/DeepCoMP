@@ -95,15 +95,15 @@ class CentralNormDrEnv(CentralBaseEnv, NormDrMobileEnv):
             'dr': gym.spaces.Box(low=0, high=1, shape=(self.num_ue * self.num_bs,)),
             'connected': gym.spaces.MultiBinary(self.num_ue * self.num_bs),
             # 'ues_at_bs': gym.spaces.MultiDiscrete([self.num_ue+1 for _ in range(self.num_bs)]),
-            # 'ues_at_bs': gym.spaces.Box(low=0, high=1, shape=(self.num_bs,)),
+            'ues_at_bs': gym.spaces.Box(low=0, high=1, shape=(self.num_bs,)),
             # 'dr_total': gym.spaces.Box(low=0, high=1, shape=(self.num_ue,))
         }
         self.observation_space = gym.spaces.Dict(obs_space)
 
     # only overwrite this to only include num UEs per BS just once in obs instead of repeating it multiple times
-    # def get_obs(self):
-    #     # get basic obs from parent
-    #     obs = super().get_obs()
-    #     # only include first part of ues_at_bs obs; remove repetitions
-    #     obs['ues_at_bs'] = obs['ues_at_bs'][:self.num_bs]
-    #     return obs
+    def get_obs(self):
+        # get basic obs from parent
+        obs = super().get_obs()
+        # only include first part of ues_at_bs obs; remove repetitions
+        obs['ues_at_bs'] = obs['ues_at_bs'][:self.num_bs]
+        return obs
