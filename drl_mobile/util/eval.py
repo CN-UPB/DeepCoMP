@@ -95,7 +95,8 @@ def get_result_files(dir, prefix='', suffix='.csv'):
     """Read all files in the directory recursivley and return a list of all files matching the prefix and suffix"""
     result_files = []
     for f in glob.iglob(dir + '**/**', recursive=True):
-        if os.path.isfile(f) and f.startswith(prefix) and f.endswith(suffix):
+        # only select files (not dirs) that are in a '/test/' subdir (to filter out PPO's progress.csv)
+        if os.path.isfile(f) and '/test/' in f and f.startswith(prefix) and f.endswith(suffix):
             result_files.append(f)
     return result_files
 
@@ -184,7 +185,7 @@ if __name__ == '__main__':
     # eps_per_iter = plot_ppo_mean_eps_reward(df_ppo_org)
     # plot_eps_reward(dfs, labels, roll_mean_window=eps_per_iter, filename='eps_reward.pdf')
 
-    df = summarize_results(dir=f'{EVAL_DIR}/2020-07-15_rate-fair')
+    df = summarize_results(dir=f'{EVAL_DIR}/2020-07-20_prop-fair')
     # df = concat_results()
     plot_increasing_ues(df, metric='eps_reward', filename='reward_incr_ues.pdf')
     plot_increasing_ues(df, metric='eps_dr', filename='dr_incr_ues.pdf')
