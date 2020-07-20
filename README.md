@@ -79,17 +79,22 @@ tango4, tango5
 ### Todos
 
 * Evaluation: 
+    * Eval reliability: Steps without any connection (per UE?)
     * Double check all units in my scenario, esp. for movement, distance, dr. Makes sense?
+        * Can I use a 5G use case with mm wave? Otherwise, remove 5G from the title
     * Also compare multi-agent & centralized with limited training time
     * CDF of avg UE rate
     * Consider blocking by obstacles, eg, cars/buildings?
+    * LTE baseline: Select BS with highest long-term avg SINR
 * Ideas for improving the observation space:
     * Total UE dr
     * Number of connected UEs per BS
     * Or just do automatic running mean normalization: https://github.com/ray-project/ray/issues/9399 Didn't work at all for step utility, but might for log utility
-    * Add UE position and movement to observations; in multi-agent
+        * I don't think it will be better than my custom normalization, which is taylored to the current utility function
+    * Add UE position and movement, distances to observations; in multi-agent
 * Optimization approach: Numerical optimization of instantaneous total utility?
 * Real-world traces for UE movement somewhere? From 5G measurement mmW paper?
+* Explicitly decide the amount of RBs to assign to each UE
 * (continue training after loading weights)
     
 Later:
