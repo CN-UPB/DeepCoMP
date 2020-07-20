@@ -5,8 +5,10 @@ import structlog
 from structlog.stdlib import LoggerFactory
 from structlog_round import FloatRounder
 
+from drl_mobile.util.constants import LOG_ROUND_DIGITS
 
-def config_logging(round_digits):
+
+def config_logging():
     """Configure logging using structlog, stdlib logging, and custom FloatRounder to round to spec numb digits"""
     logging.basicConfig(level=logging.INFO)
     logging.getLogger('drl_mobile').setLevel(logging.WARNING)
@@ -25,7 +27,7 @@ def config_logging(round_digits):
                             # structlog.processors.format_exc_info,
                             # structlog.processors.UnicodeDecoder(),
                             # structlog.processors.TimeStamper(fmt="%Y-%m-%d %H:%M:%S"),
-                            FloatRounder(digits=round_digits, not_fields=['sinr', 'signal', 'interference']),
+                            FloatRounder(digits=LOG_ROUND_DIGITS, not_fields=['sinr', 'signal', 'interference']),
                             structlog.dev.ConsoleRenderer()
                             # structlog.stdlib.render_to_log_kwargs,
                             # structlog.processors.JSONRenderer()

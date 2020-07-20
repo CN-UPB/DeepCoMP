@@ -6,7 +6,10 @@ import os
 import pathlib
 
 
-# if order doesn't matter, prefer sets for O(1) include checks
+# logging settings
+LOG_ROUND_DIGITS = 3
+
+# use sets for O(1) include checks
 SUPPORTED_ALGS = {'ppo', 'greedy-best', 'greedy-all', 'random', 'fixed'}
 SUPPORTED_AGENTS = {'single', 'central', 'multi'}
 SUPPORTED_ENVS = {'small', 'medium', 'large', 'custom'}
