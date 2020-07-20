@@ -1,5 +1,6 @@
 """Useful scripts for evaluation"""
 import os
+import glob
 from ast import literal_eval
 from collections import defaultdict
 
@@ -90,17 +91,27 @@ def plot_ppo_mean_eps_reward(df):
     return int(eps_per_iter)
 
 
+def get_result_files(dir, prefix='', suffix='.csv'):
+    """Read all files in the directory recursivley and return a list of all files matching the prefix and suffix"""
+    result_files = []
+    for f in glob.iglob(dir + '**/**', recursive=True):
+        if os.path.isfile(f) and f.startswith(prefix) and f.endswith(suffix):
+            result_files.append(f)
+    return result_files
+
+
 # summarizing results from different runs
 def summarize_results(dir=EVAL_DIR):
     """Read and summarize all results in a directory. Return a df."""
     config_cols = ['alg', 'agent', 'num_ue_slow', 'num_ue_fast', 'eps_length', 'env_size']
     result_cols = ['eps_reward', 'eps_dr', 'eps_util', 'eps_unsucc_conn', 'eps_lost_conn']
-    files = [f for f in os.listdir(dir) if f.endswith('.csv')]
+    # files = [f for f in os.listdir(dir) if f.endswith('.csv')]
+    files = get_result_files(dir)
     data = defaultdict(list)
 
     # read all files and save relevant data
     for f in files:
-        df = pd.read_csv(f'{dir}/{f}')
+        df = pd.read_csv(f)
         # copy config
         for conf in config_cols:
             data[conf].append(df[conf][0])
@@ -173,7 +184,7 @@ if __name__ == '__main__':
     # eps_per_iter = plot_ppo_mean_eps_reward(df_ppo_org)
     # plot_eps_reward(dfs, labels, roll_mean_window=eps_per_iter, filename='eps_reward.pdf')
 
-    df = summarize_results(dir=f'{EVAL_DIR}/comparison/incr_ues')
+    df = summarize_results(dir=f'{EVAL_DIR}/2020-07-15_rate-fair')
     # df = concat_results()
     plot_increasing_ues(df, metric='eps_reward', filename='reward_incr_ues.pdf')
     plot_increasing_ues(df, metric='eps_dr', filename='dr_incr_ues.pdf')
