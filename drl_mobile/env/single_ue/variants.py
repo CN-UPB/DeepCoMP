@@ -175,8 +175,8 @@ class NormDrMobileEnv(BinaryMobileEnv):
         # ues_at_bs = [bs.num_conn_ues for bs in self.bs_list]
         # ues_at_bs = [bs.num_conn_ues / self.num_ue for bs in self.bs_list]
 
-        # total curr dr per UE (normalized)
-        dr_total = [ue.curr_dr / self.dr_cutoff]
+        # total curr dr per UE (clipped & normalized)
+        dr_total = [min(ue.curr_dr, self.dr_cutoff) / self.dr_cutoff]
 
         # return {'dr': bs_dr, 'connected': bs_conn}
         # return {'dr': bs_dr, 'connected': bs_conn, 'ues_at_bs': ues_at_bs}
