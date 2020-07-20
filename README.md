@@ -78,6 +78,7 @@ tango4, tango5
 
 ### Todos
 
+* Normalize rewards!
 * Evaluation: 
     * Eval reliability: Steps without any connection (per UE?)
     * Double check all units in my scenario, esp. for movement, distance, dr. Makes sense?
@@ -94,12 +95,12 @@ tango4, tango5
     * Add UE position and movement, distances to observations; in multi-agent
 * Optimization approach: Numerical optimization of instantaneous total utility?
 * Real-world traces for UE movement somewhere? From 5G measurement mmW paper?
-* Explicitly decide the amount of RBs to assign to each UE
 * (continue training after loading weights)
     
 Later:
 
 * Let agent coordinate the number/amount of RBs per connected UE actively. With log utility, a centralized agent should learn proportional-fair scheduling by itself.
+* optimize performance by using more numpy arrays
     
 
 ### Findings
