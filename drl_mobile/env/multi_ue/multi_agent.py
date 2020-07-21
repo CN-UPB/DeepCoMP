@@ -3,7 +3,7 @@ from ray.rllib.env.multi_agent_env import MultiAgentEnv
 from drl_mobile.env.single_ue.variants import DatarateMobileEnv, NormDrMobileEnv
 
 
-class MultiAgentMobileEnv(NormDrMobileEnv, MultiAgentEnv):
+class MultiAgentMobileEnv(DatarateMobileEnv, MultiAgentEnv):
     """
     Multi-UE and multi-agent env.
     Inherits DatarateMobileEnv's step & overwrites MultiAgentEnv's reset and step.
