@@ -18,11 +18,11 @@ def get_env_class(env_type):
     assert env_type in SUPPORTED_AGENTS, f"Environment type was {env_type} but has to be one of {SUPPORTED_AGENTS}."
 
     if env_type == 'single':
-        # return DatarateMobileEnv
-        return NormDrMobileEnv
+        return DatarateMobileEnv
+        # return NormDrMobileEnv
     if env_type == 'central':
-        # return CentralDrEnv
-        return CentralNormDrEnv
+        return CentralDrEnv
+        # return CentralNormDrEnv
     if env_type == 'multi':
         return MultiAgentMobileEnv
 
@@ -136,7 +136,7 @@ def create_env_config(agent, map_size, num_slow_ues, num_fast_ues, sharing_model
     env_config = {
         'episode_length': eps_length, 'seed': seed,
         'map': map, 'bs_list': bs_list, 'ue_list': ue_list, 'dr_cutoff': 'auto', 'sub_req_dr': True,
-        'curr_dr_obs': False, 'ues_at_bs_obs': True
+        'curr_dr_obs': False, 'ues_at_bs_obs': False
     }
     # env_config = {
     #     'episode_length': eps_length, 'seed': seed,

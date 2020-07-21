@@ -88,11 +88,9 @@ tango4, tango5
     * Consider blocking by obstacles, eg, cars/buildings?
     * LTE baseline: Select BS with highest long-term avg SINR
 * Ideas for improving the observation space:
-    * Total UE dr
-    * Number of connected UEs per BS
-    * Or just do automatic running mean normalization: https://github.com/ray-project/ray/issues/9399 Didn't work at all for step utility, but might for log utility
-        * I don't think it will be better than my custom normalization, which is taylored to the current utility function
     * Add UE position and movement, distances to observations; in multi-agent
+* Different utilities for each UE? Shift log function to cut x-axis at different points correspondign to the requirement
+    * Then normalize data rates accordingly
 * Optimization approach: Numerical optimization of instantaneous total utility?
 * Real-world traces for UE movement somewhere? From 5G measurement mmW paper?
 * (continue training after loading weights)
