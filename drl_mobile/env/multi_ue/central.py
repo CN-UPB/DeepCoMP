@@ -73,6 +73,8 @@ class CentralDrEnv(CentralBaseEnv, DatarateMobileEnv):
         if self.ues_at_bs_obs:
             # at each BS 0 up to all UEs can be connected (no normalization yet)
             obs_space['ues_at_bs'] = gym.spaces.MultiDiscrete([self.num_ue+1 for _ in range(self.num_bs)])
+        if self.dist_obs:
+            obs_space['dist'] = gym.spaces.Box(low=0, high=1, shape=(self.num_ue * self.num_bs,))
 
         self.observation_space = gym.spaces.Dict(obs_space)
         # actions are defined in the parent class; they are the same for all central envs

@@ -34,4 +34,31 @@ Analysis:
 * ppo-central
     * Simulation complete            eps_length=50 mean_eps_reward=34.063 mean_eps_time=0.425 mean_step_reward=0.681 num_episodes=100 std_eps_reward=17.254 std_eps_time=0.052
 * ppo-multi
+    * Simulation complete            eps_length=50 mean_eps_reward=43.603 mean_eps_time=0.558 mean_step_reward=0.872 num_episodes=100 std_eps_reward=16.098 std_eps_time=0.076
 
+--> roughly similar results for PPO; greedy-all becomes better
+
+### Same as before but with dr env
+
+Req dr (1, where log func = utility is 0) is subtracted from achievable dr obs --> dr obs in [-1,1] instead of [0,1]
+With -1 = can't connect, 0 = 0 utility (req just met), 1 above req
+
+* ppo-central
+    * Simulation complete            eps_length=50 mean_eps_reward=39.219 mean_eps_time=0.405 mean_step_reward=0.784 num_episodes=100 std_eps_reward=16.217 std_eps_time=0.051
+    * Much better than before +5 avg!
+* ppo-multi
+    * Simulation complete            eps_length=50 mean_eps_reward=43.603 mean_eps_time=0.554 mean_step_reward=0.872 num_episodes=100 std_eps_reward=16.098 std_eps_time=0.074
+    * Strange: Exactly the same! --> forgot to change the parent env in multi-agent env (still used same obs as before) --> fix & rerun
+    * 
+  
+    
+## Adjusted obs: Include distance and velocity
+
+Use normalized rewards from before; And dr env normailzation to -1, 1
+
+### Added distances
+
+Add normalized distance (norm by max distance); no velocity yet
+
+* ppo-central
+* ppo-multi

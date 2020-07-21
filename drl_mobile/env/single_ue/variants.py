@@ -57,12 +57,14 @@ class DatarateMobileEnv(BinaryMobileEnv):
         * sub_req_dr: If true, subtract a UE's required data rate from the achievable dr --> neg obs if too little
         * curr_dr_obs: If true, add a UE's current total data rate (over all BS) to the observations
         * ues_at_bs_obs: If true, add obs showing the number of connected UEs at each BS. To help balance connections.
+        * dist_obs: If true, add a UE's distance (normalized) to all BS in the obs
         """
         super().__init__(env_config)
         self.dr_cutoff = env_config['dr_cutoff']
         self.sub_req_dr = env_config['sub_req_dr']
         self.curr_dr_obs = env_config['curr_dr_obs']
         self.ues_at_bs_obs = env_config['ues_at_bs_obs']
+        self.dist_obs = env_config['dist_obs']
         assert not (self.dr_cutoff == 'auto' and not self.sub_req_dr), "For dr_cutoff auto, sub_req_dr must be True."
         assert (not self.curr_dr_obs) or (self.dr_cutoff == 'auto' and self.sub_req_dr), \
             "Enable all processing to add extra obs"
@@ -100,6 +102,10 @@ class DatarateMobileEnv(BinaryMobileEnv):
         # 4. Optional: Number of connected UEs per BS. Discrete: 0 up to all UEs
         if self.ues_at_bs_obs:
             obs_space['ues_at_bs'] = gym.spaces.MultiDiscrete([self.num_ue+1 for _ in range(self.num_bs)])
+
+        # 5. Optional: Distance of a UE to all BS. Normalized by max distance on map (diagonal)
+        if self.dist_obs:
+            obs_space['dist'] = gym.spaces.Box(low=0, high=1, shape=(self.num_bs,))
 
         self.observation_space = gym.spaces.Dict(obs_space)
         # same action space as binary env: select a BS to be connected to/disconnect from or noop
@@ -139,6 +145,9 @@ class DatarateMobileEnv(BinaryMobileEnv):
 
         if self.ues_at_bs_obs:
             obs_dict['ues_at_bs'] = [bs.num_conn_ues for bs in self.bs_list]
+
+        if self.dist_obs:
+            obs_dict['dist'] = [ue.pos.distance(bs.pos) / self.map.diagonal for bs in self.bs_list]
 
         return obs_dict
 

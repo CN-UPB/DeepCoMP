@@ -85,12 +85,11 @@ tango4, tango5
         * Can I use a 5G use case with mm wave? Otherwise, remove 5G from the title
     * Also compare multi-agent & centralized with limited training time
     * CDF of avg UE rate
-    * Consider blocking by obstacles, eg, cars/buildings?
+    * Different utilities for each UE? Shift log function to cut x-axis at different points correspondign to the requirement
+        * Then normalize data rates accordingly
     * LTE baseline: Select BS with highest long-term avg SINR
 * Ideas for improving the observation space:
     * Add UE position and movement, distances to observations; in multi-agent
-* Different utilities for each UE? Shift log function to cut x-axis at different points correspondign to the requirement
-    * Then normalize data rates accordingly
 * Optimization approach: Numerical optimization of instantaneous total utility?
 * Real-world traces for UE movement somewhere? From 5G measurement mmW paper?
 * (continue training after loading weights)

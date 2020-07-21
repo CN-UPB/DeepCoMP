@@ -1,3 +1,4 @@
+import numpy as np
 from shapely.geometry import Polygon
 
 
@@ -14,6 +15,7 @@ class Map:
         """
         self.width = width
         self.height = height
+        self.diagonal = np.sqrt(self.width**2 + self.height**2)
         self.shape = Polygon([(0,0), (0, height), (width, height), (width, 0)])
 
     def __repr__(self):
