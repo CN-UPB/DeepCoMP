@@ -202,8 +202,8 @@ class MobileEnv(gym.Env):
 
         # perform step: apply action, move UEs, update data rates and rewards in between; increment time
         unsucc_conn = self.apply_ue_actions(action)
-        # penalty of -3 for unsuccessful connection attempt
-        penalties = {ue: -3 * unsucc_conn[ue] for ue in self.ue_list}
+        # penalty of -1 for unsuccessful connection attempt
+        penalties = {ue: -1 * unsucc_conn[ue] for ue in self.ue_list}
         rewards_before = self.update_ue_drs_rewards(penalties)
         lost_conn = self.move_ues()
         # penalty of -1 for lost connections due to movement (rather than active disconnect)
