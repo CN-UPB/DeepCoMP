@@ -76,5 +76,6 @@ In addition to curr distance to all BS, also add distance after next step (estim
 * ppo-central
     * Simulation complete            eps_length=50 mean_eps_reward=38.883 mean_eps_time=0.453 mean_step_reward=0.778 num_episodes=100 std_eps_reward=16.127 std_eps_time=0.057
 * ppo-multi
+    * Simulation complete            eps_length=50 mean_eps_reward=44.585 mean_eps_time=0.59 mean_step_reward=0.892 num_episodes=100 std_eps_reward=16.221 std_eps_time=0.072
 
 --> adding distances to obs didn't help (at least within 200k train) and rather hurt
