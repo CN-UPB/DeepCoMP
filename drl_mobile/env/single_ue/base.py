@@ -85,7 +85,9 @@ class MobileEnv(gym.Env):
         """
         Calculate and return reward for specific UE: The UE's utility (based on its data rate) + penalty
         """
-        return ue.utility + penalty
+        # return ue.utility + penalty
+        # normalize rewards to [-1,1] (clip first to avoid rewards < -20 due to penalties)
+        return np.clip(ue.utility + penalty, -20, 20) / 20
 
     def reset(self):
         """Reset environment by resetting time and all UEs (pos & movement) and their connections"""
