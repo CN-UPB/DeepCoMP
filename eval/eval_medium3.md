@@ -67,3 +67,11 @@ Add normalized distance (norm by max distance); no velocity yet
     * Simulation complete            eps_length=50 mean_eps_reward=39.675 mean_eps_time=0.448 mean_step_reward=0.793 num_episodes=100 std_eps_reward=15.917 std_eps_time=0.057
     * Significantly worse than before. Seems to rather confuse
 * ppo-multi
+    * Simulation complete            eps_length=50 mean_eps_reward=44.885 mean_eps_time=0.549 mean_step_reward=0.898 num_episodes=100 std_eps_reward=16.033 std_eps_time=0.074
+
+### Also added next distances
+
+In addition to curr distance to all BS, also add distance after next step (estimated), ie taking movement direction and velocity into account
+
+* ppo-central
+* ppo-multi

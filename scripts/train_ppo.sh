@@ -10,5 +10,5 @@ echo Num workers: $num_workers, Min UEs: $min_ues, Max UEs: $max_ues, Agent: $ag
 for num_ues in $(seq $min_ues $max_ues)
 do
   echo Num. UEs: $num_ues
-  deepcomp --seed 42 --workers $num_workers --eps-length 50 --train-steps 200000 --batch-size 1000 --alg ppo --agent $agent --env medium --slow-ues $num_ues --sharing proportional-fair --eval 100
+  deepcomp --seed 42 --workers $num_workers --eps-length 100 --train-steps 1000000 --batch-size 4000 --alg ppo --agent $agent --env medium --slow-ues $num_ues --sharing proportional-fair --eval 100
 done
