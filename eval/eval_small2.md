@@ -51,8 +51,11 @@ Again, same thing but trained for 200k instead of 100k:
 
 --> slight improvement over 100k, but still comparable to original rewards; seems like agent converged (more training only helps a bit) and additional obs don't help (rather hurt)
 
+## Normalized reward
 
-## Normalized reward to -1,1 and obs as before (incl ues_at_bs and dr_total)
+To -1, 1
+
+### Obs as before (incl ues_at_bs and dr_total)
 
 * greedy-best
     * Simulation complete            eps_length=50 mean_eps_reward=41.2 mean_eps_time=0.365 mean_step_reward=0.824 num_episodes=50 std_eps_reward=15.48 std_eps_time=0.127
@@ -63,3 +66,12 @@ Again, same thing but trained for 200k instead of 100k:
 * ppo-multi
     * Simulation complete            eps_length=50 mean_eps_reward=42.219 mean_eps_time=0.359 mean_step_reward=0.844 num_episodes=50 std_eps_reward=14.012 std_eps_time=0.047
     
+    
+### Same again without extra obs
+
+* ppo-central
+    * Simulation complete            eps_length=50 mean_eps_reward=40.749 mean_eps_time=0.305 mean_step_reward=0.815 num_episodes=50 std_eps_reward=14.436 std_eps_time=0.042
+* ppo-multi
+    * Simulation complete            eps_length=50 mean_eps_reward=42.347 mean_eps_time=0.358 mean_step_reward=0.847 num_episodes=50 std_eps_reward=13.399 std_eps_time=0.058
+
+--> Reward normalization doesn't seem to make a big difference. Slightly negative if anything. Still better without extra obs (again very slight difference).
