@@ -58,6 +58,8 @@ class DatarateMobileEnv(BinaryMobileEnv):
         * curr_dr_obs: If true, add a UE's current total data rate (over all BS) to the observations
         * ues_at_bs_obs: If true, add obs showing the number of connected UEs at each BS. To help balance connections.
         * dist_obs: If true, add a UE's distance (normalized) to all BS in the obs
+        * next_dist_obs: If true, add a UE's distance (normalized) to all BS AFTER taking the next step,
+        ie, taking the movement direction and velocity into account (estimate)
         """
         super().__init__(env_config)
         self.dr_cutoff = env_config['dr_cutoff']
@@ -65,9 +67,13 @@ class DatarateMobileEnv(BinaryMobileEnv):
         self.curr_dr_obs = env_config['curr_dr_obs']
         self.ues_at_bs_obs = env_config['ues_at_bs_obs']
         self.dist_obs = env_config['dist_obs']
+        self.next_dist_obs = env_config['next_dist_obs']
+
+        # sanity checks
         assert not (self.dr_cutoff == 'auto' and not self.sub_req_dr), "For dr_cutoff auto, sub_req_dr must be True."
         assert (not self.curr_dr_obs) or (self.dr_cutoff == 'auto' and self.sub_req_dr), \
             "Enable all processing to add extra obs"
+        assert self.dist_obs or not self.next_dist_obs, "Also enable 'dist_obs' when using 'next_dist_obs'"
 
         # observations: vector of dr to each BS + (optionally: total curr dr of UE) + already connected BS
         # cut off dr at given dr level. here, dr is below 200 anyways --> default doesn't cut off
@@ -106,6 +112,10 @@ class DatarateMobileEnv(BinaryMobileEnv):
         # 5. Optional: Distance of a UE to all BS. Normalized by max distance on map (diagonal)
         if self.dist_obs:
             obs_space['dist'] = gym.spaces.Box(low=0, high=1, shape=(self.num_bs,))
+
+        # 6. Optional: Distances after taking the next step, ie, taking movement direction and velocity into account
+        if self.next_dist_obs:
+            obs_space['next_dist'] = gym.spaces.Box(low=0, high=1, shape=(self.num_bs,))
 
         self.observation_space = gym.spaces.Dict(obs_space)
         # same action space as binary env: select a BS to be connected to/disconnect from or noop
@@ -148,6 +158,12 @@ class DatarateMobileEnv(BinaryMobileEnv):
 
         if self.dist_obs:
             obs_dict['dist'] = [ue.pos.distance(bs.pos) / self.map.diagonal for bs in self.bs_list]
+
+        if self.next_dist_obs:
+            # step_towards_waypoint returns next pos based on curr pos and movement but doesn't move UE (--> estimate)
+            # step also takes pausing into account, but I can't use it since it would really move the UE
+            next_pos = ue.movement.step_towards_waypoint(ue.pos)
+            obs_dict['next_dist'] = [next_pos.distance(bs.pos) / self.map.diagonal for bs in self.bs_list]
 
         return obs_dict
 

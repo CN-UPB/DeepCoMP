@@ -78,7 +78,6 @@ tango4, tango5
 
 ### Todos
 
-* Normalize rewards!
 * Evaluation: 
     * Eval reliability: Steps without any connection (per UE?)
     * Double check all units in my scenario, esp. for movement, distance, dr. Makes sense?

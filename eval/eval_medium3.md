@@ -49,7 +49,10 @@ With -1 = can't connect, 0 = 0 utility (req just met), 1 above req
 * ppo-multi
     * Simulation complete            eps_length=50 mean_eps_reward=43.603 mean_eps_time=0.554 mean_step_reward=0.872 num_episodes=100 std_eps_reward=16.098 std_eps_time=0.074
     * Strange: Exactly the same! --> forgot to change the parent env in multi-agent env (still used same obs as before) --> fix & rerun
-    * 
+    * Simulation complete            eps_length=50 mean_eps_reward=45.775 mean_eps_time=0.542 mean_step_reward=0.916 num_episodes=100 std_eps_reward=16.262 std_eps_time=0.069
+    * Also helps here. Better again than greedy-all
+    
+--> this normalization works quite a bit better! and it should allow working with UEs that have different dr requirements!
   
     
 ## Adjusted obs: Include distance and velocity
@@ -61,4 +64,6 @@ Use normalized rewards from before; And dr env normailzation to -1, 1
 Add normalized distance (norm by max distance); no velocity yet
 
 * ppo-central
+    * Simulation complete            eps_length=50 mean_eps_reward=39.675 mean_eps_time=0.448 mean_step_reward=0.793 num_episodes=100 std_eps_reward=15.917 std_eps_time=0.057
+    * Significantly worse than before. Seems to rather confuse
 * ppo-multi
