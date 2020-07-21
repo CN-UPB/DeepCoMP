@@ -101,7 +101,7 @@ Later:
 
 * Let agent coordinate the number/amount of RBs per connected UE actively. With log utility, a centralized agent should learn proportional-fair scheduling by itself.
 * optimize performance by using more numpy arrays
-    
+(* Same seed leads to different results/env when using multiple workers)
 
 ### Findings
 

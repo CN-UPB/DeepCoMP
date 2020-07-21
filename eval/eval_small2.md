@@ -75,3 +75,10 @@ To -1, 1
     * Simulation complete            eps_length=50 mean_eps_reward=42.347 mean_eps_time=0.358 mean_step_reward=0.847 num_episodes=50 std_eps_reward=13.399 std_eps_time=0.058
 
 --> Reward normalization doesn't seem to make a big difference. Slightly negative if anything. Still better without extra obs (again very slight difference).
+
+# Overall
+
+* Overall, here, greedy-all is always best (in the larger scenarios it was always greedy-best). 
+* PPO is close but alwys slightly worse
+* It seems like it doesn't make such a big difference whether to connect to all or just 1 BS here. Diff in utility is tiny. 
+* Probably bc there are only 2 UEs and BS + prop-fair sharing

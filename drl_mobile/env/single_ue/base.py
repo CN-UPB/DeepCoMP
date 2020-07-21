@@ -7,8 +7,11 @@ import gym.spaces
 import structlog
 import numpy as np
 import matplotlib.pyplot as plt
+from matplotlib import cm
+import matplotlib.patheffects as pe
 
 from drl_mobile.util.logs import config_logging
+from drl_mobile.env.util.utility import step_utility, log_utility
 
 
 class MobileEnv(gym.Env):
@@ -228,10 +231,18 @@ class MobileEnv(gym.Env):
         plt.ylim(0, self.map.height)
 
         # users & connections
+        # show utility as red to yellow to green. use color map for [0,1) --> normalize utility first
+        colormap = cm.get_cmap('RdYlGn')
+        norm = plt.Normalize(-20, 20)
+
         for ue in self.ue_list:
             # plot connections to all BS
-            for bs in ue.bs_dr.keys():
-                patch.extend(plt.plot([ue.pos.x, bs.pos.x], [ue.pos.y, bs.pos.y], color='blue'))
+            for bs, dr in ue.bs_dr.items():
+                color = colormap(norm(log_utility(dr)))
+                # add black background/borders for lines to make them better visible if the utility color is too light
+                patch.extend(plt.plot([ue.pos.x, bs.pos.x], [ue.pos.y, bs.pos.y], color=color,
+                                      path_effects=[pe.SimpleLineShadow(shadow_color='black'), pe.Normal()]))
+                                      # path_effects=[pe.Stroke(linewidth=2, foreground='black'), pe.Normal()]))
             # plot UE
             patch.extend(ue.plot())
 
