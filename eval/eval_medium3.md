@@ -74,4 +74,7 @@ Add normalized distance (norm by max distance); no velocity yet
 In addition to curr distance to all BS, also add distance after next step (estimated), ie taking movement direction and velocity into account
 
 * ppo-central
+    * Simulation complete            eps_length=50 mean_eps_reward=38.883 mean_eps_time=0.453 mean_step_reward=0.778 num_episodes=100 std_eps_reward=16.127 std_eps_time=0.057
 * ppo-multi
+
+--> adding distances to obs didn't help (at least within 200k train) and rather hurt
