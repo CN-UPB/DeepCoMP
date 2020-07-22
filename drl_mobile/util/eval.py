@@ -185,7 +185,7 @@ if __name__ == '__main__':
     # eps_per_iter = plot_ppo_mean_eps_reward(df_ppo_org)
     # plot_eps_reward(dfs, labels, roll_mean_window=eps_per_iter, filename='eps_reward.pdf')
 
-    df = summarize_results(dir=f'{EVAL_DIR}/2020-07-20_prop-fair')
+    df = summarize_results(dir=f'{EVAL_DIR}/2020-07-22_prop-fair')
     # df = concat_results()
     plot_increasing_ues(df, metric='eps_reward', filename='reward_incr_ues.pdf')
     plot_increasing_ues(df, metric='eps_dr', filename='dr_incr_ues.pdf')
