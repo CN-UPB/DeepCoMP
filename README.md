@@ -74,12 +74,11 @@ Run the command in a WSL not a PyCharm terminal. Tensorboard is available at htt
 
 ### Available Machines
 
-tango4, tango5
+tango4, tango5, swc01
 
 ### Todos
 
 * Evaluation: 
-    * Eval reliability: Steps without any connection (per UE?)
     * Double check all units in my scenario, esp. for movement, distance, dr. Makes sense?
         * Can I use a 5G use case with mm wave? Otherwise, remove 5G from the title
     * Also compare multi-agent & centralized with limited training time
