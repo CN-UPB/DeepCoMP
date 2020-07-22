@@ -291,11 +291,16 @@ class Simulation:
         result_file = f'{TEST_DIR}/{self.result_filename}.csv'
         self.log.info("Writing results", file=result_file)
 
+        # distinguish multi-agent RL with separate NNs rather than a shared NN for all agents
+        agent_str = self.cli_args.agent
+        if agent_str == 'multi' and self.cli_args.separate_agent_nns:
+            agent_str = 'multi-sep-nns'
+
         # prepare and write result data
         data = {
             # input/configuration data to track to what the results belong to
             'alg': self.cli_args.alg,
-            'agent': self.cli_args.agent,
+            'agent': agent_str,
             'env': self.env_name,
             'env_size': self.cli_args.env,
             'eps_length': self.episode_length,

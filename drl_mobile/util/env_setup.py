@@ -72,10 +72,10 @@ def create_ues(map, num_slow_ues, num_fast_ues):
     ue_list = []
     id = 1
     for i in range(num_slow_ues):
-        ue_list.append(User(id, map, pos_x='random', pos_y='random', movement=RandomWaypoint(map, velocity='slow')))
+        ue_list.append(User(str(id), map, pos_x='random', pos_y='random', movement=RandomWaypoint(map, velocity='slow')))
         id += 1
     for i in range(num_fast_ues):
-        ue_list.append(User(id, map, pos_x='random', pos_y='random', movement=RandomWaypoint(map, velocity='fast')))
+        ue_list.append(User(str(id), map, pos_x='random', pos_y='random', movement=RandomWaypoint(map, velocity='fast')))
         id += 1
     return ue_list
 
@@ -172,6 +172,8 @@ def create_env_config(agent, map_size, num_slow_ues, num_fast_ues, sharing_model
         # or: use separate policies (and NNs) for each agent
         else:
             config['multiagent'] = {
+                # attention: ue.id needs to be a string! just casting it to str() here doesn't work;
+                # needs to be consistent with obs keys --> easier, just use string IDs
                 'policies': {ue.id: (None, env.observation_space, env.action_space, {}) for ue in ue_list},
                 'policy_mapping_fn': lambda agent_id: agent_id
             }

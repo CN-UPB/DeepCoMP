@@ -28,6 +28,8 @@ def setup_cli():
     parser.add_argument('--train-steps', type=int, default=None, help="Max. number of training time steps (if any)")
     parser.add_argument('--train-iter', type=int, default=None, help="Max. number of training iterations (if any)")
     parser.add_argument('--target-reward', type=int, default=None, help="Target mean episode reward for training")
+    parser.add_argument('--separate-agent-nns', action='store_true',
+                        help="Only relevant for multi-agent RL. Use separate NNs for each agent instead of sharing.")
     # environment
     parser.add_argument('--env', type=str, choices=SUPPORTED_ENVS, default='small', help="Env/Map size")
     parser.add_argument('--eps-length', type=int, default=30, help="Number of time steps per episode")
@@ -70,7 +72,8 @@ def main():
     # create RLlib config (with env inside) & simulator
     config = create_env_config(agent=args.agent, map_size=args.env, num_slow_ues=args.slow_ues,
                                num_fast_ues=args.fast_ues, sharing_model=args.sharing, eps_length=args.eps_length,
-                               num_workers=args.workers, train_batch_size=args.batch_size, seed=args.seed)
+                               num_workers=args.workers, train_batch_size=args.batch_size, seed=args.seed,
+                               agents_share_nn=not args.separate_agent_nns)
     # add cli args to the config for saving inputs
     sim = Simulation(config=config, agent_name=args.alg, cli_args=args, debug=False)
 
