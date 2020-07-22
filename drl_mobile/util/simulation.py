@@ -221,7 +221,9 @@ class Simulation:
         :param log_dict: Dict with logging levels to set
         :return: Tuple of episode results
         """
-        # init eps metrics
+        # init metrics
+        dr_list = []
+        utility_list = []
         eps_reward = 0
         eps_dr = 0
         eps_utility = 0
@@ -261,6 +263,10 @@ class Simulation:
             # increment metrics according to reward and info
             eps_reward += reward
             # total dr, utility, unsucc. conn, lost conn, num steps without conn for all UEs
+            # for CDF plot, record individual drs and utilities
+            dr_list.extend(list(info['dr'].values()))
+            utility_list.extend(list(info['utility'].values()))
+            # for convenience, also log the sums
             eps_dr += sum(info['dr'].values())
             eps_utility += sum(info['utility'].values())
             eps_unsucc_conn += sum(info['unsucc_conn'].values())
@@ -275,10 +281,12 @@ class Simulation:
         eps_time = time.time() - eps_start
         self.log.debug('Episode complete', eps_reward=eps_reward, eps_time=eps_time, eps_dr=eps_dr,
                        eps_utility=eps_utility, eps_unsucc_conn=eps_unsucc_conn, eps_lost_conn=eps_lost_conn,
-                       num_no_conn=num_no_conn)
-        return eps_reward, eps_time, eps_dr, eps_utility, eps_unsucc_conn, eps_lost_conn, num_no_conn
+                       num_no_conn=num_no_conn, dr_list=dr_list, utility_list=utility_list)
+        return dr_list, utility_list, eps_reward, eps_time, eps_dr, eps_utility, eps_unsucc_conn, eps_lost_conn, \
+               num_no_conn
 
-    def write_results(self, eps_rewards, eps_times, eps_drs, eps_util, eps_unsucc_conn, eps_lost_conn, num_no_conn):
+    def write_results(self, dr_list, utility_list, eps_rewards, eps_times, eps_drs, eps_util, eps_unsucc_conn,
+                      eps_lost_conn, num_no_conn):
         """Write experiment results to CSV file. Include all relevant info."""
         result_file = f'{TEST_DIR}/{self.result_filename}.csv'
         self.log.info("Writing results", file=result_file)
@@ -304,7 +312,9 @@ class Simulation:
             'eps_util': eps_util,
             'eps_unsucc_conn': eps_unsucc_conn,
             'eps_lost_conn': eps_lost_conn,
-            'num_no_conn': num_no_conn
+            'num_no_conn': num_no_conn,
+            'dr_list': dr_list,
+            'utility_list': utility_list
         }
 
         # training data for PPO
@@ -350,7 +360,8 @@ class Simulation:
             for _ in tqdm(range(num_episodes), disable=(num_episodes == 1))
         )
         # unzip results, ie, convert list of tuples to separate lists
-        eps_rewards, eps_times, eps_drs, eps_util, eps_unsucc_con, eps_lost_conn, num_no_conn = map(list, zip(*zipped_results))
+        dr_list, utility_list, eps_rewards, eps_times, eps_drs, eps_util, eps_unsucc_con, eps_lost_conn, num_no_conn \
+            = map(list, zip(*zipped_results))
 
         # summarize episode rewards
         mean_eps_reward = np.mean(eps_rewards)
@@ -361,6 +372,7 @@ class Simulation:
 
         # write results to file
         if write_results:
-            self.write_results(eps_rewards, eps_times, eps_drs, eps_util, eps_unsucc_con, eps_lost_conn, num_no_conn)
+            self.write_results(dr_list, utility_list, eps_rewards, eps_times, eps_drs, eps_util, eps_unsucc_con,
+                               eps_lost_conn, num_no_conn)
 
         return eps_rewards

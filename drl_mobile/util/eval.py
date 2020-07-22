@@ -9,7 +9,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
 
-from drl_mobile.util.constants import TRAIN_DIR, TEST_DIR, EVAL_DIR, PLOT_DIR
+from drl_mobile.util.constants import TRAIN_DIR, TEST_DIR, EVAL_DIR, PLOT_DIR, RESULT_DIR
 
 
 def read_training_progress(dir_name):
@@ -102,7 +102,7 @@ def get_result_files(dir, prefix='', suffix='.csv'):
 
 
 # summarizing results from different runs
-def summarize_results(dir=EVAL_DIR):
+def summarize_results(dir=EVAL_DIR, read_hist_data=False):
     """Read and summarize all results in a directory. Return a df."""
     config_cols = ['alg', 'agent', 'num_ue_slow', 'num_ue_fast', 'eps_length', 'env_size']
     result_cols = ['eps_reward', 'eps_dr', 'eps_util', 'eps_unsucc_conn', 'eps_lost_conn', 'num_no_conn']
@@ -125,9 +125,15 @@ def summarize_results(dir=EVAL_DIR):
             data[f'{res}_mean'].append(np.mean(df[res]))
             data[f'{res}_std'].append(np.std(df[res]))
 
+        # read individual data rates and utilities for histogram plotting
+        if read_hist_data:
+            # convert into proper lists: https://stackoverflow.com/a/32743458/2745116
+            data['dr_list'] = df['dr_list'].apply(literal_eval)
+            data['utility_list'] = df['utility_list'].apply(literal_eval)
+
     # Calculate and add reliability to the df, defined as `num_no_conn / (num_ue * eps_length)`, ie,
     # percent of steps with any connection (no matter the dr) averaged over all UEs
-    df['reliability'] = df['num_no_conn'] / (df['num_ue'] * df['eps_length'])
+    data['reliability'] = np.array(data['num_no_conn_mean']) / (data['num_ue'][0] * data['eps_length'][0])
 
     # create and return combined df
     return pd.DataFrame(data=data)
@@ -189,10 +195,13 @@ if __name__ == '__main__':
     # eps_per_iter = plot_ppo_mean_eps_reward(df_ppo_org)
     # plot_eps_reward(dfs, labels, roll_mean_window=eps_per_iter, filename='eps_reward.pdf')
 
-    df = summarize_results(dir=f'{EVAL_DIR}/2020-07-22_prop-fair')
-    # df = concat_results()
-    plot_increasing_ues(df, metric='eps_reward', filename='reward_incr_ues.pdf')
-    plot_increasing_ues(df, metric='eps_dr', filename='dr_incr_ues.pdf')
-    plot_increasing_ues(df, metric='eps_util', filename='utility_incr_ues.pdf')
-    plot_increasing_ues(df, metric='eps_unsucc_conn', filename='unsucc_conn_incr_ues.pdf')
-    plot_increasing_ues(df, metric='eps_lost_conn', filename='lost_conn_incr_ues.pdf')
+    df = summarize_results(dir=f'{RESULT_DIR}', read_hist_data=True)
+    print(df['dr_list'])
+
+    # df = summarize_results(dir=f'{EVAL_DIR}/2020-07-22_prop-fair')
+    # # df = concat_results()
+    # plot_increasing_ues(df, metric='eps_reward', filename='reward_incr_ues.pdf')
+    # plot_increasing_ues(df, metric='eps_dr', filename='dr_incr_ues.pdf')
+    # plot_increasing_ues(df, metric='eps_util', filename='utility_incr_ues.pdf')
+    # plot_increasing_ues(df, metric='eps_unsucc_conn', filename='unsucc_conn_incr_ues.pdf')
+    # plot_increasing_ues(df, metric='eps_lost_conn', filename='lost_conn_incr_ues.pdf')
