@@ -87,10 +87,9 @@ tango4, tango5
     * Different utilities for each UE? Shift log function to cut x-axis at different points correspondign to the requirement
         * Then normalize data rates accordingly
     * LTE baseline: Select BS with highest long-term avg SINR
-* Ideas for improving the observation space:
-    * Add UE position and movement, distances to observations; in multi-agent
 * Optimization approach: Numerical optimization of instantaneous total utility?
 * Real-world traces for UE movement somewhere? From 5G measurement mmW paper?
+* Multi-agent RL became really slow when training somehow. Why? Any way to improve performance in general? Simulation quite slow with many UEs.
 * (continue training after loading weights)
     
 Later:
