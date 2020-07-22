@@ -128,8 +128,8 @@ def summarize_results(dir=EVAL_DIR, read_hist_data=False):
         # read individual data rates and utilities for histogram plotting
         if read_hist_data:
             # convert into proper lists: https://stackoverflow.com/a/32743458/2745116
-            data['dr_list'] = df['dr_list'].apply(literal_eval)
-            data['utility_list'] = df['utility_list'].apply(literal_eval)
+            data['dr_list'] = [df['dr_list'].apply(literal_eval)]
+            data['utility_list'] = [df['utility_list'].apply(literal_eval)]
 
     # Calculate and add reliability to the df, defined as `num_no_conn / (num_ue * eps_length)`, ie,
     # percent of steps with any connection (no matter the dr) averaged over all UEs
@@ -183,6 +183,18 @@ def plot_increasing_ues(df, metric, filename=None):
     plt.show()
 
 
+def plot_histogram(df, metric, cdf=False):
+    """Plot a histogram of the given metric"""
+    assert metric in {'dr_list', 'utility_list'}, "Currently only 'dr_list' and 'utility_list' are supported"
+    # expand df where each row contains a list to a df with separate rows for each unit
+    plt.hist(df[metric].explode(), density=True, cumulative=cdf)
+    plt.xlabel(metric)
+    plt.ylabel(f'Density (Cumulative: {cdf})')
+    # FIXME: there's something wrong with the data rates
+    # plt.xlim(0, 10000)
+    plt.show()
+
+
 if __name__ == '__main__':
     # df_ppo_org, df_ppo = read_training_progress('PPO_MultiAgentMobileEnv_0_2020-07-14_09-34-32asp5wtp5')
     # df_greedy_best = read_testing_results('GreedyBestSelection_MultiAgentMobileEnv_2020-07-14_10-52-16.csv')
@@ -197,6 +209,8 @@ if __name__ == '__main__':
 
     df = summarize_results(dir=f'{RESULT_DIR}', read_hist_data=True)
     print(df['dr_list'])
+    plot_histogram(df, 'dr_list')
+    plot_histogram(df, 'utility_list')
 
     # df = summarize_results(dir=f'{EVAL_DIR}/2020-07-22_prop-fair')
     # # df = concat_results()
