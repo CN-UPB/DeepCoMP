@@ -227,6 +227,7 @@ class Simulation:
         eps_utility = 0
         eps_unsucc_conn = 0
         eps_lost_conn = 0
+        num_no_conn = 0
 
         # no need to instantiate new env since each joblib iteration has its own copy
         # that's why we need to set the logging level again for each iteration
@@ -259,11 +260,12 @@ class Simulation:
 
             # increment metrics according to reward and info
             eps_reward += reward
-            # total dr, utility, unsucc. conn, and lost conn for all UEs
+            # total dr, utility, unsucc. conn, lost conn, num steps without conn for all UEs
             eps_dr += sum(info['dr'].values())
             eps_utility += sum(info['utility'].values())
             eps_unsucc_conn += sum(info['unsucc_conn'].values())
             eps_lost_conn += sum(info['lost_conn'].values())
+            num_no_conn += info['num_ues_wo_conn']
 
         # create the animation
         if render is not None:
@@ -272,10 +274,11 @@ class Simulation:
         # episode time in seconds (to measure simulation efficiency)
         eps_time = time.time() - eps_start
         self.log.debug('Episode complete', eps_reward=eps_reward, eps_time=eps_time, eps_dr=eps_dr,
-                       eps_utility=eps_utility, eps_unsucc_conn=eps_unsucc_conn, eps_lost_conn=eps_lost_conn)
-        return eps_reward, eps_time, eps_dr, eps_utility, eps_unsucc_conn, eps_lost_conn
+                       eps_utility=eps_utility, eps_unsucc_conn=eps_unsucc_conn, eps_lost_conn=eps_lost_conn,
+                       num_no_conn=num_no_conn)
+        return eps_reward, eps_time, eps_dr, eps_utility, eps_unsucc_conn, eps_lost_conn, num_no_conn
 
-    def write_results(self, eps_rewards, eps_times, eps_drs, eps_util, eps_unsucc_conn, eps_lost_conn):
+    def write_results(self, eps_rewards, eps_times, eps_drs, eps_util, eps_unsucc_conn, eps_lost_conn, num_no_conn):
         """Write experiment results to CSV file. Include all relevant info."""
         result_file = f'{TEST_DIR}/{self.result_filename}.csv'
         self.log.info("Writing results", file=result_file)
@@ -300,7 +303,8 @@ class Simulation:
             'eps_dr': eps_drs,
             'eps_util': eps_util,
             'eps_unsucc_conn': eps_unsucc_conn,
-            'eps_lost_conn': eps_lost_conn
+            'eps_lost_conn': eps_lost_conn,
+            'num_no_conn': num_no_conn
         }
 
         # training data for PPO
@@ -345,18 +349,18 @@ class Simulation:
             delayed(self.run_episode)(env, render, log_dict)
             for _ in tqdm(range(num_episodes), disable=(num_episodes == 1))
         )
-        # unzip results, ie, convert list of tuples to two separate lists
-        eps_rewards, eps_times, eps_drs, eps_util, eps_unsucc_con, eps_lost_conn = map(list, zip(*zipped_results))
+        # unzip results, ie, convert list of tuples to separate lists
+        eps_rewards, eps_times, eps_drs, eps_util, eps_unsucc_con, eps_lost_conn, num_no_conn = map(list, zip(*zipped_results))
 
         # summarize episode rewards
         mean_eps_reward = np.mean(eps_rewards)
         mean_step_reward = mean_eps_reward / self.episode_length
         self.log.info("Simulation complete", mean_eps_reward=mean_eps_reward, std_eps_reward=np.std(eps_rewards),
-                      mean_step_reward=mean_step_reward, num_episodes=num_episodes,
+                      mean_step_reward=mean_step_reward, num_episodes=num_episodes, num_no_conn=num_no_conn,
                       mean_eps_time=np.mean(eps_times), std_eps_time=np.std(eps_times), eps_length=self.episode_length)
 
         # write results to file
         if write_results:
-            self.write_results(eps_rewards, eps_times, eps_drs, eps_util, eps_unsucc_con, eps_lost_conn)
+            self.write_results(eps_rewards, eps_times, eps_drs, eps_util, eps_unsucc_con, eps_lost_conn, num_no_conn)
 
         return eps_rewards

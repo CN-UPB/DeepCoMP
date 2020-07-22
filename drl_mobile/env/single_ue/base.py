@@ -184,7 +184,9 @@ class MobileEnv(gym.Env):
             'dr': {ue: ue.curr_dr for ue in self.ue_list},
             'utility': {ue: ue.utility for ue in self.ue_list},
             'unsucc_conn': unsucc_conn,
-            'lost_conn': lost_conn
+            'lost_conn': lost_conn,
+            # num UEs without any connection
+            'num_ues_wo_conn': sum([1 if len(ue.bs_dr) == 0 else 0 for ue in self.ue_list])
         }
         return info_dict
 

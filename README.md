@@ -87,6 +87,7 @@ tango4, tango5
     * Different utilities for each UE? Shift log function to cut x-axis at different points correspondign to the requirement
         * Then normalize data rates accordingly
     * LTE baseline: Select BS with highest long-term avg SINR
+    * Add penalty for connecting to new BS? For handover overhead? --> could introduce interesting trade-off to just greedy all connection
 * Optimization approach: Numerical optimization of instantaneous total utility?
 * Real-world traces for UE movement somewhere? From 5G measurement mmW paper?
 * Multi-agent RL became really slow when training somehow. Why? Any way to improve performance in general? Simulation quite slow with many UEs.
@@ -95,7 +96,7 @@ tango4, tango5
 Later:
 
 * Let agent coordinate the number/amount of RBs per connected UE actively. With log utility, a centralized agent should learn proportional-fair scheduling by itself.
-* optimize performance by using more numpy arrays
+* optimize performance by using more numpy arrays less looping over UEs
 (* Same seed leads to different results/env when using multiple workers)
 
 ### Findings

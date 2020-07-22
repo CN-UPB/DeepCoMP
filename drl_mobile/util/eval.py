@@ -105,7 +105,7 @@ def get_result_files(dir, prefix='', suffix='.csv'):
 def summarize_results(dir=EVAL_DIR):
     """Read and summarize all results in a directory. Return a df."""
     config_cols = ['alg', 'agent', 'num_ue_slow', 'num_ue_fast', 'eps_length', 'env_size']
-    result_cols = ['eps_reward', 'eps_dr', 'eps_util', 'eps_unsucc_conn', 'eps_lost_conn']
+    result_cols = ['eps_reward', 'eps_dr', 'eps_util', 'eps_unsucc_conn', 'eps_lost_conn', 'num_no_conn']
     # files = [f for f in os.listdir(dir) if f.endswith('.csv')]
     files = get_result_files(dir)
     data = defaultdict(list)
@@ -124,6 +124,10 @@ def summarize_results(dir=EVAL_DIR):
         for res in result_cols:
             data[f'{res}_mean'].append(np.mean(df[res]))
             data[f'{res}_std'].append(np.std(df[res]))
+
+    # Calculate and add reliability to the df, defined as `num_no_conn / (num_ue * eps_length)`, ie,
+    # percent of steps with any connection (no matter the dr) averaged over all UEs
+    df['reliability'] = df['num_no_conn'] / (df['num_ue'] * df['eps_length'])
 
     # create and return combined df
     return pd.DataFrame(data=data)
