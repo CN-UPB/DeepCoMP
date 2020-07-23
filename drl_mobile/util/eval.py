@@ -212,7 +212,7 @@ if __name__ == '__main__':
     # plot_histogram(df, 'dr_list')
     # plot_histogram(df, 'utility_list')
 
-    df = summarize_results(dir=f'{EVAL_DIR}/2020-07-22_prop-fair')
+    df = summarize_results(dir=f'{EVAL_DIR}/2020-07-23_conn-penalty')
     # df = concat_results()
     plot_increasing_ues(df, metric='eps_reward', filename='reward_incr_ues.pdf')
     plot_increasing_ues(df, metric='eps_dr', filename='dr_incr_ues.pdf')

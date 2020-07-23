@@ -1,5 +1,6 @@
 training
 results
+eval
 
 .idea
 venv-wsl
