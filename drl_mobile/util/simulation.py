@@ -281,7 +281,7 @@ class Simulation:
         eps_time = time.time() - eps_start
         self.log.debug('Episode complete', eps_reward=eps_reward, eps_time=eps_time, eps_dr=eps_dr,
                        eps_utility=eps_utility, eps_unsucc_conn=eps_unsucc_conn, eps_lost_conn=eps_lost_conn,
-                       num_no_conn=num_no_conn, dr_list=dr_list, utility_list=utility_list)
+                       num_no_conn=num_no_conn)
         return dr_list, utility_list, eps_reward, eps_time, eps_dr, eps_utility, eps_unsucc_conn, eps_lost_conn, \
                num_no_conn
 

@@ -178,9 +178,9 @@ class User:
             bs.conn_ues.append(self)
             self.log = self.log.bind(conn_bs=list(self.bs_dr.keys()))
             log.info("Connected")
-            # return True
+            return True
             # TODO variant: always return false when connecting to simulate penalty for connection overhead (whether successful or not)
-            return False
+            # return False
         else:
             # log.info("Cannot connect")
             return False
