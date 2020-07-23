@@ -79,6 +79,7 @@ tango4, tango5, (swc01)
 ### Todos
 
 * check "observation_filter": "MeanStdFilter" https://docs.ray.io/en/latest/rllib-training.html?highlight=observation_filter#common-parameters
+* Use unshared dr + num Ues per BS in obs instead of shared dr? Since shared dr is highly affected by actions of other UEs
 * Evaluation: 
     * Double check all units in my scenario, esp. for movement, distance, dr. Makes sense?
         * Can I use a 5G use case with mm wave? Otherwise, remove 5G from the title

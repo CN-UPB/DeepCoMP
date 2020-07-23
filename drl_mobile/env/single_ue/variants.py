@@ -176,22 +176,28 @@ class NormDrMobileEnv(BinaryMobileEnv):
         # we clip utility at +20, which is reached for a dr of 100
         self.dr_cutoff = 100
         obs_space = {
-            'dr': gym.spaces.Box(low=0, high=1, shape=(self.num_bs,)),
+            'dr': gym.spaces.Box(low=-1, high=self.dr_cutoff, shape=(self.num_bs,)),
             'connected': gym.spaces.MultiBinary(self.num_bs),
             # 'ues_at_bs': gym.spaces.MultiDiscrete([self.num_ue+1 for _ in range(self.num_bs)]),
             # 'ues_at_bs': gym.spaces.Box(low=0, high=1, shape=(self.num_bs,)),
-            # 'dr_total': gym.spaces.Box(low=0, high=1, shape=(1,))
+            # 'dr_total': gym.spaces.Box(low=0, high=1, shape=(1,)),
+            # 'unshared_dr': gym.spaces.Box(low=-1, high=self.dr_cutoff, shape=(self.num_bs,)),
         }
         self.observation_space = gym.spaces.Dict(obs_space)
 
     def get_ue_obs(self, ue):
-        """Obs: Data rate (cut off, but not further processed) & """
         # data rates: clipped and normalized according to dr_cutoff
         bs_dr = []
+        # bs_dr_unshared = []
         for bs in self.bs_list:
+            # subtract required data rate first
+            # dr_sub = bs.data_rate(ue) - ue.dr_req
             dr_clip = min(bs.data_rate(ue), self.dr_cutoff)
-            dr_norm = dr_clip / self.dr_cutoff
-            bs_dr.append(dr_norm)
+            # dr_norm = dr_clip / self.dr_cutoff
+            bs_dr.append(dr_clip)
+
+            # dr_un_clip = min(bs.data_rate_unshared(ue), self.dr_cutoff)
+            # bs_dr_unshared.append(dr_un_clip)
 
         # connected BS
         bs_conn = [int(bs in ue.bs_dr.keys()) for bs in self.bs_list]
@@ -204,6 +210,6 @@ class NormDrMobileEnv(BinaryMobileEnv):
         # dr_total = [min(ue.curr_dr, self.dr_cutoff) / self.dr_cutoff]
 
         return {'dr': bs_dr, 'connected': bs_conn}
-        # return {'dr': bs_dr, 'connected': bs_conn, 'ues_at_bs': ues_at_bs}
+        # return {'dr': bs_dr, 'connected': bs_conn, 'ues_at_bs': ues_at_bs, 'dr_unshared': bs_dr_unshared}
         # return {'dr': bs_dr, 'connected': bs_conn, 'dr_total': dr_total}
         # return {'dr': bs_dr, 'connected': bs_conn, 'ues_at_bs': ues_at_bs, 'dr_total': dr_total}

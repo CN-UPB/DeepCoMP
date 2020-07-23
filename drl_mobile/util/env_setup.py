@@ -18,11 +18,11 @@ def get_env_class(env_type):
     assert env_type in SUPPORTED_AGENTS, f"Environment type was {env_type} but has to be one of {SUPPORTED_AGENTS}."
 
     if env_type == 'single':
-        return DatarateMobileEnv
-        # return NormDrMobileEnv
+        # return DatarateMobileEnv
+        return NormDrMobileEnv
     if env_type == 'central':
-        return CentralDrEnv
-        # return CentralNormDrEnv
+        # return CentralDrEnv
+        return CentralNormDrEnv
     if env_type == 'multi':
         return MultiAgentMobileEnv
 
@@ -133,16 +133,16 @@ def create_env_config(agent, map_size, num_slow_ues, num_fast_ues, sharing_model
     env_class = get_env_class(agent)
     map, ue_list, bs_list = get_env(map_size, num_slow_ues, num_fast_ues, sharing_model)
 
-    env_config = {
-        'episode_length': eps_length, 'seed': seed,
-        'map': map, 'bs_list': bs_list, 'ue_list': ue_list, 'dr_cutoff': 'auto', 'sub_req_dr': True,
-        'curr_dr_obs': False, 'ues_at_bs_obs': False, 'dist_obs': False, 'next_dist_obs': False
-    }
+    # this is for DrEnv and step utility
     # env_config = {
     #     'episode_length': eps_length, 'seed': seed,
-    #     'map': map, 'bs_list': bs_list, 'ue_list': ue_list, 'dr_cutoff': 100, 'sub_req_dr': False,
-    #     'curr_dr_obs': False, 'ues_at_bs_obs': False
+    #     'map': map, 'bs_list': bs_list, 'ue_list': ue_list, 'dr_cutoff': 'auto', 'sub_req_dr': True,
+    #     'curr_dr_obs': False, 'ues_at_bs_obs': False, 'dist_obs': False, 'next_dist_obs': False
     # }
+    # this is for the custom NormEnv and log utility
+    env_config = {
+        'episode_length': eps_length, 'seed': seed, 'map': map, 'bs_list': bs_list, 'ue_list': ue_list
+    }
 
     # create and return the config
     config = DEFAULT_CONFIG.copy()
@@ -152,6 +152,8 @@ def create_env_config(agent, map_size, num_slow_ues, num_fast_ues, sharing_model
     # write training stats to file under ~/ray_results (default: False)
     config['monitor'] = True
     config['train_batch_size'] = train_batch_size        # default: 4000; default in stable_baselines: 128
+    # auto normalize obserations by subtracting mean and dividing by std (default: "NoFilter")
+    # config['observation_filter'] = "MeanStdFilter"
     # configure the size of the neural network's hidden layers
     # config['model']['fcnet_hiddens'] = [100, 100]
     # config['log_level'] = 'INFO'    # ray logging default: warning

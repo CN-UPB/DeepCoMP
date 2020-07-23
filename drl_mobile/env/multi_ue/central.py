@@ -96,11 +96,12 @@ class CentralNormDrEnv(CentralBaseEnv, NormDrMobileEnv):
         # we clip utility at +20, which is reached for a dr of 100
         self.dr_cutoff = 100
         obs_space = {
-            'dr': gym.spaces.Box(low=0, high=1, shape=(self.num_ue * self.num_bs,)),
+            'dr': gym.spaces.Box(low=0, high=self.dr_cutoff, shape=(self.num_ue * self.num_bs,)),
             'connected': gym.spaces.MultiBinary(self.num_ue * self.num_bs),
             # 'ues_at_bs': gym.spaces.MultiDiscrete([self.num_ue+1 for _ in range(self.num_bs)]),
             # 'ues_at_bs': gym.spaces.Box(low=0, high=1, shape=(self.num_bs,)),
-            # 'dr_total': gym.spaces.Box(low=0, high=1, shape=(self.num_ue,))
+            # 'dr_total': gym.spaces.Box(low=0, high=1, shape=(self.num_ue,)),
+            # 'dr_unshared': gym.spaces.Box(low=0, high=self.dr_cutoff, shape=(self.num_ue * self.num_bs,)),
         }
         self.observation_space = gym.spaces.Dict(obs_space)
 
