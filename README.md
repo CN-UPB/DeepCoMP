@@ -82,7 +82,7 @@ tango4, tango5, (swc01)
 * Evaluation: 
     * Double check all units in my scenario, esp. for movement, distance, dr. Makes sense?
         * Can I use a 5G use case with mm wave? Otherwise, remove 5G from the title
-    * Also compare multi-agent & centralized with limited training time
+    (* Also compare multi-agent & centralized with limited training time)
     * CDF of avg UE rate
     * Different utilities for each UE? Shift log function to cut x-axis at different points correspondign to the requirement
         * Then normalize data rates accordingly
