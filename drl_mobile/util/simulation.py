@@ -129,7 +129,7 @@ class Simulation:
             env = self.env_class(self.env_config)
             self.agent = RandomAgent(env.action_space, seed=rand_seed)
         if self.agent_name == 'fixed':
-            self.agent = FixedAgent(action=fixed_action, noop_interval=4)
+            self.agent = FixedAgent(action=fixed_action, noop_interval=100)
 
         self.log.info('Agent loaded', agent=type(self.agent).__name__, rllib_dir=rllib_dir, checkpoint=checkpoint_path)
 

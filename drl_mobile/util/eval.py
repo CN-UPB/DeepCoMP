@@ -196,24 +196,7 @@ def plot_histogram(df, metric, cdf=False):
 
 
 if __name__ == '__main__':
-    # df_ppo_org, df_ppo = read_training_progress('PPO_MultiAgentMobileEnv_0_2020-07-14_09-34-32asp5wtp5')
-    # df_greedy_best = read_testing_results('GreedyBestSelection_MultiAgentMobileEnv_2020-07-14_10-52-16.csv')
-    # df_greedy_all = read_testing_results('GreedyAllSelection_MultiAgentMobileEnv_2020-07-14_10-56-44.csv')
-    # df_rand = read_testing_results('RandomAgent_CentralMultiUserEnv_2020-07-14_11-07-26.csv')
-    #
-    # dfs = [df_greedy_best, df_greedy_all, df_rand]
-    # labels = ['Greedy-Best', 'Greedy-All', 'Random']
-    #
-    # eps_per_iter = plot_ppo_mean_eps_reward(df_ppo_org)
-    # plot_eps_reward(dfs, labels, roll_mean_window=eps_per_iter, filename='eps_reward.pdf')
-
-    # df = summarize_results(dir=f'{RESULT_DIR}', read_hist_data=True)
-    # print(df['dr_list'])
-    # plot_histogram(df, 'dr_list')
-    # plot_histogram(df, 'utility_list')
-
-    df = summarize_results(dir=f'{EVAL_DIR}/2020-07-23_conn-penalty')
-    # df = concat_results()
+    df = summarize_results(dir=f'{EVAL_DIR}/2020-07-23_generalization')
     plot_increasing_ues(df, metric='eps_reward', filename='reward_incr_ues.pdf')
     plot_increasing_ues(df, metric='eps_dr', filename='dr_incr_ues.pdf')
     plot_increasing_ues(df, metric='eps_util', filename='utility_incr_ues.pdf')

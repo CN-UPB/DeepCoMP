@@ -35,7 +35,7 @@ def setup_cli():
     parser.add_argument('--eps-length', type=int, default=30, help="Number of time steps per episode")
     parser.add_argument('--slow-ues', type=int, default=0, help="Number of slow UEs in the environment")
     parser.add_argument('--fast-ues', type=int, default=0, help="Number of fast UEs in the environment")
-    parser.add_argument('--sharing', type=str, choices=SUPPORTED_SHARING, default='proportional-fair',
+    parser.add_argument('--sharing', type=str, choices=SUPPORTED_SHARING, default='resource-fair',
                         help="Sharing model used by BS to split resources and/or rate among connected UEs.")
     # evaluation
     parser.add_argument('--test', type=str, help="Test trained agent at given path (auto. loads last checkpoint)")
