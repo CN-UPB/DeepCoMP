@@ -132,7 +132,10 @@ class MobileEnv(gym.Env):
         rewards = dict()
         for ue in self.ue_list:
             ue.update_curr_dr()
-            rewards[ue] = self.calc_reward(ue, penalties[ue])
+            if penalties is None or ue not in penalties.keys():
+                rewards[ue] = self.calc_reward(ue, penalty=0)
+            else:
+                rewards[ue] = self.calc_reward(ue, penalties[ue])
         return rewards
 
     def move_ues(self):
@@ -205,13 +208,14 @@ class MobileEnv(gym.Env):
         # perform step: apply action, move UEs, update data rates and rewards in between; increment time
         unsucc_conn = self.apply_ue_actions(action)
         # penalty of -1 for unsuccessful connection attempt
-        penalties = {ue: -1 * unsucc_conn[ue] for ue in self.ue_list}
-        rewards_before = self.update_ue_drs_rewards(penalties)
+        # penalties = {ue: -1 * unsucc_conn[ue] for ue in self.ue_list}
+        rewards_before = self.update_ue_drs_rewards(penalties=None)
         lost_conn = self.move_ues()
         # penalty of -1 for lost connections due to movement (rather than active disconnect)
-        penalties = {ue: -1 * lost_conn[ue] for ue in self.ue_list}
-        rewards_after = self.update_ue_drs_rewards(penalties)
-        rewards = {ue: np.mean([rewards_before[ue], rewards_after[ue]]) for ue in self.ue_list}
+        # penalties = {ue: -1 * lost_conn[ue] for ue in self.ue_list}
+        # rewards_after = self.update_ue_drs_rewards(penalties)
+        # rewards = {ue: np.mean([rewards_before[ue], rewards_after[ue]]) for ue in self.ue_list}
+        rewards = rewards_before
         self.time += 1
 
         # get and return next obs, reward, done, info
