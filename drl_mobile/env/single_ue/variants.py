@@ -212,10 +212,10 @@ class NormDrMobileEnv(BinaryMobileEnv):
         ues_at_bs = [bs.num_conn_ues for bs in self.bs_list]
         # ues_at_bs = [bs.num_conn_ues / self.num_ue for bs in self.bs_list]
 
-        # total curr dr per UE (clipped & normalized)
-        dr_total = [min(ue.curr_dr, self.dr_cutoff) / self.dr_cutoff]
+        # total curr dr per UE
+        dr_total = [min(ue.curr_dr, self.dr_cutoff)]
 
         # return {'dr': bs_dr, 'connected': bs_conn}
-        return {'dr': bs_dr, 'connected': bs_conn, 'ues_at_bs': ues_at_bs, 'dr_unshared': bs_dr_unshared, 'dr_total': dr_total}
+        return {'dr': bs_dr, 'connected': bs_conn, 'ues_at_bs': ues_at_bs, 'unshared_dr': bs_dr_unshared, 'dr_total': dr_total}
         # return {'dr': bs_dr, 'connected': bs_conn, 'dr_total': dr_total}
         # return {'dr': bs_dr, 'connected': bs_conn, 'ues_at_bs': ues_at_bs, 'dr_total': dr_total}

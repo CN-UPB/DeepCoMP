@@ -6,12 +6,12 @@ from drl_mobile.env.single_ue.variants import DatarateMobileEnv, NormDrMobileEnv
 class MultiAgentMobileEnv(NormDrMobileEnv, MultiAgentEnv):
     """
     Multi-UE and multi-agent env.
-    Inherits DatarateMobileEnv's step & overwrites MultiAgentEnv's reset and step.
-    Inherits DatarateMobileEnv's constructor, stepping, visualization, etc.
+    Inherits the parent env's (eg, DatarateMobileEnv) constructor, step, visualization
+    & overwrites MultiAgentEnv's reset and step.
     https://docs.ray.io/en/latest/rllib-env.html#multi-agent-and-hierarchical
     """
     def __init__(self, env_config):
-        # this calls DatarateMobileEnv.__ini__() since MultiAgentEnv doesn't have an __init__
+        # this calls parent env.__ini__() since MultiAgentEnv doesn't have an __init__
         super().__init__(env_config)
         # inherits attributes, obs and action space from parent env
 
