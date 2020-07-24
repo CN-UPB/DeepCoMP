@@ -184,9 +184,9 @@ class Simulation:
         assert not self.multi_agent_env, "Use apply_action_multi_agent for multi-agent envs"
         assert self.agent is not None, "Train or load an agent before running the simulation"
         action = self.agent.compute_action(obs)
-        obs, reward, done, info = env.step(action)
-        self.log.debug("Step", t=info['time'], action=action, reward=reward, next_obs=obs, done=done)
-        return obs, reward, done, info
+        next_obs, reward, done, info = env.step(action)
+        self.log.debug("Step", t=info['time'], obs=obs, action=action, reward=reward, next_obs=next_obs, done=done)
+        return next_obs, reward, done, info
 
     def apply_action_multi_agent(self, obs, env):
         """
@@ -206,11 +206,12 @@ class Simulation:
         for agent_id, agent_obs in obs.items():
             policy_id = self.config['multiagent']['policy_mapping_fn'](agent_id)
             action[agent_id] = self.agent.compute_action(agent_obs, policy_id=policy_id)
-        obs, reward, done, info = env.step(action)
+        next_obs, reward, done, info = env.step(action)
         # info is currently the same for all agents; just get the info from the last agent
         info = info[agent_id]
-        self.log.debug("Step", t=info['time'], action=action, reward=reward, next_obs=obs, done=done['__all__'])
-        return obs, sum(reward.values()), done['__all__'], info
+        self.log.debug("Step", t=info['time'], obs=obs, action=action, reward=reward, next_obs=next_obs,
+                       done=done['__all__'])
+        return next_obs, sum(reward.values()), done['__all__'], info
 
     def run_episode(self, env, render=None, log_dict=None):
         """
