@@ -28,7 +28,12 @@ class CentralBaseEnv(MobileEnv):
             ue_obs = super().get_ue_obs(ue)
             # extend central obs
             for key in self.observation_space.spaces.keys():
-                obs[key].extend(ue_obs[key])
+                # handle Discrete or Binary obs
+                if type(ue_obs[key]) == int:
+                    obs[key].append(ue_obs[key])
+                # remaining Box or MultiDiscrete/Binary obs
+                else:
+                    obs[key].extend(ue_obs[key])
         return obs
 
     def apply_ue_actions(self, action):
@@ -99,7 +104,7 @@ class CentralNormDrEnv(CentralBaseEnv, NormDrMobileEnv):
             'dr': gym.spaces.Box(low=0, high=1, shape=(self.num_ue * self.num_bs,)),
             'connected': gym.spaces.MultiBinary(self.num_ue * self.num_bs),
             'can_connect': gym.spaces.MultiBinary(self.num_ue * self.num_bs),
-            'num_conn': gym.spaces.Discrete(self.num_ue * (self.num_bs + 1)),
+            'num_conn': gym.spaces.MultiDiscrete([self.num_bs + 1 for _ in range(self.num_ue)]),
             # 'ues_at_bs': gym.spaces.MultiDiscrete([self.num_ue+1 for _ in range(self.num_bs)]),
             # 'ues_at_bs': gym.spaces.Box(low=0, high=1, shape=(self.num_bs,)),
             'dr_total': gym.spaces.Box(low=0, high=1, shape=(self.num_ue,)),

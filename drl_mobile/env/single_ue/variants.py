@@ -209,7 +209,7 @@ class NormDrMobileEnv(BinaryMobileEnv):
 
         # connected BS
         bs_conn = [int(bs in ue.bs_dr.keys()) for bs in self.bs_list]
-        num_conn = [sum(bs_conn)]
+        num_conn = sum(bs_conn)
 
         # BS that are in range, ie, SNR is above threshold
         bs_can_conn = [int(bs.can_connect(ue.pos)) for bs in self.bs_list]
