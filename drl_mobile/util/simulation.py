@@ -106,16 +106,20 @@ class Simulation:
         last_checkpoint_path = os.path.join(last_checkpoint_dir, f'checkpoint-{last_checkpoint_no}')
         return last_checkpoint_path
 
-    def load_agent(self, rllib_dir=None, rand_seed=None, fixed_action=1):
+    def load_agent(self, rllib_dir=None, rand_seed=None, fixed_action=1, explore=False):
         """
         Load a trained RLlib agent from the specified rllib_path. Call this before testing a trained agent.
 
         :param rllib_dir: Path pointing to the agent's training dir (only used for RLlib agents)
         :param rand_seed: RNG seed used by the random agent (ignored by other agents)
         :param fixed_action: Fixed action performed by the fixed agent (ignored by the others)
+        :param explore: Whether to keep exploration enabled. Set to False when testing an RLlib agent.
+        True for continuing training.
         """
         checkpoint_path = None
         if self.agent_name == 'ppo':
+            # turn off exploration for testing the loaded agent
+            self.config['explore'] = explore
             self.agent = PPOTrainer(config=self.config, env=self.env_class)
             checkpoint_path = self.get_last_checkpoint_path(rllib_dir)
             self.log.info('Loading PPO agent', checkpoint=checkpoint_path)

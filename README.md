@@ -78,17 +78,14 @@ tango4, tango5, (swc01)
 
 ### Todos
 
-* check "observation_filter": "MeanStdFilter" https://docs.ray.io/en/latest/rllib-training.html?highlight=observation_filter#common-parameters
-* Use unshared dr + num Ues per BS in obs instead of shared dr? Since shared dr is highly affected by actions of other UEs
+* Increase train performance by setting config['monitor'] to false?
 * Evaluation: 
     * Double check all units in my scenario, esp. for movement, distance, dr. Makes sense?
         * Can I use a 5G use case with mm wave? Otherwise, remove 5G from the title
-    (* Also compare multi-agent & centralized with limited training time)
     * CDF of avg UE rate
     * Different utilities for each UE? Shift log function to cut x-axis at different points correspondign to the requirement
         * Then normalize data rates accordingly
     * LTE baseline: Select BS with highest long-term avg SINR
-    * Add penalty for connecting to new BS? For handover overhead? --> could introduce interesting trade-off to just greedy all connection
 * Optimization approach: Numerical optimization of instantaneous total utility?
 * Real-world traces for UE movement somewhere? From 5G measurement mmW paper?
 * Multi-agent RL became really slow when training somehow. Why? Any way to improve performance in general? Simulation quite slow with many UEs.
@@ -98,7 +95,11 @@ Later:
 
 * Let agent coordinate the number/amount of RBs per connected UE actively. With log utility, a centralized agent should learn proportional-fair scheduling by itself.
 * optimize performance by using more numpy arrays less looping over UEs
+* Add custom metrics (eg, dr etc) via ray: https://docs.ray.io/en/latest/rllib-training.html#callbacks-and-custom-metrics
+    * Allows visualization via tensorboard and access via training results
+    * But I still need them for the heuristics...
 (* Same seed leads to different results/env when using multiple workers)
+
 
 ### Findings
 
