@@ -96,10 +96,10 @@ class MobileEnv(gym.Env):
         clip_util = np.clip(ue.utility, -20, 20)
         # add a penalty for concurrent connections (overhead for joint transmission), ie, for any 2+ connections
         # tunable penalty weight representing the cost of concurrent connections
-        weight = 0
+        weight = 3
         connections = len(ue.bs_dr)
         if connections > 1:
-            penalty += weight * (connections - 1)
+            penalty -= weight * (connections - 1)
         # clip again to stay in range -20, 20
         return np.clip(clip_util + penalty, -20, 20) / 20
 
