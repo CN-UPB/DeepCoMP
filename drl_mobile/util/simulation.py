@@ -355,7 +355,8 @@ class Simulation:
             env.set_log_level(log_dict)
 
         # simulate episodes in parallel; show progress with tqdm if running for more than one episode
-        self.log.info('Starting evaluation', num_episodes=num_episodes, num_workers=self.num_workers)
+        self.log.info('Starting evaluation', num_episodes=num_episodes, num_workers=self.num_workers,
+                      slow_ues=self.cli_args.slow_ues, fast_ues=self.cli_args.fast_ues)
         # run episodes sequentially
         # for _ in tqdm(range(num_episodes), disable=(num_episodes == 1)):
         #     self.run_episode(env, render)

@@ -124,6 +124,7 @@ Later:
 That doesn't work with centralized RL as the fixed NN size depends on the number of UEs.
 * Log utility: Also works well (at least multi agent)! Absolute reward not comparable between step and log utility
 * Different normalization and cutoff works better for log utility
+* Central agent is much more sensitive to normalization!
 
 ## Development
 

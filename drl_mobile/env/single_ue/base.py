@@ -90,7 +90,18 @@ class MobileEnv(gym.Env):
         """
         # return ue.utility + penalty
         # normalize rewards to [-1,1] (clip first to avoid rewards < -20 due to penalties)
-        return np.clip(ue.utility + penalty, -20, 20) / 20
+        # return np.clip(ue.utility + penalty, -20, 20) / 20
+
+        # clip utility to -20, 20 to avoid -inf for 0 dr and cap at 100 dr
+        clip_util = np.clip(ue.utility, -20, 20)
+        # add a penalty for concurrent connections (overhead for joint transmission), ie, for any 2+ connections
+        # tunable penalty weight representing the cost of concurrent connections
+        weight = 0
+        connections = len(ue.bs_dr)
+        if connections > 1:
+            penalty += weight * (connections - 1)
+        # clip again to stay in range -20, 20
+        return np.clip(clip_util + penalty, -20, 20)
 
     def reset(self):
         """Reset environment by resetting time and all UEs (pos & movement) and their connections"""
