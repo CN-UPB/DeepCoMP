@@ -91,12 +91,15 @@ def plot_ppo_mean_eps_reward(df):
     return int(eps_per_iter)
 
 
-def get_result_files(dir, prefix='', suffix='.csv'):
+def get_result_files(dir, prefix='', suffix='.csv', skip_folder='/old/'):
     """Read all files in the directory recursivley and return a list of all files matching the prefix and suffix"""
     result_files = []
     for f in glob.iglob(dir + '**/**', recursive=True):
+        # skip files in given skip_folder, only consider results in /test/ subdir
+        if skip_folder in f or '/test/' not in f:
+            continue
         # only select files (not dirs) that are in a '/test/' subdir (to filter out PPO's progress.csv)
-        if os.path.isfile(f) and '/test/' in f and f.startswith(prefix) and f.endswith(suffix):
+        if os.path.isfile(f) and f.startswith(prefix) and f.endswith(suffix):
             result_files.append(f)
     return result_files
 

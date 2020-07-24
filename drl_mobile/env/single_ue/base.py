@@ -101,7 +101,7 @@ class MobileEnv(gym.Env):
         if connections > 1:
             penalty += weight * (connections - 1)
         # clip again to stay in range -20, 20
-        return np.clip(clip_util + penalty, -20, 20)
+        return np.clip(clip_util + penalty, -20, 20) / 20
 
     def reset(self):
         """Reset environment by resetting time and all UEs (pos & movement) and their connections"""

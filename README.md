@@ -89,6 +89,7 @@ tango4, tango5, (swc01)
 * Optimization approach: Numerical optimization of instantaneous total utility?
 * Real-world traces for UE movement somewhere? From 5G measurement mmW paper?
 * Multi-agent RL became really slow when training somehow. Why? Any way to improve performance in general? Simulation quite slow with many UEs.
+    * Much slower than centralized for the same number of training steps
 * (continue training after loading weights)
     
 Later:
