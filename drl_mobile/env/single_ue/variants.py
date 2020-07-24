@@ -177,10 +177,11 @@ class NormDrMobileEnv(BinaryMobileEnv):
         self.dr_cutoff = 100
         obs_space = {
             'dr': gym.spaces.Box(low=0, high=1, shape=(self.num_bs,)),
+            'dr_total': gym.spaces.Box(low=0, high=1, shape=(1,)),
             'connected': gym.spaces.MultiBinary(self.num_bs),
+            'can_connect': gym.spaces.MultiBinary(self.num_bs),
             # 'ues_at_bs': gym.spaces.MultiDiscrete([self.num_ue+1 for _ in range(self.num_bs)]),
             # 'ues_at_bs': gym.spaces.Box(low=0, high=1, shape=(self.num_bs,)),
-            'dr_total': gym.spaces.Box(low=0, high=1, shape=(1,)),
             # 'unshared_dr': gym.spaces.Box(low=0, high=self.dr_cutoff, shape=(self.num_bs,)),
         }
         self.observation_space = gym.spaces.Dict(obs_space)
@@ -207,6 +208,9 @@ class NormDrMobileEnv(BinaryMobileEnv):
         # connected BS
         bs_conn = [int(bs in ue.bs_dr.keys()) for bs in self.bs_list]
 
+        # BS that are in range, ie, SNR is above threshold
+        bs_can_conn = [int(bs.can_connect(ue.pos)) for bs in self.bs_list]
+
         # num connected UEs per BS
         # ues_at_bs = [bs.num_conn_ues for bs in self.bs_list]
         # ues_at_bs = [bs.num_conn_ues / self.num_ue for bs in self.bs_list]
@@ -216,5 +220,5 @@ class NormDrMobileEnv(BinaryMobileEnv):
 
         # return {'dr': bs_dr, 'connected': bs_conn}
         # return {'dr': bs_dr, 'connected': bs_conn, 'ues_at_bs': ues_at_bs, 'unshared_dr': bs_dr_unshared, 'dr_total': dr_total}
-        return {'dr': bs_dr, 'connected': bs_conn, 'dr_total': dr_total}
+        return {'dr': bs_dr, 'connected': bs_conn, 'dr_total': dr_total, 'can_connect': bs_can_conn}
         # return {'dr': bs_dr, 'connected': bs_conn, 'ues_at_bs': ues_at_bs, 'dr_total': dr_total}
