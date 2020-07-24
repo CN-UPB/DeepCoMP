@@ -153,7 +153,7 @@ def create_env_config(agent, map_size, num_slow_ues, num_fast_ues, sharing_model
     config['monitor'] = True
     config['train_batch_size'] = train_batch_size        # default: 4000; default in stable_baselines: 128
     # auto normalize obserations by subtracting mean and dividing by std (default: "NoFilter")
-    config['observation_filter'] = "MeanStdFilter"
+    # config['observation_filter'] = "MeanStdFilter"
     # configure the size of the neural network's hidden layers
     # config['model']['fcnet_hiddens'] = [100, 100]
     # config['log_level'] = 'INFO'    # ray logging default: warning

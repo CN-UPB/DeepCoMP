@@ -132,7 +132,7 @@ class MobileEnv(gym.Env):
 
         return unsucc_conn
 
-    def update_ue_drs_rewards(self, penalties):
+    def update_ue_drs_rewards(self, penalties, update_only=False):
         """
         Update cached data rates of all UE-BS connections.
         Calculate and return corresponding rewards based on given penalties.
@@ -143,10 +143,15 @@ class MobileEnv(gym.Env):
         rewards = dict()
         for ue in self.ue_list:
             ue.update_curr_dr()
-            if penalties is None or ue not in penalties.keys():
-                rewards[ue] = self.calc_reward(ue, penalty=0)
+            # calc and return reward if needed
+            if update_only:
+                # only update drs and return reward 0
+                rewards[ue] = 0
             else:
-                rewards[ue] = self.calc_reward(ue, penalties[ue])
+                if penalties is None or ue not in penalties.keys():
+                    rewards[ue] = self.calc_reward(ue, penalty=0)
+                else:
+                    rewards[ue] = self.calc_reward(ue, penalties[ue])
         return rewards
 
     def move_ues(self):
@@ -224,7 +229,8 @@ class MobileEnv(gym.Env):
         lost_conn = self.move_ues()
         # penalty of -1 for lost connections due to movement (rather than active disconnect)
         # penalties = {ue: -1 * lost_conn[ue] for ue in self.ue_list}
-        # rewards_after = self.update_ue_drs_rewards(penalties)
+        # update of drs is needed even if we don't need the reward
+        rewards_after = self.update_ue_drs_rewards(penalties=None, update_only=True)
         # rewards = {ue: np.mean([rewards_before[ue], rewards_after[ue]]) for ue in self.ue_list}
         rewards = rewards_before
         self.time += 1
