@@ -141,11 +141,13 @@ class Simulation:
         self.set_result_filename()
 
     def set_result_filename(self):
-        """Return a suitable filename (without file ending) in the format 'agent_env_timestamp'"""
+        """Return a suitable filename (without file ending) in the format 'agent_env-class_env-size_num-ues_time'"""
         assert self.agent is not None, "Set the filename after loading the agent"
         timestamp = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
         agent_name = type(self.agent).__name__
-        self.result_filename = f'{agent_name}_{self.env_name}_{timestamp}'
+        env_size = self.cli_args.env
+        num_ues = self.cli_args.slow_ues + self.cli_args.fast_ues
+        self.result_filename = f'{agent_name}_{self.env_name}_{env_size}_{num_ues}UEs_{timestamp}'
 
     def save_animation(self, fig, patches, mode):
         """
