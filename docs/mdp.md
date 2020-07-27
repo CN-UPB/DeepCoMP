@@ -37,7 +37,7 @@ Reward: Immediate rewards for each time step
 
 Example: Multi-agent PPO with resource-fair sharing after 500k training
 
-
+![v0.9 example](gifs/v09.gif)
 
 ### [v0.8](https://github.com/CN-UPB/deep-rl-mobility-management/releases/tag/v0.8): Environment & Model Improvements, New Heuristic Algorithms (week 29)
 
