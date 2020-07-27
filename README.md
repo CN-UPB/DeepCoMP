@@ -76,6 +76,24 @@ Run the command in a WSL not a PyCharm terminal. Tensorboard is available at htt
 
 tango4, tango5, (swc01)
 
+### Status
+
+* RL learn reasonable behavior, very close to greedy-all heuristic, ie, trying to connect to all BS
+* For Multi-agent PPO, that makes sense since each agent/UE greedily tries to maximize own utility, even if it hurts other's utilities (not considered in reward)
+    * It still can learn to disconnect weak connections of UEs that have fully satisfied data rate anyways through another connection
+* For central PPO, it doesn't - but it still doesn't learn fairer behavior
+* Problem trade-off not clear:
+    * Fairness? UEs should only connect to multiple BS if it increases their utility enough to justify samll reductions in utility for other connected UEs?
+    * Or explicit cost/overhead for multiple concurrent connections? 
+        * Even when penalizing concurrent connections, the RL agent still only learned to behave similar to greedy-all. 
+        * It should have learned to only use concurrent connections if it is really useful for improving utility, ie, at the edge. Not when the UE is close to another BS anyways.
+* Problem scenario not clear: Do we typically have >1 UE per BS? So few BS and many UEs or the other way around? Or neither
+* I tried many variations of observations (different components, different normalization).
+    * Overall, normalization is crucial for central PPO (weirdly not so much for multi-agent).
+    * Binary connected, dr and total_dr obs seem to work best so far
+    * Adding info about connected UEs per BS, about BS that are in range, about number of connected BS, about unshared dr, postion & movement (distance to BS), etc did not help or even reduce performance
+* Training takes long for many UEs (>5). But multi-agent can infere to envs with more UEs and works fine even with 30, 40, etc UEs (still similar to greedy-all)
+
 ### Todos
 
 * Increase train performance by setting config['monitor'] to false?
@@ -91,6 +109,7 @@ tango4, tango5, (swc01)
 * Multi-agent RL became really slow when training somehow. Why? Any way to improve performance in general? Simulation quite slow with many UEs.
     * Much slower than centralized for the same number of training steps
 * (continue training after loading weights)
+* Fix installation: Does not work reliably (once structlog is updated with deepcopy support)
     
 Later:
 
