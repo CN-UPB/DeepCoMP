@@ -20,3 +20,16 @@ class Map:
 
     def __repr__(self):
         return f'{self.width}x{self.height}map'
+
+    @property
+    def figsize(self, scale_factor=2):
+        """
+        Return an appropriate matplotlib figure size for plotting the map.
+        Just take the map size and divide by scale_factor until any dimension is <= 10.
+        """
+        width = self.width
+        height = self.height
+        while width > 10 and height > 10:
+            width /= scale_factor
+            height /= scale_factor
+        return int(width), int(height)

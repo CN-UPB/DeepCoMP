@@ -55,15 +55,23 @@ def create_medium_map(sharing_model):
 
 def create_large_map(sharing_model):
     """
-    Create larger map with 3 BS
+    Create larger map with 7 BS that are arranged in a typical hexagonal structure.
 
     :returns: Tuple(map, bs_list)
     """
-    map = Map(width=205, height=165)
-    bs1 = Basestation(1, Point(45, 70), sharing_model)
-    bs2 = Basestation(2, Point(160, 70), sharing_model)
-    bs3 = Basestation(3, Point(100, 120), sharing_model)
-    bs_list = [bs1, bs2, bs3]
+    map = Map(width=230, height=260)
+    bs_list = [
+        # center
+        Basestation(1, Point(115, 130), sharing_model),
+        # top left, counter-clockwise
+        Basestation(2, Point(30, 80), sharing_model),
+        Basestation(3, Point(115, 30), sharing_model),
+        Basestation(4, Point(200, 80), sharing_model),
+        Basestation(5, Point(200, 180), sharing_model),
+        Basestation(6, Point(115, 230), sharing_model),
+        Basestation(7, Point(30, 180), sharing_model),
+    ]
+
     return map, bs_list
 
 

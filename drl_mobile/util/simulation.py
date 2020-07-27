@@ -246,10 +246,9 @@ class Simulation:
 
         eps_start = time.time()
         if render is not None:
-            fig = plt.figure(figsize=(9, 6))
+            fig = plt.figure(figsize=env.map.figsize)
             # equal aspect ratio to avoid distortions
             plt.gca().set_aspect('equal')
-            fig.tight_layout()
 
         # run until episode ends
         patches = []
@@ -282,6 +281,7 @@ class Simulation:
 
         # create the animation
         if render is not None:
+            fig.tight_layout()
             self.save_animation(fig, patches, render)
 
         # episode time in seconds (to measure simulation efficiency)
