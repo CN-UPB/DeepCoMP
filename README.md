@@ -82,6 +82,7 @@ tango4, tango5, (swc01)
 * For Multi-agent PPO, that makes sense since each agent/UE greedily tries to maximize own utility, even if it hurts other's utilities (not considered in reward)
     * It still can learn to disconnect weak connections of UEs that have fully satisfied data rate anyways through another connection
 * For central PPO, it doesn't - but it still doesn't learn fairer behavior
+    * That's weird because often greedy-best, with a single connection per UE, gets better overall utility, which is also what central PPO optimizes
 * Problem trade-off not clear:
     * Fairness? UEs should only connect to multiple BS if it increases their utility enough to justify samll reductions in utility for other connected UEs?
     * Or explicit cost/overhead for multiple concurrent connections? 

@@ -6,27 +6,38 @@ Using the multi-agent environment with the latest common configuration.
 
 Observations: Observation for each agent (controlling a single UE)
 
-* Achievable data rate to each BS. Processed/normlaized to `[-1, 1]` depending on the UE's requested data rate
-* Total current data rate of the UE over all its current connections. Also normalized to `[-1,1]`.
+* Achievable data rate to each BS. Processed/normlaized to `[0, 1]` by dividing with 100, 
+which is the data rate, where the max utility of +20 is reached
+* Total current data rate of the UE over all its current connections. Also normalized to `[0,1]`.
 * Currently connected BS (binary vector).
-* (Turned off: Number of connected UEs per BS)
 
 Actions:
 
 * Discrete selection of either noop (0) or one of the BS.
 * The latter toggles the connection status and either tries to connects or disconnect the UE to/from the BS, depending on whether it currently already is connected.
+* All UEs take an action simultaneously in every time step
 
 Reward: Immediate rewards for each time step
 
-* For each UE:
-    * +10 if its requested data rate is covered by all its combined connections, -10 otherwise
-    * -3 for unsuccessful connection attempts (because the BS is out of range)
-    * -x where x is the number of lost connections during movement (that were not actively disconnected)
-* In multi-UE envs, the total reward is summed up for all UEs
-    * In multi-agent RL, each agent still only learns from its own reward
+* Utility for each UE based on the current total data rate: `np.clip(10 * np.log10(curr_dr), -20, 20)`
+    * 0 utility for 1 dr, 20 utility (max) for 100 dr
+* Configurable penalty for any concurrent connections (eg, for cost/overhead of joint transmission). Currently 0
+* Central PPO: Rewards of all UEs are summed up
 
 
 ## Release Details and MDP Changes
+
+### [v0.9](https://github.com/CN-UPB/deep-rl-mobility-management/releases/tag/v0.9): Preparation for Evaluation
+
+* New variants for observation (components, normalization, ...) and reward (utility function and penalties)
+* New larger scenario and adjusted rendering
+* New utility scripts for evaluation: Running experiments and visualzing results
+* Bug fixes and refactoring
+* Default radio model is resource-fair again (more stable than proportional-fair)
+
+Example: Multi-agent PPO with resource-fair sharing after 500k training
+
+
 
 ### [v0.8](https://github.com/CN-UPB/deep-rl-mobility-management/releases/tag/v0.8): Environment & Model Improvements, New Heuristic Algorithms (week 29)
 
