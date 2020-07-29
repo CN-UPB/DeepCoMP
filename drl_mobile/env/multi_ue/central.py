@@ -36,18 +36,11 @@ class CentralBaseEnv(MobileEnv):
                     obs[key].extend(ue_obs[key])
         return obs
 
-    def apply_ue_actions(self, action):
+    def get_ue_actions(self, action):
         """Apply action. Here: Actions for all UEs. Return unsuccessful connection attempts."""
         assert self.action_space.contains(action), f"Action {action} does not fit action space {self.action_space}"
-        unsucc_conn = {ue: 0 for ue in self.ue_list}
-
-        # apply action: try to connect to BS; or: 0 = no op
-        for i, ue in enumerate(self.ue_list):
-            if action[i] > 0:
-                bs = self.bs_list[action[i] - 1]
-                unsucc_conn[ue] = not ue.connect_to_bs(bs, disconnect=True)
-
-        return unsucc_conn
+        # get action for each UE based on index
+        return {ue: action[i] for i, ue in enumerate(self.ue_list)}
 
     def step_reward(self, rewards):
         """Return sum of all UE rewards as step reward"""

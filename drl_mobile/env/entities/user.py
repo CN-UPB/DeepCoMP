@@ -157,6 +157,7 @@ class User:
     def connect_to_bs(self, bs, disconnect=False):
         """
         Try to connect to specified basestation. Return if successful.
+
         :param bs: Basestation to connect to
         :param disconnect: If True, disconnect from BS if it was previously connected.
         :return: True if (dis-)connected successfully. False if out of range.

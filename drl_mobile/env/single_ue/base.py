@@ -88,19 +88,10 @@ class MobileEnv(gym.Env):
         """
         Calculate and return reward for specific UE: The UE's utility (based on its data rate) + penalty
         """
-        # return ue.utility + penalty
-        # normalize rewards to [-1,1] (clip first to avoid rewards < -20 due to penalties)
-        # return np.clip(ue.utility + penalty, -20, 20) / 20
-
         # clip utility to -20, 20 to avoid -inf for 0 dr and cap at 100 dr
         clip_util = np.clip(ue.utility, -20, 20)
-        # add a penalty for concurrent connections (overhead for joint transmission), ie, for any 2+ connections
-        # tunable penalty weight representing the cost of concurrent connections
-        weight = 0
-        connections = len(ue.bs_dr)
-        if connections > 1:
-            penalty -= weight * (connections - 1)
-        # clip again to stay in range -20, 20
+
+        # add penalty and clip again to stay in range -20, 20
         return np.clip(clip_util + penalty, -20, 20) / 20
 
     def reset(self):
@@ -112,25 +103,54 @@ class MobileEnv(gym.Env):
             bs.reset()
         return self.get_obs()
 
-    def apply_ue_actions(self, action):
+    def get_ue_actions(self, action):
         """
-        Apply actions of UEs. In this base case, just of one UE (selected based on current time).
-        In extended env version, apply actions of all UEs.
+        Retrieve the action per UE from the RL agent's action and return in in form of a dict.
+        Does not yet apply actions to env.
 
-        :param: Action to be applied (here: for a single UE)
-        :return: Dict of num. unsuccessful connections attempts for each UE (at most one per UE)
+        Here, in the single agent case, just get the action of a single active UE.
+        Overwritten in other child envs, eg, for multi or central agent.
+
+        :param action: Action that depends on the agent type (single, central, multi)
+        :return: Dict that consistently (indep. of agent type) maps UE (object) --> action
         """
         assert self.action_space.contains(action), f"Action {action} does not fit action space {self.action_space}"
-        unsucc_conn = {ue: 0 for ue in self.ue_list}
-        # select active UE (to update in this step) using round robin
+        # default to noop action
+        action_dict = {ue: 0 for ue in self.ue_list}
+
+        # select active UE (to update in this step) using round robin and get corresponding action
         ue = self.ue_list[self.time % self.num_ue]
+        action_dict[ue] = action
+        return action_dict
 
-        # apply action: try to connect to BS; or: 0 = no op
-        if action > 0:
-            bs = self.bs_list[action-1]
-            unsucc_conn[ue] = not ue.connect_to_bs(bs, disconnect=True)
+    def apply_ue_actions(self, action_dict):
+        """
+        Given a dict of UE actions, apply them to the environment and return a dict of penalties.
+        This function remains unchanged and is simply inherited by all envs.
 
-        return unsucc_conn
+        Current penalty: -3 for any connect/disconnect action (for overhead)
+
+        :param: Dict of UE --> action
+        :return: Dict UE --> penalty
+        """
+        penalties = {ue: 0 for ue in self.ue_list}
+
+        for ue, action in action_dict.items():
+            # apply action: try to connect to BS; or: 0 = no op
+            if action > 0:
+                bs = self.bs_list[action-1]
+                success = ue.connect_to_bs(bs, disconnect=True)
+                # current penalty: -3 for any connect/disconnect (whether successful or not)
+                penalties[ue] = -3
+
+        # # add a penalty for concurrent connections (overhead for joint transmission), ie, for any 2+ connections
+        # # tunable penalty weight representing the cost of concurrent connections
+        # weight = 0
+        # connections = len(ue.bs_dr)
+        # if connections > 1:
+        #     penalty -= weight * (connections - 1)
+
+        return penalties
 
     def update_ue_drs_rewards(self, penalties, update_only=False):
         """
@@ -221,11 +241,10 @@ class MobileEnv(gym.Env):
         """
         prev_obs = self.obs
 
-        # perform step: apply action, move UEs, update data rates and rewards in between; increment time
-        unsucc_conn = self.apply_ue_actions(action)
-        # penalty of -1 for unsuccessful connection attempt
-        # penalties = {ue: -1 * unsucc_conn[ue] for ue in self.ue_list}
-        rewards_before = self.update_ue_drs_rewards(penalties=None)
+        # perform step: get & apply action, move UEs, update data rates and rewards in between; increment time
+        action_dict = self.get_ue_actions(action)
+        penalties = self.apply_ue_actions(action_dict)
+        rewards_before = self.update_ue_drs_rewards(penalties=penalties)
         lost_conn = self.move_ues()
         # penalty of -1 for lost connections due to movement (rather than active disconnect)
         # penalties = {ue: -1 * lost_conn[ue] for ue in self.ue_list}
@@ -239,6 +258,8 @@ class MobileEnv(gym.Env):
         self.obs = self.get_obs()
         reward = self.step_reward(rewards)
         done = self.done()
+        # dummy unsucc_conn -1 since it's currently not of interest
+        unsucc_conn = {ue: -1 for ue in self.ue_list}
         info = self.info(unsucc_conn, lost_conn)
         self.log.info("Step", time=self.time, prev_obs=prev_obs, action=action, reward=reward, next_obs=self.obs,
                       done=done)

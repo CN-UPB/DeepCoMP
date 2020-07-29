@@ -15,25 +15,16 @@ class MultiAgentMobileEnv(NormDrMobileEnv, MultiAgentEnv):
         super().__init__(env_config)
         # inherits attributes, obs and action space from parent env
 
-    def apply_ue_actions(self, action):
+    def get_ue_actions(self, action):
         """
-        Apply actions of all UEs.
+        Retrieve the action per UE from the RL agent's action and return in in form of a dict.
+        Does not yet apply actions to env.
 
-        :param: Dict of actions: UE --> action
-        :return: Dict of for each UE based on unsuccessful connection attempts
+        :param action: Action that depends on the agent type (single, central, multi)
+        :return: Dict that consistently (indep. of agent type) maps UE (object) --> action
         """
-        unsucc_conn = dict()
-
-        # apply action: try to connect to BS; or: 0 = no op
-        for ue in self.ue_list:
-            unsucc_conn[ue] = 0
-
-            # apply action for UE; 0= noop
-            if action[ue.id] > 0:
-                bs = self.bs_list[action[ue.id] - 1]
-                unsucc_conn[ue] = not ue.connect_to_bs(bs, disconnect=True)
-
-        return unsucc_conn
+        # get action for each UE based on ID
+        return {ue: action[ue.id] for ue in self.ue_list}
 
     def get_obs(self):
         """Return next obs: Dict with UE --> obs"""
