@@ -32,7 +32,7 @@ def setup_cli():
                         help="Only relevant for multi-agent RL. Use separate NNs for each agent instead of sharing.")
     # environment
     parser.add_argument('--env', type=str, choices=SUPPORTED_ENVS, default='small', help="Env/Map size")
-    parser.add_argument('--eps-length', type=int, default=30, help="Number of time steps per episode")
+    parser.add_argument('--eps-length', type=int, default=100, help="Number of time steps per episode")
     parser.add_argument('--slow-ues', type=int, default=0, help="Number of slow UEs in the environment")
     parser.add_argument('--fast-ues', type=int, default=0, help="Number of fast UEs in the environment")
     parser.add_argument('--sharing', type=str, choices=SUPPORTED_SHARING, default='resource-fair',
