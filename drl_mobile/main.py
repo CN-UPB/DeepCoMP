@@ -94,7 +94,7 @@ def main():
 
     # evaluate over multiple episodes
     if args.eval > 0:
-        sim.run(num_episodes=args.eval, write_results=True)
+        sim.run(num_episodes=args.eval, write_results=True, log_dict=log_dict)
 
 
 if __name__ == '__main__':

@@ -40,6 +40,7 @@ class MobileEnv(gym.Env):
         self.bs_list = env_config['bs_list']
         self.ue_list = env_config['ue_list']
         # seed the environment
+        self.env_seed = env_config['seed']
         self.seed(env_config['seed'])
 
         # current observation
@@ -96,6 +97,9 @@ class MobileEnv(gym.Env):
 
     def reset(self):
         """Reset environment by resetting time and all UEs (pos & movement) and their connections"""
+        # seed again before every reset --> always train on same episodes. agent behavior may still differ
+        self.seed(self.env_seed)
+
         self.time = 0
         for ue in self.ue_list:
             ue.reset()

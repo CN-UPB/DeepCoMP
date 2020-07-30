@@ -102,6 +102,7 @@ tango4, tango5, (swc01)
 * Measure & plot avg reward over time within a single continuous "episode"
 * Always return `done=False` for infinite episode. But set some eval eps length in simulation
 * Implement LTE baseline and optimization approach
+* (continue training after loading weights)
 
 
 * Increase train performance by setting config['monitor'] to false?
@@ -116,7 +117,6 @@ tango4, tango5, (swc01)
 * Real-world traces for UE movement somewhere? From 5G measurement mmW paper?
 * Multi-agent RL became really slow when training somehow. Why? Any way to improve performance in general? Simulation quite slow with many UEs.
     * Much slower than centralized for the same number of training steps
-* (continue training after loading weights)
 * Fix installation: Does not work reliably (once structlog is updated with deepcopy support)
     
 Later:
