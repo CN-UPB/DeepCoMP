@@ -98,6 +98,7 @@ class MobileEnv(gym.Env):
     def reset(self):
         """Reset environment by resetting time and all UEs (pos & movement) and their connections"""
         # seed again before every reset --> always train on same episodes. agent behavior may still differ
+        # TODO: remove seeding in every reset?
         self.seed(self.env_seed)
 
         self.time = 0

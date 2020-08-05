@@ -28,6 +28,7 @@ def setup_cli():
     parser.add_argument('--train-steps', type=int, default=None, help="Max. number of training time steps (if any)")
     parser.add_argument('--train-iter', type=int, default=None, help="Max. number of training iterations (if any)")
     parser.add_argument('--target-reward', type=int, default=None, help="Target mean episode reward for training")
+    parser.add_argument('--cont', type=str, help="Continue training agent at given path (loads last checkpoint")
     parser.add_argument('--separate-agent-nns', action='store_true',
                         help="Only relevant for multi-agent RL. Use separate NNs for each agent instead of sharing.")
     # environment
@@ -47,6 +48,8 @@ def setup_cli():
 
     args = parser.parse_args()
     log.info('CLI args', args=args)
+
+    assert args.cont is None or args.test is None, "Use either --cont or --test, not both."
     return args
 
 
@@ -68,6 +71,8 @@ def main():
     agent_path = None
     if args.test is not None:
         agent_path = os.path.abspath(args.test)
+    if args.cont is not None:
+        agent_path = os.path.abspath(args.cont)
 
     # create RLlib config (with env inside) & simulator
     config = create_env_config(agent=args.agent, map_size=args.env, num_slow_ues=args.slow_ues,
@@ -77,12 +82,17 @@ def main():
     # add cli args to the config for saving inputs
     sim = Simulation(config=config, agent_name=args.alg, cli_args=args, debug=False)
 
+    # load agent to continue training; keep exploring
+    # FIXME: this does not work yet
+    if args.cont is not None:
+        sim.load_agent(rllib_dir=agent_path, explore=True)
+
     # train
     if train and args.alg == 'ppo':
         agent_path, analysis = sim.train(stop_criteria)
 
     # load & test agent
-    sim.load_agent(rllib_dir=agent_path, rand_seed=args.seed, fixed_action=[1, 1])
+    sim.load_agent(rllib_dir=agent_path, rand_seed=args.seed, fixed_action=[1, 1], explore=False)
 
     # simulate one episode and render
     log_dict = {

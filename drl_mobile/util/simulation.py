@@ -67,6 +67,7 @@ class Simulation:
         :return: Return the path to the saved agent (checkpoint) and tune's ExperimentAnalysis object
             See https://docs.ray.io/en/latest/tune/api_docs/analysis.html#experimentanalysis-tune-experimentanalysis
         """
+        # todo: use self.agent instead of PPOTrainer when continueing training?
         analysis = ray.tune.run(PPOTrainer, config=self.config, local_dir=RESULT_DIR, stop=stop_criteria,
                                 checkpoint_at_end=True)
         # tune returns an ExperimentAnalysis that can be cast to a Pandas data frame
