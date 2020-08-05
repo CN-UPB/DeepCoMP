@@ -98,7 +98,7 @@ tango4, tango5, (swc01)
 ### Todos
 
 * (continue training after loading weights)
-* Render penalty in video
+* (Render penalty in video)
 * Measure, log, and report avg reward PER STEP --> for contiuous problem
 * Measure & plot avg reward over time within a single continuous "episode"
 * Always return `done=False` for infinite episode. But set some eval eps length in simulation
