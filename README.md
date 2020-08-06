@@ -72,6 +72,8 @@ Run the command in a WSL not a PyCharm terminal. Tensorboard is available at htt
 
 ## Research
 
+Evaluation results: https://github.com/CN-UPB/b5g-results
+
 ### Available Machines
 
 tango4, tango5, (swc01)
