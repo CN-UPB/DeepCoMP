@@ -97,8 +97,7 @@ tango4, tango5, (swc01)
 
 ### Todos
 
-* (continue training after loading weights)
-* (Render penalty in video)
+* (continue training after loading weights) https://stackoverflow.com/questions/63266491/accessing-python-cli-arguments-without-dot/63266666#63266666
 * Measure, log, and report avg reward PER STEP --> for contiuous problem
 * Measure & plot avg reward over time within a single continuous "episode"
 * Always return `done=False` for infinite episode. But set some eval eps length in simulation
