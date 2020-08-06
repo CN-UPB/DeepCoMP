@@ -14,7 +14,7 @@ def config_logging():
     logging.basicConfig(level=logging.INFO)
     logging.getLogger('drl_mobile').setLevel(logging.WARNING)
     logging.getLogger('drl_mobile.util.simulation').setLevel(logging.INFO)
-    logging.getLogger('drl_mobile.env.util.movement').setLevel(logging.DEBUG)
+    # logging.getLogger('drl_mobile.env.util.movement').setLevel(logging.DEBUG)
     logging.getLogger('matplotlib').setLevel(logging.WARNING)
     logging.getLogger('tensorflow').setLevel(logging.ERROR)
     gym.logger.set_level(gym.logger.ERROR)
