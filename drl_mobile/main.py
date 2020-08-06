@@ -28,7 +28,7 @@ def setup_cli():
     parser.add_argument('--train-steps', type=int, default=None, help="Max. number of training time steps (if any)")
     parser.add_argument('--train-iter', type=int, default=None, help="Max. number of training iterations (if any)")
     parser.add_argument('--target-reward', type=int, default=None, help="Target mean episode reward for training")
-    parser.add_argument('--cont', type=str, help="Continue training agent at given path (loads last checkpoint")
+    parser.add_argument('--continue', type=str, help="Continue training agent at given path (loads last checkpoint")
     parser.add_argument('--separate-agent-nns', action='store_true',
                         help="Only relevant for multi-agent RL. Use separate NNs for each agent instead of sharing.")
     # environment
@@ -40,7 +40,6 @@ def setup_cli():
                         help="Sharing model used by BS to split resources and/or rate among connected UEs.")
     # evaluation
     parser.add_argument('--test', type=str, help="Test trained agent at given path (auto. loads last checkpoint)")
-    # parser.add_argument('--cont-train', type=str, help="Load agent from given (checkpoint) path and continue training.")
     parser.add_argument('--video', type=str, choices=SUPPORTED_RENDER, default='html',
                         help="How (and whether) to render the testing video.")
     parser.add_argument('--eval', type=int, default=30, help="Number of evaluation episodes after testing")
@@ -49,13 +48,15 @@ def setup_cli():
     args = parser.parse_args()
     log.info('CLI args', args=args)
 
-    assert args.cont is None or args.test is None, "Use either --cont or --test, not both."
+    assert getattr(args, 'continue') is None or args.test is None, "Use either --continue or --test, not both."
     return args
 
 
 def main():
     config_logging()
     args = setup_cli()
+    # can't use args.continue: https://stackoverflow.com/a/63266666/2745116
+    args_continue = getattr(args, 'continue')
 
     # stop training when any of the criteria is met
     stop_criteria = dict()
@@ -71,8 +72,8 @@ def main():
     agent_path = None
     if args.test is not None:
         agent_path = os.path.abspath(args.test)
-    if args.cont is not None:
-        agent_path = os.path.abspath(args.cont)
+    if args_continue is not None:
+        agent_path = os.path.abspath(args_continue)
 
     # create RLlib config (with env inside) & simulator
     config = create_env_config(agent=args.agent, map_size=args.env, num_slow_ues=args.slow_ues,
@@ -84,7 +85,7 @@ def main():
 
     # load agent to continue training; keep exploring
     # FIXME: this does not work yet
-    if args.cont is not None:
+    if args_continue is not None:
         sim.load_agent(rllib_dir=agent_path, explore=True)
 
     # train

@@ -33,7 +33,7 @@ class MobileEnv(gym.Env):
 
         :param env_config: Dict containing all configuration options for the environment. Required by RLlib.
         """
-        super(gym.Env, self).__init__()
+        super().__init__()
         self.time = 0
         self.episode_length = env_config['episode_length']
         self.map = env_config['map']
