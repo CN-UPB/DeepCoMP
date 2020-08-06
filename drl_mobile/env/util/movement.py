@@ -47,18 +47,17 @@ class UniformMovement(Movement):
     def reset(self):
         """Reset to original movement direction (may change when hitting a map border)"""
         if self.init_move_x == 'slow':
-            # TODO: also use self.rng here
-            self.move_x = random.randint(1, 5)
+            self.move_x = self.rng.randint(1, 5)
         elif self.init_move_x == 'fast':
-            self.move_x = random.randint(10, 20)
+            self.move_x = self.rng.randint(10, 20)
         else:
             # assume init_move_x was a specific number for how to move
             self.move_x = self.init_move_x
         # same for move_y
         if self.init_move_y == 'slow':
-            self.move_y = random.randint(1, 5)
+            self.move_y = self.rng.randint(1, 5)
         elif self.init_move_y == 'fast':
-            self.move_y = random.randint(10, 20)
+            self.move_y = self.rng.randint(10, 20)
         else:
             # assume init_move_y was a specific number for how to move
             self.move_y = self.init_move_y
