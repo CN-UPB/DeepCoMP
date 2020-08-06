@@ -72,6 +72,10 @@ class MobileEnv(gym.Env):
 
     def seed(self, seed=None):
         random.seed(seed)
+        # seed the RNG of all UEs
+        # TODO: does that lead to all UEs being placed at the same pos and moving the same? if so, add offset
+        for ue in self.ue_list:
+            ue.seed(seed)
 
     def set_log_level(self, log_dict):
         """
@@ -99,7 +103,7 @@ class MobileEnv(gym.Env):
         """Reset environment by resetting time and all UEs (pos & movement) and their connections"""
         # seed again before every reset --> always train on same episodes. agent behavior may still differ
         # TODO: remove seeding in every reset?
-        # self.seed(self.env_seed)
+        self.seed(self.env_seed)
 
         self.time = 0
         for ue in self.ue_list:

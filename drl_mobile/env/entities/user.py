@@ -31,6 +31,8 @@ class User:
         # dict of connected BS: BS (only connected BS are keys!) --> data rate of connection
         self.bs_dr = dict()
 
+        # own RNG for reproducibility; global random shares state that's manipulated by RL during training
+        self.rng = random.Random()
         self.init_pos_x = pos_x
         self.init_pos_y = pos_y
         self.pos = None
@@ -65,6 +67,30 @@ class User:
         # return step_utility(self.curr_dr, self.dr_req)
         return log_utility(self.curr_dr)
 
+    def seed(self, seed=None):
+        self.rng.seed(seed)
+        self.movement.seed(seed)
+
+    def reset_pos(self):
+        """(Re)set position based on initial position x and y as Point. Resolve 'random'."""
+        # set pos_x
+        pos_x = self.init_pos_x
+        if pos_x == 'random':
+            pos_x = self.rng.randint(0, self.map.width)
+        # set pos_y
+        pos_y = self.init_pos_y
+        if pos_y == 'random':
+            pos_y = self.rng.randint(0, self.map.height)
+        # set pos as Point
+        self.pos = Point(pos_x, pos_y)
+
+    def reset(self):
+        """Reset UE position, movement, and connections."""
+        self.reset_pos()
+        self.movement.reset()
+        self.bs_dr = dict()
+        self.ewma_dr = 0
+
     def plot(self, radius=2):
         """
         Plot the UE as filled circle with a given radius and the ID. Color from red to green indicating the utility.
@@ -86,26 +112,6 @@ class User:
         artists.append(plt.annotate(f'util: {self.utility:.2f}', xy=(self.pos.x, self.pos.y -radius -6),
                                     ha='center', va='center'))
         return artists
-
-    def reset_pos(self):
-        """(Re)set position based on initial position x and y as Point. Resolve 'random'."""
-        # set pos_x
-        pos_x = self.init_pos_x
-        if pos_x == 'random':
-            pos_x = random.randint(0, self.map.width)
-        # set pos_y
-        pos_y = self.init_pos_y
-        if pos_y == 'random':
-            pos_y = random.randint(0, self.map.height)
-        # set pos as Point
-        self.pos = Point(pos_x, pos_y)
-
-    def reset(self):
-        """Reset UE position, movement, and connections."""
-        self.reset_pos()
-        self.movement.reset()
-        self.bs_dr = dict()
-        self.ewma_dr = 0
 
     def update_curr_dr(self):
         """Update the current data rate of all BS connections according to the current situation (pos & assignment)"""

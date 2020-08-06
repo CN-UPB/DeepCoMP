@@ -10,6 +10,11 @@ class Movement:
     """Abstract movement class that all subclasses must inherit from"""
     def __init__(self, map):
         self.map = map
+        # own RNG for reproducibility; global random shares state that's manipulated by RL during training
+        self.rng = random.Random()
+
+    def seed(self, seed=None):
+        self.rng.seed(seed)
 
     def reset(self):
         raise NotImplementedError("This function must be implemented in the subclass")
@@ -42,6 +47,7 @@ class UniformMovement(Movement):
     def reset(self):
         """Reset to original movement direction (may change when hitting a map border)"""
         if self.init_move_x == 'slow':
+            # TODO: also use self.rng here
             self.move_x = random.randint(1, 5)
         elif self.init_move_x == 'fast':
             self.move_x = random.randint(10, 20)
@@ -105,9 +111,9 @@ class RandomWaypoint(Movement):
     def reset(self):
         """Reset velocity and waypoint to new random values. Reset current pause."""
         if self.init_velocity == 'slow':
-            self.velocity = random.randint(1, 3)
+            self.velocity = self.rng.randint(1, 3)
         elif self.init_velocity == 'fast':
-            self.velocity = random.randint(5, 10)
+            self.velocity = self.rng.randint(5, 10)
         else:
             self.velocity = self.init_velocity
 
@@ -118,8 +124,8 @@ class RandomWaypoint(Movement):
 
     def random_waypoint(self):
         """Return a new random waypoint inside the map"""
-        x = random.randint(self.border_buffer, self.map.width - self.border_buffer)
-        y = random.randint(self.border_buffer, self.map.height - self.border_buffer)
+        x = self.rng.randint(self.border_buffer, self.map.width - self.border_buffer)
+        y = self.rng.randint(self.border_buffer, self.map.height - self.border_buffer)
         new_waypoint = Point(x, y)
         assert new_waypoint.within(self.map.shape), f"Waypoint {str(new_waypoint)} is outside the map!"
         return new_waypoint
