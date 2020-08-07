@@ -46,8 +46,3 @@ class MultiAgentMobileEnv(NormDrMobileEnv, MultiAgentEnv):
         dones = {ue.id: done for ue in self.ue_list}
         dones['__all__'] = done
         return dones
-
-    def info(self, unsucc_conn, lost_conn):
-        """Return info for each UE as dict"""
-        info_dict = super().info(unsucc_conn, lost_conn)
-        return {ue.id: info_dict for ue in self.ue_list}
