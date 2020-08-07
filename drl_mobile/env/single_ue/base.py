@@ -228,15 +228,27 @@ class MobileEnv(gym.Env):
         return self.time >= self.episode_length
 
     def info(self, unsucc_conn, lost_conn):
-        """Return info dict that's returned after a step. Includes info about unsuccessful and lost connections."""
+        """
+        Return info dict that's returned after a step. Includes info about current time step and metrics of choice.
+        The metrics can be adjusted as required, but need to be structured into scalar_metrics and vector_metrics
+        to be handled automatically.
+        """
         info_dict = {
             'time': self.time,
-            'dr': {ue: ue.curr_dr for ue in self.ue_list},
-            'utility': {ue: ue.utility for ue in self.ue_list},
-            'unsucc_conn': unsucc_conn,
-            'lost_conn': lost_conn,
-            # num UEs without any connection
-            'num_ues_wo_conn': sum([1 if len(ue.bs_dr) == 0 else 0 for ue in self.ue_list])
+            # scalar metrics are metrics that consist of a single number/value per step
+            'scalar_metrics': {
+                # these are currently dicts; would need to aggregate them to a single number if needed
+                # 'unsucc_conn': unsucc_conn,
+                # 'lost_conn': lost_conn,
+                # num UEs without any connection
+                'num_ues_wo_conn': sum([1 if len(ue.bs_dr) == 0 else 0 for ue in self.ue_list])
+            },
+            # vector metrics are metrics that contain a list of values for each step
+            # currently not supported (needs some adjustments in simulator)
+            # 'vector_metrics': {
+            #     'dr': {ue: ue.curr_dr for ue in self.ue_list},
+            #     'utility': {ue: ue.utility for ue in self.ue_list},
+            # }
         }
         return info_dict
 

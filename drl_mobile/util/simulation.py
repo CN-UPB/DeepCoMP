@@ -1,6 +1,7 @@
 import os
 import time
 from datetime import datetime
+from collections import defaultdict
 
 import pandas as pd
 import structlog
@@ -233,17 +234,11 @@ class Simulation:
         :param env: Instance of the environment to use (each joblib iteration will still use its own instance)
         :param render: Whether/How to render the episode
         :param log_dict: Dict with logging levels to set
-        :return: Tuple of episode results
+        :return: Tuple of eps_duration (scalar), step rewards (list), metrics per step (list of dicts)
         """
-        # init metrics
-        dr_list = []
-        utility_list = []
-        eps_reward = 0
-        eps_dr = 0
-        eps_utility = 0
-        eps_unsucc_conn = 0
-        eps_lost_conn = 0
-        num_no_conn = 0
+        # list of rewards and metrics (which are a dict) for each time step
+        rewards = []
+        scalar_metrics = []
 
         # no need to instantiate new env since each joblib iteration has its own copy
         # that's why we need to set the logging level again for each iteration
@@ -273,18 +268,9 @@ class Simulation:
             else:
                 obs, reward, done, info = self.apply_action_single_agent(obs, env)
 
-            # increment metrics according to reward and info
-            eps_reward += reward
-            # total dr, utility, unsucc. conn, lost conn, num steps without conn for all UEs
-            # for CDF plot, record individual drs and utilities
-            dr_list.extend(list(info['dr'].values()))
-            utility_list.extend(list(info['utility'].values()))
-            # for convenience, also log the sums
-            eps_dr += sum(info['dr'].values())
-            eps_utility += sum(info['utility'].values())
-            eps_unsucc_conn += sum(info['unsucc_conn'].values())
-            eps_lost_conn += sum(info['lost_conn'].values())
-            num_no_conn += info['num_ues_wo_conn']
+            # save reward and metrics
+            rewards.append(reward)
+            scalar_metrics.append(info['scalar_metrics'])
 
         # create the animation
         if render is not None:
@@ -292,15 +278,48 @@ class Simulation:
             self.save_animation(fig, patches, render)
 
         # episode time in seconds (to measure simulation efficiency)
-        eps_time = time.time() - eps_start
-        self.log.debug('Episode complete', eps_reward=eps_reward, eps_time=eps_time, eps_dr=eps_dr,
-                       eps_utility=eps_utility, eps_unsucc_conn=eps_unsucc_conn, eps_lost_conn=eps_lost_conn,
-                       num_no_conn=num_no_conn)
-        return dr_list, utility_list, eps_reward, eps_time, eps_dr, eps_utility, eps_unsucc_conn, eps_lost_conn, \
-               num_no_conn
+        eps_duration = time.time() - eps_start
 
-    def write_results(self, dr_list, utility_list, eps_rewards, eps_times, eps_drs, eps_util, eps_unsucc_conn,
-                      eps_lost_conn, num_no_conn):
+        self.log.debug('Episode complete', eps_duration=eps_duration, avg_step_reward=np.mean(rewards),
+                       metrics=list(scalar_metrics[0].keys()))
+        # TODO: if returning the full rewards and metrics per step consumes too much memory, aggregate them here
+        #  using scipy.stats.describe https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.describe.html
+        return eps_duration, rewards, scalar_metrics
+
+    @staticmethod
+    def summarize_results(eps_duration, rewards, scalar_metrics):
+        """
+        Summarize given results into single result dict containing everything that should be logged and written to file.
+
+        :param eps_duration: List of episode durations (in s)
+        :param rewards: List of lists with rewards per step per episode
+        :param scalar_metrics: List of lists, containing a dict of metric --> value for each episode for each time step
+        :returns: Dict of result name --> whatever should be logged and saved (eg, mean, std, etc)
+        """
+        results = defaultdict(list)
+        num_episodes = len(eps_duration)
+        # get metric names from first metric dict (first episode, first step); it's the same for all steps and eps
+        metric_names = list(scalar_metrics[0][0].keys())
+
+        # iterate over all episodes and aggregate the results per episode
+        for e in range(num_episodes):
+            # add episode, eps_duration and rewards
+            results['episode'].append(e + 1)
+            results['eps_duration_mean'].append(eps_duration[e])
+            results['eps_duration_std'].append(eps_duration[e])
+            results['step_reward_mean'].append(np.mean(rewards[e]))
+            results['step_reward_std'].append(np.std(rewards[e]))
+
+            # calc mean and std per metric and episode
+            for metric in metric_names:
+                metric_values = [scalar_metrics[e][t][metric] for t in range(len(scalar_metrics[e]))]
+                results[f'{metric}_mean'].append(np.mean(metric_values))
+                results[f'{metric}_std'].append(np.std(metric_values))
+
+        # convert defaultdict to normal dict
+        return dict(results)
+
+    def write_results(self, results):
         """Write experiment results to CSV file. Include all relevant info."""
         result_file = f'{TEST_DIR}/{self.result_filename}.csv'
         self.log.info("Writing results", file=result_file)
@@ -310,9 +329,8 @@ class Simulation:
         if agent_str == 'multi' and self.cli_args.separate_agent_nns:
             agent_str = 'multi-sep-nns'
 
-        # prepare and write result data
+        # input/configuration data to track to what the results belong to
         data = {
-            # input/configuration data to track to what the results belong to
             'alg': self.cli_args.alg,
             'agent': agent_str,
             'env': self.env_name,
@@ -321,21 +339,8 @@ class Simulation:
             'num_bs': len(self.env_config['bs_list']),
             'sharing_model': self.cli_args.sharing,
             'num_ue_slow': self.cli_args.slow_ues,
-            'num_ue_fast': self.cli_args.fast_ues,
-
-            # actual results
-            'episode': [i+1 for i in range(len(eps_rewards))],
-            'eps_reward': eps_rewards,
-            'eps_time': eps_times,
-            'eps_dr': eps_drs,
-            'eps_util': eps_util,
-            'eps_unsucc_conn': eps_unsucc_conn,
-            'eps_lost_conn': eps_lost_conn,
-            'num_no_conn': num_no_conn,
-            'dr_list': dr_list,
-            'utility_list': utility_list
+            'num_ue_fast': self.cli_args.fast_ues
         }
-
         # training data for PPO
         if self.agent_name == 'ppo':
             data.update({
@@ -344,6 +349,8 @@ class Simulation:
                 'target_reward': self.cli_args.target_reward
             })
 
+        # add actual results and save to file
+        data.update(results)
         df = pd.DataFrame(data=data)
         df.to_csv(result_file)
 
@@ -355,7 +362,7 @@ class Simulation:
         :param str render: If and how to render the simulation. Options: None, 'plot', 'video', 'gif'
         :param dict log_dict: Dict of logger names --> logging level used to configure logging in the environment
         :param bool write_results: Whether or not to write experiment results to file
-        :return list: Return list of episode rewards
+        :return list: Return list of lists with step rewards for all episodes
         """
         assert self.agent is not None, "Train or load an agent before running the simulation"
         assert (num_episodes == 1) or (render is None), "Turn off rendering when running for multiple episodes"
@@ -371,28 +378,24 @@ class Simulation:
         # simulate episodes in parallel; show progress with tqdm if running for more than one episode
         self.log.info('Starting evaluation', num_episodes=num_episodes, num_workers=self.num_workers,
                       slow_ues=self.cli_args.slow_ues, fast_ues=self.cli_args.fast_ues)
-        # run episodes sequentially
-        # for _ in tqdm(range(num_episodes), disable=(num_episodes == 1)):
-        #     self.run_episode(env, render)
         # run episodes in parallel using joblib
         zipped_results = Parallel(n_jobs=self.num_workers)(
             delayed(self.run_episode)(env, render, log_dict)
             for _ in tqdm(range(num_episodes), disable=(num_episodes == 1))
         )
-        # unzip results, ie, convert list of tuples to separate lists
-        dr_list, utility_list, eps_rewards, eps_times, eps_drs, eps_util, eps_unsucc_con, eps_lost_conn, num_no_conn \
-            = map(list, zip(*zipped_results))
+        # results consisting of list of tuples with (eps_duration, rewards, scalar_metrics) for each episode
+        # unzip to separate lists with entries for each episode (rewards and metrics are lists of lists; for each step)
+        eps_duration, rewards, scalar_metrics = map(list, zip(*zipped_results))
 
-        # summarize episode rewards
-        mean_eps_reward = np.mean(eps_rewards)
-        mean_step_reward = mean_eps_reward / self.episode_length
-        self.log.info("Simulation complete", mean_eps_reward=mean_eps_reward, std_eps_reward=np.std(eps_rewards),
-                      mean_step_reward=mean_step_reward, num_episodes=num_episodes,
-                      mean_eps_time=np.mean(eps_times), std_eps_time=np.std(eps_times), eps_length=self.episode_length)
+        # summarize results
+        results = self.summarize_results(eps_duration, rewards, scalar_metrics)
+        self.log.info('Summarized results', results=results)
+        self.log.info("Simulation complete", num_episodes=num_episodes, eps_length=self.episode_length,
+                      step_reward_mean=np.mean(results['step_reward_mean']),
+                      step_reward_std=np.std(results['step_reward_std']))
 
         # write results to file
         if write_results:
-            self.write_results(dr_list, utility_list, eps_rewards, eps_times, eps_drs, eps_util, eps_unsucc_con,
-                               eps_lost_conn, num_no_conn)
+            self.write_results(results)
 
-        return eps_rewards
+        return rewards
