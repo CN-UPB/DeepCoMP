@@ -1,4 +1,0 @@
-* Multi-agent PPO takes forever - over 12h! Not sure why so slow.
-* It seems like with prop-fair sharing, greedy all selection is the best thing to do
-    * Prop-fair automatically balances PRBs among connected UEs in a sensible way
-    * What's the remaining trade-off? Still sometimes better to leave resources for other UEs
