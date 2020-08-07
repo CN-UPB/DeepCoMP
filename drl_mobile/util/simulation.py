@@ -254,9 +254,11 @@ class Simulation:
 
         # run until episode ends
         patches = []
+        t = 0
         done = False
         obs = env.reset()
-        while not done:
+        # for continuous problems, stop evaluation after fixed eps length
+        while not done and t < self.episode_length:
             if render is not None:
                 patches.append(env.render())
                 if render == 'plot':
@@ -267,6 +269,7 @@ class Simulation:
                 obs, reward, done, info = self.apply_action_multi_agent(obs, env)
             else:
                 obs, reward, done, info = self.apply_action_single_agent(obs, env)
+            t = info['time']
 
             # save reward and metrics
             rewards.append(reward)

@@ -42,7 +42,7 @@ def setup_cli():
     parser.add_argument('--test', type=str, help="Test trained agent at given path (auto. loads last checkpoint)")
     parser.add_argument('--video', type=str, choices=SUPPORTED_RENDER, default='html',
                         help="How (and whether) to render the testing video.")
-    parser.add_argument('--eval', type=int, default=30, help="Number of evaluation episodes after testing")
+    parser.add_argument('--eval', type=int, default=0, help="Number of evaluation episodes after testing")
     parser.add_argument('--seed', type=int, default=None, help="Seed for the RNG (algorithms and environment)")
 
     args = parser.parse_args()

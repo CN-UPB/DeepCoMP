@@ -225,7 +225,9 @@ class MobileEnv(gym.Env):
 
         :return: Whether the current episode is done or not
         """
-        return self.time >= self.episode_length
+        # return self.time >= self.episode_length
+        # TODO: continuous --> there is no episode end
+        return False
 
     def info(self, unsucc_conn, lost_conn):
         """
