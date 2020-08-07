@@ -223,6 +223,7 @@ class Simulation:
             action[agent_id] = self.agent.compute_action(agent_obs, policy_id=policy_id)
         next_obs, reward, done, info = env.step(action)
         # info is currently the same for all agents; just get the info from the last agent
+        info = info[agent_id]
         self.log.debug("Step", t=info['time'], obs=obs, action=action, reward=reward, next_obs=next_obs,
                        done=done['__all__'])
         return next_obs, sum(reward.values()), done['__all__'], info

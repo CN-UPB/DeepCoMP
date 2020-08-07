@@ -46,3 +46,8 @@ class MultiAgentMobileEnv(NormDrMobileEnv, MultiAgentEnv):
         dones = {ue.id: done for ue in self.ue_list}
         dones['__all__'] = done
         return dones
+
+    def info(self, unsucc_conn, lost_conn):
+        """Return info for each UE as dict. Required by RLlib to be similar to obs."""
+        info_dict = super().info(unsucc_conn, lost_conn)
+        return {ue.id: info_dict for ue in self.ue_list}
