@@ -72,8 +72,9 @@ def main():
     agent_path = None
     if args.test is not None:
         agent_path = os.path.abspath(args.test)
+    agent_path_continue = None
     if args_continue is not None:
-        agent_path = os.path.abspath(args_continue)
+        agent_path_continue = os.path.abspath(args_continue)
 
     # create RLlib config (with env inside) & simulator
     config = create_env_config(agent=args.agent, map_size=args.env, num_slow_ues=args.slow_ues,
@@ -83,14 +84,9 @@ def main():
     # add cli args to the config for saving inputs
     sim = Simulation(config=config, agent_name=args.alg, cli_args=args, debug=False)
 
-    # load agent to continue training; keep exploring
-    # FIXME: this does not work yet
-    if args_continue is not None:
-        sim.load_agent(rllib_dir=agent_path, explore=True)
-
     # train
     if train and args.alg == 'ppo':
-        agent_path, analysis = sim.train(stop_criteria)
+        agent_path, analysis = sim.train(stop_criteria, restore_path=agent_path_continue)
 
     # load & test agent
     sim.load_agent(rllib_dir=agent_path, rand_seed=args.seed, fixed_action=[1, 1], explore=False)

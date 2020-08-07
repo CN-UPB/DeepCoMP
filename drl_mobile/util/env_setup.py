@@ -34,8 +34,8 @@ def create_small_map(sharing_model):
     :returns: tuple (map, bs_list)
     """
     map = Map(width=150, height=100)
-    bs1 = Basestation(1, Point(50, 50), sharing_model)
-    bs2 = Basestation(2, Point(100, 50), sharing_model)
+    bs1 = Basestation('A', Point(50, 50), sharing_model)
+    bs2 = Basestation('B', Point(100, 50), sharing_model)
     bs_list = [bs1, bs2]
     return map, bs_list
 
@@ -46,9 +46,9 @@ def create_medium_map(sharing_model):
     Thus, optimal episode reward should be close to num_ues * eps_length * 10 (ie, all UEs are always connected)
     """
     map = Map(width=205, height=85)
-    bs1 = Basestation(1, Point(45, 35), sharing_model)
-    bs2 = Basestation(2, Point(160, 35), sharing_model)
-    bs3 = Basestation(3, Point(100, 85), sharing_model)
+    bs1 = Basestation('A', Point(45, 35), sharing_model)
+    bs2 = Basestation('B', Point(160, 35), sharing_model)
+    bs3 = Basestation('C', Point(100, 85), sharing_model)
     bs_list = [bs1, bs2, bs3]
     return map, bs_list
 
@@ -62,14 +62,14 @@ def create_large_map(sharing_model):
     map = Map(width=230, height=260)
     bs_list = [
         # center
-        Basestation(1, Point(115, 130), sharing_model),
+        Basestation('A', Point(115, 130), sharing_model),
         # top left, counter-clockwise
-        Basestation(2, Point(30, 80), sharing_model),
-        Basestation(3, Point(115, 30), sharing_model),
-        Basestation(4, Point(200, 80), sharing_model),
-        Basestation(5, Point(200, 180), sharing_model),
-        Basestation(6, Point(115, 230), sharing_model),
-        Basestation(7, Point(30, 180), sharing_model),
+        Basestation('B', Point(30, 80), sharing_model),
+        Basestation('C', Point(115, 30), sharing_model),
+        Basestation('D', Point(200, 80), sharing_model),
+        Basestation('E', Point(200, 180), sharing_model),
+        Basestation('F', Point(115, 230), sharing_model),
+        Basestation('G', Point(30, 180), sharing_model),
     ]
 
     return map, bs_list

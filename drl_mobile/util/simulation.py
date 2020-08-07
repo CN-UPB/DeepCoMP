@@ -58,18 +58,25 @@ class Simulation:
         self.log.debug('Simulation init', env=self.env_name, eps_length=self.episode_length, agent=self.agent_name,
                        multi_agent=self.multi_agent_env, num_workers=self.num_workers)
 
-    def train(self, stop_criteria):
+    def train(self, stop_criteria, restore_path=None):
         """
         Train an RLlib agent using tune until any of the configured stopping criteria is met.
 
         :param stop_criteria: Dict with stopping criteria.
             See https://docs.ray.io/en/latest/tune/api_docs/execution.html#tune-run
+        :param restore_path: Path to trained agent to continue training (if any)
+            The agent's latest checkpoint is loaded automatically
+            The trained agent needs to have the same settings and scenario for continuing training
+            When continuing training, the number of training steps continues too, ie, is not reset to 0 after restoring
         :return: Return the path to the saved agent (checkpoint) and tune's ExperimentAnalysis object
             See https://docs.ray.io/en/latest/tune/api_docs/analysis.html#experimentanalysis-tune-experimentanalysis
         """
-        # todo: use self.agent instead of PPOTrainer when continueing training?
+        # load latest checkpoint within the given agent's directory
+        if restore_path is not None:
+            restore_path = self.get_last_checkpoint_path(restore_path)
+
         analysis = ray.tune.run(PPOTrainer, config=self.config, local_dir=RESULT_DIR, stop=stop_criteria,
-                                checkpoint_at_end=True)
+                                checkpoint_at_end=True, restore=restore_path)
         # tune returns an ExperimentAnalysis that can be cast to a Pandas data frame
         # object https://docs.ray.io/en/latest/tune/api_docs/analysis.html#experimentanalysis
         df = analysis.dataframe()
