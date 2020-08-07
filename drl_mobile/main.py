@@ -81,6 +81,12 @@ def main():
                                num_fast_ues=args.fast_ues, sharing_model=args.sharing, eps_length=args.eps_length,
                                num_workers=args.workers, train_batch_size=args.batch_size, seed=args.seed,
                                agents_share_nn=not args.separate_agent_nns)
+
+    # TODO: for continuous setting with fixed horizon
+    config['horizon'] = args.eps_length
+    config['soft_horizon'] = True
+    config['no_done_at_end'] = True
+
     # add cli args to the config for saving inputs
     sim = Simulation(config=config, agent_name=args.alg, cli_args=args, debug=False)
 
