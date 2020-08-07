@@ -392,7 +392,8 @@ class Simulation:
         self.log.info('Summarized results', results=results)
         self.log.info("Simulation complete", num_episodes=num_episodes, eps_length=self.episode_length,
                       step_reward_mean=np.mean(results['step_reward_mean']),
-                      step_reward_std=np.std(results['step_reward_std']))
+                      step_reward_std=np.std(results['step_reward_std']),
+                      avg_eps_reward=self.episode_length * np.mean(results['step_reward_mean']))
 
         # write results to file
         if write_results:
