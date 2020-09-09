@@ -71,13 +71,14 @@ class MobileEnv(gym.Env):
         return sum([ue.utility for ue in self.ue_list])
 
     def seed(self, seed=None):
-        random.seed(seed)
-        # seed the RNG of all UEs
-        offset = 0
-        for ue in self.ue_list:
-            # add an offset to each UE's seed to avoid that all UEs have the same "random" pos and movement
-            offset += 100       # use a fixed, not random offset here; otherwise it's again different in test & train
-            ue.seed(seed + offset)
+        if seed is not None:
+            random.seed(seed)
+            # seed the RNG of all UEs
+            offset = 0
+            for ue in self.ue_list:
+                # add an offset to each UE's seed to avoid that all UEs have the same "random" pos and movement
+                offset += 100       # use a fixed, not random offset here; otherwise it's again different in test & train
+                ue.seed(seed + offset)
 
     def set_log_level(self, log_dict):
         """

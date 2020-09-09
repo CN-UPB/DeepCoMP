@@ -3,7 +3,7 @@ from setuptools import setup, find_packages
 
 # FIXME: structlog 20.1.0 doesn't support deepcopy
 requirements = [
-    'ray[rllib]==0.8.6',
+    'ray[rllib]>=0.8.6',
     'structlog>=20.1.0',
     'structlog-round>=1.0',
     'shapely==1.7.0',
