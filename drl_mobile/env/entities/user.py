@@ -160,13 +160,16 @@ class User:
             self.disconnect_from_bs(bs)
         return len(remove_bs)
 
-    def connect_to_bs(self, bs, disconnect=False):
+    def connect_to_bs(self, bs, disconnect=False, return_connected=False):
         """
         Try to connect to specified basestation. Return if successful.
 
         :param bs: Basestation to connect to
         :param disconnect: If True, disconnect from BS if it was previously connected.
-        :return: True if (dis-)connected successfully. False if out of range.
+        :param return_connected: If True, return whether the UE is now connected to the BS or not.
+        Else, return if the (dis-)connect was successful.
+        :return: True if (dis-)connected successfully. False if out of range. If return_connected, return if connected.
+
         """
         log = self.log.bind(bs=bs, disconnect=disconnect, conn_bs=list(self.bs_dr.keys()))
         # already connected
@@ -174,6 +177,8 @@ class User:
             if disconnect:
                 self.disconnect_from_bs(bs)
                 log.info("Disconnected")
+                if return_connected:
+                    return False
             else:
                 log.info("Staying connected")
             return True

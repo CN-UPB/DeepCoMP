@@ -151,11 +151,14 @@ class MobileEnv(gym.Env):
             # apply action: try to connect to BS; or: 0 = no op
             if action > 0:
                 bs = self.bs_list[action-1]
-                success = ue.connect_to_bs(bs, disconnect=True)
+                connected = ue.connect_to_bs(bs, disconnect=True, return_connected=True)
 
                 # penalty -5 for connecting to a BS that's already in use by other UEs
-                if bs.num_conn_ues > 1:
+                if connected and bs.num_conn_ues >= 2:
                     penalties[ue] = -5
+                # and +5 for disconnecting from a BS that's used by others
+                if not connected and bs.num_conn_ues >= 1:
+                    penalties[ue] = +5
 
                 # penalty -3 for any connect/disconnect (whether successful or not)
                 # penalties[ue] = -3
