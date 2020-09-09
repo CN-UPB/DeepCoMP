@@ -183,6 +183,7 @@ class NormDrMobileEnv(BinaryMobileEnv):
             # total number of connections: 0 up to all BS
             # 'num_conn': gym.spaces.Discrete(self.num_bs + 1),
             # 'ues_at_bs': gym.spaces.MultiDiscrete([self.num_ue+1 for _ in range(self.num_bs)]),
+            'bs_in_use': gym.spaces.MultiBinary(self.num_bs),
             # 'ues_at_bs': gym.spaces.Box(low=0, high=1, shape=(self.num_bs,)),
             # 'unshared_dr': gym.spaces.Box(low=0, high=self.dr_cutoff, shape=(self.num_bs,)),
         }
@@ -217,6 +218,7 @@ class NormDrMobileEnv(BinaryMobileEnv):
         # num connected UEs per BS
         # ues_at_bs = [bs.num_conn_ues for bs in self.bs_list]
         # ues_at_bs = [bs.num_conn_ues / self.num_ue for bs in self.bs_list]
+        bs_in_use = [int(bs.num_conn_ues > 0) for bs in self.bs_list]
 
         # total curr dr per UE
         dr_total = [min(ue.curr_dr, self.dr_cutoff) / self.dr_cutoff]
@@ -224,4 +226,4 @@ class NormDrMobileEnv(BinaryMobileEnv):
         # return {'dr': bs_dr, 'connected': bs_conn}
         # return {'dr': bs_dr, 'connected': bs_conn, 'ues_at_bs': ues_at_bs, 'unshared_dr': bs_dr_unshared, 'dr_total': dr_total}
         # return {'dr': bs_dr, 'connected': bs_conn, 'dr_total': dr_total, 'can_connect': bs_can_conn, 'num_conn': num_conn}
-        return {'dr': bs_dr, 'connected': bs_conn, 'dr_total': dr_total}
+        return {'dr': bs_dr, 'connected': bs_conn, 'dr_total': dr_total, 'bs_in_use': bs_in_use}
