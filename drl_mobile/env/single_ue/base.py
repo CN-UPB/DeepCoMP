@@ -152,7 +152,12 @@ class MobileEnv(gym.Env):
             if action > 0:
                 bs = self.bs_list[action-1]
                 success = ue.connect_to_bs(bs, disconnect=True)
-                # current penalty: -3 for any connect/disconnect (whether successful or not)
+
+                # penalty -5 for connecting to a BS that's already in use by other UEs
+                if bs.num_conn_ues > 1:
+                    penalties[ue] = -5
+
+                # penalty -3 for any connect/disconnect (whether successful or not)
                 # penalties[ue] = -3
 
         # # add a penalty for concurrent connections (overhead for joint transmission), ie, for any 2+ connections
