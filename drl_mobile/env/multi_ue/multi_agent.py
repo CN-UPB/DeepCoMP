@@ -39,13 +39,13 @@ class MultiAgentMobileEnv(NormDrMobileEnv, MultiAgentEnv):
         Return rewards as they are but use UE ID as key instead of UE itself.
         The reward key needs to be same as obs key & sortable not just hashable.
         """
-        # return {ue.id: r for ue, r in rewards.items()}
+        return {ue.id: r for ue, r in rewards.items()}
         # TODO variant: add avg reward/utility of all UEs to each UE's own utility
         # avg_reward = np.mean(list(rewards.values()))
         # return {ue.id: 0.5 * r + 0.5 * avg_reward for ue, r in rewards.items()}
         # TODO variant: sum of rewards from all agents
-        total_reward = sum(rewards.values())
-        return {ue.id: total_reward for ue in rewards.keys()}
+        # total_reward = sum(rewards.values())
+        # return {ue.id: total_reward for ue in rewards.keys()}
 
     def done(self):
         """Return dict of dones: UE --> done?"""
