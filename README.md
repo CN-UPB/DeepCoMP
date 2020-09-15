@@ -115,6 +115,8 @@ tango4, tango5, (swc01)
 * Multi-agent RL became really slow when training somehow. Why? Any way to improve performance in general? Simulation quite slow with many UEs.
     * Much slower than centralized for the same number of training steps
 * Fix installation: Does not work reliably (once structlog is updated with deepcopy support)
+
+* Improve performance: Enable user and station debug logging to see how many times SNR etc are calculated for a single step!
     
 Later:
 

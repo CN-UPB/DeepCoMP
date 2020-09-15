@@ -51,6 +51,15 @@ class Basestation:
     def num_conn_ues(self):
         return len(self.conn_ues)
 
+    @property
+    def total_data_rate(self):
+        """Total data rate of connections from this BS to all UEs"""
+        total_rate = 0
+        for ue in self.conn_ues:
+            total_rate += ue.bs_dr[self]
+        self.log.debug('BS total rate', total_rate=total_rate)
+        return total_rate
+
     def plot(self):
         """
         Plot the BS as square with the ID inside as well as circles around it indicating the range.
@@ -186,5 +195,5 @@ class Basestation:
     def can_connect(self, ue_pos):
         """Return if a UE at a given pos can connect to this BS. That's the case if its SNR is above a threshold."""
         can_connect = self.snr(ue_pos) > SNR_THRESHOLD
-        self.log.debug('Can connect?', ue_pos=ue_pos, can_connect=can_connect)
+        self.log.debug('Can connect?', ue_pos=str(ue_pos), can_connect=can_connect)
         return can_connect

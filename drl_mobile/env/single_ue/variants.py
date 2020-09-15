@@ -186,6 +186,8 @@ class NormDrMobileEnv(BinaryMobileEnv):
             # 'bs_in_use': gym.spaces.MultiBinary(self.num_bs),
             # 'ues_at_bs': gym.spaces.Box(low=0, high=1, shape=(self.num_bs,)),
             # 'unshared_dr': gym.spaces.Box(low=0, high=self.dr_cutoff, shape=(self.num_bs,)),
+            # total dr per BS; normalized similar to UE's dr
+            # 'bs_rate': gym.spaces.Box(low=0, high=1, shape=(self.num_bs,)),
         }
         self.observation_space = gym.spaces.Dict(obs_space)
 
@@ -222,6 +224,14 @@ class NormDrMobileEnv(BinaryMobileEnv):
 
         # total curr dr per UE
         dr_total = [min(ue.curr_dr, self.dr_cutoff) / self.dr_cutoff]
+
+        # total data rate per BS (normalized)
+        # FIXME: very inefficient to calculate this anew for each UE even though it's the same each time
+        # bs_total_dr = []
+        # for bs in self.bs_list:
+        #     dr_clip = min(bs.total_data_rate, self.dr_cutoff)
+        #     dr_norm = dr_clip / self.dr_cutoff
+        #     bs_total_dr.append(dr_norm)
 
         # return {'dr': bs_dr, 'connected': bs_conn}
         # return {'dr': bs_dr, 'connected': bs_conn, 'ues_at_bs': ues_at_bs, 'unshared_dr': bs_dr_unshared, 'dr_total': dr_total}
