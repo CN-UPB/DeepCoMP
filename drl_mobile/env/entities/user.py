@@ -203,3 +203,11 @@ class User:
         del self.bs_dr[bs]
         bs.conn_ues.remove(self)
         self.log = self.log.bind(conn_bs=list(self.bs_dr.keys()))
+
+    def ues_at_same_bs(self):
+        """Return set of UEs that are currently connected to any of the BS that this UE is connected to"""
+        ue_set = set()
+        for bs in self.bs_dr.keys():
+            ue_set.update(set(bs.conn_ues))
+        self.log.debug('UEs at same BS', ue_set=ue_set)
+        return ue_set

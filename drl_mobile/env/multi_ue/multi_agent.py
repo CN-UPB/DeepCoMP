@@ -39,13 +39,30 @@ class MultiAgentMobileEnv(RelNormEnv, MultiAgentEnv):
         Return rewards as they are but use UE ID as key instead of UE itself.
         The reward key needs to be same as obs key & sortable not just hashable.
         """
-        return {ue.id: r for ue, r in rewards.items()}
-        # TODO variant: add avg reward/utility of all UEs to each UE's own utility
+        # return {ue.id: r for ue, r in rewards.items()}
+
+        # variant: add avg reward/utility of all UEs to each UE's own utility
         # avg_reward = np.mean(list(rewards.values()))
         # return {ue.id: 0.5 * r + 0.5 * avg_reward for ue, r in rewards.items()}
-        # TODO variant: sum of rewards from all agents
+
+        # variant: sum of rewards from all agents
         # total_reward = sum(rewards.values())
         # return {ue.id: total_reward for ue in rewards.keys()}
+
+        # variant: add avg utility of UEs at the same BS
+        new_rewards = dict()
+        for ue, r in rewards.items():
+            neighbors = ue.ues_at_same_bs()
+            if len(neighbors) > 0:
+                # get the normalized utility = reward for each neighbor
+                avg_util = np.mean([rewards[neighbor] for neighbor in neighbors])
+            else:
+                # if there are no neighbors, then just use own utility/reward
+                avg_util = r
+            new_r = 0.5 * r + 0.5 * avg_util
+            self.log.debug('Reward', ue=ue, neighbors=neighbors, own_r=r, avg_util=avg_util, new_r=new_r)
+            new_rewards[ue.id] = new_r
+        return new_rewards
 
     def done(self):
         """Return dict of dones: UE --> done?"""
