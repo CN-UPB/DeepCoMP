@@ -123,10 +123,9 @@ Later:
 
 * Let agent coordinate the number/amount of RBs per connected UE actively. With log utility, a centralized agent should learn proportional-fair scheduling by itself.
 * optimize performance by using more numpy arrays less looping over UEs
-* Add custom metrics (eg, dr etc) via ray: https://docs.ray.io/en/latest/rllib-training.html#callbacks-and-custom-metrics
+* Add custom metrics (eg, dr and utility etc) via ray: https://docs.ray.io/en/latest/rllib-training.html#callbacks-and-custom-metrics
     * Allows visualization via tensorboard and access via training results
     * But I still need them for the heuristics...
-(* Same seed leads to different results/env when using multiple workers)
 
 
 ### Findings
