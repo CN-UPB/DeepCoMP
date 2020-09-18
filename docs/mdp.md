@@ -4,28 +4,45 @@
 
 Using the multi-agent environment with the latest common configuration.
 
-Observations: Observation for each agent (controlling a single UE)
+*Observations*: Observation for each agent (controlling a single UE)
 
-* Achievable data rate to each BS. Processed/normlaized to `[0, 1]` by dividing with 100, 
-which is the data rate, where the max utility of +20 is reached
-* Total current data rate of the UE over all its current connections. Also normalized to `[0,1]`.
-* Currently connected BS (binary vector).
+* Currently connected BS (binary vector)
+* Achievable data rate to each BS. Processed/normlaized to `[0, 1]` by dividing with the max. data rate of all possible BS connections
+* Total utility of the UE. Also normalized to `[0,1]`.
+* Multi-agent only: Binary vector of which BS are currently idle, ie, without any UEs
 
-Actions:
+*Actions*:
 
 * Discrete selection of either noop (0) or one of the BS.
 * The latter toggles the connection status and either tries to connects or disconnect the UE to/from the BS, depending on whether it currently already is connected.
 * All UEs take an action simultaneously in every time step
 
-Reward: Immediate rewards for each time step
+*Reward*: Immediate rewards for each time step
 
 * Utility for each UE based on the current total data rate: `np.clip(10 * np.log10(curr_dr), -20, 20)`
     * 0 utility for 1 dr, 20 utility (max) for 100 dr
-* Configurable penalty for any concurrent connections (eg, for cost/overhead of joint transmission). Currently 0
-* Central PPO: Rewards of all UEs are summed up
+    * Normalized to `[-1, 1]`
+* Central PPO: Rewards of all UEs are summed 
+* Multi-agent PPO: Mix of own utility and utility of other UEs at the same BS to learn fair behavior: `alpha * own_utility + beta * avg_utility_neighbors`
 
 
 ## Release Details and MDP Changes
+
+### [v0.10](https://github.com/CN-UPB/deep-rl-mobility-management/releases/tag/v0.10): Fair, cooperative multi-agent
+
+* A big drawback of the multi-agent RL so far was that each agent/UE only saw its own observations and optimized only its own utility
+* This lead to greedy behavior of all UEs connecting to every BS in range
+* This againg lead to overall lower total data rate and utility as UEs were stealing resources from each other
+* This release comes with a new observation space, where data rates are normalized differently and where idle BS are indicated, which can be selected without harming other BS
+* The reward for multi-agent PPO is also adjusted to contain the avg. reward of other UEs that are connected to the same BS
+* With this multi-agent PPO learns cooperative behavior, where each agent only connects to its strongest BS without stealing resources from other UEs (in high-load scenarios)
+* In low-load scenarios, both PPO agents still learn to use available resources
+* Thanks to the new observation space, PPO central now often finds the optimal solution and performs perfect handovers
+
+Example: Cooperative multi-agent PPO after 500k training (converged after 200k)
+
+![v0.10 example](gifs/v010.gif)
+
 
 ### [v0.9](https://github.com/CN-UPB/deep-rl-mobility-management/releases/tag/v0.9): Preparation for Evaluation
 

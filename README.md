@@ -2,7 +2,7 @@
 
 Using deep RL for mobility management.
 
-![example](docs/gifs/v09.gif)
+![example](docs/gifs/v010.gif)
 
 ## Setup
 

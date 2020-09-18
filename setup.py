@@ -21,7 +21,7 @@ requirements = [
 # TODO: update on final release
 setup(
     name='deepcomp',
-    version=0.9,
+    version=0.10,
     description="DeepCoMP: Coordinated Multipoint Using Multi-Agent Deep Reinforcement Learning",
     url=None,
     packages=find_packages(),
