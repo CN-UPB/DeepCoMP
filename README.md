@@ -117,6 +117,7 @@ tango4, tango5, (swc01)
 * Fix installation: Does not work reliably (once structlog is updated with deepcopy support)
 
 * Improve performance: Enable user and station debug logging to see how many times SNR etc are calculated for a single step!
+    * Also, didn't the small env with 1 UE use to converge within 20k? Now we need 100k. Or is that due to the longer episodes (now 100, earlier much shorter)?
     
 Later:
 
