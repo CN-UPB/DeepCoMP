@@ -2,7 +2,7 @@
 import gym.spaces
 
 from drl_mobile.env.single_ue.base import MobileEnv
-from drl_mobile.env.single_ue.variants import NormDrMobileEnv, DatarateMobileEnv
+from drl_mobile.env.single_ue.variants import NormDrMobileEnv, DatarateMobileEnv, RelNormEnv
 
 
 class CentralBaseEnv(MobileEnv):
@@ -112,3 +112,14 @@ class CentralNormDrEnv(CentralBaseEnv, NormDrMobileEnv):
     #     # only include first part of ues_at_bs obs; remove repetitions
     #     obs['ues_at_bs'] = obs['ues_at_bs'][:self.num_bs]
     #     return obs
+
+
+class CentralRelNormEnv(CentralBaseEnv, RelNormEnv):
+    def __init__(self, env_config):
+        super().__init__(env_config)
+        obs_space = {
+            'connected': gym.spaces.MultiBinary(self.num_ue * self.num_bs),
+            'dr': gym.spaces.Box(low=0, high=1, shape=(self.num_ue * self.num_bs,)),
+            'utility': gym.spaces.Box(low=-1, high=1, shape=(self.num_ue,)),
+        }
+        self.observation_space = gym.spaces.Dict(obs_space)

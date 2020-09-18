@@ -237,3 +237,41 @@ class NormDrMobileEnv(BinaryMobileEnv):
         # return {'dr': bs_dr, 'connected': bs_conn, 'ues_at_bs': ues_at_bs, 'unshared_dr': bs_dr_unshared, 'dr_total': dr_total}
         # return {'dr': bs_dr, 'connected': bs_conn, 'dr_total': dr_total, 'can_connect': bs_can_conn, 'num_conn': num_conn}
         return {'dr': bs_dr, 'connected': bs_conn, 'dr_total': dr_total}
+
+
+class RelNormEnv(BinaryMobileEnv):
+    """
+    Similar to NormDrMobileEnv with somewhat different obs:
+    * The data rate per UE-BS connection is normalized compared to the other possible connections a UE has
+        * Doesn't require any dr_cuttoff
+    * Include the own utility
+    * Later: More observations indicating which BS are idle vs used by other UEs; also diff reward
+    """
+    def __init__(self, env_config):
+        super().__init__(env_config)
+        obs_space = {
+            # connected is unchanged; as before
+            'connected': gym.spaces.MultiBinary(self.num_bs),
+            # dr is normailzed differently
+            'dr': gym.spaces.Box(low=0, high=1, shape=(self.num_bs,)),
+            'utility': gym.spaces.Box(low=-1, high=1, shape=(1,))
+        }
+        self.observation_space = gym.spaces.Dict(obs_space)
+
+    def get_ue_obs(self, ue):
+        # connected BS as before
+        bs_conn = [int(bs in ue.bs_dr.keys()) for bs in self.bs_list]
+
+        # normalized dr to [0,1] based on the highest dr currently available
+        bs_dr = [bs.data_rate(ue) for bs in self.bs_list]
+        max_dr = max(bs_dr)
+        # avoid division by 0
+        if max_dr == 0:
+            bs_norm_dr = [1 for _ in bs_dr]
+        else:
+            bs_norm_dr = [dr / max_dr for dr in bs_dr]
+
+        # utility normalized to [-1,1]
+        utility = [ue.utility / 20]
+
+        return {'connected': bs_conn, 'dr': bs_norm_dr, 'utility': utility}
