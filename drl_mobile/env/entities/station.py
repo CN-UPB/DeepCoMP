@@ -197,3 +197,14 @@ class Basestation:
         can_connect = self.snr(ue_pos) > SNR_THRESHOLD
         self.log.debug('Can connect?', ue_pos=str(ue_pos), can_connect=can_connect)
         return can_connect
+
+    def impact_ue_connection(self, ue):
+        """
+        Calculate and return the impact it would make on the BS' total data rate if the given UE would toggle its
+        connection (dis-/connected).
+        Normalize and clip to [-1,1]
+
+        :param ue: The UE for which to test/calculate the impact on the total data rate
+        :return:
+        """
+        raise NotImplementedError
