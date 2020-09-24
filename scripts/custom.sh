@@ -4,7 +4,7 @@
 
 agent=$1
 num_workers=14
-env=small
+env=large
 trainsteps=500000
 
 deepcomp --seed 42 --workers $num_workers --train-steps $trainsteps --agent $agent --env $env --slow-ues 2
