@@ -12,7 +12,7 @@ To install everything, run
 # on ubuntu
 sudo apt update
 sudo apt upgrade
-sudo apt install cmake build-essential zlib1g-dev
+sudo apt install cmake build-essential zlib1g-dev python3-dev
 
 # on all systems
 python setup.py install
