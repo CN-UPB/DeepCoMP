@@ -80,17 +80,17 @@ class Simulation:
                                 checkpoint_at_end=True, restore=restore_path)
         # tune returns an ExperimentAnalysis that can be cast to a Pandas data frame
         # object https://docs.ray.io/en/latest/tune/api_docs/analysis.html#experimentanalysis
-        df = analysis.dataframe()
+        df = analysis.dataframe(metric='episode_reward_mean', mode='max')
         # list of lists: one list per checkpoint; each checkpoint list contains 1st the path, 2nd the metric value
-        checkpoints = analysis.get_trial_checkpoints_paths(trial=analysis.get_best_trial('episode_reward_mean'),
-                                                           metric='episode_reward_mean')
+        checkpoints = analysis.get_trial_checkpoints_paths(
+            trial=analysis.get_best_trial('episode_reward_mean', mode='max'), metric='episode_reward_mean')
         # retriev the checkpoint path; we only have a single checkpoint, so take the first one
         checkpoint_path = checkpoints[0][0]
         self.log.info('Training done', timesteps_total=int(df['timesteps_total']),
                       episodes_total=int(df['episodes_total']), episode_reward_mean=float(df['episode_reward_mean']),
                       num_steps_sampled=int(df['info/num_steps_sampled']),
                       num_steps_trained=int(df['info/num_steps_trained']),
-                      log_dir=analysis.get_best_logdir(metric='episode_reward_mean'))
+                      log_dir=analysis.get_best_logdir(metric='episode_reward_mean', mode='max'))
 
         # plot results
         # this only contains (and plots) the last 100 episodes --> not useful
