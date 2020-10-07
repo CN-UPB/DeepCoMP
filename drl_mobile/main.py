@@ -91,10 +91,10 @@ def main():
     # TODO: hyper-param search
     # default ppo params: https://docs.ray.io/en/latest/rllib-algorithms.html#proximal-policy-optimization-ppo
     # lr: 5e-5, lr_schedule: None, gae lambda: 1.0, kl_coeff: 0.2
-    # config['lr'] = ray.tune.grid_search([1e-4, 1e-5, 1e-6])
+    config['lr'] = ray.tune.grid_search([1e-3, 1e-4, 1e-5, 1e-6])
     # lr_schedule: https://github.com/ray-project/ray/issues/7912#issuecomment-609833914
     # eg, [[0, 0.01], [1000, 0.0001]] will start (t=0) lr=0.01 and linearly decr to lr=0.0001 at t=1000
-    config['lr_schedule'] = [[0, 0.01], [50000, 1e-5]]
+    # config['lr_schedule'] = [[0, 0.01], [50000, 1e-5]]
 
     # add cli args to the config for saving inputs
     sim = Simulation(config=config, agent_name=args.alg, cli_args=args, debug=True)
