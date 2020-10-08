@@ -95,8 +95,8 @@ def create_custom_env(sharing_model):
     map, bs_list = create_small_map(sharing_model)
     # 2 stationary UEs
     ue_list = [
-        User(str(1), map, pos_x=70, pos_y=50, movement=UniformMovement(map)),
-        User(str(2), map, pos_x=20, pos_y=30, movement=UniformMovement(map))
+        User(str(1), map, pos_x=75, pos_y=40, movement=UniformMovement(map)),
+        User(str(2), map, pos_x=75, pos_y=60, movement=UniformMovement(map))
     ]
     return map, ue_list, bs_list
 
