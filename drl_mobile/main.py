@@ -88,13 +88,18 @@ def main():
     # config['soft_horizon'] = True
     # config['no_done_at_end'] = True
 
-    # TODO: hyper-param search
+    # TODO: hyper-param search; probably easiest with simple grid search
     # default ppo params: https://docs.ray.io/en/latest/rllib-algorithms.html#proximal-policy-optimization-ppo
     # lr: 5e-5, lr_schedule: None, gae lambda: 1.0, kl_coeff: 0.2
-    # config['lr'] = ray.tune.grid_search([0.1, 0.01])
+    # config['lr'] = ray.tune.uniform(1e-6, 1e-4)
+    # config['gamma'] = ray.tune.uniform(0.9, 0.99)
+    # config['lambda'] = ray.tune.uniform(0.7, 1.0)
     # lr_schedule: https://github.com/ray-project/ray/issues/7912#issuecomment-609833914
     # eg, [[0, 0.01], [1000, 0.0001]] will start (t=0) lr=0.01 and linearly decr to lr=0.0001 at t=1000
     # config['lr_schedule'] = [[0, 0.01], [50000, 1e-5]]
+    import hyperopt as hp
+    # from ray.tune.suggest.hyperopt import HyperOptSearch
+    # hyperopt = HyperOptSearch(metric='episode_reward_mean', mode='max')
 
     # add cli args to the config for saving inputs
     sim = Simulation(config=config, agent_name=args.alg, cli_args=args, debug=False)

@@ -1,5 +1,6 @@
 import os
 import time
+import random
 from datetime import datetime
 from collections import defaultdict
 
@@ -59,7 +60,18 @@ class Simulation:
         self.log.debug('Simulation init', env=self.env_name, eps_length=self.episode_length, agent=self.agent_name,
                        multi_agent=self.multi_agent_env, num_workers=self.num_workers)
 
-    def train(self, stop_criteria, restore_path=None):
+    def tune_params(self, stop_criteria):
+        """Tune hyper-parameters"""
+        # FIXME: not really useful yet. training is really short. how to retrieve best params? need a search alg too
+        pbt = ray.tune.schedulers.PopulationBasedTraining(
+            time_attr='time_total_s', metric='episode_reward_mean', mode='max', perturbation_interval=120,
+            hyperparam_mutations={
+                'lr': lambda: random.uniform(1e-6, 1e-3)
+            }
+        )
+        self.train(stop_criteria, scheduler=pbt)
+
+    def train(self, stop_criteria, restore_path=None, scheduler=None):
         """
         Train an RLlib agent using tune until any of the configured stopping criteria is met.
 
@@ -79,7 +91,8 @@ class Simulation:
         analysis = ray.tune.run(PPOTrainer, config=self.config, local_dir=RESULT_DIR, stop=stop_criteria,
                                 # checkpoint every 10 iterations and at the end; keep the best 10 checkpoints
                                 checkpoint_at_end=True, checkpoint_freq=10, keep_checkpoints_num=10,
-                                checkpoint_score_attr='episode_reward_mean', restore=restore_path)
+                                checkpoint_score_attr='episode_reward_mean', restore=restore_path,
+                                scheduler=scheduler)
         analysis.default_metric = 'episode_reward_mean'
         analysis.default_mode = 'max'
 
