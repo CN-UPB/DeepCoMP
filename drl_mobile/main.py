@@ -97,7 +97,7 @@ def main():
     # lr_schedule: https://github.com/ray-project/ray/issues/7912#issuecomment-609833914
     # eg, [[0, 0.01], [1000, 0.0001]] will start (t=0) lr=0.01 and linearly decr to lr=0.0001 at t=1000
     # config['lr_schedule'] = [[0, 0.01], [50000, 1e-5]]
-    import hyperopt as hp
+    # import hyperopt as hp
     # from ray.tune.suggest.hyperopt import HyperOptSearch
     # hyperopt = HyperOptSearch(metric='episode_reward_mean', mode='max')
 
