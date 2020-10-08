@@ -97,7 +97,7 @@ def main():
     # config['lr_schedule'] = [[0, 0.01], [50000, 1e-5]]
 
     # add cli args to the config for saving inputs
-    sim = Simulation(config=config, agent_name=args.alg, cli_args=args, debug=True)
+    sim = Simulation(config=config, agent_name=args.alg, cli_args=args, debug=False)
 
     # train
     if train and args.alg == 'ppo':

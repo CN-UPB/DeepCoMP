@@ -77,20 +77,21 @@ class Simulation:
             restore_path = self.get_last_checkpoint_path(restore_path)
 
         analysis = ray.tune.run(PPOTrainer, config=self.config, local_dir=RESULT_DIR, stop=stop_criteria,
-                                checkpoint_at_end=True, restore=restore_path)
+                                # checkpoint every 10 iterations and at the end; keep the best 10 checkpoints
+                                checkpoint_at_end=True, checkpoint_freq=10, keep_checkpoints_num=10,
+                                checkpoint_score_attr='episode_reward_mean', restore=restore_path)
+        analysis.default_metric = 'episode_reward_mean'
+        analysis.default_mode = 'max'
+
         # tune returns an ExperimentAnalysis that can be cast to a Pandas data frame
         # object https://docs.ray.io/en/latest/tune/api_docs/analysis.html#experimentanalysis
-        df = analysis.dataframe(metric='episode_reward_mean', mode='max')
-        # list of lists: one list per checkpoint; each checkpoint list contains 1st the path, 2nd the metric value
-        checkpoints = analysis.get_trial_checkpoints_paths(
-            trial=analysis.get_best_trial('episode_reward_mean', mode='max'), metric='episode_reward_mean')
-        # retriev the checkpoint path; we only have a single checkpoint, so take the first one
-        checkpoint_path = checkpoints[0][0]
+        df = analysis.dataframe()
+        checkpoint_path = analysis.get_best_checkpoint(trial=analysis.get_best_trial())
         self.log.info('Training done', timesteps_total=int(df['timesteps_total']),
                       episodes_total=int(df['episodes_total']), episode_reward_mean=float(df['episode_reward_mean']),
                       num_steps_sampled=int(df['info/num_steps_sampled']),
                       num_steps_trained=int(df['info/num_steps_trained']),
-                      log_dir=analysis.get_best_logdir(metric='episode_reward_mean', mode='max'))
+                      log_dir=analysis.get_best_logdir())
 
         # plot results
         # this only contains (and plots) the last 100 episodes --> not useful
@@ -115,6 +116,20 @@ class Simulation:
         last_checkpoint_path = os.path.join(last_checkpoint_dir, f'checkpoint-{last_checkpoint_no}')
         return last_checkpoint_path
 
+    @staticmethod
+    def get_best_checkpoint_path(rllib_dir):
+        """Given an RLlib training dir, return the full path of the best checkpoint"""
+        # check if rllib_dir is really already a pointer to a specific checkpoint; in that case, just return it
+        if 'checkpoint' in rllib_dir and os.path.isfile(rllib_dir):
+            return rllib_dir
+
+        rllib_dir = os.path.abspath(rllib_dir)
+        analysis = ray.tune.Analysis(rllib_dir)
+        analysis.default_metric = 'episode_reward_mean'
+        analysis.default_mode = 'max'
+        checkpoint = analysis.get_best_checkpoint(analysis._get_trial_paths()[0])
+        return os.path.abspath(checkpoint)
+
     def load_agent(self, rllib_dir=None, rand_seed=None, fixed_action=1, explore=False):
         """
         Load a trained RLlib agent from the specified rllib_path. Call this before testing a trained agent.
@@ -130,7 +145,7 @@ class Simulation:
             # turn off exploration for testing the loaded agent
             self.config['explore'] = explore
             self.agent = PPOTrainer(config=self.config, env=self.env_class)
-            checkpoint_path = self.get_last_checkpoint_path(rllib_dir)
+            checkpoint_path = self.get_best_checkpoint_path(rllib_dir)
             self.log.info('Loading PPO agent', checkpoint=checkpoint_path)
             self.agent.restore(checkpoint_path)
         if self.agent_name == 'greedy-best':
