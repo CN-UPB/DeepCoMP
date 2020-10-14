@@ -35,6 +35,11 @@ Install patched version from my `structlog` fork & branch:
 pip install git+https://github.com/stefanbschneider/structlog.git@dev
 ```
 
+**Other known issues:**
+
+* [`ray does not provide extra 'rllib'`](https://github.com/ray-project/ray/issues/11274): uninstall and install via `pip` instead of `setup.py`
+* [Unable to schedule actor or task](https://github.com/ray-project/ray/issues/6781#issuecomment-708281404)
+
 
 ## Usage
 
