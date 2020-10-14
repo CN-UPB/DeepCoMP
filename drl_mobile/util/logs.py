@@ -13,6 +13,7 @@ def config_logging():
     """Configure logging using structlog, stdlib logging, and custom FloatRounder to round to spec numb digits"""
     logging.basicConfig(level=logging.INFO)
     logging.getLogger('drl_mobile').setLevel(logging.WARNING)
+    logging.getLogger('drl_mobile.main').setLevel(logging.INFO)
     logging.getLogger('drl_mobile.util.simulation').setLevel(logging.INFO)
     # logging.getLogger('drl_mobile.env.entities.user').setLevel(logging.DEBUG)
     # logging.getLogger('drl_mobile.env.multi_ue.multi_agent').setLevel(logging.DEBUG)
