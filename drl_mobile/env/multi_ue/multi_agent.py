@@ -59,7 +59,7 @@ class MultiAgentMobileEnv(RelNormEnv, MultiAgentEnv):
             else:
                 # if there are no neighbors, then just use own utility/reward
                 avg_util = r
-            new_r = 0.2 * r + 0.8 * avg_util
+            new_r = 0.5 * r + 0.5 * avg_util
             self.log.debug('Reward', ue=ue, neighbors=neighbors, own_r=r, avg_util=avg_util, new_r=new_r)
             new_rewards[ue.id] = new_r
         return new_rewards

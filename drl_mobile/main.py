@@ -122,6 +122,7 @@ def main():
     # evaluate over multiple episodes
     if args.eval > 0:
         sim.run(num_episodes=args.eval, write_results=True)
+    log.info('Finished', agent=agent_path)
 
 
 if __name__ == '__main__':
