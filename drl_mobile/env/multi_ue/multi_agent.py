@@ -55,7 +55,8 @@ class MultiAgentMobileEnv(RelNormEnv, MultiAgentEnv):
             neighbors = ue.ues_at_same_bs()
             if len(neighbors) > 0:
                 # get the normalized utility = reward for each neighbor
-                avg_util = np.mean([rewards[neighbor] for neighbor in neighbors])
+                # avg_util = np.mean([rewards[neighbor] for neighbor in neighbors])
+                avg_util = min([rewards[neighbor] for neighbor in neighbors])
             else:
                 # if there are no neighbors, then just use own utility/reward
                 avg_util = r

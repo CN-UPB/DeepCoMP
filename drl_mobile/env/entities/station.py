@@ -67,6 +67,13 @@ class Basestation:
             return np.mean([ue.utility for ue in self.conn_ues])
         return 20
 
+    @property
+    def min_utility(self):
+        """Min utility of UEs connected to this BS. If the BS is idle, return max utility"""
+        if len(self.conn_ues) > 0:
+            return min([ue.utility for ue in self.conn_ues])
+        return 20
+
     def plot(self):
         """
         Plot the BS as square with the ID inside as well as circles around it indicating the range.
