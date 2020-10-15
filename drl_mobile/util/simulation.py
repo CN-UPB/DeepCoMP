@@ -246,9 +246,12 @@ class Simulation:
         assert self.multi_agent_env, "Use apply_action_single_agent for single-agent envs"
         assert self.agent is not None, "Train or load an agent before running the simulation"
         action = {}
+        # TODO: custom approach for LSTM: https://github.com/ray-project/ray/issues/9220#issuecomment-652146377
+        cell_size = 256
+        state = [np.zeros(cell_size), np.zeros(cell_size)]
         for agent_id, agent_obs in obs.items():
             policy_id = self.config['multiagent']['policy_mapping_fn'](agent_id)
-            action[agent_id] = self.agent.compute_action(agent_obs, policy_id=policy_id)
+            action[agent_id], state, logits = self.agent.compute_action(agent_obs, policy_id=policy_id, state=state)
         next_obs, reward, done, info = env.step(action)
         # info is currently the same for all agents; just get the info from the last agent
         info = info[agent_id]
