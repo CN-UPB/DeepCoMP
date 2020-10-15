@@ -6,7 +6,7 @@ from ray.rllib.env.multi_agent_env import MultiAgentEnv
 from drl_mobile.util.constants import SUPPORTED_ENVS, SUPPORTED_AGENTS
 from drl_mobile.env.single_ue.variants import BinaryMobileEnv, DatarateMobileEnv, NormDrMobileEnv, RelNormEnv
 from drl_mobile.env.multi_ue.central import CentralDrEnv, CentralNormDrEnv, CentralRelNormEnv
-from drl_mobile.env.multi_ue.multi_agent import MultiAgentMobileEnv
+from drl_mobile.env.multi_ue.multi_agent import MultiAgentMobileEnv, SeqMultiAgentMobileEnv
 from drl_mobile.env.entities.user import User
 from drl_mobile.env.entities.station import Basestation
 from drl_mobile.env.entities.map import Map
@@ -26,7 +26,7 @@ def get_env_class(env_type):
         # return CentralNormDrEnv
         return CentralRelNormEnv
     if env_type == 'multi':
-        return MultiAgentMobileEnv
+        return SeqMultiAgentMobileEnv
 
 
 def create_small_map(sharing_model):

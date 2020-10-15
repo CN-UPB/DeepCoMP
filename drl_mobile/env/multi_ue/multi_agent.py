@@ -76,3 +76,58 @@ class MultiAgentMobileEnv(RelNormEnv, MultiAgentEnv):
         """Return info for each UE as dict. Required by RLlib to be similar to obs."""
         info_dict = super().info(unsucc_conn, lost_conn)
         return {ue.id: info_dict for ue in self.ue_list}
+
+
+class SeqMultiAgentMobileEnv(MultiAgentMobileEnv):
+    """
+    Multi-agent env where all agents observe and act sequentially rather than simultaneously within each time step.
+    Only a single agent per time slot
+    """
+    def __init__(self, env_config):
+        super().__init__(env_config)
+        # order of UEs to make sequential decisions; for now identical to list order
+        self.ue_order = self.ue_list
+        self.ue_order_idx = 0
+        self.curr_ue = self.ue_order[self.ue_order_idx]
+
+    def get_obs(self):
+        """Return only obs for current UE, such that only this UE acts"""
+        return {self.curr_ue.id: self.get_ue_obs(self.curr_ue)}
+
+    def step_reward(self, rewards):
+        """Only reward for current UE. Calc as before"""
+        new_rewards = super().step_reward(rewards)
+        return {self.curr_ue.id: new_rewards[self.curr_ue.id]}
+
+    def info(self, unsucc_conn, lost_conn):
+        """Same for info: Only for curr UE. Then increment to next UE since it's the last operation in the step"""
+        info_dict = super(MultiAgentMobileEnv, self).info(unsucc_conn, lost_conn)
+        return {self.curr_ue.id: info_dict}
+
+    def step(self, action):
+        """Overwrite step to do sequential steps per agent without moving UEs and incrementing time in each step"""
+        # when reaching the last UE in the order, move time, UEs, etc
+        if self.ue_order_idx >= len(self.ue_order):
+            self.ue_order_idx = 0
+            # move UEs, update drs, increment time
+            self.move_ues()
+            self.update_ue_drs_rewards(penalties=None, update_only=True)
+            self.time += 1
+        self.curr_ue = self.ue_order[self.ue_order_idx]
+
+        # same as in normal step
+        prev_obs = self.obs
+        action_dict = self.get_ue_actions(action)
+        penalties = self.apply_ue_actions(action_dict)
+        rewards = self.update_ue_drs_rewards(penalties=penalties)
+        reward = self.step_reward(rewards)
+
+        # increment UE idx to now handle next user; but do not move or increment time
+        self.ue_order_idx += 1
+
+        self.obs = self.get_obs()
+        done = self.done()
+        info = self.info(unsucc_conn=None, lost_conn=None)
+        self.log.info("Step", time=self.time, prev_obs=prev_obs, action=action, reward=reward, next_obs=self.obs,
+                      done=done)
+        return self.obs, reward, done, info

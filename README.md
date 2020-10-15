@@ -167,3 +167,14 @@ in the [stable_baselines branch](https://github.com/CN-UPB/deep-rl-mobility-mana
 * The RLlib version on the `rllib` branch is functionally roughly equivalent to the `stable_baselines` branch (same model, MDP, agent), just with a different framework.
 * Development continues in the `dev` branch.
 * The current version on `master` and `dev` do not support `stable_baselines` anymore.
+
+## Things to Evaluate
+
+* Impact of num UEs (fixed or varying within an episode)
+* Distance between BS (density)
+* UE movement
+* Fairness parameter of multi agent
+* Squentialization of multi agent
+* Resource sharing models
+* Scalability: Num BS and UE
+* Generalization
