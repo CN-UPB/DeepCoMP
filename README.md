@@ -170,6 +170,8 @@ in the [stable_baselines branch](https://github.com/CN-UPB/deep-rl-mobility-mana
 
 ## Things to Evaluate
 
+TODO: save all checkpoints and load best. not just last 10 - sometimes the agent gets a bit worse with long training
+
 * Impact of num UEs (fixed or varying within an episode)
 * Distance between BS (density)
 * UE movement
