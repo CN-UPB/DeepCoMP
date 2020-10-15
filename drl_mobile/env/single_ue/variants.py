@@ -255,7 +255,7 @@ class RelNormEnv(BinaryMobileEnv):
             # dr is normalized differently
             'dr': gym.spaces.Box(low=0, high=1, shape=(self.num_bs,)),
             'utility': gym.spaces.Box(low=-1, high=1, shape=(1,)),
-            # 'idle_bs': gym.spaces.MultiBinary(self.num_bs),
+            'idle_bs': gym.spaces.MultiBinary(self.num_bs),
             # avg utility of UEs at each BS --> support optimizing neighbors' utility
             'bs_util': gym.spaces.Box(low=-1, high=1, shape=(self.num_bs,))
         }
@@ -278,10 +278,10 @@ class RelNormEnv(BinaryMobileEnv):
         utility = [ue.utility / 20]
 
         # which BS are currently idle
-        # idle_bs = [int(bs.num_conn_ues == 0) for bs in self.bs_list]
+        idle_bs = [int(bs.num_conn_ues == 0) for bs in self.bs_list]
 
         # min utility of UEs for each BS
         bs_util = [bs.min_utility / 20 for bs in self.bs_list]
 
         # return {'connected': bs_conn, 'dr': bs_norm_dr, 'utility': utility, 'idle_bs': idle_bs}
-        return {'connected': bs_conn, 'dr': bs_norm_dr, 'utility': utility, 'bs_util': bs_util}
+        return {'connected': bs_conn, 'dr': bs_norm_dr, 'utility': utility, 'bs_util': bs_util, 'idle_bs': idle_bs}
