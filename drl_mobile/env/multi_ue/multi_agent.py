@@ -16,6 +16,10 @@ class MultiAgentMobileEnv(RelNormEnv, MultiAgentEnv):
         super().__init__(env_config)
         # inherits attributes, obs and action space from parent env
 
+        # TODO: test sequential obs and actions
+        self.ue_order = self.ue_list
+        self.curr_ue_idx = 0
+
     def get_ue_actions(self, action):
         """
         Retrieve the action per UE from the RL agent's action and return in in form of a dict.
@@ -25,13 +29,17 @@ class MultiAgentMobileEnv(RelNormEnv, MultiAgentEnv):
         :return: Dict that consistently (indep. of agent type) maps UE (object) --> action
         """
         # get action for each UE based on ID
-        return {ue: action[ue.id] for ue in self.ue_list}
+        return {ue: action[ue.id] for ue in self.ue_list if ue.id in action}
 
     def get_obs(self):
         """Return next obs: Dict with UE --> obs"""
         obs = dict()
-        for ue in self.ue_list:
-            obs[ue.id] = self.get_ue_obs(ue)
+        # for ue in self.ue_list:
+        #     obs[ue.id] = self.get_ue_obs(ue)
+        # TODO: test sequential obs and actions
+        ue = self.ue_order[self.curr_ue_idx]
+        obs[ue.id] = self.get_ue_obs(ue)
+        self.curr_ue_idx = (self.curr_ue_idx + 1) % len(self.ue_order)
         return obs
 
     def step_reward(self, rewards):
