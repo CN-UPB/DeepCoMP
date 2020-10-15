@@ -164,8 +164,12 @@ def create_env_config(agent, map_size, num_slow_ues, num_fast_ues, sharing_model
     config['train_batch_size'] = train_batch_size        # default: 4000; default in stable_baselines: 128
     # auto normalize obserations by subtracting mean and dividing by std (default: "NoFilter")
     # config['observation_filter'] = "MeanStdFilter"
+    # NN settings: https://docs.ray.io/en/latest/rllib-models.html#built-in-model-parameters
     # configure the size of the neural network's hidden layers
     # config['model']['fcnet_hiddens'] = [100, 100]
+    # LSTM settings
+    config['model']['use_lstm'] = True
+    # config['model']['lstm_use_prev_action_reward'] = True
     # config['log_level'] = 'INFO'    # ray logging default: warning
     config['env'] = env_class
     config['env_config'] = env_config
