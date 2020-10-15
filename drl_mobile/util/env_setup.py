@@ -124,7 +124,7 @@ def get_env(map_size, num_slow_ues, num_fast_ues, sharing_model):
 
 
 def create_env_config(agent, map_size, num_slow_ues, num_fast_ues, sharing_model, eps_length, num_workers=1,
-                      train_batch_size=1000, seed=None, agents_share_nn=True):
+                      train_batch_size=1000, seed=None, agents_share_nn=True, use_lstm=False):
     """
     Create environment and RLlib config. Return config.
 
@@ -168,7 +168,7 @@ def create_env_config(agent, map_size, num_slow_ues, num_fast_ues, sharing_model
     # configure the size of the neural network's hidden layers
     # config['model']['fcnet_hiddens'] = [100, 100]
     # LSTM settings
-    config['model']['use_lstm'] = True
+    config['model']['use_lstm'] = use_lstm
     # config['model']['lstm_use_prev_action_reward'] = True
     # config['log_level'] = 'INFO'    # ray logging default: warning
     config['env'] = env_class

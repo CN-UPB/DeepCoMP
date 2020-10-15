@@ -32,6 +32,7 @@ def setup_cli():
     parser.add_argument('--continue', type=str, help="Continue training agent at given path (loads last checkpoint")
     parser.add_argument('--separate-agent-nns', action='store_true',
                         help="Only relevant for multi-agent RL. Use separate NNs for each agent instead of sharing.")
+    parser.add_argument('--lstm', action='store_true', help="Whether or not to use an LSTM cell")
     # environment
     parser.add_argument('--env', type=str, choices=SUPPORTED_ENVS, default='small', help="Env/Map size")
     parser.add_argument('--eps-length', type=int, default=100, help="Number of time steps per episode")
@@ -81,7 +82,7 @@ def main():
     config = create_env_config(agent=args.agent, map_size=args.env, num_slow_ues=args.slow_ues,
                                num_fast_ues=args.fast_ues, sharing_model=args.sharing, eps_length=args.eps_length,
                                num_workers=args.workers, train_batch_size=args.batch_size, seed=args.seed,
-                               agents_share_nn=not args.separate_agent_nns)
+                               agents_share_nn=not args.separate_agent_nns, use_lstm=args.lstm)
 
     # TODO: for continuous setting with fixed horizon
     # config['horizon'] = args.eps_length

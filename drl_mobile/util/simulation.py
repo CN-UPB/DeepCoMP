@@ -213,32 +213,39 @@ class Simulation:
             except TypeError:
                 self.log.error('ImageMagick needs to be installed for saving gifs.')
 
-    def apply_action_single_agent(self, obs, env):
+    def apply_action_single_agent(self, obs, env, state=None):
         """
         For the given observation and a trained/loaded agent, get and apply the next action. Only single-agent envs.
 
         :param dict obs: Dict of observations for all agents
         :param env: The environment to which to apply the actions to
-        :returns: tuple (obs, r, done, info) WHERE
+        :param state: Optional state of the RNN/LSTM if used
+        :returns: tuple (obs, r, done, info, state) WHERE
             obs is the next observation
             r is the immediate reward
             done is done['__all__'] indicating if all agents are done
         """
         assert not self.multi_agent_env, "Use apply_action_multi_agent for multi-agent envs"
         assert self.agent is not None, "Train or load an agent before running the simulation"
-        action = self.agent.compute_action(obs)
+        # normal MLP NN
+        if state is None:
+            action = self.agent.compute_action(obs)
+        # RNN/LSTM, which requires state
+        else:
+            action, state, logits = self.agent.compute_action(obs, state=state)
         next_obs, reward, done, info = env.step(action)
         self.log.debug("Step", t=info['time'], obs=obs, action=action, reward=reward, next_obs=next_obs, done=done)
-        return next_obs, reward, done, info
+        return next_obs, reward, done, info, state
 
-    def apply_action_multi_agent(self, obs, env):
+    def apply_action_multi_agent(self, obs, env, state=None):
         """
         Same as apply_action_single_agent, but for multi-agent envs. For each agent, unpack obs & choose action,
         before applying it to the env.
 
         :param dict obs: Dict of observations for all agents
         :param env: The environment to which to apply the actions to
-        :returns: tuple (obs, r, done, info) WHERE
+        :param state: Optional state of the RNN/LSTM if used
+        :returns: tuple (obs, r, done, info, state) WHERE
             obs is the next observation
             r is the summed up immediate reward for all agents
             done is done['__all__'] indicating if all agents are done
@@ -246,18 +253,20 @@ class Simulation:
         assert self.multi_agent_env, "Use apply_action_single_agent for single-agent envs"
         assert self.agent is not None, "Train or load an agent before running the simulation"
         action = {}
-        # TODO: custom approach for LSTM: https://github.com/ray-project/ray/issues/9220#issuecomment-652146377
-        cell_size = 256
-        state = [np.zeros(cell_size), np.zeros(cell_size)]
         for agent_id, agent_obs in obs.items():
             policy_id = self.config['multiagent']['policy_mapping_fn'](agent_id)
-            action[agent_id], state, logits = self.agent.compute_action(agent_obs, policy_id=policy_id, state=state)
+            # normal MLP NN
+            if state is None:
+                action[agent_id] = self.agent.compute_action(agent_obs, policy_id=policy_id)
+            # RNN/LSTM, which requires state
+            else:
+                action[agent_id], state, logits = self.agent.compute_action(agent_obs, policy_id=policy_id, state=state)
         next_obs, reward, done, info = env.step(action)
         # info is currently the same for all agents; just get the info from the last agent
         info = info[agent_id]
         self.log.debug("Step", t=info['time'], obs=obs, action=action, reward=reward, next_obs=next_obs,
                        done=done['__all__'])
-        return next_obs, sum(reward.values()), done['__all__'], info
+        return next_obs, sum(reward.values()), done['__all__'], info, state
 
     def run_episode(self, env, render=None, log_dict=None):
         """
@@ -289,6 +298,11 @@ class Simulation:
         t = 0
         done = False
         obs = env.reset()
+        # init state for LSTM: https://github.com/ray-project/ray/issues/9220#issuecomment-652146377
+        state = None
+        if self.config['model']['use_lstm']:
+            cell_size = self.config['model']['lstm_cell_size']
+            state = [np.zeros(cell_size), np.zeros(cell_size)]
         # for continuous problems, stop evaluation after fixed eps length
         while not done and t < self.episode_length:
             if render is not None:
@@ -298,9 +312,9 @@ class Simulation:
 
             # get and apply action
             if self.multi_agent_env:
-                obs, reward, done, info = self.apply_action_multi_agent(obs, env)
+                obs, reward, done, info, state = self.apply_action_multi_agent(obs, env, state)
             else:
-                obs, reward, done, info = self.apply_action_single_agent(obs, env)
+                obs, reward, done, info, state = self.apply_action_single_agent(obs, env, state)
             t = info['time']
 
             # save reward and metrics
