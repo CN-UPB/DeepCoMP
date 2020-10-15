@@ -101,13 +101,18 @@ class SeqMultiAgentMobileEnv(MultiAgentMobileEnv):
 
     def done(self):
         """Set done for current UE. For all when reaching the last UE"""
-        done = self.time >= self.episode_length
+        # done = self.time >= self.episode_length
+        # dones = {
+        #     self.curr_ue.id: done,
+        #     '__all__': False
+        # }
+        # if self.ue_order_idx == len(self.ue_order):
+        #     dones['__all__'] = done
+        done = self.time > self.episode_length
         dones = {
             self.curr_ue.id: done,
-            '__all__': False
+            '__all__': done,
         }
-        if self.ue_order_idx == len(self.ue_order):
-            dones['__all__'] = done
         return dones
 
     def info(self, unsucc_conn, lost_conn):
@@ -118,7 +123,24 @@ class SeqMultiAgentMobileEnv(MultiAgentMobileEnv):
     def step(self, action):
         """Overwrite step to do sequential steps per agent without moving UEs and incrementing time in each step"""
         # when reaching the last UE in the order, move time, UEs, etc
-        if self.ue_order_idx >= len(self.ue_order):
+        # if self.ue_order_idx >= len(self.ue_order):
+        #     self.ue_order_idx = 0
+        #     # move UEs, update drs, increment time
+        #     self.move_ues()
+        #     self.update_ue_drs_rewards(penalties=None, update_only=True)
+        #     self.time += 1
+        # self.curr_ue = self.ue_order[self.ue_order_idx]
+
+        # same as in normal step
+        prev_obs = self.obs
+        action_dict = self.get_ue_actions(action)
+        penalties = self.apply_ue_actions(action_dict)
+        rewards = self.update_ue_drs_rewards(penalties=penalties)
+
+        # increment UE idx to now handle next user; but do not move or increment time
+        if self.ue_order_idx + 1 < len(self.ue_order):
+            self.ue_order_idx += 1
+        else:
             self.ue_order_idx = 0
             # move UEs, update drs, increment time
             self.move_ues()
@@ -126,17 +148,8 @@ class SeqMultiAgentMobileEnv(MultiAgentMobileEnv):
             self.time += 1
         self.curr_ue = self.ue_order[self.ue_order_idx]
 
-        # same as in normal step
-        prev_obs = self.obs
-        action_dict = self.get_ue_actions(action)
-        penalties = self.apply_ue_actions(action_dict)
-        rewards = self.update_ue_drs_rewards(penalties=penalties)
-        reward = self.step_reward(rewards)
-
-        # increment UE idx to now handle next user; but do not move or increment time
-        self.ue_order_idx += 1
-
         self.obs = self.get_obs()
+        reward = self.step_reward(rewards)
         done = self.done()
         info = self.info(unsucc_conn=None, lost_conn=None)
         self.log.info("Step", time=self.time, prev_obs=prev_obs, action=action, reward=reward, next_obs=self.obs,

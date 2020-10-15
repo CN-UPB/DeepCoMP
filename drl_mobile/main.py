@@ -84,6 +84,9 @@ def main():
                                num_workers=args.workers, train_batch_size=args.batch_size, seed=args.seed,
                                agents_share_nn=not args.separate_agent_nns, use_lstm=args.lstm)
 
+    # for sequential multi agent env
+    config['no_done_at_end'] = True
+
     # TODO: for continuous setting with fixed horizon
     # config['horizon'] = args.eps_length
     # config['soft_horizon'] = True
