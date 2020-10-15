@@ -81,7 +81,7 @@ class MultiAgentMobileEnv(RelNormEnv, MultiAgentEnv):
 class SeqMultiAgentMobileEnv(MultiAgentMobileEnv):
     """
     Multi-agent env where all agents observe and act sequentially rather than simultaneously within each time step.
-    Only a single agent per time slot
+    All agents act sequentially within a single time step before they move and time increments.
     """
     def __init__(self, env_config):
         super().__init__(env_config)
@@ -98,6 +98,17 @@ class SeqMultiAgentMobileEnv(MultiAgentMobileEnv):
         """Only reward for current UE. Calc as before"""
         new_rewards = super().step_reward(rewards)
         return {self.curr_ue.id: new_rewards[self.curr_ue.id]}
+
+    def done(self):
+        """Set done for current UE. For all when reaching the last UE"""
+        done = self.time >= self.episode_length
+        dones = {
+            self.curr_ue.id: done,
+            '__all__': False
+        }
+        if self.ue_order_idx == len(self.ue_order):
+            dones['__all__'] = done
+        return dones
 
     def info(self, unsucc_conn, lost_conn):
         """Same for info: Only for curr UE. Then increment to next UE since it's the last operation in the step"""
