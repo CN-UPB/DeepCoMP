@@ -52,6 +52,7 @@ class Simulation:
         # only init ray if necessary --> lower overhead for dummy agents
         if self.agent_name == 'ppo':
             ray.init(local_mode=debug)
+        self.agent_path = None
 
         # filename for saving is set when loading the agent
         self.result_filename = None
@@ -59,6 +60,28 @@ class Simulation:
         self.log = structlog.get_logger()
         self.log.debug('Simulation init', env=self.env_name, eps_length=self.episode_length, agent=self.agent_name,
                        multi_agent=self.multi_agent_env, num_workers=self.num_workers)
+
+    @property
+    def metadata(self):
+        """Dict with metadata about the simulation"""
+        # distinguish multi-agent RL with separate NNs rather than a shared NN for all agents
+        agent_str = self.cli_args.agent
+        if agent_str == 'multi' and self.cli_args.separate_agent_nns:
+            agent_str = 'multi-sep-nns'
+
+        data = {
+            'alg': self.cli_args.alg,
+            'agent': agent_str,
+            'agent_path': self.agent_path,
+            'env': self.env_name,
+            'env_size': self.cli_args.env,
+            'eps_length': self.episode_length,
+            'num_bs': len(self.env_config['bs_list']),
+            'sharing_model': self.cli_args.sharing,
+            'num_ue_slow': self.cli_args.slow_ues,
+            'num_ue_fast': self.cli_args.fast_ues,
+        }
+        return data
 
     def tune_params(self, stop_criteria):
         """Tune hyper-parameters"""
@@ -163,9 +186,9 @@ class Simulation:
             # turn off exploration for testing the loaded agent
             self.config['explore'] = explore
             self.agent = PPOTrainer(config=self.config, env=self.env_class)
-            checkpoint_path = self.get_best_checkpoint_path(rllib_dir)
-            self.log.info('Loading PPO agent', checkpoint=checkpoint_path)
-            self.agent.restore(checkpoint_path)
+            self.agent_path = self.get_best_checkpoint_path(rllib_dir)
+            self.log.info('Loading PPO agent', checkpoint=self.agent_path)
+            self.agent.restore(self.agent_path)
         if self.agent_name == 'greedy-best':
             self.agent = GreedyBestSelection()
         if self.agent_name == 'greedy-all':
@@ -358,7 +381,7 @@ class Simulation:
         # iterate over all episodes and aggregate the results per episode
         for e in range(num_episodes):
             # add episode, eps_duration and rewards
-            results['episode'].append(e + 1)
+            results['episode'].append(e)
             results['eps_duration_mean'].append(eps_duration[e])
             results['eps_duration_std'].append(eps_duration[e])
             results['step_reward_mean'].append(np.mean(rewards[e]))
@@ -376,25 +399,9 @@ class Simulation:
     def write_scalar_results(self, scalar_results):
         """Write experiment results to CSV file. Include all relevant info."""
         result_file = f'{TEST_DIR}/{self.result_filename}.csv'
-        self.log.info("Writing results", file=result_file)
+        self.log.info("Writing scalar results", file=result_file)
 
-        # distinguish multi-agent RL with separate NNs rather than a shared NN for all agents
-        agent_str = self.cli_args.agent
-        if agent_str == 'multi' and self.cli_args.separate_agent_nns:
-            agent_str = 'multi-sep-nns'
-
-        # input/configuration data to track to what the results belong to
-        data = {
-            'alg': self.cli_args.alg,
-            'agent': agent_str,
-            'env': self.env_name,
-            'env_size': self.cli_args.env,
-            'eps_length': self.episode_length,
-            'num_bs': len(self.env_config['bs_list']),
-            'sharing_model': self.cli_args.sharing,
-            'num_ue_slow': self.cli_args.slow_ues,
-            'num_ue_fast': self.cli_args.fast_ues
-        }
+        data = self.metadata
         # training data for PPO
         if self.agent_name == 'ppo':
             data.update({
@@ -407,6 +414,51 @@ class Simulation:
         data.update(scalar_results)
         df = pd.DataFrame(data=data)
         df.to_csv(result_file)
+
+    def write_vector_results(self, vector_metrics):
+        """
+        Write vector metrics into a data frames and save them to pickle, incl. meta data/attributes.
+        One data frame and pickle file per metric.
+        Vector metrics contain measurements per UE per time step (per evaluation episode).
+
+        :param vector_metrics: List of lists of dicts of dicts: One list per episode with dicts per time step.
+        Each dict maps metric name to another dict, which again maps UE ID to the metric value.
+        :return: list of result dicts
+        """
+        # in case there are not vector metrics
+        if len(vector_metrics) == 0 or len(vector_metrics[0]) == 0:
+            return []
+
+        # construct separate dfs per metric
+        dfs = []
+        metrics = list(vector_metrics[0][0].keys())
+        for metric in metrics:
+            # init dict with empty lists
+            data = {'episode': [], 'time_step': []}
+            ues = list(vector_metrics[0][0][metric].keys())
+            for ue in ues:
+                data[ue] = []
+
+            # fill dict with values from vector_metrics
+            for eps, eps_dict in enumerate(vector_metrics):
+                for step, step_dict in enumerate(eps_dict):
+                    data['episode'].append(eps)
+                    data['time_step'].append(step)
+                    metric_dict = step_dict[metric]
+                    for ue, ue_metric in metric_dict.items():
+                        data[ue].append(ue_metric)
+
+            # create and write data frame
+            df = pd.DataFrame(data)
+            df.attrs = self.metadata
+            df.attrs['env_config'] = self.env_config
+            df.attrs['cli_args'] = self.cli_args
+            dfs.append(df)
+            result_file = f'{TEST_DIR}/{self.result_filename}_{metric}.pkl'
+            self.log.info('Writing vector results', metric=metric, file=result_file)
+            df.to_pickle(result_file)
+
+        return dfs
 
     def run(self, num_episodes=1, render=None, log_dict=None, write_results=False):
         """
@@ -453,6 +505,6 @@ class Simulation:
         # write results to file
         if write_results:
             self.write_scalar_results(scalar_results)
-            # TODO: write vector results; first test if current stuff still works
+            dfs = self.write_vector_results(vector_metrics)
 
         return rewards
