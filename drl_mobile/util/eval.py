@@ -13,8 +13,8 @@ from drl_mobile.util.constants import TRAIN_DIR, TEST_DIR, PLOT_DIR, RESULT_DIR,
 
 
 # assuming the b5g-results repo is checked out next to this repo
-B5G_RESULT_DIR = os.path.join(PROJECT_ROOT, os.pardir, 'b5g-results', 'drl_mobile')
-EVAL_DIR = os.path.join(B5G_RESULT_DIR, '2020-10-21_eval-draft')
+EVAL_DIR = os.path.join(PROJECT_ROOT, os.pardir, 'b5g-results', 'drl_mobile')
+# EVAL_DIR = os.path.join(B5G_RESULT_DIR, '2020-10-21_eval-draft')
 
 
 def read_training_progress(dir_name):
@@ -101,7 +101,7 @@ def get_result_files(dir, prefix='', suffix='.csv', skip_folder='/old/'):
     result_files = []
     for f in glob.iglob(dir + '**/**', recursive=True):
         # skip files in given skip_folder, only consider results in /test/ subdir
-        if skip_folder in f or '/test/' not in f:
+        if skip_folder in f or 'test' not in f:
             continue
         # only select files (not dirs) that are in a '/test/' subdir (to filter out PPO's progress.csv)
         if os.path.isfile(f) and f.startswith(prefix) and f.endswith(suffix):
@@ -113,7 +113,7 @@ def get_result_files(dir, prefix='', suffix='.csv', skip_folder='/old/'):
 def summarize_results(dir=EVAL_DIR, read_hist_data=False):
     """Read and summarize all results in a directory. Return a df."""
     config_cols = ['alg', 'agent', 'num_ue_slow', 'num_ue_fast', 'eps_length', 'env_size']
-    result_cols = ['eps_reward', 'eps_dr', 'eps_util', 'eps_unsucc_conn', 'eps_lost_conn', 'num_no_conn']
+    result_cols = ['avg_utility']
     # files = [f for f in os.listdir(dir) if f.endswith('.csv')]
     files = get_result_files(dir)
     data = defaultdict(list)
@@ -125,13 +125,15 @@ def summarize_results(dir=EVAL_DIR, read_hist_data=False):
         for conf in config_cols:
             data[conf].append(df[conf][0])
         # summarize num ues
-        data['num_ue'].append(df['num_ue_slow'][0] + df['num_ue_fast'][0])
+        num_ue = df['num_ue_slow'][0] + df['num_ue_fast'][0]
+        data['num_ue'].append(num_ue)
         # summarize eps reward and other stats
-        data['num_eps'].append(len(df['eps_reward']))
+        # data['num_eps'].append(len(df['eps_reward']))
         # calc mean and std for all results
         for res in result_cols:
-            data[f'{res}_mean'].append(np.mean(df[res]))
-            data[f'{res}_std'].append(np.std(df[res]))
+            data[f'{res}_mean'].append(df[f'{res}_mean'])
+            data[f'{res}_std'].append(df[f'{res}_std'])
+            data[f'{res}_sum'].append(df[f'{res}_mean'] * num_ue)
 
         # read individual data rates and utilities for histogram plotting
         if read_hist_data:
@@ -141,7 +143,7 @@ def summarize_results(dir=EVAL_DIR, read_hist_data=False):
 
     # Calculate and add reliability to the df, defined as `num_no_conn / (num_ue * eps_length)`, ie,
     # percent of steps with any connection (no matter the dr) averaged over all UEs
-    data['reliability'] = np.array(data['num_no_conn_mean']) / (data['num_ue'][0] * data['eps_length'][0])
+    # data['reliability'] = np.array(data['num_no_conn_mean']) / (data['num_ue'][0] * data['eps_length'][0])
 
     # create and return combined df
     return pd.DataFrame(data=data)
@@ -155,20 +157,22 @@ def concat_results(dir=EVAL_DIR):
     return pd.concat(dfs)
 
 
-def plot_increasing_ues(df, metric, filename=None):
+def plot_increasing_ues(df, metric, plot_sum=True, filename=None):
     """Plot results for increasing num. UEs. Takes summarized df as input."""
     for alg in df['alg'].unique():
+        if alg == 'random':
+            continue
         df_alg = df[df['alg'] == alg]
+        for agent in df_alg['agent'].unique():
+            df_agent = df_alg[df_alg['agent'] == agent]
 
-        # for PPO, distinguish between centralized and multi-agent
-        if alg == 'ppo':
-            for agent in df_alg['agent'].unique():
-                df_ppo = df_alg[df_alg['agent'] == agent]
-                plt.errorbar(df_ppo['num_ue'], df_ppo[f'{metric}_mean'], yerr=df_ppo[f'{metric}_std'], capsize=5,
-                             label=f'{alg}_{agent}')
-
-        else:
-            plt.errorbar(df_alg['num_ue'], df_alg[f'{metric}_mean'], yerr=df_alg[f'{metric}_std'], capsize=5, label=alg)
+            # plot 'metric' summed up over all UEs
+            if plot_sum:
+                plt.plot(df_agent['num_ue'], df_agent[f'{metric}_sum'], label=f'{alg}_{agent}', marker=True)
+            # or plot the metric averaged over all UEs
+            else:
+                plt.errorbar(df_agent['num_ue'], df_agent[f'{metric}_mean'], yerr=df_agent[f'{metric}_std'], capsize=5,
+                             label=f'{alg}_{agent}', marker=True)
 
     # axes and legend
     plt.xlabel("Num. UEs")
@@ -204,9 +208,10 @@ def plot_histogram(df, metric, cdf=False):
 
 
 if __name__ == '__main__':
-    df = summarize_results(dir=f'{EVAL_DIR}/2020-07-24_resource-fair')
-    plot_increasing_ues(df, metric='eps_reward', filename='reward_incr_ues.pdf')
-    plot_increasing_ues(df, metric='eps_dr', filename='dr_incr_ues.pdf')
-    plot_increasing_ues(df, metric='eps_util', filename='utility_incr_ues.pdf')
-    plot_increasing_ues(df, metric='eps_unsucc_conn', filename='unsucc_conn_incr_ues.pdf')
-    plot_increasing_ues(df, metric='eps_lost_conn', filename='lost_conn_incr_ues.pdf')
+    # df = summarize_results(dir=f'{RESULT_DIR}')
+    df = summarize_results(dir=f'{EVAL_DIR}/2020-10-21_eval-draft')
+    # plot_increasing_ues(df, metric='eps_reward', filename='reward_incr_ues.pdf')
+    # plot_increasing_ues(df, metric='eps_dr', filename='dr_incr_ues.pdf')
+    plot_increasing_ues(df, metric='avg_utility', filename='utility_incr_ues.pdf')
+    # plot_increasing_ues(df, metric='eps_unsucc_conn', filename='unsucc_conn_incr_ues.pdf')
+    # plot_increasing_ues(df, metric='eps_lost_conn', filename='lost_conn_incr_ues.pdf')
