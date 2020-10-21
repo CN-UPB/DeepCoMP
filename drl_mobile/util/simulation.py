@@ -122,7 +122,9 @@ class Simulation:
 
         rllib_dir = os.path.abspath(rllib_dir)
         checkpoints = [f for f in os.listdir(rllib_dir) if f.startswith('checkpoint')]
-        last_checkpoint_dir = os.path.join(rllib_dir, checkpoints[-1])
+        # sort according to checkpoint number after '_'
+        sorted_checkpoints = sorted(checkpoints, key=lambda cp: int(cp.split('_')[-1]))
+        last_checkpoint_dir = os.path.join(rllib_dir, sorted_checkpoints[-1])
         # eg, retrieve '10' from '...PPO_MultiAgentMobileEnv_0_2020-07-14_17-28-33je5r1lov/checkpoint_10'
         last_checkpoint_no = last_checkpoint_dir.split('_')[-1]
         # construct full checkpoint path, eg, '...r1lov/checkpoint_10/checkpoint-10'
