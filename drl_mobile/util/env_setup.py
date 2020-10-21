@@ -11,6 +11,7 @@ from drl_mobile.env.entities.user import User
 from drl_mobile.env.entities.station import Basestation
 from drl_mobile.env.entities.map import Map
 from drl_mobile.env.util.movement import UniformMovement, RandomWaypoint
+from drl_mobile.util.callbacks import CustomMetricCallbacks
 
 
 def get_env_class(env_type):
@@ -152,7 +153,9 @@ def create_env_config(agent, map_size, num_slow_ues, num_fast_ues, sharing_model
     # this is for the custom NormEnv and log utility
     env_config = {
         'episode_length': eps_length, 'seed': seed, 'map': map, 'bs_list': bs_list, 'ue_list': ue_list,
-        'log_metrics': False
+        # if enabled log_metrics: log metrics even during training --> visible on tensorboard
+        # if disabled: log just during testing --> probably slightly faster training with less memory
+        'log_metrics': True
     }
 
     # create and return the config
@@ -174,6 +177,8 @@ def create_env_config(agent, map_size, num_slow_ues, num_fast_ues, sharing_model
     # config['log_level'] = 'INFO'    # ray logging default: warning
     config['env'] = env_class
     config['env_config'] = env_config
+    # callback for monitoring custom metrics
+    config['callbacks'] = CustomMetricCallbacks
 
     # for multi-agent env: https://docs.ray.io/en/latest/rllib-env.html#multi-agent-and-hierarchical
     if MultiAgentEnv in env_class.__mro__:

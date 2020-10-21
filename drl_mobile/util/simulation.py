@@ -111,9 +111,6 @@ class Simulation:
         if restore_path is not None:
             restore_path = self.get_last_checkpoint_path(restore_path)
 
-        # don't log any metrics during training; unnecessary waste of performance and memory
-        self.config['env_config']['log_metrics'] = False
-
         analysis = ray.tune.run(PPOTrainer, config=self.config, local_dir=RESULT_DIR, stop=stop_criteria,
                                 # checkpoint every 10 iterations and at the end; keep the best 10 checkpoints
                                 checkpoint_at_end=True, checkpoint_freq=10, keep_checkpoints_num=10,

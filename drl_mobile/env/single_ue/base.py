@@ -257,7 +257,7 @@ class MobileEnv(gym.Env):
                 # 'lost_conn': lost_conn,
                 # num UEs without any connection
                 # 'num_ues_wo_conn': sum([1 if len(ue.bs_dr) == 0 else 0 for ue in self.ue_list]),
-                'avg_utility': np.mean([ue.utility for ue in self.ue_list]),
+                # 'avg_utility': np.mean([ue.utility for ue in self.ue_list]),
                 'sum_utility': sum([ue.utility for ue in self.ue_list])
             },
             # vector metrics are metrics that contain a dict of values for each step with UE --> metric
