@@ -35,7 +35,6 @@ TRAIN_DIR = os.path.join(RESULT_DIR, 'PPO')
 TEST_DIR = os.path.join(RESULT_DIR, 'test')
 VIDEO_DIR = os.path.join(RESULT_DIR, 'videos')
 PLOT_DIR = os.path.join(RESULT_DIR, 'plots')
-EVAL_DIR = os.path.join(PROJECT_ROOT, 'eval')
 
 
 def create_result_dirs():

@@ -9,7 +9,12 @@ import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
 
-from drl_mobile.util.constants import TRAIN_DIR, TEST_DIR, EVAL_DIR, PLOT_DIR, RESULT_DIR
+from drl_mobile.util.constants import TRAIN_DIR, TEST_DIR, PLOT_DIR, RESULT_DIR, PROJECT_ROOT
+
+
+# assuming the b5g-results repo is checked out next to this repo
+B5G_RESULT_DIR = os.path.join(PROJECT_ROOT, os.pardir, 'b5g-results', 'drl_mobile')
+EVAL_DIR = os.path.join(B5G_RESULT_DIR, '2020-10-21_eval-draft')
 
 
 def read_training_progress(dir_name):
