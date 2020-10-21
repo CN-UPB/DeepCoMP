@@ -19,6 +19,10 @@ requirements = [
     'joblib==0.16.0',
 ]
 
+eval_requirements = [
+    'jupyter>=1.0.0'
+]
+
 # TODO: update on final release
 setup(
     name='deepcomp',
@@ -27,7 +31,7 @@ setup(
     url=None,
     packages=find_packages(),
     python_requires=">=3.8.*",
-    install_requires=requirements,
+    install_requires=requirements + eval_requirements,
     zip_safe=False,
     entry_points={
         'console_scripts': [

@@ -451,6 +451,7 @@ class Simulation:
             # create and write data frame
             df = pd.DataFrame(data)
             df.attrs = self.metadata
+            df.attrs['metric'] = metric
             df.attrs['env_config'] = self.env_config
             df.attrs['cli_args'] = self.cli_args
             dfs.append(df)
