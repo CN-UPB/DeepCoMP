@@ -109,6 +109,14 @@ def get_result_files(dir, prefix='', suffix='.csv', skip_folder='/old/'):
     return result_files
 
 
+def map_names(alg_name, agent_name):
+    """Return a name for plotting based on algorithm and agent"""
+    if alg_name == 'ppo':
+        return f'PPO {agent_name}'
+    else:
+        return alg_name
+
+
 # summarizing results from different runs
 def summarize_results(dir=EVAL_DIR, read_hist_data=False):
     """Read and summarize all results in a directory. Return a df."""
@@ -124,6 +132,8 @@ def summarize_results(dir=EVAL_DIR, read_hist_data=False):
         # copy config
         for conf in config_cols:
             data[conf].append(df[conf][0])
+        # add name for plotting
+        data['name'].append(map_names(data['alg'][-1], data['agent'][-1]))
         # summarize num ues
         num_ue = df['num_ue_slow'][0] + df['num_ue_fast'][0]
         data['num_ue'].append(num_ue)
@@ -131,9 +141,9 @@ def summarize_results(dir=EVAL_DIR, read_hist_data=False):
         # data['num_eps'].append(len(df['eps_reward']))
         # calc mean and std for all results
         for res in result_cols:
-            data[f'{res}_mean'].append(df[f'{res}_mean'])
-            data[f'{res}_std'].append(df[f'{res}_std'])
-            data[f'{res}_sum'].append(df[f'{res}_mean'] * num_ue)
+            data[f'{res}_mean'].append(float(df[f'{res}_mean']))
+            data[f'{res}_std'].append(float(df[f'{res}_std']))
+            data[f'{res}_sum'].append(float(df[f'{res}_mean'] * num_ue))
 
         # read individual data rates and utilities for histogram plotting
         if read_hist_data:
@@ -157,22 +167,25 @@ def concat_results(dir=EVAL_DIR):
     return pd.concat(dfs)
 
 
-def plot_increasing_ues(df, metric, plot_sum=True, filename=None):
+def plot_increasing_ues(df, metric, plot_sum=False, filename=None):
     """Plot results for increasing num. UEs. Takes summarized df as input."""
-    for alg in df['alg'].unique():
-        if alg == 'random':
+    for name in df['name'].unique():
+        if name == 'random':
             continue
-        df_alg = df[df['alg'] == alg]
-        for agent in df_alg['agent'].unique():
-            df_agent = df_alg[df_alg['agent'] == agent]
 
-            # plot 'metric' summed up over all UEs
-            if plot_sum:
-                plt.plot(df_agent['num_ue'], df_agent[f'{metric}_sum'], label=f'{alg}_{agent}', marker=True)
-            # or plot the metric averaged over all UEs
-            else:
-                plt.errorbar(df_agent['num_ue'], df_agent[f'{metric}_mean'], yerr=df_agent[f'{metric}_std'], capsize=5,
-                             label=f'{alg}_{agent}', marker=True)
+        df_agent = df[df['name'] == name]
+
+        # plot 'metric' summed up over all UEs
+        if plot_sum:
+            plt.plot(df_agent['num_ue'], df_agent[f'{metric}_sum'], label=name, marker=True)
+        # or plot the metric averaged over all UEs
+        else:
+            # plt.errorbar(df_agent['num_ue'], df_agent[f'{metric}_mean'], yerr=df_agent[f'{metric}_std'], capsize=5,
+            #              label=f'{alg}_{agent}', marker=True)
+            # plt.bar(df_agent['num_ue'], df_agent[f'{metric}_mean'],
+            #         label=f'{alg}_{agent}')
+            hue_order = ['PPO central', 'PPO multi', 'greedy-best', 'greedy-all', 'random']
+            sns.barplot('num_ue', f'{metric}_mean', hue='name', hue_order=hue_order, data=df_agent)
 
     # axes and legend
     plt.xlabel("Num. UEs")
