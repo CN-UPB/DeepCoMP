@@ -14,6 +14,10 @@ sudo apt update
 sudo apt upgrade
 sudo apt install cmake build-essential zlib1g-dev python3-dev
 
+# while the issues below persist
+pip install ray[rllib]
+pip install git+https://github.com/stefanbschneider/structlog.git@dev
+
 # on all systems
 python setup.py install
 ```
