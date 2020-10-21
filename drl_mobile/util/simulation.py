@@ -88,6 +88,9 @@ class Simulation:
         if restore_path is not None:
             restore_path = self.get_last_checkpoint_path(restore_path)
 
+        # don't log any metrics during training; unnecessary waste of performance and memory
+        self.config['env_config']['log_metrics'] = False
+
         analysis = ray.tune.run(PPOTrainer, config=self.config, local_dir=RESULT_DIR, stop=stop_criteria,
                                 # checkpoint every 10 iterations and at the end; keep the best 10 checkpoints
                                 checkpoint_at_end=True, checkpoint_freq=10, keep_checkpoints_num=10,
@@ -282,6 +285,7 @@ class Simulation:
         # list of rewards and metrics (which are a dict) for each time step
         rewards = []
         scalar_metrics = []
+        vector_metrics = []
 
         # no need to instantiate new env since each joblib iteration has its own copy
         # that's why we need to set the logging level again for each iteration
@@ -322,6 +326,7 @@ class Simulation:
             # save reward and metrics
             rewards.append(reward)
             scalar_metrics.append(info['scalar_metrics'])
+            vector_metrics.append(info['vector_metrics'])
 
         # create the animation
         if render is not None:
@@ -332,13 +337,11 @@ class Simulation:
         eps_duration = time.time() - eps_start
 
         self.log.debug('Episode complete', eps_duration=eps_duration, avg_step_reward=np.mean(rewards),
-                       metrics=list(scalar_metrics[0].keys()))
-        # TODO: if returning the full rewards and metrics per step consumes too much memory, aggregate them here
-        #  using scipy.stats.describe https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.describe.html
-        return eps_duration, rewards, scalar_metrics
+                       scalar_metrics=list(scalar_metrics[0].keys()), vector_metrics=list(vector_metrics[0].keys()))
+        return eps_duration, rewards, scalar_metrics, vector_metrics
 
     @staticmethod
-    def summarize_results(eps_duration, rewards, scalar_metrics):
+    def summarize_scalar_results(eps_duration, rewards, scalar_metrics):
         """
         Summarize given results into single result dict containing everything that should be logged and written to file.
 
@@ -370,7 +373,7 @@ class Simulation:
         # convert defaultdict to normal dict
         return dict(results)
 
-    def write_results(self, results):
+    def write_scalar_results(self, scalar_results):
         """Write experiment results to CSV file. Include all relevant info."""
         result_file = f'{TEST_DIR}/{self.result_filename}.csv'
         self.log.info("Writing results", file=result_file)
@@ -401,7 +404,7 @@ class Simulation:
             })
 
         # add actual results and save to file
-        data.update(results)
+        data.update(scalar_results)
         df = pd.DataFrame(data=data)
         df.to_csv(result_file)
 
@@ -421,7 +424,8 @@ class Simulation:
             self.log.warning('PPO testing and evaluation cannot be parallelized. Continuing with 1 worker.')
             self.num_workers = 1
 
-        # instantiate env and set logging level
+        # enable metrics logging, instantiate env, and set logging level
+        self.env_config['log_metrics'] = True
         env = self.env_class(self.env_config)
         if log_dict is not None:
             env.set_log_level(log_dict)
@@ -436,18 +440,19 @@ class Simulation:
         )
         # results consisting of list of tuples with (eps_duration, rewards, scalar_metrics) for each episode
         # unzip to separate lists with entries for each episode (rewards and metrics are lists of lists; for each step)
-        eps_duration, rewards, scalar_metrics = map(list, zip(*zipped_results))
+        eps_duration, rewards, scalar_metrics, vector_metrics = map(list, zip(*zipped_results))
 
         # summarize results
-        results = self.summarize_results(eps_duration, rewards, scalar_metrics)
-        self.log.info('Summarized results', results=results)
+        scalar_results = self.summarize_scalar_results(eps_duration, rewards, scalar_metrics)
+        self.log.info('Summarized results', results=scalar_results)
         self.log.info("Simulation complete", num_episodes=num_episodes, eps_length=self.episode_length,
-                      step_reward_mean=np.mean(results['step_reward_mean']),
-                      step_reward_std=np.std(results['step_reward_std']),
-                      avg_eps_reward=self.episode_length * np.mean(results['step_reward_mean']))
+                      step_reward_mean=np.mean(scalar_results['step_reward_mean']),
+                      step_reward_std=np.std(scalar_results['step_reward_std']),
+                      avg_eps_reward=self.episode_length * np.mean(scalar_results['step_reward_mean']))
 
         # write results to file
         if write_results:
-            self.write_results(results)
+            self.write_scalar_results(scalar_results)
+            # TODO: write vector results; first test if current stuff still works
 
         return rewards

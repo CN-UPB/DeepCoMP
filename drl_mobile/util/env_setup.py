@@ -151,7 +151,8 @@ def create_env_config(agent, map_size, num_slow_ues, num_fast_ues, sharing_model
     # }
     # this is for the custom NormEnv and log utility
     env_config = {
-        'episode_length': eps_length, 'seed': seed, 'map': map, 'bs_list': bs_list, 'ue_list': ue_list
+        'episode_length': eps_length, 'seed': seed, 'map': map, 'bs_list': bs_list, 'ue_list': ue_list,
+        'log_metrics': False
     }
 
     # create and return the config

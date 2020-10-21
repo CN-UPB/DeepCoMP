@@ -42,6 +42,7 @@ class MobileEnv(gym.Env):
         # seed the environment
         self.env_seed = env_config['seed']
         self.seed(env_config['seed'])
+        self.log_metrics = env_config['log_metrics']
 
         # current observation
         self.obs = None
@@ -238,12 +239,15 @@ class MobileEnv(gym.Env):
         # TODO: continuous --> there is no episode end
         # return False
 
-    def info(self, unsucc_conn, lost_conn):
+    def info(self):
         """
         Return info dict that's returned after a step. Includes info about current time step and metrics of choice.
         The metrics can be adjusted as required, but need to be structured into scalar_metrics and vector_metrics
         to be handled automatically.
         """
+        if not self.log_metrics:
+            return {'time': self.time}
+
         info_dict = {
             'time': self.time,
             # scalar metrics are metrics that consist of a single number/value per step
@@ -253,14 +257,15 @@ class MobileEnv(gym.Env):
                 # 'lost_conn': lost_conn,
                 # num UEs without any connection
                 # 'num_ues_wo_conn': sum([1 if len(ue.bs_dr) == 0 else 0 for ue in self.ue_list]),
-                'avg_utility': np.mean([ue.utility for ue in self.ue_list])
+                'avg_utility': np.mean([ue.utility for ue in self.ue_list]),
+                # 'sum_utility': sum([ue.utility for ue in self.ue_list])
             },
-            # vector metrics are metrics that contain a list of values for each step
+            # vector metrics are metrics that contain a dict of values for each step with UE --> metric
             # currently not supported (needs some adjustments in simulator)
-            # 'vector_metrics': {
-            #     'dr': {ue: ue.curr_dr for ue in self.ue_list},
-            #     'utility': {ue: ue.utility for ue in self.ue_list},
-            # }
+            'vector_metrics': {
+                # 'dr': {ue: ue.curr_dr for ue in self.ue_list},
+                'utility': {ue.id: ue.utility for ue in self.ue_list},
+            }
         }
         return info_dict
 
@@ -294,8 +299,8 @@ class MobileEnv(gym.Env):
         reward = self.step_reward(rewards)
         done = self.done()
         # dummy unsucc_conn -1 since it's currently not of interest
-        unsucc_conn = {ue: -1 for ue in self.ue_list}
-        info = self.info(unsucc_conn, lost_conn)
+        # unsucc_conn = {ue: -1 for ue in self.ue_list}
+        info = self.info()
         self.log.info("Step", time=self.time, prev_obs=prev_obs, action=action, reward=reward, next_obs=self.obs,
                       done=done)
         return self.obs, reward, done, info

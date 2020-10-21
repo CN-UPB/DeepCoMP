@@ -72,9 +72,9 @@ class MultiAgentMobileEnv(RelNormEnv, MultiAgentEnv):
         dones['__all__'] = done
         return dones
 
-    def info(self, unsucc_conn, lost_conn):
+    def info(self):
         """Return info for each UE as dict. Required by RLlib to be similar to obs."""
-        info_dict = super().info(unsucc_conn, lost_conn)
+        info_dict = super().info()
         return {ue.id: info_dict for ue in self.ue_list}
 
 
@@ -115,9 +115,9 @@ class SeqMultiAgentMobileEnv(MultiAgentMobileEnv):
         }
         return dones
 
-    def info(self, unsucc_conn, lost_conn):
+    def info(self):
         """Same for info: Only for curr UE. Then increment to next UE since it's the last operation in the step"""
-        info_dict = super(MultiAgentMobileEnv, self).info(unsucc_conn, lost_conn)
+        info_dict = super(MultiAgentMobileEnv, self).info()
         return {self.curr_ue.id: info_dict}
 
     def step(self, action):
@@ -151,7 +151,7 @@ class SeqMultiAgentMobileEnv(MultiAgentMobileEnv):
         self.obs = self.get_obs()
         reward = self.step_reward(rewards)
         done = self.done()
-        info = self.info(unsucc_conn=None, lost_conn=None)
+        info = self.info()
         self.log.info("Step", time=self.time, prev_obs=prev_obs, action=action, reward=reward, next_obs=self.obs,
                       done=done)
         return self.obs, reward, done, info
