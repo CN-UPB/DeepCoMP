@@ -26,7 +26,7 @@ def get_env_class(env_type):
         # return CentralNormDrEnv
         return CentralRelNormEnv
     if env_type == 'multi':
-        return SeqMultiAgentMobileEnv
+        return MultiAgentMobileEnv
 
 
 def create_small_map(sharing_model):
