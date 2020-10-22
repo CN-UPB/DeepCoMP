@@ -113,7 +113,7 @@ def main():
     # hyperopt = HyperOptSearch(metric='episode_reward_mean', mode='max')
 
     # add cli args to the config for saving inputs
-    sim = Simulation(config=config, agent_name=args.alg, cli_args=args, debug=False)
+    sim = Simulation(config=config, agent_name=args.alg, cli_args=args, debug=True)
 
     # train
     if train and args.alg == 'ppo':
