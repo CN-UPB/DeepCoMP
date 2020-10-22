@@ -61,6 +61,13 @@ class Simulation:
         self.log.debug('Simulation init', env=self.env_name, eps_length=self.episode_length, agent=self.agent_name,
                        multi_agent=self.multi_agent_env, num_workers=self.num_workers)
 
+    @staticmethod
+    def extract_agent_id(agent_path):
+        """Extract and return agent ID from path. Eg, 'PPO_MultiAgentMobileEnv_14c68_00000_0_2020-10-22_10-03-33'"""
+        if 'PPO_' in agent_path:
+            return [part for part in agent_path.split('/') if part.startswith('PPO_')][0]
+        return None
+
     @property
     def metadata(self):
         """Dict with metadata about the simulation"""
@@ -73,6 +80,7 @@ class Simulation:
             'alg': self.cli_args.alg,
             'agent': agent_str,
             'agent_path': self.agent_path,
+            'agent_id': self.extract_agent_id(self.agent_path),
             'env': self.env_name,
             'env_size': self.cli_args.env,
             'eps_length': self.episode_length,
