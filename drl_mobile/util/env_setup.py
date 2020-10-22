@@ -1,4 +1,5 @@
 """Utility module for setting up different envs"""
+import numpy as np
 from shapely.geometry import Point
 from ray.rllib.agents.ppo import DEFAULT_CONFIG
 from ray.rllib.env.multi_agent_env import MultiAgentEnv
@@ -45,6 +46,7 @@ def create_small_map(sharing_model):
 
 def create_medium_map(sharing_model):
     """
+    Deprecated: Use dynamic medium env instead. Kept this to reproduce earlier results.
     Same as large env, but with map restricted to areas with coverage.
     Thus, optimal episode reward should be close to num_ues * eps_length * 10 (ie, all UEs are always connected)
     """
@@ -54,6 +56,27 @@ def create_medium_map(sharing_model):
     bs3 = Basestation('C', Point(100, 85), sharing_model)
     bs_list = [bs1, bs2, bs3]
     return map, bs_list
+
+
+def create_dyn_medium_map(sharing_model, bs_distance=110, dist_to_border=10):
+    """
+    Create map with 3 BS at equal distance. Distance can be varied dynamically. Map is sized automatically.
+    Old, static medium env does not have equal distances (115 and 125).
+    Keep the same layout here: A, B on same horizontal axis. C above in the middle
+    """
+    # calculate vertical distance from A, B to C using Pythagoras
+    y_dist = np.sqrt(bs_distance**2 - (bs_distance/2)**2)
+    # derive map size from BS distance and distance to border
+    map_width = 2 * dist_to_border + bs_distance
+    map_height = 2 * dist_to_border + y_dist
+
+    map = Map(width=map_width, height=map_height)
+    # BS A is located at bottom left corner with specified distance to border
+    bs1 = Basestation('A', Point(dist_to_border, dist_to_border), sharing_model)
+    # other BS positions are derived accordingly
+    bs2 = Basestation('B', Point(dist_to_border + bs_distance, dist_to_border), sharing_model)
+    bs3 = Basestation('C', Point(dist_to_border + (bs_distance / 2), dist_to_border + y_dist), sharing_model)
+    return map, [bs1, bs2, bs3]
 
 
 def create_large_map(sharing_model):
@@ -114,7 +137,7 @@ def get_env(map_size, num_static_ues, num_slow_ues, num_fast_ues, sharing_model)
     if map_size == 'small':
         map, bs_list = create_small_map(sharing_model)
     elif map_size == 'medium':
-        map, bs_list = create_medium_map(sharing_model)
+        map, bs_list = create_dyn_medium_map(sharing_model)
     elif map_size == 'large':
         map, bs_list = create_large_map(sharing_model)
     # custom env also defines UEs --> return directly

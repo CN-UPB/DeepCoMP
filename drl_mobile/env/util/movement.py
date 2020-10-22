@@ -123,8 +123,8 @@ class RandomWaypoint(Movement):
 
     def random_waypoint(self):
         """Return a new random waypoint inside the map"""
-        x = self.rng.randint(self.border_buffer, self.map.width - self.border_buffer)
-        y = self.rng.randint(self.border_buffer, self.map.height - self.border_buffer)
+        x = self.rng.randint(self.border_buffer, int(self.map.width - self.border_buffer))
+        y = self.rng.randint(self.border_buffer, int(self.map.height - self.border_buffer))
         new_waypoint = Point(x, y)
         assert new_waypoint.within(self.map.shape), f"Waypoint {str(new_waypoint)} is outside the map!"
         return new_waypoint

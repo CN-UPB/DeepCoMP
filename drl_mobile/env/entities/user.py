@@ -76,11 +76,11 @@ class User:
         # set pos_x
         pos_x = self.init_pos_x
         if pos_x == 'random':
-            pos_x = self.rng.randint(0, self.map.width)
+            pos_x = self.rng.randint(0, int(self.map.width))
         # set pos_y
         pos_y = self.init_pos_y
         if pos_y == 'random':
-            pos_y = self.rng.randint(0, self.map.height)
+            pos_y = self.rng.randint(0, int(self.map.height))
         # set pos as Point
         self.pos = Point(pos_x, pos_y)
 
