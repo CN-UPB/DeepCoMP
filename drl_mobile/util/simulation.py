@@ -78,6 +78,7 @@ class Simulation:
             'eps_length': self.episode_length,
             'num_bs': len(self.env_config['bs_list']),
             'sharing_model': self.cli_args.sharing,
+            'num_ue_static': self.cli_args.static_ues,
             'num_ue_slow': self.cli_args.slow_ues,
             'num_ue_fast': self.cli_args.fast_ues,
         }
@@ -208,7 +209,7 @@ class Simulation:
         timestamp = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
         agent_name = type(self.agent).__name__
         env_size = self.cli_args.env
-        num_ues = self.cli_args.slow_ues + self.cli_args.fast_ues
+        num_ues = self.cli_args.static_ues + self.cli_args.slow_ues + self.cli_args.fast_ues
         self.result_filename = f'{agent_name}_{self.env_name}_{env_size}_{num_ues}UEs_{timestamp}'
 
     def save_animation(self, fig, patches, mode):
@@ -449,6 +450,7 @@ class Simulation:
             df = pd.DataFrame(data)
             df.attrs = self.metadata
             df.attrs['metric'] = metric
+            df.attrs['num_episodes'] = len(vector_metrics)
             df.attrs['env_config'] = self.env_config
             df.attrs['cli_args'] = self.cli_args
             dfs.append(df)
@@ -482,7 +484,8 @@ class Simulation:
 
         # simulate episodes in parallel; show progress with tqdm if running for more than one episode
         self.log.info('Starting evaluation', num_episodes=num_episodes, num_workers=self.num_workers,
-                      slow_ues=self.cli_args.slow_ues, fast_ues=self.cli_args.fast_ues)
+                      static_ues=self.cli_args.static_ues, slow_ues=self.cli_args.slow_ues,
+                      fast_ues=self.cli_args.fast_ues)
         # run episodes in parallel using joblib
         zipped_results = Parallel(n_jobs=self.num_workers)(
             delayed(self.run_episode)(env, render, log_dict)

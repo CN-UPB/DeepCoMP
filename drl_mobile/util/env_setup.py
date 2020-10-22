@@ -78,10 +78,13 @@ def create_large_map(sharing_model):
     return map, bs_list
 
 
-def create_ues(map, num_slow_ues, num_fast_ues):
+def create_ues(map, num_static_ues, num_slow_ues, num_fast_ues):
     """Create custom number of slow/fast UEs on the given map. Return UE list"""
     ue_list = []
     id = 1
+    for i in range(num_static_ues):
+        ue_list.append(User(str(id), map, pos_x='random', pos_y='random', movement=RandomWaypoint(map, velocity=0)))
+        id += 1
     for i in range(num_slow_ues):
         ue_list.append(User(str(id), map, pos_x='random', pos_y='random', movement=RandomWaypoint(map, velocity='slow')))
         id += 1
@@ -102,7 +105,7 @@ def create_custom_env(sharing_model):
     return map, ue_list, bs_list
 
 
-def get_env(map_size, num_slow_ues, num_fast_ues, sharing_model):
+def get_env(map_size, num_static_ues, num_slow_ues, num_fast_ues, sharing_model):
     """Create and return the environment corresponding to the given map_size"""
     assert map_size in SUPPORTED_ENVS, f"Environment {map_size} is not one of {SUPPORTED_ENVS}."
 
@@ -119,18 +122,19 @@ def get_env(map_size, num_slow_ues, num_fast_ues, sharing_model):
         return create_custom_env(sharing_model)
 
     # create UEs
-    ue_list = create_ues(map, num_slow_ues, num_fast_ues)
+    ue_list = create_ues(map, num_static_ues, num_slow_ues, num_fast_ues)
 
     return map, ue_list, bs_list
 
 
-def create_env_config(agent, map_size, num_slow_ues, num_fast_ues, sharing_model, eps_length, num_workers=1,
-                      train_batch_size=1000, seed=None, agents_share_nn=True, use_lstm=False):
+def create_env_config(agent, map_size, num_static_ues, num_slow_ues, num_fast_ues, sharing_model, eps_length,
+                      num_workers=1, train_batch_size=1000, seed=None, agents_share_nn=True, use_lstm=False):
     """
     Create environment and RLlib config. Return config.
 
     :param agent: String indicating which environment version to use based on the agent type
     :param map_size: Size of the environment (as string)
+    :param num_static_ues: Number of slow UEs in the env
     :param num_slow_ues: Number of slow UEs in the env
     :param num_fast_ues: Number of fast UEs in the env
     :param sharing_model: Sharing model used by the BS
@@ -142,7 +146,7 @@ def create_env_config(agent, map_size, num_slow_ues, num_fast_ues, sharing_model
     :return: The complete config for an RLlib agent, including the env & env_config
     """
     env_class = get_env_class(agent)
-    map, ue_list, bs_list = get_env(map_size, num_slow_ues, num_fast_ues, sharing_model)
+    map, ue_list, bs_list = get_env(map_size, num_static_ues, num_slow_ues, num_fast_ues, sharing_model)
 
     # this is for DrEnv and step utility
     # env_config = {
