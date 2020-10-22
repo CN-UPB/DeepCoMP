@@ -81,6 +81,7 @@ class Simulation:
             'num_ue_static': self.cli_args.static_ues,
             'num_ue_slow': self.cli_args.slow_ues,
             'num_ue_fast': self.cli_args.fast_ues,
+            'result_filename': self.result_filename,
         }
         return data
 
