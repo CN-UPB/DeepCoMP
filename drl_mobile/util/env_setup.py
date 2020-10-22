@@ -58,11 +58,10 @@ def create_medium_map(sharing_model):
     return map, bs_list
 
 
-def create_dyn_medium_map(sharing_model, bs_distance=110, dist_to_border=10):
+def create_dyn_medium_map(sharing_model, bs_distance=100, dist_to_border=10):
     """
     Create map with 3 BS at equal distance. Distance can be varied dynamically. Map is sized automatically.
-    Old, static medium env does not have equal distances (115 and 125).
-    Keep the same layout here: A, B on same horizontal axis. C above in the middle
+    Keep the same layout as old medium env here: A, B on same horizontal axis. C above in the middle
     """
     # calculate vertical distance from A, B to C using Pythagoras
     y_dist = np.sqrt(bs_distance**2 - (bs_distance/2)**2)
@@ -128,7 +127,7 @@ def create_custom_env(sharing_model):
     return map, ue_list, bs_list
 
 
-def get_env(map_size, num_static_ues, num_slow_ues, num_fast_ues, sharing_model):
+def get_env(map_size, bs_dist, num_static_ues, num_slow_ues, num_fast_ues, sharing_model):
     """Create and return the environment corresponding to the given map_size"""
     assert map_size in SUPPORTED_ENVS, f"Environment {map_size} is not one of {SUPPORTED_ENVS}."
 
@@ -137,7 +136,7 @@ def get_env(map_size, num_static_ues, num_slow_ues, num_fast_ues, sharing_model)
     if map_size == 'small':
         map, bs_list = create_small_map(sharing_model)
     elif map_size == 'medium':
-        map, bs_list = create_dyn_medium_map(sharing_model)
+        map, bs_list = create_dyn_medium_map(sharing_model, bs_distance=bs_dist)
     elif map_size == 'large':
         map, bs_list = create_large_map(sharing_model)
     # custom env also defines UEs --> return directly
@@ -150,13 +149,14 @@ def get_env(map_size, num_static_ues, num_slow_ues, num_fast_ues, sharing_model)
     return map, ue_list, bs_list
 
 
-def create_env_config(agent, map_size, num_static_ues, num_slow_ues, num_fast_ues, sharing_model, eps_length,
+def create_env_config(agent, map_size, bs_dist, num_static_ues, num_slow_ues, num_fast_ues, sharing_model, eps_length,
                       num_workers=1, train_batch_size=1000, seed=None, agents_share_nn=True, use_lstm=False):
     """
     Create environment and RLlib config. Return config.
 
     :param agent: String indicating which environment version to use based on the agent type
     :param map_size: Size of the environment (as string)
+    :param bs_dist: Distance between BS. Currently only supported by medium env.
     :param num_static_ues: Number of slow UEs in the env
     :param num_slow_ues: Number of slow UEs in the env
     :param num_fast_ues: Number of fast UEs in the env
@@ -169,7 +169,7 @@ def create_env_config(agent, map_size, num_static_ues, num_slow_ues, num_fast_ue
     :return: The complete config for an RLlib agent, including the env & env_config
     """
     env_class = get_env_class(agent)
-    map, ue_list, bs_list = get_env(map_size, num_static_ues, num_slow_ues, num_fast_ues, sharing_model)
+    map, ue_list, bs_list = get_env(map_size, bs_dist, num_static_ues, num_slow_ues, num_fast_ues, sharing_model)
 
     # this is for DrEnv and step utility
     # env_config = {

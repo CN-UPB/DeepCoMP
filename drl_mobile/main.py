@@ -35,6 +35,8 @@ def setup_cli():
     parser.add_argument('--lstm', action='store_true', help="Whether or not to use an LSTM cell")
     # environment
     parser.add_argument('--env', type=str, choices=SUPPORTED_ENVS, default='small', help="Env/Map size")
+    parser.add_argument('--bs-dist', type=int, default=100,
+                        help="Distance between BS. Currently only supported by medium env.")
     parser.add_argument('--eps-length', type=int, default=100, help="Number of time steps per episode")
     parser.add_argument('--static-ues', type=int, default=0, help="Number of static UEs in the environment")
     parser.add_argument('--slow-ues', type=int, default=0, help="Number of slow UEs in the environment")
@@ -84,8 +86,8 @@ def main():
         agent_path_continue = os.path.abspath(args_continue)
 
     # create RLlib config (with env inside) & simulator
-    config = create_env_config(agent=args.agent, map_size=args.env, num_static_ues=args.static_ues,
-                               num_slow_ues=args.slow_ues,
+    config = create_env_config(agent=args.agent, map_size=args.env, bs_dist=args.bs_dist,
+                               num_static_ues=args.static_ues, num_slow_ues=args.slow_ues,
                                num_fast_ues=args.fast_ues, sharing_model=args.sharing, eps_length=args.eps_length,
                                num_workers=args.workers, train_batch_size=args.batch_size, seed=args.seed,
                                agents_share_nn=not args.separate_agent_nns, use_lstm=args.lstm)
