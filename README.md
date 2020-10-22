@@ -174,7 +174,7 @@ in the [stable_baselines branch](https://github.com/CN-UPB/deep-rl-mobility-mana
 
 ## Things to Evaluate
 
-TODO: save all checkpoints and load best. not just last 10 - sometimes the agent gets a bit worse with long training
+TODO: load the best checkpoint in terms of sum utility not necessarily reward (in case of Multi PPO)?
 
 * Impact of num UEs (fixed or varying within an episode)
 * Distance between BS (density)
