@@ -44,6 +44,14 @@ def create_small_map(sharing_model):
     return map, bs_list
 
 
+def create_dyn_small_map(sharing_model, bs_dist=100, dist_to_border=10):
+    """Small env with 2 BS and dynamic distance in between"""
+    map = Map(width=2 * dist_to_border + bs_dist, height=2 * dist_to_border)
+    bs1 = Basestation('A', Point(dist_to_border, dist_to_border), sharing_model)
+    bs2 = Basestation('B', Point(dist_to_border + bs_dist, dist_to_border), sharing_model)
+    return map, [bs1, bs2]
+
+
 def create_medium_map(sharing_model):
     """
     Deprecated: Use dynamic medium env instead. Kept this to reproduce earlier results.
@@ -58,23 +66,23 @@ def create_medium_map(sharing_model):
     return map, bs_list
 
 
-def create_dyn_medium_map(sharing_model, bs_distance=100, dist_to_border=10):
+def create_dyn_medium_map(sharing_model, bs_dist=100, dist_to_border=10):
     """
     Create map with 3 BS at equal distance. Distance can be varied dynamically. Map is sized automatically.
     Keep the same layout as old medium env here: A, B on same horizontal axis. C above in the middle
     """
     # calculate vertical distance from A, B to C using Pythagoras
-    y_dist = np.sqrt(bs_distance**2 - (bs_distance/2)**2)
+    y_dist = np.sqrt(bs_dist ** 2 - (bs_dist / 2) ** 2)
     # derive map size from BS distance and distance to border
-    map_width = 2 * dist_to_border + bs_distance
+    map_width = 2 * dist_to_border + bs_dist
     map_height = 2 * dist_to_border + y_dist
 
     map = Map(width=map_width, height=map_height)
     # BS A is located at bottom left corner with specified distance to border
     bs1 = Basestation('A', Point(dist_to_border, dist_to_border), sharing_model)
     # other BS positions are derived accordingly
-    bs2 = Basestation('B', Point(dist_to_border + bs_distance, dist_to_border), sharing_model)
-    bs3 = Basestation('C', Point(dist_to_border + (bs_distance / 2), dist_to_border + y_dist), sharing_model)
+    bs2 = Basestation('B', Point(dist_to_border + bs_dist, dist_to_border), sharing_model)
+    bs3 = Basestation('C', Point(dist_to_border + (bs_dist / 2), dist_to_border + y_dist), sharing_model)
     return map, [bs1, bs2, bs3]
 
 
@@ -136,7 +144,7 @@ def get_env(map_size, bs_dist, num_static_ues, num_slow_ues, num_fast_ues, shari
     if map_size == 'small':
         map, bs_list = create_small_map(sharing_model)
     elif map_size == 'medium':
-        map, bs_list = create_dyn_medium_map(sharing_model, bs_distance=bs_dist)
+        map, bs_list = create_dyn_medium_map(sharing_model, bs_dist=bs_dist)
     elif map_size == 'large':
         map, bs_list = create_large_map(sharing_model)
     # custom env also defines UEs --> return directly
@@ -156,7 +164,7 @@ def create_env_config(agent, map_size, bs_dist, num_static_ues, num_slow_ues, nu
 
     :param agent: String indicating which environment version to use based on the agent type
     :param map_size: Size of the environment (as string)
-    :param bs_dist: Distance between BS. Currently only supported by medium env.
+    :param bs_dist: Distance between BS
     :param num_static_ues: Number of slow UEs in the env
     :param num_slow_ues: Number of slow UEs in the env
     :param num_fast_ues: Number of fast UEs in the env
