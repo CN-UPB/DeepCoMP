@@ -39,6 +39,10 @@ def setup_cli():
     parser.add_argument('--static-ues', type=int, default=0, help="Number of static UEs in the environment")
     parser.add_argument('--slow-ues', type=int, default=0, help="Number of slow UEs in the environment")
     parser.add_argument('--fast-ues', type=int, default=0, help="Number of fast UEs in the environment")
+    # could implement this simply by processing the number and increasing the static, slow, fast UEs correspondingly
+    # before passing to env creation
+    # parser.add_argument('--mixed-ues', type=int, default=0,
+    #                     help="Number of UEs in the environment, equally mixed between different movement speeds")
     parser.add_argument('--sharing', type=str, choices=SUPPORTED_SHARING, default='resource-fair',
                         help="Sharing model used by BS to split resources and/or rate among connected UEs.")
     # evaluation
