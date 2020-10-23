@@ -64,8 +64,12 @@ class Simulation:
     @staticmethod
     def extract_agent_id(agent_path):
         """Extract and return agent ID from path. Eg, 'PPO_MultiAgentMobileEnv_14c68_00000_0_2020-10-22_10-03-33'"""
-        if agent_path is not None and 'PPO_' in agent_path:
-            return [part for part in agent_path.split('/') if part.startswith('PPO_')][0]
+        if agent_path is not None:
+            # walk through parts of path and return the one starting with 'PPO_'
+            parts = os.path.normpath(agent_path).split(os.sep)
+            for p in parts:
+                if p.startswith('PPO_'):
+                    return p
         return None
 
     @property
@@ -507,7 +511,9 @@ class Simulation:
 
         # summarize results
         scalar_results = self.summarize_scalar_results(eps_duration, rewards, scalar_metrics)
-        self.log.info('Summarized results', results=scalar_results)
+        mean_results = {metric: np.mean(results) for metric, results in scalar_results.items()}
+        self.log.info('Scalar results', results=scalar_results)
+        self.log.info('Mean results', results=mean_results)
         self.log.info("Simulation complete", num_episodes=num_episodes, eps_length=self.episode_length,
                       step_reward_mean=np.mean(scalar_results['step_reward_mean']),
                       step_reward_std=np.std(scalar_results['step_reward_std']),
