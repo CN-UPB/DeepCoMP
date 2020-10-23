@@ -47,6 +47,8 @@ def setup_cli():
     parser.add_argument('--sharing', type=str, choices=SUPPORTED_SHARING, default='resource-fair',
                         help="Sharing model used by BS to split resources and/or rate among connected UEs.")
     # evaluation
+    parser.add_argument('--rand-train', action='store_true', help="Randomize training episodes.")
+    parser.add_argument('--rand-test', action='store_true', help="Randomize testing and evaluation episodes.")
     parser.add_argument('--test', type=str, help="Test trained agent at given path (auto. loads last checkpoint)")
     parser.add_argument('--video', type=str, choices=SUPPORTED_RENDER, default='html',
                         help="How (and whether) to render the testing video.")
@@ -89,7 +91,8 @@ def main():
                                num_static_ues=args.static_ues, num_slow_ues=args.slow_ues,
                                num_fast_ues=args.fast_ues, sharing_model=args.sharing, eps_length=args.eps_length,
                                num_workers=args.workers, train_batch_size=args.batch_size, seed=args.seed,
-                               agents_share_nn=not args.separate_agent_nns, use_lstm=args.lstm)
+                               agents_share_nn=not args.separate_agent_nns, use_lstm=args.lstm,
+                               rand_episodes=args.rand_train)
 
     # for sequential multi agent env
     config['no_done_at_end'] = True

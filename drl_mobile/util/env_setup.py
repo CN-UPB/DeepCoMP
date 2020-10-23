@@ -158,7 +158,8 @@ def get_env(map_size, bs_dist, num_static_ues, num_slow_ues, num_fast_ues, shari
 
 
 def create_env_config(agent, map_size, bs_dist, num_static_ues, num_slow_ues, num_fast_ues, sharing_model, eps_length,
-                      num_workers=1, train_batch_size=1000, seed=None, agents_share_nn=True, use_lstm=False):
+                      num_workers=1, train_batch_size=1000, seed=None, agents_share_nn=True, use_lstm=False,
+                      rand_episodes=False):
     """
     Create environment and RLlib config. Return config.
 
@@ -174,6 +175,7 @@ def create_env_config(agent, map_size, bs_dist, num_static_ues, num_slow_ues, nu
     :param train_batch_size: Number of sampled env steps in a single training iteration
     :param seed: Seed for reproducible results
     :param agents_share_nn: Whether all agents in a multi-agent env should share the same NN or have separate copies
+    :param rand_episodes: Whether to randomize episodes rather than having always the same fixed episode re-seeded
     :return: The complete config for an RLlib agent, including the env & env_config
     """
     env_class = get_env_class(agent)
@@ -188,6 +190,7 @@ def create_env_config(agent, map_size, bs_dist, num_static_ues, num_slow_ues, nu
     # this is for the custom NormEnv and log utility
     env_config = {
         'episode_length': eps_length, 'seed': seed, 'map': map, 'bs_list': bs_list, 'ue_list': ue_list,
+        'rand_episodes': rand_episodes,
         # if enabled log_metrics: log metrics even during training --> visible on tensorboard
         # if disabled: log just during testing --> probably slightly faster training with less memory
         'log_metrics': True
