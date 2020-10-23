@@ -64,7 +64,7 @@ class Simulation:
     @staticmethod
     def extract_agent_id(agent_path):
         """Extract and return agent ID from path. Eg, 'PPO_MultiAgentMobileEnv_14c68_00000_0_2020-10-22_10-03-33'"""
-        if 'PPO_' in agent_path:
+        if agent_path is not None and 'PPO_' in agent_path:
             return [part for part in agent_path.split('/') if part.startswith('PPO_')][0]
         return None
 
