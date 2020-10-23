@@ -49,6 +49,8 @@ def setup_cli():
     # evaluation
     parser.add_argument('--rand-train', action='store_true', help="Randomize training episodes.")
     parser.add_argument('--rand-test', action='store_true', help="Randomize testing and evaluation episodes.")
+    parser.add_argument('--fixed-rand-eval', action='store_true',
+                        help="Evaluate once with fixed episodes and then again with random episodes.")
     parser.add_argument('--test', type=str, help="Test trained agent at given path (auto. loads last checkpoint)")
     parser.add_argument('--video', type=str, choices=SUPPORTED_RENDER, default='html',
                         help="How (and whether) to render the testing video.")
@@ -59,6 +61,7 @@ def setup_cli():
     log.info('CLI args', args=args)
 
     assert getattr(args, 'continue') is None or args.test is None, "Use either --continue or --test, not both."
+    assert args.rand_test is False or args.fixed_rand_eval is False, "Use either --rand-test or --fixed-rand-eval."
     return args
 
 
@@ -132,11 +135,20 @@ def main():
         # 'drl_mobile.env.entities.user': logging.DEBUG,
         # 'drl_mobile.env.entities.station': logging.DEBUG
     }
+    # set episode randomization for testing and evaluation according to CLI arg
+    sim.env_config['rand_episodes'] = args.rand_test
     sim.run(render=args.video, log_dict=log_dict)
 
     # evaluate over multiple episodes
     if args.eval > 0:
         sim.run(num_episodes=args.eval, write_results=True)
+
+        # evaluate again with toggled episode randomization if --fixed-rand-eval
+        if args.fixed_rand_eval:
+            log.info('Evaluating again with toggled episode randomization', rand_episodes=not args.rand_test)
+            sim.env_config['rand_episodes'] = not args.rand_test
+            sim.run(num_episodes=args.eval, write_results=True)
+
     log.info('Finished', agent=agent_path)
 
 

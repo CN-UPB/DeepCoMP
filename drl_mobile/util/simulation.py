@@ -491,7 +491,7 @@ class Simulation:
 
         # enable metrics logging, configure episode randomization, instantiate env, and set logging level
         self.env_config['log_metrics'] = True
-        self.env_config['rand_episodes'] = self.cli_args.rand_test
+        # self.env_config['rand_episodes'] = self.cli_args.rand_test
         env = self.env_class(self.env_config)
         if log_dict is not None:
             env.set_log_level(log_dict)
