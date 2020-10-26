@@ -450,7 +450,7 @@ class Simulation:
         for metric in metrics:
             # init dict with empty lists
             data = {'episode': [], 'time_step': []}
-            ues = list(vector_metrics[0][0][metric].keys())
+            ues = list(vector_metrics[-1][-1][metric].keys())
             for ue in ues:
                 data[ue] = []
 
@@ -460,8 +460,11 @@ class Simulation:
                     data['episode'].append(eps)
                     data['time_step'].append(step)
                     metric_dict = step_dict[metric]
-                    for ue, ue_metric in metric_dict.items():
-                        data[ue].append(ue_metric)
+                    for ue in ues:
+                        if ue in metric_dict:
+                            data[ue].append(metric_dict[ue])
+                        else:
+                            data[ue].append(None)
 
             # create and write data frame
             df = pd.DataFrame(data)
