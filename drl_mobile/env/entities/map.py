@@ -15,10 +15,10 @@ class Map:
         :param width: Width of the map
         :param height: Height of the map
         """
-        self.width = width
-        self.height = height
+        self.width = int(width)
+        self.height = int(height)
         self.diagonal = np.sqrt(self.width**2 + self.height**2)
-        self.shape = Polygon([(0,0), (0, height), (width, height), (width, 0)])
+        self.shape = Polygon([(0,0), (0, self.height), (self.width, self.height), (self.width, 0)])
         # own RNG for reproducibility; global random shares state that's manipulated by RL during training
         self.rng = random.Random()
 
