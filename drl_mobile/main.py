@@ -64,7 +64,7 @@ def setup_cli():
 
     assert getattr(args, 'continue') is None or args.test is None, "Use either --continue or --test, not both."
     assert args.rand_test is False or args.fixed_rand_eval is False, "Use either --rand-test or --fixed-rand-eval."
-    assert not (args.cont_train and args.rand_train), "Either train continuously or with random episodes."
+    # assert not (args.cont_train and args.rand_train), "Either train continuously or with random episodes."
     return args
 
 

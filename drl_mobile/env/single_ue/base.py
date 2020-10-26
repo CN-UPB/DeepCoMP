@@ -286,6 +286,10 @@ class MobileEnv(gym.Env):
         """
         prev_obs = self.obs
 
+        # new UEs join every 10 steps
+        if self.time > 0 and self.time % 20 == 0:
+            self.add_new_ue()
+
         # perform step: get & apply action, move UEs, update data rates and rewards in between; increment time
         action_dict = self.get_ue_actions(action)
         penalties = self.apply_ue_actions(action_dict)
