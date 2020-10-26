@@ -49,7 +49,7 @@ def setup_cli():
                         help="Sharing model used by BS to split resources and/or rate among connected UEs.")
     # evaluation
     parser.add_argument('--rand-train', action='store_true', help="Randomize training episodes.")
-    parser.add_argument('--cont-train', action='store_true', help="Continuous training without resetting.")
+    # parser.add_argument('--cont-train', action='store_true', help="Continuous training without resetting.")
     parser.add_argument('--rand-test', action='store_true', help="Randomize testing and evaluation episodes.")
     parser.add_argument('--fixed-rand-eval', action='store_true',
                         help="Evaluate once with fixed episodes and then again with random episodes.")
@@ -106,10 +106,10 @@ def main():
     # config['no_done_at_end'] = True
 
     # TODO: for continuous setting with fixed horizon
-    if args.cont_train:
-        config['horizon'] = args.eps_length
-        config['soft_horizon'] = True
-        config['no_done_at_end'] = True
+    # if args.cont_train:
+    #     config['horizon'] = args.eps_length
+    #     config['soft_horizon'] = True
+    #     config['no_done_at_end'] = True
 
     # TODO: hyper-param search; probably easiest with simple grid search
     # default ppo params: https://docs.ray.io/en/latest/rllib-algorithms.html#proximal-policy-optimization-ppo

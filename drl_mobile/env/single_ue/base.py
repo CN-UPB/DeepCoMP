@@ -106,7 +106,6 @@ class MobileEnv(gym.Env):
 
     def reset(self):
         """Reset environment by resetting time and all UEs (pos & movement) and their connections"""
-        self.log.warning('Env reset', time=self.time)
         if not self.rand_episodes:
             # seed again before every reset --> always run same episodes. agent behavior may still differ
             self.seed(self.env_seed)
@@ -237,9 +236,9 @@ class MobileEnv(gym.Env):
 
         :return: Whether the current episode is done or not
         """
-        # return self.time >= self.episode_length
+        return self.time >= self.episode_length
         # TODO: continuous --> there is no episode end
-        return False
+        # return False
 
     def info(self):
         """
