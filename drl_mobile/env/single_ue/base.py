@@ -1,4 +1,5 @@
 """Base mobile environment. Implemented and extended by sublcasses."""
+import copy
 import random
 import logging
 
@@ -41,6 +42,9 @@ class MobileEnv(gym.Env):
         self.map = env_config['map']
         self.bs_list = env_config['bs_list']
         self.ue_list = env_config['ue_list']
+        # keep a copy of the original list, so it can easily be restored in reset()
+        # shallow copy. If I just assign, it points to the same object. If I deepcopy, it copies and generates new UEs
+        self.original_ue_list = copy.copy(env_config['ue_list'])
         # seed the environment
         self.env_seed = env_config['seed']
         self.seed(env_config['seed'])
@@ -115,6 +119,15 @@ class MobileEnv(gym.Env):
             self.seed(self.env_seed)
 
         self.time = 0
+        # reset UE list to avoid growing it infinitely
+        old_list = self.ue_list
+        self.ue_list = copy.copy(self.original_ue_list)
+        # delete UEs that are no longer on the list
+        for ue in set(old_list) - set(self.ue_list):
+            del ue
+        del old_list
+
+        # reset all UEs and BS
         for ue in self.ue_list:
             ue.reset()
         for bs in self.bs_list:
