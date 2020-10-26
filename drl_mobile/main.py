@@ -29,6 +29,7 @@ def setup_cli():
     parser.add_argument('--train-steps', type=int, default=None, help="Max. number of training time steps (if any)")
     parser.add_argument('--train-iter', type=int, default=None, help="Max. number of training iterations (if any)")
     parser.add_argument('--target-reward', type=int, default=None, help="Target mean episode reward for training")
+    parser.add_argument('--target-utility', type=int, default=None, help="Target mean sum utility for training")
     parser.add_argument('--continue', type=str, help="Continue training agent at given path (loads last checkpoint")
     parser.add_argument('--separate-agent-nns', action='store_true',
                         help="Only relevant for multi-agent RL. Use separate NNs for each agent instead of sharing.")
@@ -79,6 +80,8 @@ def main():
         stop_criteria['training_iteration'] = args.train_iter
     if args.target_reward is not None:
         stop_criteria['episode_reward_mean'] = args.target_reward
+    if args.target_utility is not None:
+        stop_criteria['custom_metrics/sum_utility_mean'] = args.target_utility
 
     # train or load trained agent; only set train=True for ppo agent
     train = args.test is None
