@@ -52,7 +52,7 @@ def setup_cli():
     parser.add_argument('--fixed-rand-eval', action='store_true',
                         help="Evaluate once with fixed episodes and then again with random episodes.")
     parser.add_argument('--test', type=str, help="Test trained agent at given path (auto. loads last checkpoint)")
-    parser.add_argument('--video', type=str, choices=SUPPORTED_RENDER, default='html',
+    parser.add_argument('--video', type=str, choices=SUPPORTED_RENDER, default=None,
                         help="How (and whether) to render the testing video.")
     parser.add_argument('--eval', type=int, default=0, help="Number of evaluation episodes after testing")
     parser.add_argument('--seed', type=int, default=None, help="Seed for the RNG (algorithms and environment)")
