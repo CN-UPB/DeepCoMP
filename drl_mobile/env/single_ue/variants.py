@@ -226,7 +226,7 @@ class NormDrMobileEnv(BinaryMobileEnv):
         dr_total = [min(ue.curr_dr, self.dr_cutoff) / self.dr_cutoff]
 
         # total data rate per BS (normalized)
-        # FIXME: very inefficient to calculate this anew for each UE even though it's the same each time
+        # very inefficient to calculate this anew for each UE even though it's the same each time
         # bs_total_dr = []
         # for bs in self.bs_list:
         #     dr_clip = min(bs.total_data_rate, self.dr_cutoff)
