@@ -224,7 +224,9 @@ class Simulation:
         agent_name = type(self.agent).__name__
         env_size = self.cli_args.env
         num_ues = self.cli_args.static_ues + self.cli_args.slow_ues + self.cli_args.fast_ues
-        self.result_filename = f'{agent_name}_{self.env_name}_{env_size}_{num_ues}UEs_{timestamp}'
+        train = 'rand' if self.cli_args.rand_train else 'fixed'
+        test = 'rand' if self.cli_args.rand_test else 'fixed'
+        self.result_filename = f'{agent_name}_{self.env_name}_{env_size}_{num_ues}UEs_{timestamp}_{train}-{test}'
 
     def save_animation(self, fig, patches, mode):
         """
@@ -419,7 +421,8 @@ class Simulation:
             data.update({
                 'train_steps': self.cli_args.train_steps,
                 'train-iter': self.cli_args.train_iter,
-                'target_reward': self.cli_args.target_reward
+                'target_reward': self.cli_args.target_reward,
+                'target-utility': self.cli_args.target_utility,
             })
 
         # add actual results and save to file
@@ -466,7 +469,7 @@ class Simulation:
             df.attrs['metric'] = metric
             df.attrs['num_episodes'] = len(vector_metrics)
             df.attrs['env_config'] = self.env_config
-            df.attrs['cli_args'] = self.cli_args
+            df.attrs['cli_args'] = vars(self.cli_args)
             dfs.append(df)
             result_file = f'{TEST_DIR}/{self.result_filename}_{metric}.pkl'
             self.log.info('Writing vector results', metric=metric, file=result_file)
@@ -492,7 +495,7 @@ class Simulation:
 
         # enable metrics logging, configure episode randomization, instantiate env, and set logging level
         self.env_config['log_metrics'] = True
-        # self.env_config['rand_episodes'] = self.cli_args.rand_test
+        self.env_config['rand_episodes'] = self.cli_args.rand_test
         env = self.env_class(self.env_config)
         if log_dict is not None:
             env.set_log_level(log_dict)

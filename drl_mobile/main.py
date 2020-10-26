@@ -139,7 +139,6 @@ def main():
         # 'drl_mobile.env.entities.station': logging.DEBUG
     }
     # set episode randomization for testing and evaluation according to CLI arg
-    sim.env_config['rand_episodes'] = args.rand_test
     sim.run(render=args.video, log_dict=log_dict)
 
     # evaluate over multiple episodes
@@ -149,7 +148,10 @@ def main():
         # evaluate again with toggled episode randomization if --fixed-rand-eval
         if args.fixed_rand_eval:
             log.info('Evaluating again with toggled episode randomization', rand_episodes=not args.rand_test)
-            sim.env_config['rand_episodes'] = not args.rand_test
+            # set changed testing mode which is then saved to the data frame
+            sim.cli_args.rand_test = not args.rand_test
+            # make new result filename to avoid overwriting the existing one
+            sim.set_result_filename()
             sim.run(num_episodes=args.eval, write_results=True)
 
     log.info('Finished', agent=agent_path)
