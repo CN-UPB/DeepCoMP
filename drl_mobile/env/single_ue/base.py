@@ -12,6 +12,8 @@ import matplotlib.patheffects as pe
 
 from drl_mobile.util.logs import config_logging
 from drl_mobile.env.util.utility import step_utility, log_utility
+from drl_mobile.env.entities.user import User
+from drl_mobile.env.util.movement import RandomWaypoint
 
 
 class MobileEnv(gym.Env):
@@ -75,7 +77,9 @@ class MobileEnv(gym.Env):
     def seed(self, seed=None):
         if seed is not None:
             random.seed(seed)
-            # seed the RNG of all UEs
+            # seed RNG of map (used to generate new UEs' arrival points)
+            self.map.seed(seed)
+            # seed the RNG of all UEs (which themselves seed their movement)
             offset = 0
             for ue in self.ue_list:
                 # add an offset to each UE's seed to avoid that all UEs have the same "random" pos and movement
@@ -346,3 +350,16 @@ class MobileEnv(gym.Env):
         # if self.time == 0:
         #     plt.legend(loc='upper left')
         return patch
+
+    def add_new_ue(self, velocity='slow'):
+        """Simulate arrival of a new UE in the env"""
+        # choose ID based on last UE's ID; assuming it can be cast to int
+        id = int(self.ue_list[-1].id) + 1
+        # choose a random position on the border of the map for the UE to appear
+        pos = self.map.rand_border_point()
+        new_ue = User(str(id), self.map, pos.x, pos.y, movement=RandomWaypoint(self.map, velocity=velocity))
+
+        # seed with fixed but unique seed to have different movement
+        new_ue.seed(self.env_seed + id)
+        self.ue_list.append(new_ue)
+        # TODO: test adn debug
