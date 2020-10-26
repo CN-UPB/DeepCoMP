@@ -9,6 +9,6 @@ eval=$5
 echo Num workers: $num_workers, Num. UEs: num_ues, Agent: $agent, Train steps: $train_steps, Eval episodes: $eval
 
 # train with fixed episodes and test on both fixed and rand
-deepcomp --seed 42 --workers $num_workers --train-steps $train_steps --agent $agent --env medium --slow-ues $num_ues --eval $eval --fixed-rand-eval
+deepcomp --seed 42 --workers $num_workers --train-steps $train_steps --agent $agent --env medium --slow-ues $num_ues --eval $eval --fixed-rand-eval --video html
 # train with rand episodes and test on both
-deepcomp --seed 42 --workers $num_workers --train-steps $train_steps --agent $agent --env medium --slow-ues $num_ues --eval $eval --rand-train --fixed-rand-eval
+deepcomp --seed 42 --workers $num_workers --train-steps $train_steps --agent $agent --env medium --slow-ues $num_ues --eval $eval --rand-train --fixed-rand-eval --video html

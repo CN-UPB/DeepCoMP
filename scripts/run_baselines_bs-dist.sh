@@ -12,7 +12,7 @@ echo Num UEs: $num_ues, Min dist: $min_dist, Max dist: $max_dist, Step dist: $st
 for dist in $(seq $min_dist $step_dist $max_dist)
 do
   echo Dist: $dist
-  deepcomp --seed 42 --eps-length 100 --alg random --agent central --env medium --bs-dist $dist --slow-ues $num_ues --sharing resource-fair --eval $num_eval
-  deepcomp --seed 42 --eps-length 100 --alg greedy-best --agent multi --env medium --bs-dist $dist --slow-ues $num_ues --sharing resource-fair --eval $num_eval
-  deepcomp --seed 42 --eps-length 100 --alg greedy-all --agent multi --env medium --bs-dist $dist --slow-ues $num_ues --sharing resource-fair --eval $num_eval
+  deepcomp --seed 42 --eps-length 100 --alg random --agent central --env medium --bs-dist $dist --slow-ues $num_ues --eval $num_eval --video html
+  deepcomp --seed 42 --eps-length 100 --alg greedy-best --agent multi --env medium --bs-dist $dist --slow-ues $num_ues --eval $num_eval --video html
+  deepcomp --seed 42 --eps-length 100 --alg greedy-all --agent multi --env medium --bs-dist $dist --slow-ues $num_ues --eval $num_eval --video html
 done

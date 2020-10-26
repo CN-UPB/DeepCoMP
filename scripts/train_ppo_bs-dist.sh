@@ -14,5 +14,5 @@ echo Num workers: $num_workers, Num UEs: $num_ues, Min dist: $min_dist, Max dist
 for dist in $(seq $min_dist $step_dist $max_dist)
 do
   echo Dist: $dist
-  deepcomp --seed 42 --workers $num_workers --eps-length 100 --train-steps $train_steps --alg ppo --agent $agent --env medium --bs-dist $dist --slow-ues $num_ues --sharing resource-fair --eval 1
+  deepcomp --seed 42 --workers $num_workers --eps-length 100 --train-steps $train_steps --alg ppo --agent $agent --env medium --bs-dist $dist --slow-ues $num_ues --eval 1 --video html
 done

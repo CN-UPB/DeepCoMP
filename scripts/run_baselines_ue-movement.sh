@@ -9,7 +9,7 @@ echo Num UEs: $num_ues, Num eval: $num_eval
 for movement in static-ues slow-ues fast-ues
 do
   echo UEs: --$movement $num_ues
-  deepcomp --seed 42 --eps-length 100 --alg random --agent central --env medium --$movement $num_ues --sharing resource-fair --eval $num_eval
-  deepcomp --seed 42 --eps-length 100 --alg greedy-best --agent multi --env medium --$movement $num_ues --sharing resource-fair --eval $num_eval
-  deepcomp --seed 42 --eps-length 100 --alg greedy-all --agent multi --env medium --$movement $num_ues --sharing resource-fair --eval $num_eval
+  deepcomp --seed 42 --eps-length 100 --alg random --agent central --env medium --$movement $num_ues --eval $num_eval --video html
+  deepcomp --seed 42 --eps-length 100 --alg greedy-best --agent multi --env medium --$movement $num_ues --eval $num_eval --video html
+  deepcomp --seed 42 --eps-length 100 --alg greedy-all --agent multi --env medium --$movement $num_ues --eval $num_eval --video html
 done
