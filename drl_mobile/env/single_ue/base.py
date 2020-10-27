@@ -45,6 +45,7 @@ class MobileEnv(gym.Env):
         # keep a copy of the original list, so it can easily be restored in reset()
         # shallow copy. If I just assign, it points to the same object. If I deepcopy, it copies and generates new UEs
         self.original_ue_list = copy.copy(env_config['ue_list'])
+        self.new_ue_interval = env_config['new_ue_interval']
         # seed the environment
         self.env_seed = env_config['seed']
         self.seed(env_config['seed'])
@@ -299,8 +300,8 @@ class MobileEnv(gym.Env):
         """
         prev_obs = self.obs
 
-        # new UEs join every 10 steps
-        if self.time > 0 and self.time % 20 == 0:
+        # add new UE according to configured interval
+        if self.new_ue_interval is not None and self.time > 0 and self.time % self.new_ue_interval == 0:
             self.add_new_ue()
 
         # perform step: get & apply action, move UEs, update data rates and rewards in between; increment time

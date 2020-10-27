@@ -157,29 +157,16 @@ def get_env(map_size, bs_dist, num_static_ues, num_slow_ues, num_fast_ues, shari
     return map, ue_list, bs_list
 
 
-def create_env_config(agent, map_size, bs_dist, num_static_ues, num_slow_ues, num_fast_ues, sharing_model, eps_length,
-                      num_workers=1, train_batch_size=1000, seed=None, agents_share_nn=True, use_lstm=False,
-                      rand_episodes=False):
+def create_env_config(cli_args):
     """
-    Create environment and RLlib config. Return config.
+    Create environment and RLlib config based on passed CLI args. Return config.
 
-    :param agent: String indicating which environment version to use based on the agent type
-    :param map_size: Size of the environment (as string)
-    :param bs_dist: Distance between BS
-    :param num_static_ues: Number of slow UEs in the env
-    :param num_slow_ues: Number of slow UEs in the env
-    :param num_fast_ues: Number of fast UEs in the env
-    :param sharing_model: Sharing model used by the BS
-    :param eps_length: Number of time steps per episode (parameter of the environment)
-    :param num_workers: Number of RLlib workers for training. For longer training, num_workers = cpu_cores-1 makes sense
-    :param train_batch_size: Number of sampled env steps in a single training iteration
-    :param seed: Seed for reproducible results
-    :param agents_share_nn: Whether all agents in a multi-agent env should share the same NN or have separate copies
-    :param rand_episodes: Whether to randomize episodes rather than having always the same fixed episode re-seeded
+    :param cli_args: Parsed CLI args
     :return: The complete config for an RLlib agent, including the env & env_config
     """
-    env_class = get_env_class(agent)
-    map, ue_list, bs_list = get_env(map_size, bs_dist, num_static_ues, num_slow_ues, num_fast_ues, sharing_model)
+    env_class = get_env_class(cli_args.agent)
+    map, ue_list, bs_list = get_env(cli_args.env, cli_args.bs_dist, cli_args.static_ues, cli_args.slow_ues,
+                                    cli_args.fast_ues, cli_args.sharing)
 
     # this is for DrEnv and step utility
     # env_config = {
@@ -189,8 +176,8 @@ def create_env_config(agent, map_size, bs_dist, num_static_ues, num_slow_ues, nu
     # }
     # this is for the custom NormEnv and log utility
     env_config = {
-        'episode_length': eps_length, 'seed': seed, 'map': map, 'bs_list': bs_list, 'ue_list': ue_list,
-        'rand_episodes': rand_episodes,
+        'episode_length': cli_args.eps_length, 'seed': cli_args.seed, 'map': map, 'bs_list': bs_list, 'ue_list': ue_list,
+        'rand_episodes': cli_args.rand_train, 'new_ue_interval': cli_args.new_ue_interval,
         # if enabled log_metrics: log metrics even during training --> visible on tensorboard
         # if disabled: log just during testing --> probably slightly faster training with less memory
         'log_metrics': True
@@ -199,18 +186,18 @@ def create_env_config(agent, map_size, bs_dist, num_static_ues, num_slow_ues, nu
     # create and return the config
     config = DEFAULT_CONFIG.copy()
     # 0 = no workers/actors at all --> low overhead for short debugging; 2+ workers to accelerate long training
-    config['num_workers'] = num_workers
-    config['seed'] = seed
+    config['num_workers'] = cli_args.workers
+    config['seed'] = cli_args.seed
     # write training stats to file under ~/ray_results (default: False)
     config['monitor'] = True
-    config['train_batch_size'] = train_batch_size        # default: 4000; default in stable_baselines: 128
+    config['train_batch_size'] = cli_args.batch_size        # default: 4000; default in stable_baselines: 128
     # auto normalize obserations by subtracting mean and dividing by std (default: "NoFilter")
     # config['observation_filter'] = "MeanStdFilter"
     # NN settings: https://docs.ray.io/en/latest/rllib-models.html#built-in-model-parameters
     # configure the size of the neural network's hidden layers
     # config['model']['fcnet_hiddens'] = [100, 100]
     # LSTM settings
-    config['model']['use_lstm'] = use_lstm
+    config['model']['use_lstm'] = cli_args.lstm
     # config['model']['lstm_use_prev_action_reward'] = True
     # config['log_level'] = 'INFO'    # ray logging default: warning
     config['env'] = env_class
@@ -223,19 +210,19 @@ def create_env_config(agent, map_size, bs_dist, num_static_ues, num_slow_ues, nu
         # instantiate env to access obs and action space
         env = env_class(env_config)
 
-        # all UEs use the same policy and NN
-        if agents_share_nn:
-            config['multiagent'] = {
-                'policies': {'ue': (None, env.observation_space, env.action_space, {})},
-                'policy_mapping_fn': lambda agent_id: 'ue'
-            }
-        # or: use separate policies (and NNs) for each agent
-        else:
+        # use separate policies (and NNs) for each agent
+        if cli_args.separate_agent_nns:
             config['multiagent'] = {
                 # attention: ue.id needs to be a string! just casting it to str() here doesn't work;
                 # needs to be consistent with obs keys --> easier, just use string IDs
                 'policies': {ue.id: (None, env.observation_space, env.action_space, {}) for ue in ue_list},
                 'policy_mapping_fn': lambda agent_id: agent_id
+            }
+        # or: all UEs use the same policy and NN
+        else:
+            config['multiagent'] = {
+                'policies': {'ue': (None, env.observation_space, env.action_space, {})},
+                'policy_mapping_fn': lambda agent_id: 'ue'
             }
 
     return config
