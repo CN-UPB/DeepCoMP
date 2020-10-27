@@ -15,9 +15,19 @@ class CentralBaseEnv(MobileEnv):
     def __init__(self, env_config):
         super().__init__(env_config)
 
+        # if the number of UEs varies over time, the action space needs to be large enough to control all UEs
+        self.max_ues = self.num_ue
+        if self.new_ue_interval is not None:
+            # calculate the max number of UEs if one new UE is added at a given interval
+            # eps_length - 1 because time is increased before checking done and t=eps_length is never reached
+            self.max_ues = self.num_ue + int((self.episode_length - 1) / self.new_ue_interval)
+            self.log.warning('Num. UEs varies over time. Setting action and observation space for max. number of UEs.',
+                             new_ue_interval=self.new_ue_interval, num_ues=self.num_ue, max_ues=self.max_ues,
+                             episode_length=self.episode_length)
+
         # observation space to be defined in sub classes!
         # actions: FOR EACH UE: select a BS to be connected to/disconnect from or noop
-        self.action_space = gym.spaces.MultiDiscrete([self.num_bs + 1 for _ in range(self.num_ue)])
+        self.action_space = gym.spaces.MultiDiscrete([self.num_bs + 1 for _ in range(self.max_ues)])
 
     # overwrite modular functions used within step that are different in the centralized case
     def get_obs(self):
@@ -28,12 +38,24 @@ class CentralBaseEnv(MobileEnv):
             ue_obs = super().get_ue_obs(ue)
             # extend central obs
             for key in self.observation_space.spaces.keys():
-                # handle Discrete or Binary obs
+                # handle Discrete or Binary obs --> single number
                 if type(ue_obs[key]) == int:
                     obs[key].append(ue_obs[key])
-                # remaining Box or MultiDiscrete/Binary obs
+                # remaining Box or MultiDiscrete/Binary obs --> vector/list
                 else:
                     obs[key].extend(ue_obs[key])
+
+        # to support variable numbers of UEs, pad observations with zeros for all non-existing UEs
+        # since the observations need a fixed length, which is set to the max. number of UEs
+        if self.num_ue < self.max_ues:
+            num_ue_missing = self.max_ues - self.num_ue
+            for obs_name, obs_space in self.observation_space.spaces.items():
+                # get the number of obs per UE by looking at the shape and dividing it by num UEs
+                assert obs_space.shape[0] % self.max_ues == 0, f"{obs_name} does not have a fixed number of obs per UE"
+                obs_per_ue = obs_space.shape[0] / self.max_ues
+                # append zeros for the missing UEs
+                obs[obs_name].extend([0 for _ in range(int(num_ue_missing * obs_per_ue))])
+
         return obs
 
     def get_ue_actions(self, action):
@@ -117,9 +139,10 @@ class CentralNormDrEnv(CentralBaseEnv, NormDrMobileEnv):
 class CentralRelNormEnv(CentralBaseEnv, RelNormEnv):
     def __init__(self, env_config):
         super().__init__(env_config)
+        # use max. number of UEs instead of actual number to support varying numbers of UEs
         obs_space = {
-            'connected': gym.spaces.MultiBinary(self.num_ue * self.num_bs),
-            'dr': gym.spaces.Box(low=0, high=1, shape=(self.num_ue * self.num_bs,)),
-            'utility': gym.spaces.Box(low=-1, high=1, shape=(self.num_ue,)),
+            'connected': gym.spaces.MultiBinary(self.max_ues * self.num_bs),
+            'dr': gym.spaces.Box(low=0, high=1, shape=(self.max_ues * self.num_bs,)),
+            'utility': gym.spaces.Box(low=-1, high=1, shape=(self.max_ues,)),
         }
         self.observation_space = gym.spaces.Dict(obs_space)
