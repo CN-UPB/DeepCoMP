@@ -200,6 +200,8 @@ def create_env_config(cli_args):
     config['model']['use_lstm'] = cli_args.lstm
     # config['model']['lstm_use_prev_action_reward'] = True
     # config['log_level'] = 'INFO'    # ray logging default: warning
+    # reset the env whenever the horizon/eps_length is reached
+    config['horizon'] = cli_args.eps_length
     config['env'] = env_class
     config['env_config'] = env_config
     # callback for monitoring custom metrics

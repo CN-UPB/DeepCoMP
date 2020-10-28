@@ -67,7 +67,7 @@ class MultiAgentMobileEnv(RelNormEnv, MultiAgentEnv):
 
     def done(self):
         """Return dict of dones: UE --> done?"""
-        done = self.time >= self.episode_length
+        done = super().done()
         dones = {ue.id: done for ue in self.ue_list}
         dones['__all__'] = done
         return dones
@@ -101,14 +101,7 @@ class SeqMultiAgentMobileEnv(MultiAgentMobileEnv):
 
     def done(self):
         """Set done for current UE. For all when reaching the last UE"""
-        # done = self.time >= self.episode_length
-        # dones = {
-        #     self.curr_ue.id: done,
-        #     '__all__': False
-        # }
-        # if self.ue_order_idx == len(self.ue_order):
-        #     dones['__all__'] = done
-        done = self.time > self.episode_length
+        done = super().done()
         dones = {
             self.curr_ue.id: done,
             '__all__': done,

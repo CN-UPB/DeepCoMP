@@ -46,11 +46,10 @@ def main():
     # for sequential multi agent env
     # config['no_done_at_end'] = True
 
-    # TODO: for continuous setting with fixed horizon
-    # if args.cont_train:
-    #     config['horizon'] = args.eps_length
-    #     config['soft_horizon'] = True
-    #     config['no_done_at_end'] = True
+    # for continuous training without any resets between episodes
+    if args.cont_train:
+        config['soft_horizon'] = True
+        config['no_done_at_end'] = True
 
     # TODO: hyper-param search; probably easiest with simple grid search
     # default ppo params: https://docs.ray.io/en/latest/rllib-algorithms.html#proximal-policy-optimization-ppo

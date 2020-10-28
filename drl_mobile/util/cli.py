@@ -44,7 +44,7 @@ def setup_cli():
                         help="Sharing model used by BS to split resources and/or rate among connected UEs.")
     # evaluation
     parser.add_argument('--rand-train', action='store_true', help="Randomize training episodes.")
-    # parser.add_argument('--cont-train', action='store_true', help="Continuous training without resetting.")
+    parser.add_argument('--cont-train', action='store_true', help="Continuous training without resetting.")
     parser.add_argument('--rand-test', action='store_true', help="Randomize testing and evaluation episodes.")
     parser.add_argument('--fixed-rand-eval', action='store_true',
                         help="Evaluate once with fixed episodes and then again with random episodes.")
@@ -59,5 +59,5 @@ def setup_cli():
 
     assert getattr(args, 'continue') is None or args.test is None, "Use either --continue or --test, not both."
     assert args.rand_test is False or args.fixed_rand_eval is False, "Use either --rand-test or --fixed-rand-eval."
-    # assert not (args.cont_train and args.rand_train), "Either train continuously or with random episodes."
+    assert not (args.cont_train and args.rand_train), "Either train continuously or with random episodes."
     return args

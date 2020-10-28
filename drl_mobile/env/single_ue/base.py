@@ -254,9 +254,10 @@ class MobileEnv(gym.Env):
 
         :return: Whether the current episode is done or not
         """
-        return self.time >= self.episode_length
-        # TODO: continuous --> there is no episode end
-        # return False
+        # return self.time >= self.episode_length
+        # always return done=False. Env is reset by RLlib and simulator when horizon=eps_length is hit
+        # done=False is required to support continuous training without any resets (optionally)
+        return False
 
     def info(self):
         """
