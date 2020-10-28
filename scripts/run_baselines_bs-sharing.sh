@@ -11,6 +11,6 @@ do
   for alg in greedy-best greedy-all
   do
     echo Sharing: $sharing, Alg: $alg
-    deepcomp --seed 42 --alg $alg --agent multi --env medium --$movement $num_ues --eval $num_eval --video html --sharing $sharing
+    deepcomp --seed 42 --alg $alg --agent multi --env medium --slow-ues $num_ues --eval $num_eval --video html --sharing $sharing
   done
 done
