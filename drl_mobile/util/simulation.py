@@ -347,7 +347,7 @@ class Simulation:
             cell_size = self.config['model']['lstm_cell_size']
             state = [np.zeros(cell_size), np.zeros(cell_size)]
         # for continuous problems, stop evaluation after fixed eps length
-        while not done and t < self.episode_length:
+        while (done is None or not done) and t < self.episode_length:
             if render is not None:
                 patches.append(env.render())
                 if render == 'plot':
