@@ -177,8 +177,8 @@ class Simulation:
 
         rllib_dir = os.path.abspath(rllib_dir)
         analysis = ray.tune.Analysis(rllib_dir)
-        # analysis.default_metric = 'episode_reward_mean'
-        analysis.default_metric = 'custom_metrics/sum_utility_mean'
+        analysis.default_metric = 'episode_reward_mean'
+        # analysis.default_metric = 'custom_metrics/sum_utility_mean'
         analysis.default_mode = 'max'
         checkpoint = analysis.get_best_checkpoint(analysis._get_trial_paths()[0])
         return os.path.abspath(checkpoint)
