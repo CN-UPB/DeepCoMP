@@ -199,17 +199,18 @@ class MobileEnv(gym.Env):
         :param action_dict: Actions to apply. Dict of UE --> action
         :return: Rewards for each UE when applying the action
         """
-        # self.apply_ue_actions(action_dict)
-        # rewards = self.update_ue_drs_rewards(penalties=None)
-        # # to revert the action, apply it again: toggles connection again between same UE-BS
-        # self.apply_ue_actions(action_dict)
-        # self.update_ue_drs_rewards(penalties=None, update_only=True)
+        self.apply_ue_actions(action_dict)
+        rewards = self.update_ue_drs_rewards(penalties=None)
+        # to revert the action, apply it again: toggles connection again between same UE-BS
+        self.apply_ue_actions(action_dict)
+        self.update_ue_drs_rewards(penalties=None, update_only=True)
 
         # simpler + can be parallelized: just create a copy of the env, apply actions, get reward, delete copy
-        test_env = copy.deepcopy(self)
-        test_env.apply_ue_actions(action_dict)
-        rewards = test_env.update_ue_drs_rewards(penalties=None)
-        del test_env
+        # no, doesn't work: It's MUUUUUUUUUUUUUCH slower (probably due to all the deep copies)
+        # test_env = copy.deepcopy(self)
+        # test_env.apply_ue_actions(action_dict)
+        # rewards = test_env.update_ue_drs_rewards(penalties=None)
+        # del test_env
         return rewards
 
     def update_ue_drs_rewards(self, penalties, update_only=False):
