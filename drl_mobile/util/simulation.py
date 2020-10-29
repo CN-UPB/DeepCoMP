@@ -516,6 +516,7 @@ class Simulation:
         # TODO: check if parallel evals really lead to inconsistent results
         #  if so, likely because the different parallel jobs get diff random seeds randomly
         #  could potentially be fixed by predetermining a list of seeds to use for eval episodes rather than just None
+        # FIXME: with num workers > 1, rand_test doesn't work anymore (all episodes are the same)
         # run episodes in parallel using joblib
         zipped_results = Parallel(n_jobs=self.num_workers)(
             delayed(self.run_episode)(env, render, log_dict)
