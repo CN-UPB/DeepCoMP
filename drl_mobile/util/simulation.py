@@ -19,6 +19,7 @@ from ray.rllib.env.multi_agent_env import MultiAgentEnv
 from drl_mobile.util.constants import SUPPORTED_ALGS, SUPPORTED_RENDER, RESULT_DIR, TRAIN_DIR, TEST_DIR, VIDEO_DIR
 from drl_mobile.agent.dummy import RandomAgent, FixedAgent
 from drl_mobile.agent.heuristics import GreedyBestSelection, GreedyAllSelection
+from drl_mobile.agent.brute_force import BruteForceAgent
 from drl_mobile.util.logs import config_logging
 
 
@@ -205,6 +206,8 @@ class Simulation:
             self.agent = GreedyBestSelection()
         if self.agent_name == 'greedy-all':
             self.agent = GreedyAllSelection()
+        if self.agent_name == 'brute-force':
+            self.agent = BruteForceAgent()
         if self.agent_name == 'random':
             # instantiate the environment to get the action space
             env = self.env_class(self.env_config)
@@ -341,6 +344,9 @@ class Simulation:
         t = 0
         done = False
         obs = env.reset()
+        # if using brute-force agent, pass the environment
+        if self.agent_name == 'brute-force':
+            self.agent.env = env
         # init state for LSTM: https://github.com/ray-project/ray/issues/9220#issuecomment-652146377
         state = None
         if self.config['model']['use_lstm']:

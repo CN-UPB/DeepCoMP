@@ -16,20 +16,23 @@ class TestEnv(TestCase):
         }
         self.env = MultiAgentMobileEnv(env_config)
 
-        # take 3 random steps to initialize
-        for i in range(3):
-            rand_action = {ue: random.randint(0, 2) for ue in self.env.ue_list}
-            self.env.step(rand_action)
-
     def test_test_action(self):
-        # get current rewards
-        original_rewards = self.env.update_ue_drs_rewards(penalties=None)
-        original_env = copy.deepcopy(self.env)
+        """
+        Ensure that testing an action does not alter the environment
+        by comparing the UE's rewards before and after testing.
+        """
+        while self.env.time < self.env.episode_length:
+            # get current rewards
+            original_rewards = self.env.update_ue_drs_rewards(penalties=None)
+            original_env = copy.deepcopy(self.env)
 
-        # test action
-        action = {ue: 1 for ue in self.env.ue_list}
-        test_rewards = self.env.test_ue_actions(action)
+            # test a random action
+            action = {ue: random.randint(0, 2) for ue in self.env.ue_list}
+            test_rewards = self.env.test_ue_actions(action)
 
-        # rewards after reverting
-        revert_rewards = self.env.update_ue_drs_rewards(penalties=None)
-        self.assertEqual(original_rewards, revert_rewards)
+            # rewards after reverting
+            revert_rewards = self.env.update_ue_drs_rewards(penalties=None)
+            self.assertEqual(original_rewards, revert_rewards)
+
+            # progress the environment
+            self.env.step(action)
