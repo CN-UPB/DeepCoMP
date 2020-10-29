@@ -49,6 +49,15 @@ class User:
     def __repr__(self):
         return str(self.id)
 
+    # compare and hash UEs based on their ID only
+    def __eq__(self, other):
+        if type(other) is type(self):
+            return self.id == other.id
+        return False
+
+    def __hash__(self):
+        return hash(self.id)
+
     @property
     def curr_dr(self):
         """Current data rate the UE gets through all its BS connections"""
