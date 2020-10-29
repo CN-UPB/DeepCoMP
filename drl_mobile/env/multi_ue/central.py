@@ -66,8 +66,8 @@ class CentralBaseEnv(MobileEnv):
 
     def step_reward(self, rewards):
         """Return sum of all UE rewards as step reward"""
-        # return sum(rewards.values())
-        return min(rewards.values())
+        return sum(rewards.values())
+        # return min(rewards.values())
 
 
 class CentralDrEnv(CentralBaseEnv, DatarateMobileEnv):
