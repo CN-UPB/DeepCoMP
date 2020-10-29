@@ -15,6 +15,7 @@ SUPPORTED_AGENTS = {'single', 'central', 'multi'}
 SUPPORTED_ENVS = {'small', 'medium', 'large', 'custom'}
 SUPPORTED_RENDER = {'html', 'gif', 'both', None}
 SUPPORTED_SHARING = {'max-cap', 'resource-fair', 'rate-fair', 'proportional-fair'}
+SUPPORTED_REWARDS = {'min', 'sum'}
 
 # small epsilon used in denominator to avoid division by zero
 EPSILON = 1e-16

@@ -16,6 +16,9 @@ class MultiAgentMobileEnv(RelNormEnv, MultiAgentEnv):
         super().__init__(env_config)
         # inherits attributes, obs and action space from parent env
 
+        # how to aggregate rewards from multiple UEs (sum or min utility)
+        self.reward_agg = env_config['reward']
+
     def get_ue_actions(self, action):
         """
         Retrieve the action per UE from the RL agent's action and return in in form of a dict.
@@ -49,21 +52,24 @@ class MultiAgentMobileEnv(RelNormEnv, MultiAgentEnv):
         # total_reward = sum(rewards.values())
         # return {ue.id: total_reward for ue in rewards.keys()}
 
-        # variant: add avg utility of UEs at the same BS
+        # variant: add aggregated utility of UEs at the same BS
         new_rewards = dict()
         for ue, r in rewards.items():
+            # initialize to own utility in case the UE is not connected to any BS and has no neighbors
+            agg_util = r
+            # neighbors include the UE itself
             neighbors = ue.ues_at_same_bs()
             if len(neighbors) > 0:
-                # get the normalized utility = reward for each neighbor
-                # avg_util = np.mean([rewards[neighbor] for neighbor in neighbors])
-                # avg_util = min([rewards[neighbor] for neighbor in neighbors])
-                avg_util = sum([rewards[neighbor] for neighbor in neighbors])
-            else:
-                # if there are no neighbors, then just use own utility/reward
-                avg_util = r
-            new_r = 0 * r + 1 * avg_util
-            self.log.debug('Reward', ue=ue, neighbors=neighbors, own_r=r, avg_util=avg_util, new_r=new_r)
-            new_rewards[ue.id] = new_r
+                # aggregate utility of different UEs as configured
+                if self.reward_agg == 'sum':
+                    agg_util = sum([rewards[neighbor] for neighbor in neighbors])
+                elif self.reward_agg == 'min':
+                    agg_util = min([rewards[neighbor] for neighbor in neighbors])
+                else:
+                    raise NotImplementedError(f"Unexpected reward aggregation: {self.reward_agg}")
+            # new_r = 0 * r + 1 * agg_util
+            new_rewards[ue.id] = agg_util
+            self.log.debug('Reward', ue=ue, neighbors=neighbors, own_r=r, agg_util=agg_util)
         return new_rewards
 
     def done(self):

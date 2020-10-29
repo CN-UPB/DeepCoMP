@@ -513,6 +513,9 @@ class Simulation:
         self.log.info('Starting evaluation', num_episodes=num_episodes, num_workers=self.num_workers,
                       static_ues=self.cli_args.static_ues, slow_ues=self.cli_args.slow_ues,
                       fast_ues=self.cli_args.fast_ues)
+        # TODO: check if parallel evals really lead to inconsistent results
+        #  if so, likely because the different parallel jobs get diff random seeds randomly
+        #  could potentially be fixed by predetermining a list of seeds to use for eval episodes rather than just None
         # run episodes in parallel using joblib
         zipped_results = Parallel(n_jobs=self.num_workers)(
             delayed(self.run_episode)(env, render, log_dict)

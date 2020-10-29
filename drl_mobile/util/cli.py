@@ -3,7 +3,7 @@ import argparse
 import structlog
 
 from drl_mobile.util.constants import SUPPORTED_ALGS, SUPPORTED_ENVS, SUPPORTED_AGENTS, SUPPORTED_RENDER, \
-    SUPPORTED_SHARING
+    SUPPORTED_SHARING, SUPPORTED_REWARDS
 
 
 log = structlog.get_logger()
@@ -27,6 +27,8 @@ def setup_cli():
     parser.add_argument('--separate-agent-nns', action='store_true',
                         help="Only relevant for multi-agent RL. Use separate NNs for each agent instead of sharing.")
     parser.add_argument('--lstm', action='store_true', help="Whether or not to use an LSTM cell")
+    parser.add_argument('--reward', type=str, choices=SUPPORTED_REWARDS, default='sum',
+                        help="How to aggregate rewards from multiple UEs within a step.")
     # environment
     parser.add_argument('--env', type=str, choices=SUPPORTED_ENVS, default='small', help="Env/Map size")
     parser.add_argument('--bs-dist', type=int, default=100, help="Distance between BS. Only supported by medium env.")

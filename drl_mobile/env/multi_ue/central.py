@@ -14,6 +14,8 @@ class CentralBaseEnv(MobileEnv):
     """
     def __init__(self, env_config):
         super().__init__(env_config)
+        # how to aggregate rewards from multiple UEs (sum or min utility)
+        self.reward_agg = env_config['reward']
 
         # if the number of UEs varies over time, the action space needs to be large enough to control all UEs
         self.max_ues = self.num_ue
@@ -65,9 +67,12 @@ class CentralBaseEnv(MobileEnv):
         return {ue: action[i] for i, ue in enumerate(self.ue_list)}
 
     def step_reward(self, rewards):
-        """Return sum of all UE rewards as step reward"""
-        return sum(rewards.values())
-        # return min(rewards.values())
+        """Return aggregated reward of all UEs as step reward"""
+        if self.reward_agg == 'sum':
+            return sum(rewards.values())
+        if self.reward_agg == 'min':
+            return min(rewards.values())
+        raise NotImplementedError(f"Unexpected reward aggregation: {self.reward_agg}")
 
 
 class CentralDrEnv(CentralBaseEnv, DatarateMobileEnv):
