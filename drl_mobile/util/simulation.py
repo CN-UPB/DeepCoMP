@@ -229,7 +229,8 @@ class Simulation:
         num_ues = self.cli_args.static_ues + self.cli_args.slow_ues + self.cli_args.fast_ues
         train = 'rand' if self.cli_args.rand_train else 'fixed'
         test = 'rand' if self.cli_args.rand_test else 'fixed'
-        self.result_filename = f'{agent_name}_{self.env_name}_{env_size}_{num_ues}UEs_{timestamp}_{train}-{test}'
+        self.result_filename = \
+            f'{agent_name}_{self.env_name}_{env_size}_{num_ues}UEs-{self.cli_args.reward}_{timestamp}_{train}-{test}'
 
     def save_animation(self, fig, patches, mode):
         """
@@ -518,7 +519,7 @@ class Simulation:
         #  could potentially be fixed by predetermining a list of seeds to use for eval episodes rather than just None
         # FIXME: with num workers > 1, rand_test doesn't work anymore (all episodes are the same)
         # run episodes in parallel using joblib
-        zipped_results = Parallel(n_jobs=self.num_workers)(
+        zipped_results = Parallel(n_jobs=1)(
             delayed(self.run_episode)(env, render, log_dict)
             for _ in tqdm(range(num_episodes), disable=(num_episodes == 1))
         )
