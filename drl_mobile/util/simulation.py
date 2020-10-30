@@ -519,6 +519,7 @@ class Simulation:
         #  could potentially be fixed by predetermining a list of seeds to use for eval episodes rather than just None
         # FIXME: with num workers > 1, rand_test doesn't work anymore (all episodes are the same)
         # run episodes in parallel using joblib
+        # WATCHOUT: brute force already uses num_workers in parallel within an episode --> no extra parallelization!
         zipped_results = Parallel(n_jobs=1)(
             delayed(self.run_episode)(env, render, log_dict)
             for _ in tqdm(range(num_episodes), disable=(num_episodes == 1))
