@@ -45,13 +45,6 @@ class BruteForceAgent:
         assert len(result) == num_digits
         return result
 
-    @staticmethod
-    def highest_number(base, num_digits):
-        """Return the highest number that can be represented as a number of given base and with given num digits"""
-        # return sum([(base - 1) * base**d for d in range(num_digits)])
-        # much simpler: take the next higher number that can no longer be included, ie, b^d, and subtract 1
-        return base**num_digits - 1
-
     def get_ith_action(self, i):
         """Get the i-th action, when walking through the entire action space"""
         # convert to number with base num_bs + 1, ie, actions selecting 0 (=noop) or one of the BS
@@ -65,9 +58,9 @@ class BruteForceAgent:
         best_action = None
         best_reward = -math.inf
 
-        # each UE has num_bs + 1 choices: noop or one of the BS --> (num_bs+1)^num_ue -1 options
+        # each UE has num_bs + 1 choices: noop or one of the BS --> (num_bs+1)^num_ue options
         # TODO: any way to parallelize this? not if they are working on the same object..
-        for i in range(self.highest_number(self.env.num_bs + 1, self.env.num_ue)):
+        for i in range((self.env.num_bs + 1)**self.env.num_ue):
             action_list = self.get_ith_action(i)
             # need to test the action in dict form
             action_dict = self.env.get_ue_actions(action_list)
