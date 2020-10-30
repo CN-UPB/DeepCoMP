@@ -207,7 +207,7 @@ class Simulation:
         if self.agent_name == 'greedy-all':
             self.agent = GreedyAllSelection()
         if self.agent_name == 'brute-force':
-            self.agent = BruteForceAgent()
+            self.agent = BruteForceAgent(self.num_workers)
         if self.agent_name == 'random':
             # instantiate the environment to get the action space
             env = self.env_class(self.env_config)
@@ -499,8 +499,10 @@ class Simulation:
         """
         assert self.agent is not None, "Train or load an agent before running the simulation"
         assert (num_episodes == 1) or (render is None), "Turn off rendering when running for multiple episodes"
-        if self.agent_name == 'ppo' and self.num_workers > 1:
-            self.log.warning('PPO testing and evaluation cannot be parallelized. Continuing with 1 worker.')
+        if self.agent_name in {'ppo', 'brute-force'} and self.num_workers > 1:
+            # brute force already uses num_workers in parallel within an episode --> no extra parallelization!
+            self.log.warning(f'Testing and evaluation cannot be parallelized for {self.agent_name}. '
+                             f'Continuing with 1 worker.')
             self.num_workers = 1
 
         # enable metrics logging, configure episode randomization, instantiate env, and set logging level
@@ -519,8 +521,7 @@ class Simulation:
         #  could potentially be fixed by predetermining a list of seeds to use for eval episodes rather than just None
         # FIXME: with num workers > 1, rand_test doesn't work anymore (all episodes are the same)
         # run episodes in parallel using joblib
-        # WATCHOUT: brute force already uses num_workers in parallel within an episode --> no extra parallelization!
-        zipped_results = Parallel(n_jobs=1)(
+        zipped_results = Parallel(n_jobs=self.num_workers)(
             delayed(self.run_episode)(env, render, log_dict)
             for _ in tqdm(range(num_episodes), disable=(num_episodes == 1))
         )

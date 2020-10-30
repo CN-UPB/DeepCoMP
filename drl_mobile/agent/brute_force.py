@@ -13,7 +13,7 @@ class BruteForceAgent:
     Finds the optimal action per step but requires access to the env to test and evaluate each action.
     Optimal in terms of the reward function of the central agent, eg, sum of UE utilities per step.
     """
-    def __init__(self, num_workers=3):
+    def __init__(self, num_workers=1):
         """
         :param num_workers: Number of jobs to run in parallel (should be < num cores).
         Also >1 only makes sense for 3+ UEs and BS, otherwise overhead is higher than gain.
@@ -79,24 +79,6 @@ class BruteForceAgent:
     def compute_action(self, observation):
         """Test all actions and return the best one"""
         assert self.env is not None, "Set agent's env before computing actions."
-        # actions = []
-        # rewards = []
-
-        # each UE has num_bs + 1 choices: noop or one of the BS --> (num_bs+1)^num_ue options
-        # for i in range((self.env.num_bs + 1)**self.env.num_ue):
-        #     # action_list = self.get_ith_action(i)
-        #     # # need to test the action in dict form
-        #     # action_dict = self.env.get_ue_actions(action_list)
-        #     # rewards = self.env.test_ue_actions(action_dict)
-        #     # reward = self.env.step_reward(rewards)
-        #     # if reward > best_reward:
-        #     #     # need to return the action in list form
-        #     #     best_action = action_list
-        #     #     best_reward = reward
-        #
-        #     action, reward = self.test_ith_action(i)
-        #     actions.append(action)
-        #     rewards.append(reward)
 
         # parallelized version
         zipped_results = Parallel(n_jobs=self.num_workers)(
