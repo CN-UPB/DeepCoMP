@@ -13,8 +13,8 @@ for num_ues in $(seq $min_ues $step_ues $max_ues)
 do
   echo Num. UEs: $num_ues
 #  deepcomp --seed 42 --alg random --agent central --env $env --slow-ues $num_ues --eval $num_eval --video html
-  deepcomp --seed 42 --alg greedy-best --agent multi --env $env --slow-ues $num_ues --eval $num_eval --video html
-  deepcomp --seed 42 --alg greedy-all --agent multi --env $env --slow-ues $num_ues --eval $num_eval --video html
+#  deepcomp --seed 42 --alg greedy-best --agent multi --env $env --slow-ues $num_ues --eval $num_eval --video html
+#  deepcomp --seed 42 --alg greedy-all --agent multi --env $env --slow-ues $num_ues --eval $num_eval --video html
   # run brute force once optimizing sum utility and once optimizing min utility
   deepcomp --seed 42 --alg brute-force --agent central --env $env --slow-ues $num_ues --eval $num_eval --video html --reward sum
   deepcomp --seed 42 --alg brute-force --agent central --env $env --slow-ues $num_ues --eval $num_eval --video html --reward min
