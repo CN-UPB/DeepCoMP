@@ -42,7 +42,7 @@ def setup_cli():
     #                     help="Number of UEs in the environment, equally mixed between different movement speeds")
     parser.add_argument('--new-ue-interval', type=int, default=None,
                         help="Interval in number of steps after which a new UEs enter the environment periodically.")
-    parser.add_argument('--sharing', type=str, choices=SUPPORTED_SHARING, default='resource-fair',
+    parser.add_argument('--sharing', type=str, choices=SUPPORTED_SHARING.union({'mixed'}), default='resource-fair',
                         help="Sharing model used by BS to split resources and/or rate among connected UEs.")
     # evaluation
     parser.add_argument('--rand-train', action='store_true', help="Randomize training episodes.")

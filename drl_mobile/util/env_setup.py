@@ -71,6 +71,11 @@ def create_dyn_medium_map(sharing_model, bs_dist=100, dist_to_border=10):
     Create map with 3 BS at equal distance. Distance can be varied dynamically. Map is sized automatically.
     Keep the same layout as old medium env here: A, B on same horizontal axis. C above in the middle
     """
+    sharing_list = [sharing_model for _ in range(3)]
+    # different sharing models at different BS
+    if sharing_model == 'mixed':
+        sharing_list = ['resource-fair', 'rate-fair', 'proportional-fair']
+
     # calculate vertical distance from A, B to C using Pythagoras
     y_dist = np.sqrt(bs_dist ** 2 - (bs_dist / 2) ** 2)
     # derive map size from BS distance and distance to border
@@ -79,10 +84,10 @@ def create_dyn_medium_map(sharing_model, bs_dist=100, dist_to_border=10):
 
     map = Map(width=map_width, height=map_height)
     # BS A is located at bottom left corner with specified distance to border
-    bs1 = Basestation('A', Point(dist_to_border, dist_to_border), sharing_model)
+    bs1 = Basestation('A', Point(dist_to_border, dist_to_border), sharing_list[0])
     # other BS positions are derived accordingly
-    bs2 = Basestation('B', Point(dist_to_border + bs_dist, dist_to_border), sharing_model)
-    bs3 = Basestation('C', Point(dist_to_border + (bs_dist / 2), dist_to_border + y_dist), sharing_model)
+    bs2 = Basestation('B', Point(dist_to_border + bs_dist, dist_to_border), sharing_list[1])
+    bs3 = Basestation('C', Point(dist_to_border + (bs_dist / 2), dist_to_border + y_dist), sharing_list[2])
     return map, [bs1, bs2, bs3]
 
 
