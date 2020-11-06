@@ -83,7 +83,7 @@ class BruteForceAgent:
         # parallelized version
         zipped_results = Parallel(n_jobs=self.num_workers)(
             delayed(self.test_ith_action)(i)
-            for i in range((self.env.num_bs + 1)**self.env.num_ue)
+            for i in range((self.env.num_bs + 1)**self.env.max_ues)
         )
         actions, rewards = map(list, zip(*zipped_results))
 
