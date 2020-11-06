@@ -59,7 +59,7 @@ class BruteForceAgent:
     def get_ith_action(self, i):
         """Get the i-th action, when walking through the entire action space."""
         # convert to number with base num_bs + 1, ie, actions selecting 0 (=noop) or one of the BS
-        action_list = self.number_to_base(i, self.env.num_bs + 1, num_digits=self.env.num_ue)
+        action_list = self.number_to_base(i, self.env.num_bs + 1, num_digits=self.env.max_ues)
         assert self.env.action_space.contains(action_list)
         return action_list
 
