@@ -88,7 +88,8 @@ class MobileEnv(gym.Env):
             offset = 0
             for ue in self.ue_list:
                 # add an offset to each UE's seed to avoid that all UEs have the same "random" pos and movement
-                offset += 100       # use a fixed, not random offset here; otherwise it's again different in test & train
+                # use a fixed, not random offset here; otherwise it's again different in test & train
+                offset += 100
                 ue.seed(seed + offset)
 
     def set_log_level(self, log_dict):
@@ -401,6 +402,8 @@ class MobileEnv(gym.Env):
         new_ue = User(str(id), self.map, pos.x, pos.y, movement=RandomWaypoint(self.map, velocity=velocity))
 
         # seed with fixed but unique seed to have different movement
-        new_ue.seed(self.env_seed + id)
+        print(f"Seeding UE {id} with seed {self.env_seed + id * 100} at time {self.time}")
+        new_ue.seed(self.env_seed + id * 100)
+        # reset to ensure the new seed is applied, eg, to always select the same "random" waypoint with the same seed
+        new_ue.reset()
         self.ue_list.append(new_ue)
-        # TODO: test adn debug

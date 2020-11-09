@@ -138,7 +138,7 @@ class RandomWaypoint(Movement):
         """
         self.log = self.log.bind(prev_pos=str(curr_pos), waypoint=str(self.waypoint))
 
-        # if already close enough to waypoint, move directly onto waypoint (not passed it)
+        # if already close enough to waypoint, move directly onto waypoint (not past it)
         if curr_pos.distance(self.waypoint) <= self.velocity:
             self.log.debug('Waypoint reached')
             return self.waypoint
