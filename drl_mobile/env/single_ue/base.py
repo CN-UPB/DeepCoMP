@@ -402,7 +402,6 @@ class MobileEnv(gym.Env):
         new_ue = User(str(id), self.map, pos.x, pos.y, movement=RandomWaypoint(self.map, velocity=velocity))
 
         # seed with fixed but unique seed to have different movement
-        print(f"Seeding UE {id} with seed {self.env_seed + id * 100} at time {self.time}")
         new_ue.seed(self.env_seed + id * 100)
         # reset to ensure the new seed is applied, eg, to always select the same "random" waypoint with the same seed
         new_ue.reset()
