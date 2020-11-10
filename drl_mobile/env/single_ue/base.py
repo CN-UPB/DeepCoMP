@@ -324,13 +324,18 @@ class MobileEnv(gym.Env):
         """
         prev_obs = self.obs
 
+        #  get & apply action
+        action_dict = self.get_ue_actions(action)
+        penalties = self.apply_ue_actions(action_dict)
+
         # add new UE according to configured interval
+        # important to add it here, after the action is applied but before the reward is calculated
+        # after action is applied, otherwise a central approach could already apply a decision for the newly added UE
+        # before reward is calculated, otherwise the reward and observation keys would not match (required by RLlib)
         if self.new_ue_interval is not None and self.time > 0 and self.time % self.new_ue_interval == 0:
             self.add_new_ue()
 
-        # perform step: get & apply action, move UEs, update data rates and rewards in between; increment time
-        action_dict = self.get_ue_actions(action)
-        penalties = self.apply_ue_actions(action_dict)
+        # move UEs, update data rates and rewards in between; increment time
         rewards_before = self.update_ue_drs_rewards(penalties=penalties)
         lost_conn = self.move_ues()
         # penalty of -1 for lost connections due to movement (rather than active disconnect)

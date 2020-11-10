@@ -44,14 +44,6 @@ class MultiAgentMobileEnv(RelNormEnv, MultiAgentEnv):
         """
         # return {ue.id: r for ue, r in rewards.items()}
 
-        # variant: add avg reward/utility of all UEs to each UE's own utility
-        # avg_reward = np.mean(list(rewards.values()))
-        # return {ue.id: 0.5 * r + 0.5 * avg_reward for ue, r in rewards.items()}
-
-        # variant: sum of rewards from all agents
-        # total_reward = sum(rewards.values())
-        # return {ue.id: total_reward for ue in rewards.keys()}
-
         # variant: add aggregated utility of UEs at the same BS
         new_rewards = dict()
         for ue, r in rewards.items():
