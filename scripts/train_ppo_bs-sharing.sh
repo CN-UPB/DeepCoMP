@@ -11,3 +11,4 @@ deepcomp --seed 42 --workers $num_workers --train-steps $train_steps --agent $ag
 deepcomp --seed 42 --workers $num_workers --train-steps $train_steps --agent $agent --env medium --slow-ues $num_ues --eval 1 --video html --sharing rate-fair
 deepcomp --seed 42 --workers $num_workers --train-steps $train_steps --agent $agent --env medium --slow-ues $num_ues --eval 1 --video html --sharing max-cap
 deepcomp --seed 42 --workers $num_workers --train-steps $train_steps --agent $agent --env medium --slow-ues $num_ues --eval 1 --video html --sharing proportional-fair
+deepcomp --seed 42 --workers $num_workers --train-steps $train_steps --agent $agent --env medium --slow-ues $num_ues --eval 1 --video html --sharing mixed
