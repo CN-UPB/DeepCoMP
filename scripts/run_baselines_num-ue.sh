@@ -5,7 +5,7 @@ min_ues=$1
 max_ues=$2
 step_ues=$3
 env=$4
-workers=1
+workers=$5
 num_eval=1
 seed=42
 echo Min UEs: $min_ues, Max UEs: $max_ues, Step UEs: $step_ues, Env: $env, Num eval: $num_eval, Seed: $seed, Workers: $workers
