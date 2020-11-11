@@ -58,10 +58,10 @@ def setup_cli():
     args = parser.parse_args()
 
     # check if algorithm and agent are compatible or adjust automatically
-    if args.alg in CENTRAL_ALGS and args.agent != 'central':
+    if args.alg in CENTRAL_ALGS and args.alg not in MULTI_ALGS and args.agent != 'central':
         log.warning('Algorithm only supports central agent. Switching to central agent.', alg=args.alg)
         args.agent = 'central'
-    if args.alg in MULTI_ALGS and args.agent != 'multi':
+    if args.alg in MULTI_ALGS and args.alg not in CENTRAL_ALGS and args.agent != 'multi':
         log.warning('Algorithm only supports multi-agent. Switching to multi-agent.', alg=args.alg)
         args.agent = 'multi'
 
