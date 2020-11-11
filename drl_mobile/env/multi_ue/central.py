@@ -149,6 +149,6 @@ class CentralRelNormEnv(CentralBaseEnv, RelNormEnv):
         obs_space = {
             'connected': gym.spaces.MultiBinary(self.max_ues * self.num_bs),
             'dr': gym.spaces.Box(low=0, high=1, shape=(self.max_ues * self.num_bs,)),
-            # 'utility': gym.spaces.Box(low=-1, high=1, shape=(self.max_ues,)),
+            'utility': gym.spaces.Box(low=-1, high=1, shape=(self.max_ues,)),
         }
         self.observation_space = gym.spaces.Dict(obs_space)
