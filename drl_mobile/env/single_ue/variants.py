@@ -266,7 +266,9 @@ class RelNormEnv(BinaryMobileEnv):
         bs_conn = [int(bs in ue.bs_dr.keys()) for bs in self.bs_list]
 
         # normalized dr to [0,1] based on the highest dr currently available
-        bs_dr = [bs.data_rate(ue) for bs in self.bs_list]
+        # bs_dr = [bs.data_rate(ue) for bs in self.bs_list]
+        # TODO: just a test --> SNR instead of dr
+        bs_dr = [bs.snr(ue.pos) for bs in self.bs_list]
         max_dr = max(bs_dr)
         # avoid division by 0
         if max_dr == 0:
@@ -275,7 +277,7 @@ class RelNormEnv(BinaryMobileEnv):
             bs_norm_dr = [dr / max_dr for dr in bs_dr]
 
         # utility normalized to [-1,1]
-        utility = [ue.utility / 20]
+        # utility = [ue.utility / 20]
 
         # which BS are currently idle
         # idle_bs = [int(bs.num_conn_ues == 0) for bs in self.bs_list]
