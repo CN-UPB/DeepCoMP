@@ -231,7 +231,7 @@ class Simulation:
         test = 'rand' if self.cli_args.rand_test else 'fixed'
         self.result_filename = \
             f'{agent_name}_{self.env_name}_{env_size}_{self.cli_args.sharing}_{num_ues}UEs-{self.cli_args.reward}' \
-            f'_{timestamp}_{train}-{test}'
+            f'_{train}-{test}_{timestamp}'
 
     def save_animation(self, fig, patches, mode):
         """
