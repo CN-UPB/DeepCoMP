@@ -258,7 +258,8 @@ class RelNormEnv(BinaryMobileEnv):
             # 'idle_bs': gym.spaces.MultiBinary(self.num_bs),
             # avg utility of UEs at each BS --> support optimizing neighbors' utility
             # 'bs_util': gym.spaces.Box(low=-1, high=1, shape=(self.num_bs,))
-            'ues_at_bs': gym.spaces.MultiDiscrete([self.num_ue+1 for _ in range(self.num_bs)]),
+            # 'ues_at_bs': gym.spaces.MultiDiscrete([self.num_ue+1 for _ in range(self.num_bs)]),
+            'ues_at_bs': gym.spaces.Box(low=0, high=1, shape=(self.num_bs,)),
         }
         self.observation_space = gym.spaces.Dict(obs_space)
 
@@ -286,7 +287,7 @@ class RelNormEnv(BinaryMobileEnv):
         # min utility of UEs for each BS
         # bs_util = [bs.min_utility / 20 for bs in self.bs_list]
 
-        ues_at_bs = [bs.num_conn_ues for bs in self.bs_list]
+        ues_at_bs = [bs.num_conn_ues / self.num_ue for bs in self.bs_list]
 
         return {'connected': bs_conn, 'dr': bs_norm_dr, 'utility': utility, 'ues_at_bs': ues_at_bs}
         # return {'connected': bs_conn, 'dr': bs_norm_dr, 'utility': utility, 'idle_bs': idle_bs}
