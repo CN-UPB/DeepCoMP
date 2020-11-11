@@ -10,7 +10,9 @@ import pathlib
 LOG_ROUND_DIGITS = 3
 
 # use sets for O(1) include checks
-SUPPORTED_ALGS = {'ppo', 'greedy-best', 'greedy-all', 'brute-force', 'random', 'fixed'}
+CENTRAL_ALGS = {'ppo', 'random', 'fixed', 'brute-force'}
+MULTI_ALGS = {'ppo', 'greedy-best', 'greedy-all'}
+SUPPORTED_ALGS = CENTRAL_ALGS.union(MULTI_ALGS)
 SUPPORTED_AGENTS = {'single', 'central', 'multi'}
 SUPPORTED_ENVS = {'small', 'medium', 'large', 'custom'}
 SUPPORTED_RENDER = {'html', 'gif', 'both', None}

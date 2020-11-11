@@ -3,8 +3,10 @@ Heuristic algorithms to use as baseline. Only work as multi-agent, not central (
 """
 import numpy as np
 
+from drl_mobile.agent.base import MultiAgent
 
-class GreedyBestSelection:
+
+class GreedyBestSelection(MultiAgent):
     """Agent that is always connected to at most one BS. Greedily chooses the BS with highest achievable data rate."""
     def compute_action(self, obs, policy_id):
         """
@@ -28,7 +30,7 @@ class GreedyBestSelection:
         return best_bs + 1
 
 
-class GreedyAllSelection:
+class GreedyAllSelection(MultiAgent):
     """Agent that always greedily connects to all BS."""
     # TODO: extension: only to those that exceed a min dr threshold.
     #  to avoid constantly tryign to connect to BS that are out of range --> leads to penalty

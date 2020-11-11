@@ -1,13 +1,13 @@
-import math
 import logging
 
 import numpy as np
 from joblib import Parallel, delayed
 
 from drl_mobile.util.logs import config_logging
+from drl_mobile.agent.base import CentralAgent
 
 
-class BruteForceAgent:
+class BruteForceAgent(CentralAgent):
     """
     Brute force approach, testing all possible actions and choosing the best one.
     Finds the optimal action per step but requires access to the env to test and evaluate each action.
@@ -18,6 +18,7 @@ class BruteForceAgent:
         :param num_workers: Number of jobs to run in parallel (should be < num cores).
         Also >1 only makes sense for 3+ UEs and BS, otherwise overhead is higher than gain.
         """
+        super().__init__()
         self.num_workers = num_workers
         self.env = None
 

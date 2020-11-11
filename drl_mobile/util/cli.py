@@ -3,7 +3,7 @@ import argparse
 import structlog
 
 from drl_mobile.util.constants import SUPPORTED_ALGS, SUPPORTED_ENVS, SUPPORTED_AGENTS, SUPPORTED_RENDER, \
-    SUPPORTED_SHARING, SUPPORTED_REWARDS
+    SUPPORTED_SHARING, SUPPORTED_REWARDS, CENTRAL_ALGS, MULTI_ALGS
 
 
 log = structlog.get_logger()
@@ -12,10 +12,9 @@ log = structlog.get_logger()
 def setup_cli():
     """Create CLI parser and return parsed args"""
     parser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter)
-    # required args
-    parser.add_argument('--agent', type=str, choices=SUPPORTED_AGENTS, required=True,
-                        help="Whether to use a single agent for 1 UE, a central agent, or multi agents")
     # algorithm & training
+    parser.add_argument('--agent', type=str, choices=SUPPORTED_AGENTS, default='central',
+                        help="Whether to use a single agent for 1 UE, a central agent, or multi agents")
     parser.add_argument('--alg', type=str, choices=SUPPORTED_ALGS, default='ppo', help="Algorithm")
     parser.add_argument('--workers', type=int, default=1, help="Number of workers for RLlib training and evaluation")
     parser.add_argument('--batch-size', type=int, default=4000, help="Number of training iterations per training batch")
@@ -57,6 +56,15 @@ def setup_cli():
     parser.add_argument('--seed', type=int, default=None, help="Seed for the RNG (algorithms and environment)")
 
     args = parser.parse_args()
+
+    # check if algorithm and agent are compatible or adjust automatically
+    if args.alg in CENTRAL_ALGS and args.agent != 'central':
+        log.warning('Algorithm only supports central agent. Switching to central agent.', alg=args.alg)
+        args.agent = 'central'
+    if args.alg in MULTI_ALGS and args.agent != 'multi':
+        log.warning('Algorithm only supports multi-agent. Switching to multi-agent.', alg=args.alg)
+        args.agent = 'multi'
+
     log.info('CLI args', args=args)
 
     assert getattr(args, 'continue') is None or args.test is None, "Use either --continue or --test, not both."
