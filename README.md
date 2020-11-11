@@ -108,33 +108,18 @@ tango4, tango5, (swc01)
 
 ### Todos
 
-* Measure & plot avg reward over time within a single continuous "episode"
 * Always return `done=False` for infinite episode. But set some eval eps length in simulation
-
 * Implement LTE baseline and optimization approach
-* Increase train performance by setting config['monitor'] to false?
 * Evaluation: 
     * Double check all units in my scenario, esp. for movement, distance, dr. Makes sense?
-    * CDF of avg UE rate
     * Different utilities for each UE? Shift log function to cut x-axis at different points correspondign to the requirement
         * Then normalize data rates accordingly
-    * LTE baseline: Select BS with highest long-term avg SINR
-* Optimization approach: Numerical optimization of instantaneous total utility?
 * Real-world traces for UE movement somewhere? From 5G measurement mmW paper?
-* Multi-agent RL became really slow when training somehow. Why? Any way to improve performance in general? Simulation quite slow with many UEs.
-    * Much slower than centralized for the same number of training steps
-* Fix installation: Does not work reliably (once structlog is updated with deepcopy support)
 
-* Improve performance: Enable user and station debug logging to see how many times SNR etc are calculated for a single step!
-    * Also, didn't the small env with 1 UE use to converge within 20k? Now we need 100k. Or is that due to the longer episodes (now 100, earlier much shorter)?
-    
 Later:
 
 * Let agent coordinate the number/amount of RBs per connected UE actively. With log utility, a centralized agent should learn proportional-fair scheduling by itself.
 * optimize performance by using more numpy arrays less looping over UEs
-* Add custom metrics (eg, dr and utility etc) via ray: https://docs.ray.io/en/latest/rllib-training.html#callbacks-and-custom-metrics
-    * Allows visualization via tensorboard and access via training results
-    * But I still need them for the heuristics...
 
 
 ### Findings
@@ -173,8 +158,6 @@ in the [stable_baselines branch](https://github.com/CN-UPB/deep-rl-mobility-mana
 * The current version on `master` and `dev` do not support `stable_baselines` anymore.
 
 ## Things to Evaluate
-
-TODO: load the best checkpoint in terms of sum utility not necessarily reward (in case of Multi PPO)?
 
 * Impact of num UEs (fixed or varying within an episode)
 * Distance between BS (density)

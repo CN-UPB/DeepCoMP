@@ -96,6 +96,12 @@ class Simulation:
             'num_ue_fast': self.cli_args.fast_ues,
             'result_filename': self.result_filename,
         }
+
+        # add training iteration
+        if data['alg'] == 'ppo':
+            data['train_iteration'] = self.agent.iteration
+            # not sure how to access the actual training steps or whether that's even possible
+
         return data
 
     def tune_params(self, stop_criteria):
