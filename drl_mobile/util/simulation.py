@@ -128,7 +128,7 @@ class Simulation:
 
         analysis = ray.tune.run(PPOTrainer, config=self.config, local_dir=RESULT_DIR, stop=stop_criteria,
                                 # checkpoint every 10 iterations and at the end; keep the best 10 checkpoints
-                                checkpoint_at_end=True, checkpoint_freq=10,
+                                checkpoint_at_end=True, checkpoint_freq=10, keep_checkpoints_num=10,
                                 checkpoint_score_attr='episode_reward_mean', restore=restore_path,
                                 scheduler=scheduler)
         analysis.default_metric = 'episode_reward_mean'
