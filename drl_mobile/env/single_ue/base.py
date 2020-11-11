@@ -200,10 +200,20 @@ class MobileEnv(gym.Env):
         :param action_dict: Actions to apply. Dict of UE --> action
         :return: Rewards for each UE when applying the action
         """
+        # for proportional-fair sharing, also keep track of EWMA dr as it affects the allocated resources
+        original_ewma_drs = {ue: ue.ewma_dr for ue in self.ue_list}
         self.apply_ue_actions(action_dict)
+        # update ewma; need to update drs first for EWMA calculation to be correct
+        self.update_ue_drs_rewards(penalties=None, update_only=True)
+        for ue in self.ue_list:
+            ue.update_ewma_dr()
         rewards = self.update_ue_drs_rewards(penalties=None)
+
         # to revert the action, apply it again: toggles connection again between same UE-BS
         self.apply_ue_actions(action_dict)
+        # revert the ewma
+        for ue in self.ue_list:
+            ue.ewma_dr = original_ewma_drs[ue]
         self.update_ue_drs_rewards(penalties=None, update_only=True)
 
         # simpler + can be parallelized: just create a copy of the env, apply actions, get reward, delete copy
