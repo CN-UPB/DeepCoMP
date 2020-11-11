@@ -20,5 +20,5 @@ do
   deepcomp --seed $seed --alg greedy-all --agent multi --env $env --slow-ues $num_ues --eval $num_eval --video html
   # run brute force once optimizing sum utility and once optimizing min utility
   deepcomp --seed $seed --alg brute-force --agent central --env $env --slow-ues $num_ues --eval $num_eval --video html --reward sum --workers $workers
-  deepcomp --seed $seed --alg brute-force --agent central --env $env --slow-ues $num_ues --eval $num_eval --video html --reward min --workers $workers
+#  deepcomp --seed $seed --alg brute-force --agent central --env $env --slow-ues $num_ues --eval $num_eval --video html --reward min --workers $workers
 done
