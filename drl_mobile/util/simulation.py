@@ -158,11 +158,26 @@ class Simulation:
         return checkpoint_path, analysis
 
     @staticmethod
+    def get_specific_checkpoint(rllib_dir):
+        """
+        Return path to checkpoint file if rllib_dir points to a specific checkpoint folder (or file).
+        Else return None.
+        """
+        if 'checkpoint' not in rllib_dir:
+            return None
+        # if it directly points to the checkpoint file, just return it
+        if os.path.isfile(rllib_dir):
+            return rllib_dir
+        # if it only points to the checkpoint folder, derive the checkpoint file and return it
+        checkpoint_number = rllib_dir.split('_')[-1]
+        return os.path.join(rllib_dir, f'checkpoint-{checkpoint_number}')
+
+    @staticmethod
     def get_last_checkpoint_path(rllib_dir):
         """Given an RLlib training dir, return the full path to the last checkpoint"""
         # check if rllib_dir is really already a pointer to a specific checkpoint; in that case, just return it
-        if 'checkpoint' in rllib_dir and os.path.isfile(rllib_dir):
-            return rllib_dir
+        if 'checkpoint' in rllib_dir:
+            return Simulation.get_specific_checkpoint(rllib_dir)
 
         rllib_dir = os.path.abspath(rllib_dir)
         checkpoints = [f for f in os.listdir(rllib_dir) if f.startswith('checkpoint')]
@@ -179,8 +194,8 @@ class Simulation:
     def get_best_checkpoint_path(rllib_dir):
         """Given an RLlib training dir, return the full path of the best checkpoint"""
         # check if rllib_dir is really already a pointer to a specific checkpoint; in that case, just return it
-        if 'checkpoint' in rllib_dir and os.path.isfile(rllib_dir):
-            return rllib_dir
+        if 'checkpoint' in rllib_dir:
+            return Simulation.get_specific_checkpoint(rllib_dir)
 
         rllib_dir = os.path.abspath(rllib_dir)
         analysis = ray.tune.Analysis(rllib_dir)
