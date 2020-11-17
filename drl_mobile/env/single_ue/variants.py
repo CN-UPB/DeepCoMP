@@ -287,8 +287,8 @@ class RelNormEnv(BinaryMobileEnv):
         # min utility of UEs for each BS
         # bs_util = [bs.min_utility / 20 for bs in self.bs_list]
 
-        ues_at_bs = [bs.num_conn_ues for bs in self.bs_list]
-        # ues_at_bs = [bs.num_conn_ues / self.num_ue for bs in self.bs_list]
+        # ues_at_bs = [bs.num_conn_ues for bs in self.bs_list]
+        ues_at_bs = [bs.num_conn_ues / self.num_ue for bs in self.bs_list]
 
         return {'connected': bs_conn, 'dr': bs_norm_dr, 'utility': utility, 'ues_at_bs': ues_at_bs}
         # return {'connected': bs_conn, 'dr': bs_norm_dr, 'utility': utility, 'idle_bs': idle_bs}
