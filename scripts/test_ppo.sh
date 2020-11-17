@@ -8,7 +8,7 @@
 min_ues=3
 max_ues=3
 step_ues=1
-agent=central
+agent=multi
 
 for dir in "$@"
 do
