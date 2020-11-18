@@ -7,7 +7,10 @@ from drl_mobile.agent.base import MultiAgent
 
 
 class GreedyBestSelection(MultiAgent):
-    """Agent that is always connected to at most one BS. Greedily chooses the BS with highest achievable data rate."""
+    """
+    Agent that is always connected to at most one BS. Greedily chooses the BS with highest achievable data rate.
+    This is comparable to 3GPP LTE cell selection based on highest SINR (with a hysteresis threshold of 0)
+    """
     def compute_action(self, obs, policy_id):
         """
         Compute an action for one UE by connecting to the BS with highest data rate (if not connected yet).

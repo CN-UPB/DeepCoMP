@@ -521,11 +521,11 @@ class Simulation:
         """
         assert self.agent is not None, "Train or load an agent before running the simulation"
         assert (num_episodes == 1) or (render is None), "Turn off rendering when running for multiple episodes"
-        if self.agent_name in {'ppo', 'brute-force'} and self.num_workers > 1:
-            # brute force already uses num_workers in parallel within an episode --> no extra parallelization!
-            self.log.warning(f'Testing and evaluation cannot be parallelized for {self.agent_name}. '
-                             f'Continuing with 1 worker.')
+        if self.num_workers > 1:
+            # parallel evaluation doesn't work for PPO and brute force; the heuristics are fast anyways
+            self.log.warning("Evaluating with a single worker for reproducibility and compatibility.")
             self.num_workers = 1
+        assert self.num_workers == 1, "Evaluation needs to be done with a single worker"
 
         # enable metrics logging, configure episode randomization, instantiate env, and set logging level
         self.env_config['log_metrics'] = True
@@ -538,10 +538,7 @@ class Simulation:
         self.log.info('Starting evaluation', num_episodes=num_episodes, num_workers=self.num_workers,
                       static_ues=self.cli_args.static_ues, slow_ues=self.cli_args.slow_ues,
                       fast_ues=self.cli_args.fast_ues)
-        # TODO: check if parallel evals really lead to inconsistent results
-        #  if so, likely because the different parallel jobs get diff random seeds randomly
-        #  could potentially be fixed by predetermining a list of seeds to use for eval episodes rather than just None
-        # FIXME: with num workers > 1, rand_test doesn't work anymore (all episodes are the same)
+        # there is currently no parallelization; eval is limited to a single worker
         # run episodes in parallel using joblib
         zipped_results = Parallel(n_jobs=self.num_workers)(
             delayed(self.run_episode)(env, render, log_dict)
