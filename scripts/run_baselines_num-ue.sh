@@ -7,7 +7,7 @@ step_ues=$3
 env=$4
 # num workers only relevant for brute-force
 workers=$5
-num_eval=1
+num_eval=30
 seed=42
 sharing=mixed
 echo Min UEs: $min_ues, Max UEs: $max_ues, Step UEs: $step_ues, Env: $env, Sharing: $sharing, Num eval: $num_eval, Seed: $seed, Workers: $workers
