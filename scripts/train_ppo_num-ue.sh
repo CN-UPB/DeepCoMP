@@ -14,5 +14,5 @@ echo Num workers: $num_workers, Min UEs: $min_ues, Max UEs: $max_ues, Step UEs: 
 for num_ues in $(seq $min_ues $step_ues $max_ues)
 do
   echo Num. UEs: $num_ues
-  deepcomp --seed 42 --workers $num_workers --train-steps $train_steps --agent $agent --env $env --slow-ues $num_ues --eval 1 --video html --reward $reward
+  deepcomp --seed 42 --workers $num_workers --train-steps $train_steps --agent $agent --env $env --slow-ues $num_ues --eval 30 --video html --reward $reward --sharing mixed
 done
