@@ -5,20 +5,20 @@ min_ues=$1
 max_ues=$2
 step_ues=$3
 env=$4
+# num workers only relevant for brute-force
 workers=$5
 num_eval=1
 seed=42
-echo Min UEs: $min_ues, Max UEs: $max_ues, Step UEs: $step_ues, Env: $env, Num eval: $num_eval, Seed: $seed, Workers: $workers
+sharing=mixed
+echo Min UEs: $min_ues, Max UEs: $max_ues, Step UEs: $step_ues, Env: $env, Sharing: $sharing, Num eval: $num_eval, Seed: $seed, Workers: $workers
 
-# IMPORTANT: use only 1 worker for evaluation for reproducible results!
-# multiple workers do work for parallelizing brute-force
 for num_ues in $(seq $min_ues $step_ues $max_ues)
 do
-  echo Num. UEs: $num_ues
-  deepcomp --seed $seed --alg random --agent central --env $env --slow-ues $num_ues --eval $num_eval --video html
-  deepcomp --seed $seed --alg greedy-best --agent multi --env $env --slow-ues $num_ues --eval $num_eval --video html
-  deepcomp --seed $seed --alg greedy-all --agent multi --env $env --slow-ues $num_ues --eval $num_eval --video html
-  # run brute force once optimizing sum utility and once optimizing min utility
-  deepcomp --seed $seed --alg brute-force --agent central --env $env --slow-ues $num_ues --eval $num_eval --video html --reward sum --workers $workers
-#  deepcomp --seed $seed --alg brute-force --agent central --env $env --slow-ues $num_ues --eval $num_eval --video html --reward min --workers $workers
+  for alg in brute-force greedy-best greedy-all
+  do
+    echo Num. UEs: $num_ues, Alg: $alg
+    deepcomp --seed $seed --alg $alg --agent multi --env $env --slow-ues $num_ues --eval $num_eval --video html --sharing $sharing --workers $workers
+  done
+  # do random separately since it's central agent
+  deepcomp --seed $seed --alg random --agent central --env $env --slow-ues $num_ues --eval $num_eval --video html --sharing $sharing
 done
