@@ -17,8 +17,8 @@ do
   for alg in brute-force greedy-best greedy-all
   do
     echo Num. UEs: $num_ues, Alg: $alg
-    deepcomp --seed $seed --alg $alg --agent multi --env $env --slow-ues $num_ues --eval $num_eval --video html --sharing $sharing --workers $workers
+    deepcomp --seed $seed --alg $alg --agent multi --env $env --slow-ues $num_ues --eval $num_eval --video html --sharing $sharing --workers $workers --rand-test
   done
   # do random separately since it's central agent
-  deepcomp --seed $seed --alg random --agent central --env $env --slow-ues $num_ues --eval $num_eval --video html --sharing $sharing
+  deepcomp --seed $seed --alg random --agent central --env $env --slow-ues $num_ues --eval $num_eval --video html --sharing $sharing --rand-test
 done
