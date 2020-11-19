@@ -200,7 +200,7 @@ def create_env_config(cli_args):
     # config['observation_filter'] = "MeanStdFilter"
     # NN settings: https://docs.ray.io/en/latest/rllib-models.html#built-in-model-parameters
     # configure the size of the neural network's hidden layers; default: [256, 256]
-    config['model']['fcnet_hiddens'] = [512, 512, 512]
+    # config['model']['fcnet_hiddens'] = [512, 512, 512]
     # LSTM settings
     config['model']['use_lstm'] = cli_args.lstm
     # config['model']['lstm_use_prev_action_reward'] = True
