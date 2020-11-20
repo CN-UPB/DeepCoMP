@@ -274,7 +274,7 @@ class RelNormEnv(BinaryMobileEnv):
         max_dr = max(bs_dr)
         # avoid division by 0
         if max_dr == 0:
-            bs_norm_dr = [1 for _ in bs_dr]
+            bs_norm_dr = [0 for _ in bs_dr]
         else:
             bs_norm_dr = [dr / max_dr for dr in bs_dr]
 
