@@ -269,7 +269,7 @@ class RelNormEnv(BinaryMobileEnv):
 
         # normalized dr to [0,1] based on the highest dr currently available
         # bs_dr = [bs.data_rate(ue) for bs in self.bs_list]
-        # TODO: just a test --> SNR instead of dr
+        # better than data rate: Use SNR instead of dr!
         bs_dr = [bs.snr(ue.pos) for bs in self.bs_list]
         max_dr = max(bs_dr)
         # avoid division by 0
