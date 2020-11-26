@@ -293,3 +293,8 @@ class RelNormEnv(BinaryMobileEnv):
         return {'connected': bs_conn, 'dr': bs_norm_dr, 'utility': utility, 'ues_at_bs': ues_at_bs}
         # return {'connected': bs_conn, 'dr': bs_norm_dr, 'utility': utility, 'idle_bs': idle_bs}
         # return {'connected': bs_conn, 'dr': bs_norm_dr, 'utility': utility, 'bs_util': bs_util, 'idle_bs': idle_bs}
+
+
+class MaxNormEnv(RelNormEnv):
+    """Same as RelNormEnv, just with different normalization of SNR (previously data rate)"""
+    def get_ue_obs(self, ue):
