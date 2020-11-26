@@ -1,5 +1,6 @@
 """Utility module for setting up different envs"""
 import numpy as np
+import structlog
 from shapely.geometry import Point
 from ray.rllib.agents.ppo import DEFAULT_CONFIG
 from ray.rllib.env.multi_agent_env import MultiAgentEnv
@@ -13,6 +14,9 @@ from drl_mobile.env.entities.station import Basestation
 from drl_mobile.env.entities.map import Map
 from drl_mobile.env.util.movement import UniformMovement, RandomWaypoint
 from drl_mobile.util.callbacks import CustomMetricCallbacks
+
+
+log = structlog.get_logger()
 
 
 def get_env_class(env_type):
@@ -219,10 +223,18 @@ def create_env_config(cli_args):
 
         # use separate policies (and NNs) for each agent
         if cli_args.separate_agent_nns:
+            # create policies also for all future UEs
+            if env.max_ues > env.num_ue:
+                log.warning("Varying num. UEs. Creating policy for all (future) UEs.",
+                            curr_num_ue=env.num_ue, max_ues=env.max_ues)
+                ue_ids = [str(i + 1) for i in range(env.max_ues)]
+            else:
+                ue_ids = [ue.id for ue in ue_list]
+
             config['multiagent'] = {
                 # attention: ue.id needs to be a string! just casting it to str() here doesn't work;
                 # needs to be consistent with obs keys --> easier, just use string IDs
-                'policies': {ue.id: (None, env.observation_space, env.action_space, {}) for ue in ue_list},
+                'policies': {ue_id: (None, env.observation_space, env.action_space, {}) for ue_id in ue_ids},
                 'policy_mapping_fn': lambda agent_id: agent_id
             }
         # or: all UEs use the same policy and NN

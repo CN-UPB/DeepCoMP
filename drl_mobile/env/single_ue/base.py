@@ -63,6 +63,9 @@ class MobileEnv(gym.Env):
         self.log = structlog.get_logger()
         self.log.info('Env init', env_config=env_config)
 
+        # call after initializing everything else (needs settings, log)
+        self.max_ues = self.get_max_num_ue()
+
     @property
     def num_bs(self):
         return len(self.bs_list)
@@ -135,6 +138,17 @@ class MobileEnv(gym.Env):
         for bs in self.bs_list:
             bs.reset()
         return self.get_obs()
+
+    def get_max_num_ue(self):
+        """Get the maximum number of UEs within an episode based on the new UE interval"""
+        max_ues = self.num_ue
+        if self.new_ue_interval is not None:
+            # calculate the max number of UEs if one new UE is added at a given interval
+            # eps_length - 1 because time is increased before checking done and t=eps_length is never reached
+            max_ues = self.num_ue + int((self.episode_length - 1) / self.new_ue_interval)
+            self.log.info('Num. UEs varies over time.', new_ue_interval=self.new_ue_interval, num_ues=self.num_ue,
+                          max_ues=max_ues, episode_length=self.episode_length)
+        return max_ues
 
     def get_ue_actions(self, action):
         """

@@ -18,14 +18,9 @@ class CentralBaseEnv(MobileEnv):
         self.reward_agg = env_config['reward']
 
         # if the number of UEs varies over time, the action space needs to be large enough to control all UEs
-        self.max_ues = self.num_ue
-        if self.new_ue_interval is not None:
-            # calculate the max number of UEs if one new UE is added at a given interval
-            # eps_length - 1 because time is increased before checking done and t=eps_length is never reached
-            self.max_ues = self.num_ue + int((self.episode_length - 1) / self.new_ue_interval)
-            self.log.warning('Num. UEs varies over time. Setting action and observation space for max. number of UEs.',
-                             new_ue_interval=self.new_ue_interval, num_ues=self.num_ue, max_ues=self.max_ues,
-                             episode_length=self.episode_length)
+        if self.max_ues > self.num_ue:
+            self.log.warning("Num. UEs varies over time. Setting action and observation space for max. number of UEs.",
+                             curr_num_ue=self.num_ue, max_ues=self.max_ues)
 
         # observation space to be defined in sub classes!
         # actions: FOR EACH UE: select a BS to be connected to/disconnect from or noop
