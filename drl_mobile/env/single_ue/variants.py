@@ -250,7 +250,7 @@ class RelNormEnv(BinaryMobileEnv):
     """
     def __init__(self, env_config):
         super().__init__(env_config)
-        obs_space = {
+        self.obs_space_dict = {
             # connected is unchanged; as before
             'connected': gym.spaces.MultiBinary(self.num_bs),
             # dr is normalized differently
@@ -262,7 +262,7 @@ class RelNormEnv(BinaryMobileEnv):
             # 'ues_at_bs': gym.spaces.MultiDiscrete([self.num_ue+1 for _ in range(self.num_bs)]),
             'ues_at_bs': gym.spaces.Box(low=0, high=1, shape=(self.num_bs,)),
         }
-        self.observation_space = gym.spaces.Dict(obs_space)
+        self.observation_space = gym.spaces.Dict(self.obs_space_dict)
 
     def get_ue_obs(self, ue):
         # connected BS as before
@@ -300,6 +300,12 @@ class MaxNormEnv(RelNormEnv):
     """Same as RelNormEnv, just with different normalization of SNR (previously data rate)"""
     # max SNR used for normalization. corresponds to distance of roughly 11m to the BS; enough for highest utility
     MAX_SNR_THRESHOLD = 7e-6
+
+    def __init__(self, env_config):
+        super().__init__(env_config)
+        # dr/snr may be negative here
+        self.obs_space_dict['dr'] = gym.spaces.Box(low=-1, high=1, shape=(self.num_bs,))
+        self.observation_space = gym.spaces.Dict(self.obs_space_dict)
 
     def get_ue_obs(self, ue):
         obs = super().get_ue_obs(ue)
