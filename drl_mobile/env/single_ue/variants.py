@@ -298,3 +298,5 @@ class RelNormEnv(BinaryMobileEnv):
 class MaxNormEnv(RelNormEnv):
     """Same as RelNormEnv, just with different normalization of SNR (previously data rate)"""
     def get_ue_obs(self, ue):
+        pass
+        # TODO: implement and compare against RelNormEnv!
