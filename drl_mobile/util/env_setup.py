@@ -6,8 +6,8 @@ from ray.rllib.agents.ppo import DEFAULT_CONFIG
 from ray.rllib.env.multi_agent_env import MultiAgentEnv
 
 from drl_mobile.util.constants import SUPPORTED_ENVS, SUPPORTED_AGENTS
-from drl_mobile.env.single_ue.variants import BinaryMobileEnv, DatarateMobileEnv, NormDrMobileEnv, RelNormEnv
-from drl_mobile.env.multi_ue.central import CentralDrEnv, CentralNormDrEnv, CentralRelNormEnv
+from drl_mobile.env.single_ue.variants import BinaryMobileEnv, DatarateMobileEnv, NormDrMobileEnv, RelNormEnv, MaxNormEnv
+from drl_mobile.env.multi_ue.central import CentralDrEnv, CentralNormDrEnv, CentralRelNormEnv, CentralMaxNormEnv
 from drl_mobile.env.multi_ue.multi_agent import MultiAgentMobileEnv, SeqMultiAgentMobileEnv
 from drl_mobile.env.entities.user import User
 from drl_mobile.env.entities.station import Basestation
@@ -31,6 +31,7 @@ def get_env_class(env_type):
         # return CentralDrEnv
         # return CentralNormDrEnv
         return CentralRelNormEnv
+        # return CentralMaxNormEnv
     if env_type == 'multi':
         return MultiAgentMobileEnv
 

@@ -3,6 +3,7 @@ import gym.spaces
 import numpy as np
 
 from drl_mobile.env.single_ue.base import MobileEnv
+from drl_mobile.env.entities.station import SNR_THRESHOLD as MIN_SNR_THRESHOLD
 
 
 class BinaryMobileEnv(MobileEnv):
@@ -297,6 +298,20 @@ class RelNormEnv(BinaryMobileEnv):
 
 class MaxNormEnv(RelNormEnv):
     """Same as RelNormEnv, just with different normalization of SNR (previously data rate)"""
+    # max SNR used for normalization. corresponds to distance of roughly 11m to the BS; enough for highest utility
+    MAX_SNR_THRESHOLD = 7e-6
+
     def get_ue_obs(self, ue):
-        pass
-        # TODO: implement and compare against RelNormEnv!
+        obs = super().get_ue_obs(ue)
+
+        # overwrite snr observation (previously dr) with new normalization
+        bs_snr = []
+        for bs in self.bs_list:
+            # get SNR and cap at threshold
+            snr = min(bs.snr(ue.pos), self.MAX_SNR_THRESHOLD)
+            # subtract required SNR and normalize
+            snr_norm = (snr - MIN_SNR_THRESHOLD) / (self.MAX_SNR_THRESHOLD - MIN_SNR_THRESHOLD)
+            bs_snr.append(snr_norm)
+
+        obs['dr'] = bs_snr
+        return obs

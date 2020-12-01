@@ -2,7 +2,7 @@
 import gym.spaces
 
 from drl_mobile.env.single_ue.base import MobileEnv
-from drl_mobile.env.single_ue.variants import NormDrMobileEnv, DatarateMobileEnv, RelNormEnv
+from drl_mobile.env.single_ue.variants import NormDrMobileEnv, DatarateMobileEnv, RelNormEnv, MaxNormEnv
 
 
 class CentralBaseEnv(MobileEnv):
@@ -138,6 +138,18 @@ class CentralNormDrEnv(CentralBaseEnv, NormDrMobileEnv):
 
 
 class CentralRelNormEnv(CentralBaseEnv, RelNormEnv):
+    def __init__(self, env_config):
+        super().__init__(env_config)
+        # use max. number of UEs instead of actual number to support varying numbers of UEs
+        obs_space = {
+            'connected': gym.spaces.MultiBinary(self.max_ues * self.num_bs),
+            'dr': gym.spaces.Box(low=0, high=1, shape=(self.max_ues * self.num_bs,)),
+            'utility': gym.spaces.Box(low=-1, high=1, shape=(self.max_ues,)),
+        }
+        self.observation_space = gym.spaces.Dict(obs_space)
+
+
+class CentralMaxNormEnv(CentralBaseEnv, MaxNormEnv):
     def __init__(self, env_config):
         super().__init__(env_config)
         # use max. number of UEs instead of actual number to support varying numbers of UEs
