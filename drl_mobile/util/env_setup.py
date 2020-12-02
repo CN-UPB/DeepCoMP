@@ -30,8 +30,8 @@ def get_env_class(env_type):
     if env_type == 'central':
         # return CentralDrEnv
         # return CentralNormDrEnv
-        return CentralRelNormEnv
-        # return CentralMaxNormEnv
+        # return CentralRelNormEnv
+        return CentralMaxNormEnv
     if env_type == 'multi':
         return MultiAgentMobileEnv
 
@@ -88,11 +88,6 @@ def create_dyn_medium_map(sharing_model, bs_dist=100, dist_to_border=10):
     Create map with 3 BS at equal distance. Distance can be varied dynamically. Map is sized automatically.
     Keep the same layout as old medium env here: A, B on same horizontal axis. C above in the middle
     """
-    sharing_list = [sharing_model for _ in range(3)]
-    # different sharing models at different BS
-    if sharing_model == 'mixed':
-        sharing_list = ['resource-fair', 'rate-fair', 'proportional-fair']
-
     # calculate vertical distance from A, B to C using Pythagoras
     y_dist = np.sqrt(bs_dist ** 2 - (bs_dist / 2) ** 2)
     # derive map size from BS distance and distance to border
