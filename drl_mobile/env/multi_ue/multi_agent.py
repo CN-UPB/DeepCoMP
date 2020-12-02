@@ -42,8 +42,8 @@ class MultiAgentMobileEnv(RelNormEnv, MultiAgentEnv):
         Return rewards as they are but use UE ID as key instead of UE itself.
         The reward key needs to be same as obs key & sortable not just hashable.
         """
-        sum_rewards = sum(rewards.values())
-        return {ue.id: sum_rewards for ue in rewards.keys()}
+        # sum_rewards = sum(rewards.values())
+        # return {ue.id: sum_rewards for ue in rewards.keys()}
         # return {ue.id: r for ue, r in rewards.items()}
 
         # variant: add aggregated utility of UEs at the same BS
