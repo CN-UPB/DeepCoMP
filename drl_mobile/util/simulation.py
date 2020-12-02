@@ -18,7 +18,7 @@ from ray.rllib.env.multi_agent_env import MultiAgentEnv
 
 from drl_mobile.util.constants import SUPPORTED_ALGS, SUPPORTED_RENDER, RESULT_DIR, TRAIN_DIR, TEST_DIR, VIDEO_DIR
 from drl_mobile.agent.dummy import RandomAgent, FixedAgent
-from drl_mobile.agent.heuristics import GreedyBestSelection, GreedyAllSelection
+from drl_mobile.agent.heuristics import GreedyBestSelection, GreedyAllSelection, DynamicSelection
 from drl_mobile.agent.brute_force import BruteForceAgent
 from drl_mobile.util.logs import config_logging
 
@@ -227,6 +227,8 @@ class Simulation:
             self.agent = GreedyBestSelection()
         if self.agent_name == 'greedy-all':
             self.agent = GreedyAllSelection()
+        if self.agent_name == 'dynamic':
+            self.agent = DynamicSelection(epsilon=0.8)
         if self.agent_name == 'brute-force':
             self.agent = BruteForceAgent(self.num_workers)
         if self.agent_name == 'random':

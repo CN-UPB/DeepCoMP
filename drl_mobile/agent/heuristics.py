@@ -35,9 +35,6 @@ class GreedyBestSelection(MultiAgent):
 
 class GreedyAllSelection(MultiAgent):
     """Agent that always greedily connects to all BS."""
-    # TODO: extension: only to those that exceed a min dr threshold.
-    #  to avoid constantly tryign to connect to BS that are out of range --> leads to penalty
-
     def compute_action(self, obs, policy_id):
         """
         Compute action for a UE. Try to connect to all BS. Prioritize BS with higher data rate.
@@ -60,3 +57,42 @@ class GreedyAllSelection(MultiAgent):
                 best_dr = obs['dr'][bs]
         # 0 = noop --> select BS with BS index + 1
         return best_bs + 1
+
+
+class DynamicSelection(MultiAgent):
+    """
+    Heuristic that dynamically selects cells per UE depending on the SINR.
+    It always selects the strongest cell with SINR-1st and all cells that are within epsilon * SINR-1st.
+
+    Based on the following paper: 'Multi-point fairness in resource allocation for C-RAN downlink CoMP transmission'
+    https://jwcn-eurasipjournals.springeropen.com/articles/10.1186/s13638-015-0501-4
+    """
+    def __init__(self, epsilon):
+        """
+        :param epsilon: Scaling factor
+        """
+        super().__init__()
+        self.epsilon = epsilon
+
+    def compute_action(self, obs, policy_id):
+        """Select strongest BS and all that are within epsilon * SINR of that BS"""
+        # get set of selected cells
+        best_snr = max(obs['dr'])
+        threshold = best_snr * self.epsilon
+        selected_bs = [idx for idx, snr in enumerate(obs['dr']) if snr >= threshold]
+
+        connected_bs = [idx for idx, conn in enumerate(obs['connected']) if conn]
+        # disconnect from any BS not in the set of selected BS
+        for bs in connected_bs:
+            if bs not in selected_bs:
+                # 0 = noop --> select BS with BS index + 1
+                return bs + 1
+
+        # then connect to BS inside set, starting with the strongest --> sort with decreasing SINR
+        selected_bs_sorted = sorted(selected_bs, key=lambda idx: obs['dr'][idx], reverse=True)
+        for bs in selected_bs_sorted:
+            if not obs['connected'][bs]:
+                return bs + 1
+
+        # else do nothing
+        return 0
