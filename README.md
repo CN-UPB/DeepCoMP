@@ -15,7 +15,7 @@ sudo apt upgrade
 sudo apt install cmake build-essential zlib1g-dev python3-dev
 
 # while the issues below persist
-pip install ray[rllib]
+pip install ray[rllib]==1
 pip install git+https://github.com/stefanbschneider/structlog.git@dev
 
 # on all systems
