@@ -5,7 +5,7 @@ from shapely.geometry import Point
 from ray.rllib.agents.ppo import DEFAULT_CONFIG
 from ray.rllib.env.multi_agent_env import MultiAgentEnv
 
-from drl_mobile.util.constants import SUPPORTED_ENVS, SUPPORTED_AGENTS
+from drl_mobile.util.constants import SUPPORTED_ENVS, SUPPORTED_AGENTS, SUPPORTED_SHARING
 from drl_mobile.env.single_ue.variants import BinaryMobileEnv, DatarateMobileEnv, NormDrMobileEnv, RelNormEnv, MaxNormEnv
 from drl_mobile.env.multi_ue.central import CentralDrEnv, CentralNormDrEnv, CentralRelNormEnv, CentralMaxNormEnv
 from drl_mobile.env.multi_ue.multi_agent import MultiAgentMobileEnv, SeqMultiAgentMobileEnv
@@ -36,6 +36,18 @@ def get_env_class(env_type):
         return MultiAgentMobileEnv
 
 
+def get_sharing_for_bs(sharing, bs_idx):
+    """Return the sharing model for the given BS"""
+    # if it's not mixed, it's the same for all BS
+    if sharing != 'mixed':
+        assert sharing in SUPPORTED_SHARING
+        return sharing
+
+    # else loop through the available sharing models
+    sharing_list = ['resource-fair', 'rate-fair', 'proportional-fair']
+    return sharing_list[bs_idx % len(sharing_list)]
+
+
 def create_small_map(sharing_model):
     """
     Create small map and 2 BS
@@ -43,8 +55,8 @@ def create_small_map(sharing_model):
     :returns: tuple (map, bs_list)
     """
     map = Map(width=150, height=100)
-    bs1 = Basestation('A', Point(50, 50), sharing_model)
-    bs2 = Basestation('B', Point(100, 50), sharing_model)
+    bs1 = Basestation('A', Point(50, 50), get_sharing_for_bs(sharing_model, 0))
+    bs2 = Basestation('B', Point(100, 50), get_sharing_for_bs(sharing_model, 1))
     bs_list = [bs1, bs2]
     return map, bs_list
 
@@ -89,10 +101,10 @@ def create_dyn_medium_map(sharing_model, bs_dist=100, dist_to_border=10):
 
     map = Map(width=map_width, height=map_height)
     # BS A is located at bottom left corner with specified distance to border
-    bs1 = Basestation('A', Point(dist_to_border, dist_to_border), sharing_list[0])
+    bs1 = Basestation('A', Point(dist_to_border, dist_to_border), get_sharing_for_bs(sharing_model, 0))
     # other BS positions are derived accordingly
-    bs2 = Basestation('B', Point(dist_to_border + bs_dist, dist_to_border), sharing_list[1])
-    bs3 = Basestation('C', Point(dist_to_border + (bs_dist / 2), dist_to_border + y_dist), sharing_list[2])
+    bs2 = Basestation('B', Point(dist_to_border + bs_dist, dist_to_border), get_sharing_for_bs(sharing_model, 1))
+    bs3 = Basestation('C', Point(dist_to_border + (bs_dist / 2), dist_to_border + y_dist), get_sharing_for_bs(sharing_model, 2))
     return map, [bs1, bs2, bs3]
 
 
@@ -105,14 +117,14 @@ def create_large_map(sharing_model):
     map = Map(width=230, height=260)
     bs_list = [
         # center
-        Basestation('A', Point(115, 130), sharing_model),
+        Basestation('A', Point(115, 130), get_sharing_for_bs(sharing_model, 0)),
         # top left, counter-clockwise
-        Basestation('B', Point(30, 80), sharing_model),
-        Basestation('C', Point(115, 30), sharing_model),
-        Basestation('D', Point(200, 80), sharing_model),
-        Basestation('E', Point(200, 180), sharing_model),
-        Basestation('F', Point(115, 230), sharing_model),
-        Basestation('G', Point(30, 180), sharing_model),
+        Basestation('B', Point(30, 80), get_sharing_for_bs(sharing_model, 1)),
+        Basestation('C', Point(115, 30), get_sharing_for_bs(sharing_model, 2)),
+        Basestation('D', Point(200, 80), get_sharing_for_bs(sharing_model, 3)),
+        Basestation('E', Point(200, 180), get_sharing_for_bs(sharing_model, 4)),
+        Basestation('F', Point(115, 230), get_sharing_for_bs(sharing_model, 5)),
+        Basestation('G', Point(30, 180), get_sharing_for_bs(sharing_model, 6)),
     ]
 
     return map, bs_list
