@@ -4,7 +4,7 @@ from ray.rllib.env.multi_agent_env import MultiAgentEnv
 from drl_mobile.env.single_ue.variants import DatarateMobileEnv, NormDrMobileEnv, RelNormEnv, MaxNormEnv
 
 
-class MultiAgentMobileEnv(MaxNormEnv, MultiAgentEnv):
+class MultiAgentMobileEnv(RelNormEnv, MultiAgentEnv):
     """
     Multi-UE and multi-agent env.
     Inherits the parent env's (eg, DatarateMobileEnv) constructor, step, visualization
