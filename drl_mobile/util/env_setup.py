@@ -30,8 +30,8 @@ def get_env_class(env_type):
     if env_type == 'central':
         # return CentralDrEnv
         # return CentralNormDrEnv
-        # return CentralRelNormEnv
-        return CentralMaxNormEnv
+        return CentralRelNormEnv
+        # return CentralMaxNormEnv
     if env_type == 'multi':
         return MultiAgentMobileEnv
 
