@@ -30,6 +30,7 @@ def setup_cli():
                         help="How to aggregate rewards from multiple UEs within a step.")
     # environment
     parser.add_argument('--env', type=str, choices=SUPPORTED_ENVS, default='small', help="Env/Map size")
+    parser.add_argument('--num-bs', type=int, default=None, help="Number of BS in large env (not supported by others).")
     parser.add_argument('--bs-dist', type=int, default=100, help="Distance between BS. Only supported by medium env.")
     parser.add_argument('--eps-length', type=int, default=100, help="Number of time steps per episode")
     parser.add_argument('--static-ues', type=int, default=0, help="Number of static UEs in the environment")
@@ -70,4 +71,7 @@ def setup_cli():
     assert getattr(args, 'continue') is None or args.test is None, "Use either --continue or --test, not both."
     assert args.rand_test is False or args.fixed_rand_eval is False, "Use either --rand-test or --fixed-rand-eval."
     assert not (args.cont_train and args.rand_train), "Either train continuously or with random episodes."
+    if args.num_bs is not None:
+        assert args.env == 'large', "--num-bs only supported by large env"
+        assert 1 <= args.num_bs <= 7, "--num-bs must be between 1 and 7"
     return args

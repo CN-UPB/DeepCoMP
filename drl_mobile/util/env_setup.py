@@ -131,17 +131,13 @@ def create_dyn_large_map(sharing_model, num_bs, dist_to_border=10):
     # take only selected BS
     bs_list = bs_list[:num_bs]
     # create map with size according to BS positions
-    min_x, max_x, min_y, max_y = None, None, None, None
+    max_x, max_y = None, None
     for bs in bs_list:
-        if min_x is None or bs.pos.x < min_x:
-            min_x = bs.pos.x
         if max_x is None or bs.pos.x > max_x:
             max_x = bs.pos.x
-        if min_y is None or bs.pos.y < min_y:
-            min_y = bs.pos.y
         if max_y is None or bs.pos.y > max_y:
             max_y = bs.pos.y
-    map = Map(width=max_x-min_x, height=max_y-min_y, min_x=min_x, min_y=min_y)
+    map = Map(width=max_x + dist_to_border, height=max_y + dist_to_border)
     return map, bs_list
 
 
@@ -172,7 +168,7 @@ def create_custom_env(sharing_model):
     return map, ue_list, bs_list
 
 
-def get_env(map_size, bs_dist, num_static_ues, num_slow_ues, num_fast_ues, sharing_model):
+def get_env(map_size, bs_dist, num_static_ues, num_slow_ues, num_fast_ues, sharing_model, num_bs=None):
     """Create and return the environment corresponding to the given map_size"""
     assert map_size in SUPPORTED_ENVS, f"Environment {map_size} is not one of {SUPPORTED_ENVS}."
 
@@ -183,7 +179,10 @@ def get_env(map_size, bs_dist, num_static_ues, num_slow_ues, num_fast_ues, shari
     elif map_size == 'medium':
         map, bs_list = create_dyn_medium_map(sharing_model, bs_dist=bs_dist)
     elif map_size == 'large':
-        map, bs_list = create_large_map(sharing_model)
+        if num_bs is None:
+            map, bs_list = create_large_map(sharing_model)
+        else:
+            map, bs_list = create_dyn_large_map(sharing_model, num_bs)
     # custom env also defines UEs --> return directly
     elif map_size == 'custom':
         return create_custom_env(sharing_model)
@@ -203,7 +202,7 @@ def create_env_config(cli_args):
     """
     env_class = get_env_class(cli_args.agent)
     map, ue_list, bs_list = get_env(cli_args.env, cli_args.bs_dist, cli_args.static_ues, cli_args.slow_ues,
-                                    cli_args.fast_ues, cli_args.sharing)
+                                    cli_args.fast_ues, cli_args.sharing, cli_args.num_bs)
 
     # this is for DrEnv and step utility
     # env_config = {
