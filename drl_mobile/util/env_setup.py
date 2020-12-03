@@ -125,6 +125,26 @@ def create_large_map(sharing_model):
     return map, bs_list
 
 
+def create_dyn_large_map(sharing_model, num_bs, dist_to_border=10):
+    assert 1 <= num_bs <= 7, "Only support 1-7 BS in large env"
+    _, bs_list = create_large_map(sharing_model)
+    # take only selected BS
+    bs_list = bs_list[:num_bs]
+    # create map with size according to BS positions
+    min_x, max_x, min_y, max_y = None, None, None, None
+    for bs in bs_list:
+        if min_x is None or bs.pos.x < min_x:
+            min_x = bs.pos.x
+        if max_x is None or bs.pos.x > max_x:
+            max_x = bs.pos.x
+        if min_y is None or bs.pos.y < min_y:
+            min_y = bs.pos.y
+        if max_y is None or bs.pos.y > max_y:
+            max_y = bs.pos.y
+    map = Map(width=max_x-min_x, height=max_y-min_y, min_x=min_x, min_y=min_y)
+    return map, bs_list
+
+
 def create_ues(map, num_static_ues, num_slow_ues, num_fast_ues):
     """Create custom number of slow/fast UEs on the given map. Return UE list"""
     ue_list = []
