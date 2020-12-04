@@ -252,9 +252,10 @@ class Simulation:
         num_ues = self.cli_args.static_ues + self.cli_args.slow_ues + self.cli_args.fast_ues
         train = 'rand' if self.cli_args.rand_train else 'fixed'
         test = 'rand' if self.cli_args.rand_test else 'fixed'
+        seed = self.cli_args.seed
         self.result_filename = \
             f'{agent_name}_{self.env_name}_{env_size}_{self.cli_args.sharing}_{num_ues}UEs-{self.cli_args.reward}' \
-            f'_{train}-{test}_{timestamp}'
+            f'_{train}-{test}_{seed}_{timestamp}'
 
     def save_animation(self, fig, patches, mode):
         """
