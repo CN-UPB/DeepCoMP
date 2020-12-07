@@ -222,7 +222,7 @@ def create_env_config(cli_args):
     # create and return the config
     config = DEFAULT_CONFIG.copy()
     # discount factor (default 0.99)
-    config['gamma'] = 0.5
+    # config['gamma'] = 0.5
     # 0 = no workers/actors at all --> low overhead for short debugging; 2+ workers to accelerate long training
     config['num_workers'] = cli_args.workers
     config['seed'] = cli_args.seed
