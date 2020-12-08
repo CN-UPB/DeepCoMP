@@ -26,6 +26,7 @@ eval_requirements = [
 setup(
     name='deepcomp',
     version=1.0,
+    author='Stefan Schneider',
     description="DeepCoMP: Self-Learning Dynamic Multi-Cell Selection for Coordinated Multipoint (CoMP)",
     url='https://github.com/CN-UPB/DeepCoMP',
     packages=find_packages(),

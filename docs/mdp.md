@@ -7,9 +7,9 @@ Using the multi-agent environment with the latest common configuration.
 *Observations*: Observation for each agent (controlling a single UE)
 
 * Currently connected BS (binary vector)
-* Achievable data rate to each BS. Processed/normlaized to `[0, 1]` by dividing with the max. data rate of all possible BS connections
+* Relative SINR normalized to `[0,1]`
 * Total utility of the UE. Also normalized to `[0,1]`.
-* Multi-agent only: Binary vector of which BS are currently idle, ie, without any UEs
+* Multi-agent only: Utilization of each BS, normalized to `[0,1]`
 
 *Actions*:
 
@@ -23,10 +23,14 @@ Using the multi-agent environment with the latest common configuration.
     * 0 utility for 1 dr, 20 utility (max) for 100 dr
     * Normalized to `[-1, 1]`
 * Central PPO: Rewards of all UEs are summed 
-* Multi-agent PPO: Mix of own utility and utility of other UEs at the same BS to learn fair behavior: `alpha * own_utility + beta * avg_utility_neighbors`
+* Multi-agent PPO: Sum of rewards over all UEs in the competing set, ie, with at least one common BS
 
 
 ## Release Details and MDP Changes
+
+### [v1.0](https://github.com/CN-UPB/deep-rl-mobility-management/releases/tag/v1.0): DeepCoMP v1.0 Release
+
+Extended, tuned, tested version of DeepCoMP, DD-CoMP, and D3-CoMP for publication.
 
 ### [v0.10](https://github.com/CN-UPB/deep-rl-mobility-management/releases/tag/v0.10): Fair, cooperative multi-agent
 
