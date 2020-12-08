@@ -2,8 +2,8 @@
 import gym.spaces
 import numpy as np
 
-from drl_mobile.env.single_ue.base import MobileEnv
-from drl_mobile.env.entities.station import SNR_THRESHOLD as MIN_SNR_THRESHOLD
+from deepcomp.env.single_ue.base import MobileEnv
+from deepcomp.env.entities.station import SNR_THRESHOLD as MIN_SNR_THRESHOLD
 
 
 class BinaryMobileEnv(MobileEnv):

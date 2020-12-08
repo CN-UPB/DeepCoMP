@@ -3,7 +3,7 @@ Heuristic algorithms to use as baseline. Only work as multi-agent, not central (
 """
 import numpy as np
 
-from drl_mobile.agent.base import MultiAgent
+from deepcomp.agent.base import MultiAgent
 
 
 class GreedyBestSelection(MultiAgent):

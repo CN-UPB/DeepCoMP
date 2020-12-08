@@ -16,11 +16,11 @@ import ray.tune
 from ray.rllib.agents.ppo import PPOTrainer
 from ray.rllib.env.multi_agent_env import MultiAgentEnv
 
-from drl_mobile.util.constants import SUPPORTED_ALGS, SUPPORTED_RENDER, RESULT_DIR, TRAIN_DIR, TEST_DIR, VIDEO_DIR
-from drl_mobile.agent.dummy import RandomAgent, FixedAgent
-from drl_mobile.agent.heuristics import GreedyBestSelection, GreedyAllSelection, DynamicSelection
-from drl_mobile.agent.brute_force import BruteForceAgent
-from drl_mobile.util.logs import config_logging
+from deepcomp.util.constants import SUPPORTED_ALGS, SUPPORTED_RENDER, RESULT_DIR, TRAIN_DIR, TEST_DIR, VIDEO_DIR
+from deepcomp.agent.dummy import RandomAgent, FixedAgent
+from deepcomp.agent.heuristics import GreedyBestSelection, GreedyAllSelection, DynamicSelection
+from deepcomp.agent.brute_force import BruteForceAgent
+from deepcomp.util.logs import config_logging
 
 
 class Simulation:

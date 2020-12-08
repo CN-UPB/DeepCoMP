@@ -1,8 +1,8 @@
 """Multi-UE envs with single, centralized agent controlling all UEs at once."""
 import gym.spaces
 
-from drl_mobile.env.single_ue.base import MobileEnv
-from drl_mobile.env.single_ue.variants import NormDrMobileEnv, DatarateMobileEnv, RelNormEnv, MaxNormEnv
+from deepcomp.env.single_ue.base import MobileEnv
+from deepcomp.env.single_ue.variants import NormDrMobileEnv, DatarateMobileEnv, RelNormEnv, MaxNormEnv
 
 
 class CentralBaseEnv(MobileEnv):

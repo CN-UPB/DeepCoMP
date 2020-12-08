@@ -3,8 +3,8 @@ import logging
 import numpy as np
 from joblib import Parallel, delayed
 
-from drl_mobile.util.logs import config_logging
-from drl_mobile.agent.base import CentralAgent
+from deepcomp.util.logs import config_logging
+from deepcomp.agent.base import CentralAgent
 
 
 class BruteForceAgent(CentralAgent):
@@ -68,7 +68,7 @@ class BruteForceAgent(CentralAgent):
         """Test the i-th action and return the action and reward"""
         # configure logging each time; necessary for parallel execution with joblib
         config_logging()
-        self.env.set_log_level({'drl_mobile.util.simulation': logging.DEBUG})
+        self.env.set_log_level({'deepcomp.util.simulation': logging.DEBUG})
 
         action_list = self.get_ith_action(i)
         # need to test the action in dict form

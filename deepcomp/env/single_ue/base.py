@@ -11,10 +11,10 @@ import matplotlib.pyplot as plt
 from matplotlib import cm
 import matplotlib.patheffects as pe
 
-from drl_mobile.util.logs import config_logging
-from drl_mobile.env.util.utility import step_utility, log_utility
-from drl_mobile.env.entities.user import User
-from drl_mobile.env.util.movement import RandomWaypoint
+from deepcomp.util.logs import config_logging
+from deepcomp.env.util.utility import step_utility, log_utility
+from deepcomp.env.entities.user import User
+from deepcomp.env.util.movement import RandomWaypoint
 
 
 class MobileEnv(gym.Env):

@@ -1,6 +1,6 @@
 import numpy as np
 
-from drl_mobile.agent.base import CentralAgent
+from deepcomp.agent.base import CentralAgent
 
 
 class RandomAgent(CentralAgent):

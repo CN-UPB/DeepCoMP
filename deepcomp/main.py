@@ -3,12 +3,11 @@ import os
 import logging
 
 import structlog
-import ray.tune
 
-from drl_mobile.util.simulation import Simulation
-from drl_mobile.util.logs import config_logging
-from drl_mobile.util.env_setup import create_env_config
-from drl_mobile.util.cli import setup_cli
+from deepcomp.util.simulation import Simulation
+from deepcomp.util.logs import config_logging
+from deepcomp.util.env_setup import create_env_config
+from deepcomp.util.cli import setup_cli
 
 
 log = structlog.get_logger()
@@ -77,9 +76,9 @@ def main():
 
     # simulate one episode and render
     log_dict = {
-        'drl_mobile.util.simulation': logging.DEBUG,
-        # 'drl_mobile.env.entities.user': logging.DEBUG,
-        # 'drl_mobile.env.entities.station': logging.DEBUG
+        'deepcomp.util.simulation': logging.DEBUG,
+        # 'deepcomp.env.entities.user': logging.DEBUG,
+        # 'deepcomp.env.entities.station': logging.DEBUG
     }
     # set episode randomization for testing and evaluation according to CLI arg
     sim.run(render=args.video, log_dict=log_dict)

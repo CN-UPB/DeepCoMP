@@ -23,19 +23,18 @@ eval_requirements = [
     'jupyter>=1.0.0'
 ]
 
-# TODO: update on final release
 setup(
     name='deepcomp',
-    version=0.10,
-    description="DeepCoMP: Coordinated Multipoint Using Multi-Agent Deep Reinforcement Learning",
-    url=None,
+    version=1.0,
+    description="DeepCoMP: Self-Learning Dynamic Multi-Cell Selection for Coordinated Multipoint (CoMP)",
+    url='https://github.com/CN-UPB/DeepCoMP',
     packages=find_packages(),
     python_requires=">=3.8.*",
     install_requires=requirements + eval_requirements,
     zip_safe=False,
     entry_points={
         'console_scripts': [
-            'deepcomp=drl_mobile.main:main'
+            'deepcomp=deepcomp.main:main'
         ]
     }
 )

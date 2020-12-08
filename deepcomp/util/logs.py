@@ -5,18 +5,18 @@ import structlog
 from structlog.stdlib import LoggerFactory
 from structlog_round import FloatRounder
 
-from drl_mobile.util.constants import LOG_ROUND_DIGITS
+from deepcomp.util.constants import LOG_ROUND_DIGITS
 
 
 # TODO: also log to file (optionally)
 def config_logging():
     """Configure logging using structlog, stdlib logging, and custom FloatRounder to round to spec numb digits"""
     logging.basicConfig(level=logging.INFO)
-    logging.getLogger('drl_mobile').setLevel(logging.WARNING)
-    logging.getLogger('drl_mobile.main').setLevel(logging.INFO)
-    logging.getLogger('drl_mobile.util.simulation').setLevel(logging.INFO)
-    # logging.getLogger('drl_mobile.env.entities.user').setLevel(logging.DEBUG)
-    # logging.getLogger('drl_mobile.env.multi_ue.multi_agent').setLevel(logging.DEBUG)
+    logging.getLogger('deepcomp').setLevel(logging.WARNING)
+    logging.getLogger('deepcomp.main').setLevel(logging.INFO)
+    logging.getLogger('deepcomp.util.simulation').setLevel(logging.INFO)
+    # logging.getLogger('deepcomp.env.entities.user').setLevel(logging.DEBUG)
+    # logging.getLogger('deepcomp.env.multi_ue.multi_agent').setLevel(logging.DEBUG)
     logging.getLogger('matplotlib').setLevel(logging.WARNING)
     logging.getLogger('tensorflow').setLevel(logging.ERROR)
     gym.logger.set_level(gym.logger.ERROR)
