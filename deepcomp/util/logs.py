@@ -8,7 +8,6 @@ from structlog_round import FloatRounder
 from deepcomp.util.constants import LOG_ROUND_DIGITS
 
 
-# TODO: also log to file (optionally)
 def config_logging():
     """Configure logging using structlog, stdlib logging, and custom FloatRounder to round to spec numb digits"""
     logging.basicConfig(level=logging.INFO)

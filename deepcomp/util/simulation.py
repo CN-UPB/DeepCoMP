@@ -104,17 +104,6 @@ class Simulation:
 
         return data
 
-    def tune_params(self, stop_criteria):
-        """Tune hyper-parameters"""
-        # FIXME: not really useful yet. training is really short. how to retrieve best params? need a search alg too
-        pbt = ray.tune.schedulers.PopulationBasedTraining(
-            time_attr='time_total_s', metric='episode_reward_mean', mode='max', perturbation_interval=120,
-            hyperparam_mutations={
-                'lr': lambda: random.uniform(1e-6, 1e-3)
-            }
-        )
-        self.train(stop_criteria, scheduler=pbt)
-
     def train(self, stop_criteria, restore_path=None, scheduler=None):
         """
         Train an RLlib agent using tune until any of the configured stopping criteria is met.

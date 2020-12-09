@@ -204,21 +204,8 @@ class Basestation:
                        num_conn_ues=self.num_conn_ues)
         return dr_ue_shared
 
-    # TODO: without interference, this really just translates to a fixed distance. so decide based on distance instead?
-    #  would be simpler & faster
     def can_connect(self, ue_pos):
         """Return if a UE at a given pos can connect to this BS. That's the case if its SNR is above a threshold."""
         can_connect = self.snr(ue_pos) > SNR_THRESHOLD
         self.log.debug('Can connect?', ue_pos=str(ue_pos), can_connect=can_connect)
         return can_connect
-
-    def impact_ue_connection(self, ue):
-        """
-        Calculate and return the impact it would make on the BS' total data rate if the given UE would toggle its
-        connection (dis-/connected).
-        Normalize and clip to [-1,1]
-
-        :param ue: The UE for which to test/calculate the impact on the total data rate
-        :return:
-        """
-        raise NotImplementedError

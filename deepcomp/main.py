@@ -50,7 +50,6 @@ def main():
         config['soft_horizon'] = True
         config['no_done_at_end'] = True
 
-    # TODO: hyper-param search; probably easiest with simple grid search
     # default ppo params: https://docs.ray.io/en/latest/rllib-algorithms.html#proximal-policy-optimization-ppo
     # config['entropy_coeff'] = 0.01
     # lr: 5e-5, lr_schedule: None, gae lambda: 1.0, kl_coeff: 0.2
