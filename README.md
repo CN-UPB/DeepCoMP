@@ -74,3 +74,24 @@ tensorboard --logdir results/PPO/ (--host 0.0.0.0)
 
 Tensorboard is available at http://localhost:6006
 
+
+## Documentation
+
+API documentation is on [https://cn-upb.github.io/DeepCoMP/](https://cn-upb.github.io/DeepCoMP/).
+
+Documentation is generated based on docstrings using [pdoc3](https://pdoc3.github.io/pdoc/):
+
+```
+# from project root
+pip install pdoc3
+pdoc --force --html --output-dir docs deepcomp
+# move files to be picked up by GitHub pages
+mv docs/deepcomp/ docs/
+# then manually adjust index.html to link to GitHub repo
+```
+
+## Contribution
+
+Development: [@stefanbschneider](https://github.com/stefanbschneider/)
+
+Feature requests, questions, issues, and pull requests via GitHub are welcome.
