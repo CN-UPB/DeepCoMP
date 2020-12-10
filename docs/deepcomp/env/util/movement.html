@@ -1,0 +1,726 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
+<meta name="generator" content="pdoc 0.9.2" />
+<title>deepcomp.env.util.movement API documentation</title>
+<meta name="description" content="Utility functions for UE movement. Must inherit from abstract Movement class." />
+<link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/sanitize.min.css" integrity="sha256-PK9q560IAAa6WVRRh76LtCaI8pjTJ2z11v0miyNNjrs=" crossorigin>
+<link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/typography.min.css" integrity="sha256-7l/o7C8jubJiy74VsKTidCy1yBkRtiUGbVkYBylBqUg=" crossorigin>
+<link rel="stylesheet preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/styles/github.min.css" crossorigin>
+<style>:root{--highlight-color:#fe9}.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:30px;overflow:hidden}#sidebar > *:last-child{margin-bottom:2cm}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:1em 0 .50em 0}h3{font-size:1.4em;margin:25px 0 10px 0}h4{margin:0;font-size:105%}h1:target,h2:target,h3:target,h4:target,h5:target,h6:target{background:var(--highlight-color);padding:.2em 0}a{color:#058;text-decoration:none;transition:color .3s ease-in-out}a:hover{color:#e82}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900}pre code{background:#f8f8f8;font-size:.8em;line-height:1.4em}code{background:#f2f2f1;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{background:#f8f8f8;border:0;border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0;padding:1ex}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{margin-top:.6em;font-weight:bold}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-weight:bold;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}dt:target .name{background:var(--highlight-color)}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source summary,.git-link-div{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase}.source summary > *{white-space:nowrap;cursor:pointer}.git-link{color:inherit;margin-left:1em}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}td{padding:0 .5em}.admonition{padding:.1em .5em;margin-bottom:1em}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
+<style media="screen and (min-width: 700px)">@media screen and (min-width:700px){#sidebar{width:30%;height:100vh;overflow:auto;position:sticky;top:0}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.item .name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul{padding-left:1.5em}.toc > ul > li{margin-top:.5em}}</style>
+<style media="print">@media print{#sidebar h1{page-break-before:always}.source{display:none}}@media print{*{background:transparent !important;color:#000 !important;box-shadow:none !important;text-shadow:none !important}a[href]:after{content:" (" attr(href) ")";font-size:90%}a[href][title]:after{content:none}abbr[title]:after{content:" (" attr(title) ")"}.ir a:after,a[href^="javascript:"]:after,a[href^="#"]:after{content:""}pre,blockquote{border:1px solid #999;page-break-inside:avoid}thead{display:table-header-group}tr,img{page-break-inside:avoid}img{max-width:100% !important}@page{margin:0.5cm}p,h2,h3{orphans:3;widows:3}h1,h2,h3,h4,h5,h6{page-break-after:avoid}}</style>
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/highlight.min.js" integrity="sha256-Uv3H6lx7dJmRfRvH8TH6kJD1TSK1aFcwgx+mdg3epi8=" crossorigin></script>
+<script>window.addEventListener('DOMContentLoaded', () => hljs.initHighlighting())</script>
+</head>
+<body>
+<main>
+<article id="content">
+<header>
+<h1 class="title">Module <code>deepcomp.env.util.movement</code></h1>
+</header>
+<section id="section-intro">
+<p>Utility functions for UE movement. Must inherit from abstract Movement class.</p>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">&#34;&#34;&#34;Utility functions for UE movement. Must inherit from abstract Movement class.&#34;&#34;&#34;
+import random
+
+import structlog
+import numpy as np
+from shapely.geometry import Point
+
+
+class Movement:
+    &#34;&#34;&#34;Abstract movement class that all subclasses must inherit from&#34;&#34;&#34;
+    def __init__(self, map):
+        self.map = map
+        # own RNG for reproducibility; global random shares state that&#39;s manipulated by RL during training
+        self.rng = random.Random()
+
+    def seed(self, seed=None):
+        self.rng.seed(seed)
+
+    def reset(self):
+        raise NotImplementedError(&#34;This function must be implemented in the subclass&#34;)
+
+    def step(self, curr_pos):
+        raise NotImplementedError(&#34;This function must be implemented in the subclass&#34;)
+
+
+class UniformMovement(Movement):
+    &#34;&#34;&#34;
+    Uniformly move with same speed in one direction. When hitting the borders of the map, &#34;bounce off&#34; like a ball
+    &#34;&#34;&#34;
+    def __init__(self, map, move_x=0, move_y=0):
+        &#34;&#34;&#34;
+        Create object for uniform movement into given direction. Instantiate new movement object for each UE!
+
+        :param map: Map representing the area of movement
+        :param move_x: How far to move in x direction per step. Number or &#39;slow&#39;/&#39;fast&#39;.
+        :param move_y: How far to move in y direction per step. Number or &#39;slow&#39;/&#39;fast&#39;.
+        &#34;&#34;&#34;
+        super().__init__(map)
+        self.init_move_x = move_x
+        self.init_move_y = move_y
+        self.move_x = None
+        self.move_y = None
+
+    def __str__(self):
+        return f&#34;UniformMovement({self.move_x}, {self.move_y})&#34;
+
+    def reset(self):
+        &#34;&#34;&#34;Reset to original movement direction (may change when hitting a map border)&#34;&#34;&#34;
+        if self.init_move_x == &#39;slow&#39;:
+            self.move_x = self.rng.randint(1, 5)
+        elif self.init_move_x == &#39;fast&#39;:
+            self.move_x = self.rng.randint(10, 20)
+        else:
+            # assume init_move_x was a specific number for how to move
+            self.move_x = self.init_move_x
+        # same for move_y
+        if self.init_move_y == &#39;slow&#39;:
+            self.move_y = self.rng.randint(1, 5)
+        elif self.init_move_y == &#39;fast&#39;:
+            self.move_y = self.rng.randint(10, 20)
+        else:
+            # assume init_move_y was a specific number for how to move
+            self.move_y = self.init_move_y
+
+    def step(self, curr_pos):
+        &#34;&#34;&#34;
+        Make a step from the current position into the given direction. Bounce off at map borders.
+
+        :param Point curr_pos: Current position
+        :returns Point: New position after taking one step
+        &#34;&#34;&#34;
+        # seems like points are immutable --&gt; replace by new point
+        new_pos = Point(curr_pos.x + self.move_x, curr_pos.y + self.move_y)
+        # reverse movement if otherwise moving out of map
+        if not new_pos.within(self.map.shape):
+            self.move_x = -self.move_x
+            self.move_y = -self.move_y
+            new_pos = Point(curr_pos.x + self.move_x, curr_pos.y + self.move_y)
+        return new_pos
+
+
+class RandomWaypoint(Movement):
+    &#34;&#34;&#34;
+    Create random waypoints, move towards them, pause, and move towards new random waypoint
+    with new random velocity (within given range)
+    &#34;&#34;&#34;
+    def __init__(self, map, velocity, pause_duration=2, border_buffer=10):
+        &#34;&#34;&#34;
+        Create random waypoint movement utility object. Instantiate new movement object for each UE!
+
+        :param map: Map representing the area of movement that must not be left
+        :param velocity: Distance to move within one step. Number or &#39;slow&#39;/&#39;fast&#39;.
+        :param pause_duration: Duration [in env steps] to pause after reaching each waypoint
+        :param border_buffer: Buffer to the map border in which no waypoints are placed
+        &#34;&#34;&#34;
+        super().__init__(map)
+        self.init_velocity = velocity
+        self.velocity = None
+        self.waypoint = None
+        self.pause_duration = pause_duration
+        self.pausing = False
+        self.curr_pause = 0
+        assert border_buffer &gt; 0, &#34;Border Buffer must be &gt;0 to avoid placing waypoints on or outside map borders.&#34;
+        self.border_buffer = border_buffer
+        self.log = structlog.get_logger()
+
+    def __str__(self):
+        return f&#34;RandomWaypoint({self.init_velocity})&#34;
+
+    def reset(self):
+        &#34;&#34;&#34;Reset velocity and waypoint to new random values. Reset current pause.&#34;&#34;&#34;
+        if self.init_velocity == &#39;slow&#39;:
+            self.velocity = self.rng.randint(1, 3)
+        elif self.init_velocity == &#39;fast&#39;:
+            self.velocity = self.rng.randint(5, 10)
+        else:
+            self.velocity = self.init_velocity
+
+        self.waypoint = self.random_waypoint()
+        self.pausing = False
+        self.curr_pause = 0
+        self.log.debug(&#39;Reset movement&#39;, new_velocity=self.velocity, new_waypoint=str(self.waypoint))
+
+    def random_waypoint(self):
+        &#34;&#34;&#34;Return a new random waypoint inside the map&#34;&#34;&#34;
+        x = self.rng.randint(self.border_buffer, int(self.map.width - self.border_buffer))
+        y = self.rng.randint(self.border_buffer, int(self.map.height - self.border_buffer))
+        new_waypoint = Point(x, y)
+        assert new_waypoint.within(self.map.shape), f&#34;Waypoint {str(new_waypoint)} is outside the map!&#34;
+        return new_waypoint
+
+    def step_towards_waypoint(self, curr_pos):
+        &#34;&#34;&#34;
+        Take one step from the current position towards the current waypoint.
+
+        :param Point curr_pos: Current position
+        :return: New position after moving
+        &#34;&#34;&#34;
+        self.log = self.log.bind(prev_pos=str(curr_pos), waypoint=str(self.waypoint))
+
+        # if already close enough to waypoint, move directly onto waypoint (not past it)
+        if curr_pos.distance(self.waypoint) &lt;= self.velocity:
+            self.log.debug(&#39;Waypoint reached&#39;)
+            return self.waypoint
+
+        # else move by self.velocity towards waypoint: https://math.stackexchange.com/a/175906/234077
+        # convert points to np arrays/vectors for calculation
+        np_curr = np.array([curr_pos.x, curr_pos.y])
+        np_waypoint = np.array([self.waypoint.x, self.waypoint.y])
+        v = np_waypoint - np_curr
+        norm_v = v / np.linalg.norm(v)
+        np_new_pos = np_curr + self.velocity * norm_v
+        new_pos = Point(np_new_pos)
+
+        self.log.debug(&#39;Step to waypoint&#39;, new_pos=str(new_pos))
+        return new_pos
+
+    def step(self, curr_pos):
+        &#34;&#34;&#34;
+        Perform one movement step: Move towards waypoint, pause, select new waypoint &amp; repeat.
+
+        :param Point curr_pos: Current position of the moving entity (eg, UE)
+        :return: New position after one step
+        &#34;&#34;&#34;
+        assert curr_pos.within(self.map.shape) or curr_pos.touches(self.map.shape), \
+            f&#34;Current position {str(curr_pos)} is outside the map!&#34;
+
+        # start pausing when reaching the waypoint
+        if curr_pos == self.waypoint:
+            self.pausing = True
+
+        if self.pausing:
+            # continue pausing if pause duration is not yet reached
+            if self.curr_pause &lt; self.pause_duration:
+                self.curr_pause += 1
+                return curr_pos
+            # else stop pausing and choose a new waypoint --&gt; reset()
+            else:
+                self.reset()
+
+        # move towards (new) waypoint
+        new_pos = self.step_towards_waypoint(curr_pos)
+        return new_pos</code></pre>
+</details>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+<h2 class="section-title" id="header-classes">Classes</h2>
+<dl>
+<dt id="deepcomp.env.util.movement.Movement"><code class="flex name class">
+<span>class <span class="ident">Movement</span></span>
+<span>(</span><span>map)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Abstract movement class that all subclasses must inherit from</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class Movement:
+    &#34;&#34;&#34;Abstract movement class that all subclasses must inherit from&#34;&#34;&#34;
+    def __init__(self, map):
+        self.map = map
+        # own RNG for reproducibility; global random shares state that&#39;s manipulated by RL during training
+        self.rng = random.Random()
+
+    def seed(self, seed=None):
+        self.rng.seed(seed)
+
+    def reset(self):
+        raise NotImplementedError(&#34;This function must be implemented in the subclass&#34;)
+
+    def step(self, curr_pos):
+        raise NotImplementedError(&#34;This function must be implemented in the subclass&#34;)</code></pre>
+</details>
+<h3>Subclasses</h3>
+<ul class="hlist">
+<li><a title="deepcomp.env.util.movement.RandomWaypoint" href="#deepcomp.env.util.movement.RandomWaypoint">RandomWaypoint</a></li>
+<li><a title="deepcomp.env.util.movement.UniformMovement" href="#deepcomp.env.util.movement.UniformMovement">UniformMovement</a></li>
+</ul>
+<h3>Methods</h3>
+<dl>
+<dt id="deepcomp.env.util.movement.Movement.reset"><code class="name flex">
+<span>def <span class="ident">reset</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def reset(self):
+    raise NotImplementedError(&#34;This function must be implemented in the subclass&#34;)</code></pre>
+</details>
+</dd>
+<dt id="deepcomp.env.util.movement.Movement.seed"><code class="name flex">
+<span>def <span class="ident">seed</span></span>(<span>self, seed=None)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def seed(self, seed=None):
+    self.rng.seed(seed)</code></pre>
+</details>
+</dd>
+<dt id="deepcomp.env.util.movement.Movement.step"><code class="name flex">
+<span>def <span class="ident">step</span></span>(<span>self, curr_pos)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def step(self, curr_pos):
+    raise NotImplementedError(&#34;This function must be implemented in the subclass&#34;)</code></pre>
+</details>
+</dd>
+</dl>
+</dd>
+<dt id="deepcomp.env.util.movement.RandomWaypoint"><code class="flex name class">
+<span>class <span class="ident">RandomWaypoint</span></span>
+<span>(</span><span>map, velocity, pause_duration=2, border_buffer=10)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Create random waypoints, move towards them, pause, and move towards new random waypoint
+with new random velocity (within given range)</p>
+<p>Create random waypoint movement utility object. Instantiate new movement object for each UE!</p>
+<p>:param map: Map representing the area of movement that must not be left
+:param velocity: Distance to move within one step. Number or 'slow'/'fast'.
+:param pause_duration: Duration [in env steps] to pause after reaching each waypoint
+:param border_buffer: Buffer to the map border in which no waypoints are placed</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class RandomWaypoint(Movement):
+    &#34;&#34;&#34;
+    Create random waypoints, move towards them, pause, and move towards new random waypoint
+    with new random velocity (within given range)
+    &#34;&#34;&#34;
+    def __init__(self, map, velocity, pause_duration=2, border_buffer=10):
+        &#34;&#34;&#34;
+        Create random waypoint movement utility object. Instantiate new movement object for each UE!
+
+        :param map: Map representing the area of movement that must not be left
+        :param velocity: Distance to move within one step. Number or &#39;slow&#39;/&#39;fast&#39;.
+        :param pause_duration: Duration [in env steps] to pause after reaching each waypoint
+        :param border_buffer: Buffer to the map border in which no waypoints are placed
+        &#34;&#34;&#34;
+        super().__init__(map)
+        self.init_velocity = velocity
+        self.velocity = None
+        self.waypoint = None
+        self.pause_duration = pause_duration
+        self.pausing = False
+        self.curr_pause = 0
+        assert border_buffer &gt; 0, &#34;Border Buffer must be &gt;0 to avoid placing waypoints on or outside map borders.&#34;
+        self.border_buffer = border_buffer
+        self.log = structlog.get_logger()
+
+    def __str__(self):
+        return f&#34;RandomWaypoint({self.init_velocity})&#34;
+
+    def reset(self):
+        &#34;&#34;&#34;Reset velocity and waypoint to new random values. Reset current pause.&#34;&#34;&#34;
+        if self.init_velocity == &#39;slow&#39;:
+            self.velocity = self.rng.randint(1, 3)
+        elif self.init_velocity == &#39;fast&#39;:
+            self.velocity = self.rng.randint(5, 10)
+        else:
+            self.velocity = self.init_velocity
+
+        self.waypoint = self.random_waypoint()
+        self.pausing = False
+        self.curr_pause = 0
+        self.log.debug(&#39;Reset movement&#39;, new_velocity=self.velocity, new_waypoint=str(self.waypoint))
+
+    def random_waypoint(self):
+        &#34;&#34;&#34;Return a new random waypoint inside the map&#34;&#34;&#34;
+        x = self.rng.randint(self.border_buffer, int(self.map.width - self.border_buffer))
+        y = self.rng.randint(self.border_buffer, int(self.map.height - self.border_buffer))
+        new_waypoint = Point(x, y)
+        assert new_waypoint.within(self.map.shape), f&#34;Waypoint {str(new_waypoint)} is outside the map!&#34;
+        return new_waypoint
+
+    def step_towards_waypoint(self, curr_pos):
+        &#34;&#34;&#34;
+        Take one step from the current position towards the current waypoint.
+
+        :param Point curr_pos: Current position
+        :return: New position after moving
+        &#34;&#34;&#34;
+        self.log = self.log.bind(prev_pos=str(curr_pos), waypoint=str(self.waypoint))
+
+        # if already close enough to waypoint, move directly onto waypoint (not past it)
+        if curr_pos.distance(self.waypoint) &lt;= self.velocity:
+            self.log.debug(&#39;Waypoint reached&#39;)
+            return self.waypoint
+
+        # else move by self.velocity towards waypoint: https://math.stackexchange.com/a/175906/234077
+        # convert points to np arrays/vectors for calculation
+        np_curr = np.array([curr_pos.x, curr_pos.y])
+        np_waypoint = np.array([self.waypoint.x, self.waypoint.y])
+        v = np_waypoint - np_curr
+        norm_v = v / np.linalg.norm(v)
+        np_new_pos = np_curr + self.velocity * norm_v
+        new_pos = Point(np_new_pos)
+
+        self.log.debug(&#39;Step to waypoint&#39;, new_pos=str(new_pos))
+        return new_pos
+
+    def step(self, curr_pos):
+        &#34;&#34;&#34;
+        Perform one movement step: Move towards waypoint, pause, select new waypoint &amp; repeat.
+
+        :param Point curr_pos: Current position of the moving entity (eg, UE)
+        :return: New position after one step
+        &#34;&#34;&#34;
+        assert curr_pos.within(self.map.shape) or curr_pos.touches(self.map.shape), \
+            f&#34;Current position {str(curr_pos)} is outside the map!&#34;
+
+        # start pausing when reaching the waypoint
+        if curr_pos == self.waypoint:
+            self.pausing = True
+
+        if self.pausing:
+            # continue pausing if pause duration is not yet reached
+            if self.curr_pause &lt; self.pause_duration:
+                self.curr_pause += 1
+                return curr_pos
+            # else stop pausing and choose a new waypoint --&gt; reset()
+            else:
+                self.reset()
+
+        # move towards (new) waypoint
+        new_pos = self.step_towards_waypoint(curr_pos)
+        return new_pos</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li><a title="deepcomp.env.util.movement.Movement" href="#deepcomp.env.util.movement.Movement">Movement</a></li>
+</ul>
+<h3>Methods</h3>
+<dl>
+<dt id="deepcomp.env.util.movement.RandomWaypoint.random_waypoint"><code class="name flex">
+<span>def <span class="ident">random_waypoint</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Return a new random waypoint inside the map</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def random_waypoint(self):
+    &#34;&#34;&#34;Return a new random waypoint inside the map&#34;&#34;&#34;
+    x = self.rng.randint(self.border_buffer, int(self.map.width - self.border_buffer))
+    y = self.rng.randint(self.border_buffer, int(self.map.height - self.border_buffer))
+    new_waypoint = Point(x, y)
+    assert new_waypoint.within(self.map.shape), f&#34;Waypoint {str(new_waypoint)} is outside the map!&#34;
+    return new_waypoint</code></pre>
+</details>
+</dd>
+<dt id="deepcomp.env.util.movement.RandomWaypoint.reset"><code class="name flex">
+<span>def <span class="ident">reset</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Reset velocity and waypoint to new random values. Reset current pause.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def reset(self):
+    &#34;&#34;&#34;Reset velocity and waypoint to new random values. Reset current pause.&#34;&#34;&#34;
+    if self.init_velocity == &#39;slow&#39;:
+        self.velocity = self.rng.randint(1, 3)
+    elif self.init_velocity == &#39;fast&#39;:
+        self.velocity = self.rng.randint(5, 10)
+    else:
+        self.velocity = self.init_velocity
+
+    self.waypoint = self.random_waypoint()
+    self.pausing = False
+    self.curr_pause = 0
+    self.log.debug(&#39;Reset movement&#39;, new_velocity=self.velocity, new_waypoint=str(self.waypoint))</code></pre>
+</details>
+</dd>
+<dt id="deepcomp.env.util.movement.RandomWaypoint.step"><code class="name flex">
+<span>def <span class="ident">step</span></span>(<span>self, curr_pos)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Perform one movement step: Move towards waypoint, pause, select new waypoint &amp; repeat.</p>
+<p>:param Point curr_pos: Current position of the moving entity (eg, UE)
+:return: New position after one step</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def step(self, curr_pos):
+    &#34;&#34;&#34;
+    Perform one movement step: Move towards waypoint, pause, select new waypoint &amp; repeat.
+
+    :param Point curr_pos: Current position of the moving entity (eg, UE)
+    :return: New position after one step
+    &#34;&#34;&#34;
+    assert curr_pos.within(self.map.shape) or curr_pos.touches(self.map.shape), \
+        f&#34;Current position {str(curr_pos)} is outside the map!&#34;
+
+    # start pausing when reaching the waypoint
+    if curr_pos == self.waypoint:
+        self.pausing = True
+
+    if self.pausing:
+        # continue pausing if pause duration is not yet reached
+        if self.curr_pause &lt; self.pause_duration:
+            self.curr_pause += 1
+            return curr_pos
+        # else stop pausing and choose a new waypoint --&gt; reset()
+        else:
+            self.reset()
+
+    # move towards (new) waypoint
+    new_pos = self.step_towards_waypoint(curr_pos)
+    return new_pos</code></pre>
+</details>
+</dd>
+<dt id="deepcomp.env.util.movement.RandomWaypoint.step_towards_waypoint"><code class="name flex">
+<span>def <span class="ident">step_towards_waypoint</span></span>(<span>self, curr_pos)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Take one step from the current position towards the current waypoint.</p>
+<p>:param Point curr_pos: Current position
+:return: New position after moving</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def step_towards_waypoint(self, curr_pos):
+    &#34;&#34;&#34;
+    Take one step from the current position towards the current waypoint.
+
+    :param Point curr_pos: Current position
+    :return: New position after moving
+    &#34;&#34;&#34;
+    self.log = self.log.bind(prev_pos=str(curr_pos), waypoint=str(self.waypoint))
+
+    # if already close enough to waypoint, move directly onto waypoint (not past it)
+    if curr_pos.distance(self.waypoint) &lt;= self.velocity:
+        self.log.debug(&#39;Waypoint reached&#39;)
+        return self.waypoint
+
+    # else move by self.velocity towards waypoint: https://math.stackexchange.com/a/175906/234077
+    # convert points to np arrays/vectors for calculation
+    np_curr = np.array([curr_pos.x, curr_pos.y])
+    np_waypoint = np.array([self.waypoint.x, self.waypoint.y])
+    v = np_waypoint - np_curr
+    norm_v = v / np.linalg.norm(v)
+    np_new_pos = np_curr + self.velocity * norm_v
+    new_pos = Point(np_new_pos)
+
+    self.log.debug(&#39;Step to waypoint&#39;, new_pos=str(new_pos))
+    return new_pos</code></pre>
+</details>
+</dd>
+</dl>
+</dd>
+<dt id="deepcomp.env.util.movement.UniformMovement"><code class="flex name class">
+<span>class <span class="ident">UniformMovement</span></span>
+<span>(</span><span>map, move_x=0, move_y=0)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Uniformly move with same speed in one direction. When hitting the borders of the map, "bounce off" like a ball</p>
+<p>Create object for uniform movement into given direction. Instantiate new movement object for each UE!</p>
+<p>:param map: Map representing the area of movement
+:param move_x: How far to move in x direction per step. Number or 'slow'/'fast'.
+:param move_y: How far to move in y direction per step. Number or 'slow'/'fast'.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class UniformMovement(Movement):
+    &#34;&#34;&#34;
+    Uniformly move with same speed in one direction. When hitting the borders of the map, &#34;bounce off&#34; like a ball
+    &#34;&#34;&#34;
+    def __init__(self, map, move_x=0, move_y=0):
+        &#34;&#34;&#34;
+        Create object for uniform movement into given direction. Instantiate new movement object for each UE!
+
+        :param map: Map representing the area of movement
+        :param move_x: How far to move in x direction per step. Number or &#39;slow&#39;/&#39;fast&#39;.
+        :param move_y: How far to move in y direction per step. Number or &#39;slow&#39;/&#39;fast&#39;.
+        &#34;&#34;&#34;
+        super().__init__(map)
+        self.init_move_x = move_x
+        self.init_move_y = move_y
+        self.move_x = None
+        self.move_y = None
+
+    def __str__(self):
+        return f&#34;UniformMovement({self.move_x}, {self.move_y})&#34;
+
+    def reset(self):
+        &#34;&#34;&#34;Reset to original movement direction (may change when hitting a map border)&#34;&#34;&#34;
+        if self.init_move_x == &#39;slow&#39;:
+            self.move_x = self.rng.randint(1, 5)
+        elif self.init_move_x == &#39;fast&#39;:
+            self.move_x = self.rng.randint(10, 20)
+        else:
+            # assume init_move_x was a specific number for how to move
+            self.move_x = self.init_move_x
+        # same for move_y
+        if self.init_move_y == &#39;slow&#39;:
+            self.move_y = self.rng.randint(1, 5)
+        elif self.init_move_y == &#39;fast&#39;:
+            self.move_y = self.rng.randint(10, 20)
+        else:
+            # assume init_move_y was a specific number for how to move
+            self.move_y = self.init_move_y
+
+    def step(self, curr_pos):
+        &#34;&#34;&#34;
+        Make a step from the current position into the given direction. Bounce off at map borders.
+
+        :param Point curr_pos: Current position
+        :returns Point: New position after taking one step
+        &#34;&#34;&#34;
+        # seems like points are immutable --&gt; replace by new point
+        new_pos = Point(curr_pos.x + self.move_x, curr_pos.y + self.move_y)
+        # reverse movement if otherwise moving out of map
+        if not new_pos.within(self.map.shape):
+            self.move_x = -self.move_x
+            self.move_y = -self.move_y
+            new_pos = Point(curr_pos.x + self.move_x, curr_pos.y + self.move_y)
+        return new_pos</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li><a title="deepcomp.env.util.movement.Movement" href="#deepcomp.env.util.movement.Movement">Movement</a></li>
+</ul>
+<h3>Methods</h3>
+<dl>
+<dt id="deepcomp.env.util.movement.UniformMovement.reset"><code class="name flex">
+<span>def <span class="ident">reset</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Reset to original movement direction (may change when hitting a map border)</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def reset(self):
+    &#34;&#34;&#34;Reset to original movement direction (may change when hitting a map border)&#34;&#34;&#34;
+    if self.init_move_x == &#39;slow&#39;:
+        self.move_x = self.rng.randint(1, 5)
+    elif self.init_move_x == &#39;fast&#39;:
+        self.move_x = self.rng.randint(10, 20)
+    else:
+        # assume init_move_x was a specific number for how to move
+        self.move_x = self.init_move_x
+    # same for move_y
+    if self.init_move_y == &#39;slow&#39;:
+        self.move_y = self.rng.randint(1, 5)
+    elif self.init_move_y == &#39;fast&#39;:
+        self.move_y = self.rng.randint(10, 20)
+    else:
+        # assume init_move_y was a specific number for how to move
+        self.move_y = self.init_move_y</code></pre>
+</details>
+</dd>
+<dt id="deepcomp.env.util.movement.UniformMovement.step"><code class="name flex">
+<span>def <span class="ident">step</span></span>(<span>self, curr_pos)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Make a step from the current position into the given direction. Bounce off at map borders.</p>
+<p>:param Point curr_pos: Current position
+:returns Point: New position after taking one step</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def step(self, curr_pos):
+    &#34;&#34;&#34;
+    Make a step from the current position into the given direction. Bounce off at map borders.
+
+    :param Point curr_pos: Current position
+    :returns Point: New position after taking one step
+    &#34;&#34;&#34;
+    # seems like points are immutable --&gt; replace by new point
+    new_pos = Point(curr_pos.x + self.move_x, curr_pos.y + self.move_y)
+    # reverse movement if otherwise moving out of map
+    if not new_pos.within(self.map.shape):
+        self.move_x = -self.move_x
+        self.move_y = -self.move_y
+        new_pos = Point(curr_pos.x + self.move_x, curr_pos.y + self.move_y)
+    return new_pos</code></pre>
+</details>
+</dd>
+</dl>
+</dd>
+</dl>
+</section>
+</article>
+<nav id="sidebar">
+<h1>Index</h1>
+<div class="toc">
+<ul></ul>
+</div>
+<ul id="index">
+<li><h3>Super-module</h3>
+<ul>
+<li><code><a title="deepcomp.env.util" href="index.html">deepcomp.env.util</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-classes">Classes</a></h3>
+<ul>
+<li>
+<h4><code><a title="deepcomp.env.util.movement.Movement" href="#deepcomp.env.util.movement.Movement">Movement</a></code></h4>
+<ul class="">
+<li><code><a title="deepcomp.env.util.movement.Movement.reset" href="#deepcomp.env.util.movement.Movement.reset">reset</a></code></li>
+<li><code><a title="deepcomp.env.util.movement.Movement.seed" href="#deepcomp.env.util.movement.Movement.seed">seed</a></code></li>
+<li><code><a title="deepcomp.env.util.movement.Movement.step" href="#deepcomp.env.util.movement.Movement.step">step</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="deepcomp.env.util.movement.RandomWaypoint" href="#deepcomp.env.util.movement.RandomWaypoint">RandomWaypoint</a></code></h4>
+<ul class="">
+<li><code><a title="deepcomp.env.util.movement.RandomWaypoint.random_waypoint" href="#deepcomp.env.util.movement.RandomWaypoint.random_waypoint">random_waypoint</a></code></li>
+<li><code><a title="deepcomp.env.util.movement.RandomWaypoint.reset" href="#deepcomp.env.util.movement.RandomWaypoint.reset">reset</a></code></li>
+<li><code><a title="deepcomp.env.util.movement.RandomWaypoint.step" href="#deepcomp.env.util.movement.RandomWaypoint.step">step</a></code></li>
+<li><code><a title="deepcomp.env.util.movement.RandomWaypoint.step_towards_waypoint" href="#deepcomp.env.util.movement.RandomWaypoint.step_towards_waypoint">step_towards_waypoint</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="deepcomp.env.util.movement.UniformMovement" href="#deepcomp.env.util.movement.UniformMovement">UniformMovement</a></code></h4>
+<ul class="">
+<li><code><a title="deepcomp.env.util.movement.UniformMovement.reset" href="#deepcomp.env.util.movement.UniformMovement.reset">reset</a></code></li>
+<li><code><a title="deepcomp.env.util.movement.UniformMovement.step" href="#deepcomp.env.util.movement.UniformMovement.step">step</a></code></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</nav>
+</main>
+<footer id="footer">
+<p>Generated by <a href="https://pdoc3.github.io/pdoc"><cite>pdoc</cite> 0.9.2</a>.</p>
+</footer>
+</body>
+</html>

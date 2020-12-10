@@ -1,0 +1,819 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
+<meta name="generator" content="pdoc 0.9.2" />
+<title>deepcomp.env.entities.station API documentation</title>
+<meta name="description" content="" />
+<link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/sanitize.min.css" integrity="sha256-PK9q560IAAa6WVRRh76LtCaI8pjTJ2z11v0miyNNjrs=" crossorigin>
+<link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/typography.min.css" integrity="sha256-7l/o7C8jubJiy74VsKTidCy1yBkRtiUGbVkYBylBqUg=" crossorigin>
+<link rel="stylesheet preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/styles/github.min.css" crossorigin>
+<style>:root{--highlight-color:#fe9}.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:30px;overflow:hidden}#sidebar > *:last-child{margin-bottom:2cm}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:1em 0 .50em 0}h3{font-size:1.4em;margin:25px 0 10px 0}h4{margin:0;font-size:105%}h1:target,h2:target,h3:target,h4:target,h5:target,h6:target{background:var(--highlight-color);padding:.2em 0}a{color:#058;text-decoration:none;transition:color .3s ease-in-out}a:hover{color:#e82}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900}pre code{background:#f8f8f8;font-size:.8em;line-height:1.4em}code{background:#f2f2f1;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{background:#f8f8f8;border:0;border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0;padding:1ex}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{margin-top:.6em;font-weight:bold}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-weight:bold;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}dt:target .name{background:var(--highlight-color)}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source summary,.git-link-div{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase}.source summary > *{white-space:nowrap;cursor:pointer}.git-link{color:inherit;margin-left:1em}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}td{padding:0 .5em}.admonition{padding:.1em .5em;margin-bottom:1em}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
+<style media="screen and (min-width: 700px)">@media screen and (min-width:700px){#sidebar{width:30%;height:100vh;overflow:auto;position:sticky;top:0}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.item .name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul{padding-left:1.5em}.toc > ul > li{margin-top:.5em}}</style>
+<style media="print">@media print{#sidebar h1{page-break-before:always}.source{display:none}}@media print{*{background:transparent !important;color:#000 !important;box-shadow:none !important;text-shadow:none !important}a[href]:after{content:" (" attr(href) ")";font-size:90%}a[href][title]:after{content:none}abbr[title]:after{content:" (" attr(title) ")"}.ir a:after,a[href^="javascript:"]:after,a[href^="#"]:after{content:""}pre,blockquote{border:1px solid #999;page-break-inside:avoid}thead{display:table-header-group}tr,img{page-break-inside:avoid}img{max-width:100% !important}@page{margin:0.5cm}p,h2,h3{orphans:3;widows:3}h1,h2,h3,h4,h5,h6{page-break-after:avoid}}</style>
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/highlight.min.js" integrity="sha256-Uv3H6lx7dJmRfRvH8TH6kJD1TSK1aFcwgx+mdg3epi8=" crossorigin></script>
+<script>window.addEventListener('DOMContentLoaded', () => hljs.initHighlighting())</script>
+</head>
+<body>
+<main>
+<article id="content">
+<header>
+<h1 class="title">Module <code>deepcomp.env.entities.station</code></h1>
+</header>
+<section id="section-intro">
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">import structlog
+import numpy as np
+from shapely.geometry import Polygon
+import matplotlib.pyplot as plt
+
+from deepcomp.util.constants import SUPPORTED_SHARING, EPSILON, FAIR_WEIGHT_ALPHA, FAIR_WEIGHT_BETA
+
+
+# SNR threshold required for UEs to connect to this BS. This threshold corresponds roughly to a distance of 69m.
+SNR_THRESHOLD = 2e-8
+
+
+class Basestation:
+    &#34;&#34;&#34;A base station sending data to connected UEs&#34;&#34;&#34;
+    def __init__(self, id, pos, sharing_model):
+        self.id = id
+        self.pos = pos
+        self.conn_ues = []
+        # model for sharing rate/resources among connected UEs. One of SUPPORTED_SHARING models
+        self.sharing_model = sharing_model
+        assert self.sharing_model in SUPPORTED_SHARING, f&#34;{self.sharing_model=} not supported. {SUPPORTED_SHARING=}&#34;
+
+        # set constants for SINR and data rate calculation
+        # numbers originally from https://sites.google.com/site/lteencyclopedia/lte-radio-link-budgeting-and-rf-planning
+        # changed numbers to get shorter range --&gt; simulate smaller map
+        self.bw = 9e6   # in Hz?
+        self.frequency = 2500    # in MHz
+        self.noise = 1e-9   # in mW
+        self.tx_power = 30  # in dBm (was 40)
+        self.height = 50    # in m
+        # just consider downlink for now; more interesting for most apps anyways
+
+        # for visualization: circles around BS that show connection range (69m) and 1 Mbit range (46m); no interference
+        self.range_conn = pos.buffer(69)
+        self.range_1mbit = pos.buffer(46)
+        # also rectangle around pos
+        symbol_size = 3
+        self.symbol = Polygon([(self.pos.x-symbol_size, self.pos.y-symbol_size),
+                               (self.pos.x+symbol_size, self.pos.y-symbol_size),
+                               (self.pos.x+symbol_size, self.pos.y+symbol_size),
+                               (self.pos.x-symbol_size, self.pos.y+symbol_size)])
+
+        self.log = structlog.get_logger(id=self.id, pos=str(self.pos))
+        self.log.info(&#39;BS init&#39;, sharing_model=self.sharing_model, bw=self.bw, freq=self.frequency, noise=self.noise,
+                      tx_power=self.tx_power, height=self.height)
+
+    def __repr__(self):
+        return str(self.id)
+
+    @property
+    def num_conn_ues(self):
+        return len(self.conn_ues)
+
+    @property
+    def total_data_rate(self):
+        &#34;&#34;&#34;Total data rate of connections from this BS to all UEs&#34;&#34;&#34;
+        total_rate = 0
+        for ue in self.conn_ues:
+            total_rate += ue.bs_dr[self]
+        self.log.debug(&#39;BS total rate&#39;, total_rate=total_rate)
+        return total_rate
+
+    @property
+    def avg_utility(self):
+        &#34;&#34;&#34;Avg utility of UEs connected to this BS. If the BS is idle, return max utility&#34;&#34;&#34;
+        if len(self.conn_ues) &gt; 0:
+            return np.mean([ue.utility for ue in self.conn_ues])
+        return 20
+
+    @property
+    def min_utility(self):
+        &#34;&#34;&#34;Min utility of UEs connected to this BS. If the BS is idle, return max utility&#34;&#34;&#34;
+        if len(self.conn_ues) &gt; 0:
+            return min([ue.utility for ue in self.conn_ues])
+        return 20
+
+    def plot(self):
+        &#34;&#34;&#34;
+        Plot the BS as square with the ID inside as well as circles around it indicating the range.
+
+        :return: A list of created matplotlib artists
+        &#34;&#34;&#34;
+        # plot BS
+        artists = plt.plot(*self.symbol.exterior.xy, color=&#39;black&#39;)
+        artists.append(plt.annotate(self.id, xy=(self.pos.x, self.pos.y), ha=&#39;center&#39;, va=&#39;center&#39;))
+        # plot range
+        artists.extend(plt.plot(*self.range_1mbit.exterior.xy, color=&#39;black&#39;))
+        artists.extend(plt.plot(*self.range_conn.exterior.xy, color=&#39;gray&#39;))
+        return artists
+
+    def reset(self):
+        &#34;&#34;&#34;Reset BS to having no connected UEs&#34;&#34;&#34;
+        self.conn_ues = []
+
+    def path_loss(self, distance, ue_height=1.5):
+        &#34;&#34;&#34;Return path loss in dBm to a UE at a given position. Calculation using Okumura Hata, suburban indoor&#34;&#34;&#34;
+        ch = 0.8 + (1.1 * np.log10(self.frequency) - 0.7) * ue_height - 1.56 * np.log10(self.frequency)
+        const1 = 69.55 + 26.16 * np.log10(self.frequency) - 13.82 * np.log10(self.height) - ch
+        const2 = 44.9 - 6.55 * np.log10(self.height)
+        # add small epsilon to avoid log(0) if distance = 0
+        return const1 + const2 * np.log10(distance + EPSILON)
+
+    def received_power(self, distance):
+        &#34;&#34;&#34;Return the received power at a given distance&#34;&#34;&#34;
+        return 10**((self.tx_power - self.path_loss(distance)) / 10)
+
+    def snr(self, ue_pos):
+        &#34;&#34;&#34;Return the signal-to-noise (SNR) ratio given a UE position.&#34;&#34;&#34;
+        distance = self.pos.distance(ue_pos)
+        signal = self.received_power(distance)
+        self.log.debug(&#39;SNR to UE&#39;, ue_pos=str(ue_pos), distance=distance, signal=signal)
+        return signal / self.noise
+
+    def data_rate_unshared(self, ue):
+        &#34;&#34;&#34;
+        Return the achievable data rate for a given UE assuming that it gets the BS&#39; full, unshared data rate.
+
+        :param ue: UE requesting the achievable data rate
+        :return: Return the max. achievable data rate for the UE if it were/is connected to the BS.
+        &#34;&#34;&#34;
+        snr = self.snr(ue.pos)
+        dr_ue_unshared = self.bw * np.log2(1 + snr)
+        return dr_ue_unshared
+
+    def priority(self, ue):
+        &#34;&#34;&#34;
+        Priority based on current achievable rate (unshared!) and historic avg rate for proportional-fair sharing.
+        https://en.wikipedia.org/wiki/Proportionally_fair#User_prioritization
+
+        :param ue: UE for which to calculate the priority
+        :return: The calculated priority
+        &#34;&#34;&#34;
+        # important: use unshared dr, since the shared dr is again defined based on the priority --&gt; endless recursion
+        # add epsilon in denominator to avoid division by 0
+        return (self.data_rate_unshared(ue)**FAIR_WEIGHT_ALPHA) / (ue.ewma_dr**FAIR_WEIGHT_BETA + EPSILON)
+
+    def data_rate_shared(self, ue, dr_ue_unshared):
+        &#34;&#34;&#34;
+        Return the shared data rate the given UE would get based on its unshared data rate and a sharing model.
+
+        :param ue: UE requesting the achievable data rate
+        :param dr_ue_unshared: The UE&#39;s unshared achievable data rate
+        :return: The UE&#39;s final, shared data rate that it (could/does) get from this BS
+        &#34;&#34;&#34;
+        assert self.sharing_model in SUPPORTED_SHARING, f&#34;{self.sharing_model=} not supported. {SUPPORTED_SHARING=}&#34;
+        dr_ue_shared = None
+
+        # if the UE isn&#39;t connected yet, temporarily add it to the connected UEs to properly calculate sharing
+        ue_already_conn = ue in self.conn_ues
+        if not ue_already_conn:
+            # also temporarily add the connection &amp; dr for the UE because it affects its priority (used for prop-fair)
+            ue.bs_dr[self] = self.data_rate_unshared(ue)
+            self.conn_ues.append(ue)
+
+        # resource-fair = time/bandwidth-fair: split time slots/bandwidth/RBs equally among all connected UEs
+        if self.sharing_model == &#39;resource-fair&#39;:
+            # split data rate by all already connected UEs incl. this UE
+            dr_ue_shared = dr_ue_unshared / self.num_conn_ues
+
+        # rate-fair=volume-fair: rather than splitting the resources equally, all connected UEs get the same rate/volume
+        # this makes adding new UEs very expensive if they are far away (leads to much lower shared dr for all UEs)
+        if self.sharing_model == &#39;rate-fair&#39;:
+            total_inverse_dr = sum([1/self.data_rate_unshared(ue) for ue in self.conn_ues])
+            # assume we can split them into infinitely small/many RBs
+            dr_ue_shared = 1 / total_inverse_dr
+
+        # capacity maximizing: only send to UE with max dr, not to any other. very unfair, but max BS&#39; dr
+        if self.sharing_model == &#39;max-cap&#39;:
+            max_ue_idx = np.argmax([self.data_rate_unshared(ue) for ue in self.conn_ues])
+            dr_ue_shared = 0
+            if self.conn_ues.index(ue) == max_ue_idx:
+                dr_ue_shared = self.data_rate_unshared(ue)
+
+        # proportional-fair: https://en.wikipedia.org/wiki/Proportionally_fair#User_prioritization
+        # calc priority per UE based on its curr achievable dr and its historic avg dr
+        # assign RBs proportional to priority
+        if self.sharing_model == &#39;proportional-fair&#39;:
+            # get UE priority --&gt; fraction of RBs assigned to UE --&gt; corresponding shared dr
+            ue_frac_rbs = self.priority(ue) / (sum([self.priority(other_ue) for other_ue in self.conn_ues]) + EPSILON)
+            dr_ue_shared = ue_frac_rbs * dr_ue_unshared
+
+        # disconnect UE again if it wasn&#39;t connected before
+        if not ue_already_conn:
+            del ue.bs_dr[self]
+            self.conn_ues.remove(ue)
+
+        return dr_ue_shared
+
+    def data_rate(self, ue):
+        &#34;&#34;&#34;
+        Return the achievable data rate for a given UE (may or may not be connected already).
+        Share &amp; split the achievable data rate among all connected UEs, pretending this UE is also connected.
+        :param ue: UE requesting the achievable data rate
+        :return: Return the max. achievable data rate for the UE if it were/is connected to the BS.
+        &#34;&#34;&#34;
+        # 0 data rate if the UE cannot connect because the SNR is too low
+        if not self.can_connect(ue.pos):
+            return 0
+        # achievable data rate if it wasn&#39;t shared with any other connected UEs
+        dr_ue_unshared = self.data_rate_unshared(ue)
+        # final, shared data rate depends on sharing model
+        dr_ue_shared = self.data_rate_shared(ue, dr_ue_unshared)
+        self.log.debug(&#39;Achievable data rate&#39;, ue=ue, dr_ue_unshared=dr_ue_unshared, dr_ue_shared=dr_ue_shared,
+                       num_conn_ues=self.num_conn_ues)
+        return dr_ue_shared
+
+    def can_connect(self, ue_pos):
+        &#34;&#34;&#34;Return if a UE at a given pos can connect to this BS. That&#39;s the case if its SNR is above a threshold.&#34;&#34;&#34;
+        can_connect = self.snr(ue_pos) &gt; SNR_THRESHOLD
+        self.log.debug(&#39;Can connect?&#39;, ue_pos=str(ue_pos), can_connect=can_connect)
+        return can_connect</code></pre>
+</details>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+<h2 class="section-title" id="header-classes">Classes</h2>
+<dl>
+<dt id="deepcomp.env.entities.station.Basestation"><code class="flex name class">
+<span>class <span class="ident">Basestation</span></span>
+<span>(</span><span>id, pos, sharing_model)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>A base station sending data to connected UEs</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class Basestation:
+    &#34;&#34;&#34;A base station sending data to connected UEs&#34;&#34;&#34;
+    def __init__(self, id, pos, sharing_model):
+        self.id = id
+        self.pos = pos
+        self.conn_ues = []
+        # model for sharing rate/resources among connected UEs. One of SUPPORTED_SHARING models
+        self.sharing_model = sharing_model
+        assert self.sharing_model in SUPPORTED_SHARING, f&#34;{self.sharing_model=} not supported. {SUPPORTED_SHARING=}&#34;
+
+        # set constants for SINR and data rate calculation
+        # numbers originally from https://sites.google.com/site/lteencyclopedia/lte-radio-link-budgeting-and-rf-planning
+        # changed numbers to get shorter range --&gt; simulate smaller map
+        self.bw = 9e6   # in Hz?
+        self.frequency = 2500    # in MHz
+        self.noise = 1e-9   # in mW
+        self.tx_power = 30  # in dBm (was 40)
+        self.height = 50    # in m
+        # just consider downlink for now; more interesting for most apps anyways
+
+        # for visualization: circles around BS that show connection range (69m) and 1 Mbit range (46m); no interference
+        self.range_conn = pos.buffer(69)
+        self.range_1mbit = pos.buffer(46)
+        # also rectangle around pos
+        symbol_size = 3
+        self.symbol = Polygon([(self.pos.x-symbol_size, self.pos.y-symbol_size),
+                               (self.pos.x+symbol_size, self.pos.y-symbol_size),
+                               (self.pos.x+symbol_size, self.pos.y+symbol_size),
+                               (self.pos.x-symbol_size, self.pos.y+symbol_size)])
+
+        self.log = structlog.get_logger(id=self.id, pos=str(self.pos))
+        self.log.info(&#39;BS init&#39;, sharing_model=self.sharing_model, bw=self.bw, freq=self.frequency, noise=self.noise,
+                      tx_power=self.tx_power, height=self.height)
+
+    def __repr__(self):
+        return str(self.id)
+
+    @property
+    def num_conn_ues(self):
+        return len(self.conn_ues)
+
+    @property
+    def total_data_rate(self):
+        &#34;&#34;&#34;Total data rate of connections from this BS to all UEs&#34;&#34;&#34;
+        total_rate = 0
+        for ue in self.conn_ues:
+            total_rate += ue.bs_dr[self]
+        self.log.debug(&#39;BS total rate&#39;, total_rate=total_rate)
+        return total_rate
+
+    @property
+    def avg_utility(self):
+        &#34;&#34;&#34;Avg utility of UEs connected to this BS. If the BS is idle, return max utility&#34;&#34;&#34;
+        if len(self.conn_ues) &gt; 0:
+            return np.mean([ue.utility for ue in self.conn_ues])
+        return 20
+
+    @property
+    def min_utility(self):
+        &#34;&#34;&#34;Min utility of UEs connected to this BS. If the BS is idle, return max utility&#34;&#34;&#34;
+        if len(self.conn_ues) &gt; 0:
+            return min([ue.utility for ue in self.conn_ues])
+        return 20
+
+    def plot(self):
+        &#34;&#34;&#34;
+        Plot the BS as square with the ID inside as well as circles around it indicating the range.
+
+        :return: A list of created matplotlib artists
+        &#34;&#34;&#34;
+        # plot BS
+        artists = plt.plot(*self.symbol.exterior.xy, color=&#39;black&#39;)
+        artists.append(plt.annotate(self.id, xy=(self.pos.x, self.pos.y), ha=&#39;center&#39;, va=&#39;center&#39;))
+        # plot range
+        artists.extend(plt.plot(*self.range_1mbit.exterior.xy, color=&#39;black&#39;))
+        artists.extend(plt.plot(*self.range_conn.exterior.xy, color=&#39;gray&#39;))
+        return artists
+
+    def reset(self):
+        &#34;&#34;&#34;Reset BS to having no connected UEs&#34;&#34;&#34;
+        self.conn_ues = []
+
+    def path_loss(self, distance, ue_height=1.5):
+        &#34;&#34;&#34;Return path loss in dBm to a UE at a given position. Calculation using Okumura Hata, suburban indoor&#34;&#34;&#34;
+        ch = 0.8 + (1.1 * np.log10(self.frequency) - 0.7) * ue_height - 1.56 * np.log10(self.frequency)
+        const1 = 69.55 + 26.16 * np.log10(self.frequency) - 13.82 * np.log10(self.height) - ch
+        const2 = 44.9 - 6.55 * np.log10(self.height)
+        # add small epsilon to avoid log(0) if distance = 0
+        return const1 + const2 * np.log10(distance + EPSILON)
+
+    def received_power(self, distance):
+        &#34;&#34;&#34;Return the received power at a given distance&#34;&#34;&#34;
+        return 10**((self.tx_power - self.path_loss(distance)) / 10)
+
+    def snr(self, ue_pos):
+        &#34;&#34;&#34;Return the signal-to-noise (SNR) ratio given a UE position.&#34;&#34;&#34;
+        distance = self.pos.distance(ue_pos)
+        signal = self.received_power(distance)
+        self.log.debug(&#39;SNR to UE&#39;, ue_pos=str(ue_pos), distance=distance, signal=signal)
+        return signal / self.noise
+
+    def data_rate_unshared(self, ue):
+        &#34;&#34;&#34;
+        Return the achievable data rate for a given UE assuming that it gets the BS&#39; full, unshared data rate.
+
+        :param ue: UE requesting the achievable data rate
+        :return: Return the max. achievable data rate for the UE if it were/is connected to the BS.
+        &#34;&#34;&#34;
+        snr = self.snr(ue.pos)
+        dr_ue_unshared = self.bw * np.log2(1 + snr)
+        return dr_ue_unshared
+
+    def priority(self, ue):
+        &#34;&#34;&#34;
+        Priority based on current achievable rate (unshared!) and historic avg rate for proportional-fair sharing.
+        https://en.wikipedia.org/wiki/Proportionally_fair#User_prioritization
+
+        :param ue: UE for which to calculate the priority
+        :return: The calculated priority
+        &#34;&#34;&#34;
+        # important: use unshared dr, since the shared dr is again defined based on the priority --&gt; endless recursion
+        # add epsilon in denominator to avoid division by 0
+        return (self.data_rate_unshared(ue)**FAIR_WEIGHT_ALPHA) / (ue.ewma_dr**FAIR_WEIGHT_BETA + EPSILON)
+
+    def data_rate_shared(self, ue, dr_ue_unshared):
+        &#34;&#34;&#34;
+        Return the shared data rate the given UE would get based on its unshared data rate and a sharing model.
+
+        :param ue: UE requesting the achievable data rate
+        :param dr_ue_unshared: The UE&#39;s unshared achievable data rate
+        :return: The UE&#39;s final, shared data rate that it (could/does) get from this BS
+        &#34;&#34;&#34;
+        assert self.sharing_model in SUPPORTED_SHARING, f&#34;{self.sharing_model=} not supported. {SUPPORTED_SHARING=}&#34;
+        dr_ue_shared = None
+
+        # if the UE isn&#39;t connected yet, temporarily add it to the connected UEs to properly calculate sharing
+        ue_already_conn = ue in self.conn_ues
+        if not ue_already_conn:
+            # also temporarily add the connection &amp; dr for the UE because it affects its priority (used for prop-fair)
+            ue.bs_dr[self] = self.data_rate_unshared(ue)
+            self.conn_ues.append(ue)
+
+        # resource-fair = time/bandwidth-fair: split time slots/bandwidth/RBs equally among all connected UEs
+        if self.sharing_model == &#39;resource-fair&#39;:
+            # split data rate by all already connected UEs incl. this UE
+            dr_ue_shared = dr_ue_unshared / self.num_conn_ues
+
+        # rate-fair=volume-fair: rather than splitting the resources equally, all connected UEs get the same rate/volume
+        # this makes adding new UEs very expensive if they are far away (leads to much lower shared dr for all UEs)
+        if self.sharing_model == &#39;rate-fair&#39;:
+            total_inverse_dr = sum([1/self.data_rate_unshared(ue) for ue in self.conn_ues])
+            # assume we can split them into infinitely small/many RBs
+            dr_ue_shared = 1 / total_inverse_dr
+
+        # capacity maximizing: only send to UE with max dr, not to any other. very unfair, but max BS&#39; dr
+        if self.sharing_model == &#39;max-cap&#39;:
+            max_ue_idx = np.argmax([self.data_rate_unshared(ue) for ue in self.conn_ues])
+            dr_ue_shared = 0
+            if self.conn_ues.index(ue) == max_ue_idx:
+                dr_ue_shared = self.data_rate_unshared(ue)
+
+        # proportional-fair: https://en.wikipedia.org/wiki/Proportionally_fair#User_prioritization
+        # calc priority per UE based on its curr achievable dr and its historic avg dr
+        # assign RBs proportional to priority
+        if self.sharing_model == &#39;proportional-fair&#39;:
+            # get UE priority --&gt; fraction of RBs assigned to UE --&gt; corresponding shared dr
+            ue_frac_rbs = self.priority(ue) / (sum([self.priority(other_ue) for other_ue in self.conn_ues]) + EPSILON)
+            dr_ue_shared = ue_frac_rbs * dr_ue_unshared
+
+        # disconnect UE again if it wasn&#39;t connected before
+        if not ue_already_conn:
+            del ue.bs_dr[self]
+            self.conn_ues.remove(ue)
+
+        return dr_ue_shared
+
+    def data_rate(self, ue):
+        &#34;&#34;&#34;
+        Return the achievable data rate for a given UE (may or may not be connected already).
+        Share &amp; split the achievable data rate among all connected UEs, pretending this UE is also connected.
+        :param ue: UE requesting the achievable data rate
+        :return: Return the max. achievable data rate for the UE if it were/is connected to the BS.
+        &#34;&#34;&#34;
+        # 0 data rate if the UE cannot connect because the SNR is too low
+        if not self.can_connect(ue.pos):
+            return 0
+        # achievable data rate if it wasn&#39;t shared with any other connected UEs
+        dr_ue_unshared = self.data_rate_unshared(ue)
+        # final, shared data rate depends on sharing model
+        dr_ue_shared = self.data_rate_shared(ue, dr_ue_unshared)
+        self.log.debug(&#39;Achievable data rate&#39;, ue=ue, dr_ue_unshared=dr_ue_unshared, dr_ue_shared=dr_ue_shared,
+                       num_conn_ues=self.num_conn_ues)
+        return dr_ue_shared
+
+    def can_connect(self, ue_pos):
+        &#34;&#34;&#34;Return if a UE at a given pos can connect to this BS. That&#39;s the case if its SNR is above a threshold.&#34;&#34;&#34;
+        can_connect = self.snr(ue_pos) &gt; SNR_THRESHOLD
+        self.log.debug(&#39;Can connect?&#39;, ue_pos=str(ue_pos), can_connect=can_connect)
+        return can_connect</code></pre>
+</details>
+<h3>Instance variables</h3>
+<dl>
+<dt id="deepcomp.env.entities.station.Basestation.avg_utility"><code class="name">var <span class="ident">avg_utility</span></code></dt>
+<dd>
+<div class="desc"><p>Avg utility of UEs connected to this BS. If the BS is idle, return max utility</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@property
+def avg_utility(self):
+    &#34;&#34;&#34;Avg utility of UEs connected to this BS. If the BS is idle, return max utility&#34;&#34;&#34;
+    if len(self.conn_ues) &gt; 0:
+        return np.mean([ue.utility for ue in self.conn_ues])
+    return 20</code></pre>
+</details>
+</dd>
+<dt id="deepcomp.env.entities.station.Basestation.min_utility"><code class="name">var <span class="ident">min_utility</span></code></dt>
+<dd>
+<div class="desc"><p>Min utility of UEs connected to this BS. If the BS is idle, return max utility</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@property
+def min_utility(self):
+    &#34;&#34;&#34;Min utility of UEs connected to this BS. If the BS is idle, return max utility&#34;&#34;&#34;
+    if len(self.conn_ues) &gt; 0:
+        return min([ue.utility for ue in self.conn_ues])
+    return 20</code></pre>
+</details>
+</dd>
+<dt id="deepcomp.env.entities.station.Basestation.num_conn_ues"><code class="name">var <span class="ident">num_conn_ues</span></code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@property
+def num_conn_ues(self):
+    return len(self.conn_ues)</code></pre>
+</details>
+</dd>
+<dt id="deepcomp.env.entities.station.Basestation.total_data_rate"><code class="name">var <span class="ident">total_data_rate</span></code></dt>
+<dd>
+<div class="desc"><p>Total data rate of connections from this BS to all UEs</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@property
+def total_data_rate(self):
+    &#34;&#34;&#34;Total data rate of connections from this BS to all UEs&#34;&#34;&#34;
+    total_rate = 0
+    for ue in self.conn_ues:
+        total_rate += ue.bs_dr[self]
+    self.log.debug(&#39;BS total rate&#39;, total_rate=total_rate)
+    return total_rate</code></pre>
+</details>
+</dd>
+</dl>
+<h3>Methods</h3>
+<dl>
+<dt id="deepcomp.env.entities.station.Basestation.can_connect"><code class="name flex">
+<span>def <span class="ident">can_connect</span></span>(<span>self, ue_pos)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Return if a UE at a given pos can connect to this BS. That's the case if its SNR is above a threshold.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def can_connect(self, ue_pos):
+    &#34;&#34;&#34;Return if a UE at a given pos can connect to this BS. That&#39;s the case if its SNR is above a threshold.&#34;&#34;&#34;
+    can_connect = self.snr(ue_pos) &gt; SNR_THRESHOLD
+    self.log.debug(&#39;Can connect?&#39;, ue_pos=str(ue_pos), can_connect=can_connect)
+    return can_connect</code></pre>
+</details>
+</dd>
+<dt id="deepcomp.env.entities.station.Basestation.data_rate"><code class="name flex">
+<span>def <span class="ident">data_rate</span></span>(<span>self, ue)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Return the achievable data rate for a given UE (may or may not be connected already).
+Share &amp; split the achievable data rate among all connected UEs, pretending this UE is also connected.
+:param ue: UE requesting the achievable data rate
+:return: Return the max. achievable data rate for the UE if it were/is connected to the BS.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def data_rate(self, ue):
+    &#34;&#34;&#34;
+    Return the achievable data rate for a given UE (may or may not be connected already).
+    Share &amp; split the achievable data rate among all connected UEs, pretending this UE is also connected.
+    :param ue: UE requesting the achievable data rate
+    :return: Return the max. achievable data rate for the UE if it were/is connected to the BS.
+    &#34;&#34;&#34;
+    # 0 data rate if the UE cannot connect because the SNR is too low
+    if not self.can_connect(ue.pos):
+        return 0
+    # achievable data rate if it wasn&#39;t shared with any other connected UEs
+    dr_ue_unshared = self.data_rate_unshared(ue)
+    # final, shared data rate depends on sharing model
+    dr_ue_shared = self.data_rate_shared(ue, dr_ue_unshared)
+    self.log.debug(&#39;Achievable data rate&#39;, ue=ue, dr_ue_unshared=dr_ue_unshared, dr_ue_shared=dr_ue_shared,
+                   num_conn_ues=self.num_conn_ues)
+    return dr_ue_shared</code></pre>
+</details>
+</dd>
+<dt id="deepcomp.env.entities.station.Basestation.data_rate_shared"><code class="name flex">
+<span>def <span class="ident">data_rate_shared</span></span>(<span>self, ue, dr_ue_unshared)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Return the shared data rate the given UE would get based on its unshared data rate and a sharing model.</p>
+<p>:param ue: UE requesting the achievable data rate
+:param dr_ue_unshared: The UE's unshared achievable data rate
+:return: The UE's final, shared data rate that it (could/does) get from this BS</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def data_rate_shared(self, ue, dr_ue_unshared):
+    &#34;&#34;&#34;
+    Return the shared data rate the given UE would get based on its unshared data rate and a sharing model.
+
+    :param ue: UE requesting the achievable data rate
+    :param dr_ue_unshared: The UE&#39;s unshared achievable data rate
+    :return: The UE&#39;s final, shared data rate that it (could/does) get from this BS
+    &#34;&#34;&#34;
+    assert self.sharing_model in SUPPORTED_SHARING, f&#34;{self.sharing_model=} not supported. {SUPPORTED_SHARING=}&#34;
+    dr_ue_shared = None
+
+    # if the UE isn&#39;t connected yet, temporarily add it to the connected UEs to properly calculate sharing
+    ue_already_conn = ue in self.conn_ues
+    if not ue_already_conn:
+        # also temporarily add the connection &amp; dr for the UE because it affects its priority (used for prop-fair)
+        ue.bs_dr[self] = self.data_rate_unshared(ue)
+        self.conn_ues.append(ue)
+
+    # resource-fair = time/bandwidth-fair: split time slots/bandwidth/RBs equally among all connected UEs
+    if self.sharing_model == &#39;resource-fair&#39;:
+        # split data rate by all already connected UEs incl. this UE
+        dr_ue_shared = dr_ue_unshared / self.num_conn_ues
+
+    # rate-fair=volume-fair: rather than splitting the resources equally, all connected UEs get the same rate/volume
+    # this makes adding new UEs very expensive if they are far away (leads to much lower shared dr for all UEs)
+    if self.sharing_model == &#39;rate-fair&#39;:
+        total_inverse_dr = sum([1/self.data_rate_unshared(ue) for ue in self.conn_ues])
+        # assume we can split them into infinitely small/many RBs
+        dr_ue_shared = 1 / total_inverse_dr
+
+    # capacity maximizing: only send to UE with max dr, not to any other. very unfair, but max BS&#39; dr
+    if self.sharing_model == &#39;max-cap&#39;:
+        max_ue_idx = np.argmax([self.data_rate_unshared(ue) for ue in self.conn_ues])
+        dr_ue_shared = 0
+        if self.conn_ues.index(ue) == max_ue_idx:
+            dr_ue_shared = self.data_rate_unshared(ue)
+
+    # proportional-fair: https://en.wikipedia.org/wiki/Proportionally_fair#User_prioritization
+    # calc priority per UE based on its curr achievable dr and its historic avg dr
+    # assign RBs proportional to priority
+    if self.sharing_model == &#39;proportional-fair&#39;:
+        # get UE priority --&gt; fraction of RBs assigned to UE --&gt; corresponding shared dr
+        ue_frac_rbs = self.priority(ue) / (sum([self.priority(other_ue) for other_ue in self.conn_ues]) + EPSILON)
+        dr_ue_shared = ue_frac_rbs * dr_ue_unshared
+
+    # disconnect UE again if it wasn&#39;t connected before
+    if not ue_already_conn:
+        del ue.bs_dr[self]
+        self.conn_ues.remove(ue)
+
+    return dr_ue_shared</code></pre>
+</details>
+</dd>
+<dt id="deepcomp.env.entities.station.Basestation.data_rate_unshared"><code class="name flex">
+<span>def <span class="ident">data_rate_unshared</span></span>(<span>self, ue)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Return the achievable data rate for a given UE assuming that it gets the BS' full, unshared data rate.</p>
+<p>:param ue: UE requesting the achievable data rate
+:return: Return the max. achievable data rate for the UE if it were/is connected to the BS.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def data_rate_unshared(self, ue):
+    &#34;&#34;&#34;
+    Return the achievable data rate for a given UE assuming that it gets the BS&#39; full, unshared data rate.
+
+    :param ue: UE requesting the achievable data rate
+    :return: Return the max. achievable data rate for the UE if it were/is connected to the BS.
+    &#34;&#34;&#34;
+    snr = self.snr(ue.pos)
+    dr_ue_unshared = self.bw * np.log2(1 + snr)
+    return dr_ue_unshared</code></pre>
+</details>
+</dd>
+<dt id="deepcomp.env.entities.station.Basestation.path_loss"><code class="name flex">
+<span>def <span class="ident">path_loss</span></span>(<span>self, distance, ue_height=1.5)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Return path loss in dBm to a UE at a given position. Calculation using Okumura Hata, suburban indoor</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def path_loss(self, distance, ue_height=1.5):
+    &#34;&#34;&#34;Return path loss in dBm to a UE at a given position. Calculation using Okumura Hata, suburban indoor&#34;&#34;&#34;
+    ch = 0.8 + (1.1 * np.log10(self.frequency) - 0.7) * ue_height - 1.56 * np.log10(self.frequency)
+    const1 = 69.55 + 26.16 * np.log10(self.frequency) - 13.82 * np.log10(self.height) - ch
+    const2 = 44.9 - 6.55 * np.log10(self.height)
+    # add small epsilon to avoid log(0) if distance = 0
+    return const1 + const2 * np.log10(distance + EPSILON)</code></pre>
+</details>
+</dd>
+<dt id="deepcomp.env.entities.station.Basestation.plot"><code class="name flex">
+<span>def <span class="ident">plot</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Plot the BS as square with the ID inside as well as circles around it indicating the range.</p>
+<p>:return: A list of created matplotlib artists</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def plot(self):
+    &#34;&#34;&#34;
+    Plot the BS as square with the ID inside as well as circles around it indicating the range.
+
+    :return: A list of created matplotlib artists
+    &#34;&#34;&#34;
+    # plot BS
+    artists = plt.plot(*self.symbol.exterior.xy, color=&#39;black&#39;)
+    artists.append(plt.annotate(self.id, xy=(self.pos.x, self.pos.y), ha=&#39;center&#39;, va=&#39;center&#39;))
+    # plot range
+    artists.extend(plt.plot(*self.range_1mbit.exterior.xy, color=&#39;black&#39;))
+    artists.extend(plt.plot(*self.range_conn.exterior.xy, color=&#39;gray&#39;))
+    return artists</code></pre>
+</details>
+</dd>
+<dt id="deepcomp.env.entities.station.Basestation.priority"><code class="name flex">
+<span>def <span class="ident">priority</span></span>(<span>self, ue)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Priority based on current achievable rate (unshared!) and historic avg rate for proportional-fair sharing.
+<a href="https://en.wikipedia.org/wiki/Proportionally_fair#User_prioritization">https://en.wikipedia.org/wiki/Proportionally_fair#User_prioritization</a></p>
+<p>:param ue: UE for which to calculate the priority
+:return: The calculated priority</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def priority(self, ue):
+    &#34;&#34;&#34;
+    Priority based on current achievable rate (unshared!) and historic avg rate for proportional-fair sharing.
+    https://en.wikipedia.org/wiki/Proportionally_fair#User_prioritization
+
+    :param ue: UE for which to calculate the priority
+    :return: The calculated priority
+    &#34;&#34;&#34;
+    # important: use unshared dr, since the shared dr is again defined based on the priority --&gt; endless recursion
+    # add epsilon in denominator to avoid division by 0
+    return (self.data_rate_unshared(ue)**FAIR_WEIGHT_ALPHA) / (ue.ewma_dr**FAIR_WEIGHT_BETA + EPSILON)</code></pre>
+</details>
+</dd>
+<dt id="deepcomp.env.entities.station.Basestation.received_power"><code class="name flex">
+<span>def <span class="ident">received_power</span></span>(<span>self, distance)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Return the received power at a given distance</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def received_power(self, distance):
+    &#34;&#34;&#34;Return the received power at a given distance&#34;&#34;&#34;
+    return 10**((self.tx_power - self.path_loss(distance)) / 10)</code></pre>
+</details>
+</dd>
+<dt id="deepcomp.env.entities.station.Basestation.reset"><code class="name flex">
+<span>def <span class="ident">reset</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Reset BS to having no connected UEs</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def reset(self):
+    &#34;&#34;&#34;Reset BS to having no connected UEs&#34;&#34;&#34;
+    self.conn_ues = []</code></pre>
+</details>
+</dd>
+<dt id="deepcomp.env.entities.station.Basestation.snr"><code class="name flex">
+<span>def <span class="ident">snr</span></span>(<span>self, ue_pos)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Return the signal-to-noise (SNR) ratio given a UE position.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def snr(self, ue_pos):
+    &#34;&#34;&#34;Return the signal-to-noise (SNR) ratio given a UE position.&#34;&#34;&#34;
+    distance = self.pos.distance(ue_pos)
+    signal = self.received_power(distance)
+    self.log.debug(&#39;SNR to UE&#39;, ue_pos=str(ue_pos), distance=distance, signal=signal)
+    return signal / self.noise</code></pre>
+</details>
+</dd>
+</dl>
+</dd>
+</dl>
+</section>
+</article>
+<nav id="sidebar">
+<h1>Index</h1>
+<div class="toc">
+<ul></ul>
+</div>
+<ul id="index">
+<li><h3>Super-module</h3>
+<ul>
+<li><code><a title="deepcomp.env.entities" href="index.html">deepcomp.env.entities</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-classes">Classes</a></h3>
+<ul>
+<li>
+<h4><code><a title="deepcomp.env.entities.station.Basestation" href="#deepcomp.env.entities.station.Basestation">Basestation</a></code></h4>
+<ul class="two-column">
+<li><code><a title="deepcomp.env.entities.station.Basestation.avg_utility" href="#deepcomp.env.entities.station.Basestation.avg_utility">avg_utility</a></code></li>
+<li><code><a title="deepcomp.env.entities.station.Basestation.can_connect" href="#deepcomp.env.entities.station.Basestation.can_connect">can_connect</a></code></li>
+<li><code><a title="deepcomp.env.entities.station.Basestation.data_rate" href="#deepcomp.env.entities.station.Basestation.data_rate">data_rate</a></code></li>
+<li><code><a title="deepcomp.env.entities.station.Basestation.data_rate_shared" href="#deepcomp.env.entities.station.Basestation.data_rate_shared">data_rate_shared</a></code></li>
+<li><code><a title="deepcomp.env.entities.station.Basestation.data_rate_unshared" href="#deepcomp.env.entities.station.Basestation.data_rate_unshared">data_rate_unshared</a></code></li>
+<li><code><a title="deepcomp.env.entities.station.Basestation.min_utility" href="#deepcomp.env.entities.station.Basestation.min_utility">min_utility</a></code></li>
+<li><code><a title="deepcomp.env.entities.station.Basestation.num_conn_ues" href="#deepcomp.env.entities.station.Basestation.num_conn_ues">num_conn_ues</a></code></li>
+<li><code><a title="deepcomp.env.entities.station.Basestation.path_loss" href="#deepcomp.env.entities.station.Basestation.path_loss">path_loss</a></code></li>
+<li><code><a title="deepcomp.env.entities.station.Basestation.plot" href="#deepcomp.env.entities.station.Basestation.plot">plot</a></code></li>
+<li><code><a title="deepcomp.env.entities.station.Basestation.priority" href="#deepcomp.env.entities.station.Basestation.priority">priority</a></code></li>
+<li><code><a title="deepcomp.env.entities.station.Basestation.received_power" href="#deepcomp.env.entities.station.Basestation.received_power">received_power</a></code></li>
+<li><code><a title="deepcomp.env.entities.station.Basestation.reset" href="#deepcomp.env.entities.station.Basestation.reset">reset</a></code></li>
+<li><code><a title="deepcomp.env.entities.station.Basestation.snr" href="#deepcomp.env.entities.station.Basestation.snr">snr</a></code></li>
+<li><code><a title="deepcomp.env.entities.station.Basestation.total_data_rate" href="#deepcomp.env.entities.station.Basestation.total_data_rate">total_data_rate</a></code></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</nav>
+</main>
+<footer id="footer">
+<p>Generated by <a href="https://pdoc3.github.io/pdoc"><cite>pdoc</cite> 0.9.2</a>.</p>
+</footer>
+</body>
+</html>

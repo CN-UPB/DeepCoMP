@@ -1,0 +1,726 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
+<meta name="generator" content="pdoc 0.9.2" />
+<title>deepcomp.util.env_setup API documentation</title>
+<meta name="description" content="Utility module for setting up different envs" />
+<link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/sanitize.min.css" integrity="sha256-PK9q560IAAa6WVRRh76LtCaI8pjTJ2z11v0miyNNjrs=" crossorigin>
+<link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/typography.min.css" integrity="sha256-7l/o7C8jubJiy74VsKTidCy1yBkRtiUGbVkYBylBqUg=" crossorigin>
+<link rel="stylesheet preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/styles/github.min.css" crossorigin>
+<style>:root{--highlight-color:#fe9}.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:30px;overflow:hidden}#sidebar > *:last-child{margin-bottom:2cm}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:1em 0 .50em 0}h3{font-size:1.4em;margin:25px 0 10px 0}h4{margin:0;font-size:105%}h1:target,h2:target,h3:target,h4:target,h5:target,h6:target{background:var(--highlight-color);padding:.2em 0}a{color:#058;text-decoration:none;transition:color .3s ease-in-out}a:hover{color:#e82}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900}pre code{background:#f8f8f8;font-size:.8em;line-height:1.4em}code{background:#f2f2f1;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{background:#f8f8f8;border:0;border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0;padding:1ex}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{margin-top:.6em;font-weight:bold}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-weight:bold;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}dt:target .name{background:var(--highlight-color)}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source summary,.git-link-div{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase}.source summary > *{white-space:nowrap;cursor:pointer}.git-link{color:inherit;margin-left:1em}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}td{padding:0 .5em}.admonition{padding:.1em .5em;margin-bottom:1em}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
+<style media="screen and (min-width: 700px)">@media screen and (min-width:700px){#sidebar{width:30%;height:100vh;overflow:auto;position:sticky;top:0}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.item .name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul{padding-left:1.5em}.toc > ul > li{margin-top:.5em}}</style>
+<style media="print">@media print{#sidebar h1{page-break-before:always}.source{display:none}}@media print{*{background:transparent !important;color:#000 !important;box-shadow:none !important;text-shadow:none !important}a[href]:after{content:" (" attr(href) ")";font-size:90%}a[href][title]:after{content:none}abbr[title]:after{content:" (" attr(title) ")"}.ir a:after,a[href^="javascript:"]:after,a[href^="#"]:after{content:""}pre,blockquote{border:1px solid #999;page-break-inside:avoid}thead{display:table-header-group}tr,img{page-break-inside:avoid}img{max-width:100% !important}@page{margin:0.5cm}p,h2,h3{orphans:3;widows:3}h1,h2,h3,h4,h5,h6{page-break-after:avoid}}</style>
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/highlight.min.js" integrity="sha256-Uv3H6lx7dJmRfRvH8TH6kJD1TSK1aFcwgx+mdg3epi8=" crossorigin></script>
+<script>window.addEventListener('DOMContentLoaded', () => hljs.initHighlighting())</script>
+</head>
+<body>
+<main>
+<article id="content">
+<header>
+<h1 class="title">Module <code>deepcomp.util.env_setup</code></h1>
+</header>
+<section id="section-intro">
+<p>Utility module for setting up different envs</p>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">&#34;&#34;&#34;Utility module for setting up different envs&#34;&#34;&#34;
+import numpy as np
+import structlog
+from shapely.geometry import Point
+from ray.rllib.agents.ppo import DEFAULT_CONFIG
+from ray.rllib.env.multi_agent_env import MultiAgentEnv
+
+from deepcomp.util.constants import SUPPORTED_ENVS, SUPPORTED_AGENTS, SUPPORTED_SHARING
+from deepcomp.env.single_ue.variants import BinaryMobileEnv, DatarateMobileEnv, NormDrMobileEnv, RelNormEnv, MaxNormEnv
+from deepcomp.env.multi_ue.central import CentralDrEnv, CentralNormDrEnv, CentralRelNormEnv, CentralMaxNormEnv
+from deepcomp.env.multi_ue.multi_agent import MultiAgentMobileEnv, SeqMultiAgentMobileEnv
+from deepcomp.env.entities.user import User
+from deepcomp.env.entities.station import Basestation
+from deepcomp.env.entities.map import Map
+from deepcomp.env.util.movement import UniformMovement, RandomWaypoint
+from deepcomp.util.callbacks import CustomMetricCallbacks
+
+
+log = structlog.get_logger()
+
+
+def get_env_class(env_type):
+    &#34;&#34;&#34;Return the env class corresponding to the string type (from CLI)&#34;&#34;&#34;
+    assert env_type in SUPPORTED_AGENTS, f&#34;Environment type was {env_type} but has to be one of {SUPPORTED_AGENTS}.&#34;
+
+    if env_type == &#39;single&#39;:
+        # return DatarateMobileEnv
+        # return NormDrMobileEnv
+        return RelNormEnv
+    if env_type == &#39;central&#39;:
+        # return CentralDrEnv
+        # return CentralNormDrEnv
+        return CentralRelNormEnv
+        # return CentralMaxNormEnv
+    if env_type == &#39;multi&#39;:
+        return MultiAgentMobileEnv
+
+
+def get_sharing_for_bs(sharing, bs_idx):
+    &#34;&#34;&#34;Return the sharing model for the given BS&#34;&#34;&#34;
+    # if it&#39;s not mixed, it&#39;s the same for all BS
+    if sharing != &#39;mixed&#39;:
+        assert sharing in SUPPORTED_SHARING
+        return sharing
+
+    # else loop through the available sharing models
+    sharing_list = [&#39;resource-fair&#39;, &#39;rate-fair&#39;, &#39;proportional-fair&#39;]
+    return sharing_list[bs_idx % len(sharing_list)]
+
+
+def create_small_map(sharing_model):
+    &#34;&#34;&#34;
+    Create small map and 2 BS
+
+    :returns: tuple (map, bs_list)
+    &#34;&#34;&#34;
+    map = Map(width=150, height=100)
+    bs1 = Basestation(&#39;A&#39;, Point(50, 50), get_sharing_for_bs(sharing_model, 0))
+    bs2 = Basestation(&#39;B&#39;, Point(100, 50), get_sharing_for_bs(sharing_model, 1))
+    bs_list = [bs1, bs2]
+    return map, bs_list
+
+
+def create_dyn_small_map(sharing_model, bs_dist=100, dist_to_border=10):
+    &#34;&#34;&#34;Small env with 2 BS and dynamic distance in between&#34;&#34;&#34;
+    map = Map(width=2 * dist_to_border + bs_dist, height=2 * dist_to_border)
+    bs1 = Basestation(&#39;A&#39;, Point(dist_to_border, dist_to_border), sharing_model)
+    bs2 = Basestation(&#39;B&#39;, Point(dist_to_border + bs_dist, dist_to_border), sharing_model)
+    return map, [bs1, bs2]
+
+
+def create_medium_map(sharing_model):
+    &#34;&#34;&#34;
+    Deprecated: Use dynamic medium env instead. Kept this to reproduce earlier results.
+    Same as large env, but with map restricted to areas with coverage.
+    Thus, optimal episode reward should be close to num_ues * eps_length * 10 (ie, all UEs are always connected)
+    &#34;&#34;&#34;
+    map = Map(width=205, height=85)
+    bs1 = Basestation(&#39;A&#39;, Point(45, 35), sharing_model)
+    bs2 = Basestation(&#39;B&#39;, Point(160, 35), sharing_model)
+    bs3 = Basestation(&#39;C&#39;, Point(100, 85), sharing_model)
+    bs_list = [bs1, bs2, bs3]
+    return map, bs_list
+
+
+def create_dyn_medium_map(sharing_model, bs_dist=100, dist_to_border=10):
+    &#34;&#34;&#34;
+    Create map with 3 BS at equal distance. Distance can be varied dynamically. Map is sized automatically.
+    Keep the same layout as old medium env here: A, B on same horizontal axis. C above in the middle
+    &#34;&#34;&#34;
+    # calculate vertical distance from A, B to C using Pythagoras
+    y_dist = np.sqrt(bs_dist ** 2 - (bs_dist / 2) ** 2)
+    # derive map size from BS distance and distance to border
+    map_width = 2 * dist_to_border + bs_dist
+    map_height = 2 * dist_to_border + y_dist
+
+    map = Map(width=map_width, height=map_height)
+    # BS A is located at bottom left corner with specified distance to border
+    bs1 = Basestation(&#39;A&#39;, Point(dist_to_border, dist_to_border), get_sharing_for_bs(sharing_model, 0))
+    # other BS positions are derived accordingly
+    bs2 = Basestation(&#39;B&#39;, Point(dist_to_border + bs_dist, dist_to_border), get_sharing_for_bs(sharing_model, 1))
+    bs3 = Basestation(&#39;C&#39;, Point(dist_to_border + (bs_dist / 2), dist_to_border + y_dist), get_sharing_for_bs(sharing_model, 2))
+    return map, [bs1, bs2, bs3]
+
+
+def create_large_map(sharing_model):
+    &#34;&#34;&#34;
+    Create larger map with 7 BS that are arranged in a typical hexagonal structure.
+
+    :returns: Tuple(map, bs_list)
+    &#34;&#34;&#34;
+    map = Map(width=230, height=260)
+    bs_list = [
+        # center
+        Basestation(&#39;A&#39;, Point(115, 130), get_sharing_for_bs(sharing_model, 0)),
+        # top left, counter-clockwise
+        Basestation(&#39;B&#39;, Point(30, 80), get_sharing_for_bs(sharing_model, 1)),
+        Basestation(&#39;C&#39;, Point(115, 30), get_sharing_for_bs(sharing_model, 2)),
+        Basestation(&#39;D&#39;, Point(200, 80), get_sharing_for_bs(sharing_model, 3)),
+        Basestation(&#39;E&#39;, Point(200, 180), get_sharing_for_bs(sharing_model, 4)),
+        Basestation(&#39;F&#39;, Point(115, 230), get_sharing_for_bs(sharing_model, 5)),
+        Basestation(&#39;G&#39;, Point(30, 180), get_sharing_for_bs(sharing_model, 6)),
+    ]
+
+    return map, bs_list
+
+
+def create_dyn_large_map(sharing_model, num_bs, dist_to_border=10):
+    assert 1 &lt;= num_bs &lt;= 7, &#34;Only support 1-7 BS in large env&#34;
+    _, bs_list = create_large_map(sharing_model)
+    # take only selected BS
+    bs_list = bs_list[:num_bs]
+    # create map with size according to BS positions
+    max_x, max_y = None, None
+    for bs in bs_list:
+        if max_x is None or bs.pos.x &gt; max_x:
+            max_x = bs.pos.x
+        if max_y is None or bs.pos.y &gt; max_y:
+            max_y = bs.pos.y
+    map = Map(width=max_x + dist_to_border, height=max_y + dist_to_border)
+    return map, bs_list
+
+
+def create_ues(map, num_static_ues, num_slow_ues, num_fast_ues):
+    &#34;&#34;&#34;Create custom number of slow/fast UEs on the given map. Return UE list&#34;&#34;&#34;
+    ue_list = []
+    id = 1
+    for i in range(num_static_ues):
+        ue_list.append(User(str(id), map, pos_x=&#39;random&#39;, pos_y=&#39;random&#39;, movement=RandomWaypoint(map, velocity=0)))
+        id += 1
+    for i in range(num_slow_ues):
+        ue_list.append(User(str(id), map, pos_x=&#39;random&#39;, pos_y=&#39;random&#39;, movement=RandomWaypoint(map, velocity=&#39;slow&#39;)))
+        id += 1
+    for i in range(num_fast_ues):
+        ue_list.append(User(str(id), map, pos_x=&#39;random&#39;, pos_y=&#39;random&#39;, movement=RandomWaypoint(map, velocity=&#39;fast&#39;)))
+        id += 1
+    return ue_list
+
+
+def create_custom_env(sharing_model):
+    &#34;&#34;&#34;Hand-created custom env. For demos or specific experiments.&#34;&#34;&#34;
+    map, bs_list = create_small_map(sharing_model)
+    # 2 stationary UEs
+    ue_list = [
+        User(str(1), map, pos_x=70, pos_y=40, movement=UniformMovement(map)),
+        User(str(2), map, pos_x=80, pos_y=60, movement=UniformMovement(map))
+    ]
+    return map, ue_list, bs_list
+
+
+def get_env(map_size, bs_dist, num_static_ues, num_slow_ues, num_fast_ues, sharing_model, num_bs=None):
+    &#34;&#34;&#34;Create and return the environment corresponding to the given map_size&#34;&#34;&#34;
+    assert map_size in SUPPORTED_ENVS, f&#34;Environment {map_size} is not one of {SUPPORTED_ENVS}.&#34;
+
+    # create map and BS list
+    map, bs_list = None, None
+    if map_size == &#39;small&#39;:
+        map, bs_list = create_small_map(sharing_model)
+    elif map_size == &#39;medium&#39;:
+        map, bs_list = create_dyn_medium_map(sharing_model, bs_dist=bs_dist)
+    elif map_size == &#39;large&#39;:
+        if num_bs is None:
+            map, bs_list = create_large_map(sharing_model)
+        else:
+            map, bs_list = create_dyn_large_map(sharing_model, num_bs)
+    # custom env also defines UEs --&gt; return directly
+    elif map_size == &#39;custom&#39;:
+        return create_custom_env(sharing_model)
+
+    # create UEs
+    ue_list = create_ues(map, num_static_ues, num_slow_ues, num_fast_ues)
+
+    return map, ue_list, bs_list
+
+
+def create_env_config(cli_args):
+    &#34;&#34;&#34;
+    Create environment and RLlib config based on passed CLI args. Return config.
+
+    :param cli_args: Parsed CLI args
+    :return: The complete config for an RLlib agent, including the env &amp; env_config
+    &#34;&#34;&#34;
+    env_class = get_env_class(cli_args.agent)
+    map, ue_list, bs_list = get_env(cli_args.env, cli_args.bs_dist, cli_args.static_ues, cli_args.slow_ues,
+                                    cli_args.fast_ues, cli_args.sharing, cli_args.num_bs)
+
+    # this is for DrEnv and step utility
+    # env_config = {
+    #     &#39;episode_length&#39;: eps_length, &#39;seed&#39;: seed,
+    #     &#39;map&#39;: map, &#39;bs_list&#39;: bs_list, &#39;ue_list&#39;: ue_list, &#39;dr_cutoff&#39;: &#39;auto&#39;, &#39;sub_req_dr&#39;: True,
+    #     &#39;curr_dr_obs&#39;: False, &#39;ues_at_bs_obs&#39;: False, &#39;dist_obs&#39;: False, &#39;next_dist_obs&#39;: False
+    # }
+    # this is for the custom NormEnv and log utility
+    env_config = {
+        &#39;episode_length&#39;: cli_args.eps_length, &#39;seed&#39;: cli_args.seed, &#39;map&#39;: map, &#39;bs_list&#39;: bs_list, &#39;ue_list&#39;: ue_list,
+        &#39;rand_episodes&#39;: cli_args.rand_train, &#39;new_ue_interval&#39;: cli_args.new_ue_interval, &#39;reward&#39;: cli_args.reward,
+        # if enabled log_metrics: log metrics even during training --&gt; visible on tensorboard
+        # if disabled: log just during testing --&gt; probably slightly faster training with less memory
+        &#39;log_metrics&#39;: True
+    }
+
+    # create and return the config
+    config = DEFAULT_CONFIG.copy()
+    # discount factor (default 0.99)
+    # config[&#39;gamma&#39;] = 0.5
+    # 0 = no workers/actors at all --&gt; low overhead for short debugging; 2+ workers to accelerate long training
+    config[&#39;num_workers&#39;] = cli_args.workers
+    config[&#39;seed&#39;] = cli_args.seed
+    # write training stats to file under ~/ray_results (default: False)
+    config[&#39;monitor&#39;] = True
+    config[&#39;train_batch_size&#39;] = cli_args.batch_size        # default: 4000; default in stable_baselines: 128
+    # auto normalize obserations by subtracting mean and dividing by std (default: &#34;NoFilter&#34;)
+    # config[&#39;observation_filter&#39;] = &#34;MeanStdFilter&#34;
+    # NN settings: https://docs.ray.io/en/latest/rllib-models.html#built-in-model-parameters
+    # configure the size of the neural network&#39;s hidden layers; default: [256, 256]
+    # config[&#39;model&#39;][&#39;fcnet_hiddens&#39;] = [512, 512, 512]
+    # LSTM settings
+    config[&#39;model&#39;][&#39;use_lstm&#39;] = cli_args.lstm
+    # config[&#39;model&#39;][&#39;lstm_use_prev_action_reward&#39;] = True
+    # config[&#39;log_level&#39;] = &#39;INFO&#39;    # ray logging default: warning
+    # reset the env whenever the horizon/eps_length is reached
+    config[&#39;horizon&#39;] = cli_args.eps_length
+    config[&#39;env&#39;] = env_class
+    config[&#39;env_config&#39;] = env_config
+    # callback for monitoring custom metrics
+    config[&#39;callbacks&#39;] = CustomMetricCallbacks
+
+    # for multi-agent env: https://docs.ray.io/en/latest/rllib-env.html#multi-agent-and-hierarchical
+    if MultiAgentEnv in env_class.__mro__:
+        # instantiate env to access obs and action space
+        env = env_class(env_config)
+
+        # use separate policies (and NNs) for each agent
+        if cli_args.separate_agent_nns:
+            # create policies also for all future UEs
+            if env.max_ues &gt; env.num_ue:
+                log.warning(&#34;Varying num. UEs. Creating policy for all (future) UEs.&#34;,
+                            curr_num_ue=env.num_ue, max_ues=env.max_ues)
+                ue_ids = [str(i + 1) for i in range(env.max_ues)]
+            else:
+                ue_ids = [ue.id for ue in ue_list]
+
+            config[&#39;multiagent&#39;] = {
+                # attention: ue.id needs to be a string! just casting it to str() here doesn&#39;t work;
+                # needs to be consistent with obs keys --&gt; easier, just use string IDs
+                &#39;policies&#39;: {ue_id: (None, env.observation_space, env.action_space, {}) for ue_id in ue_ids},
+                &#39;policy_mapping_fn&#39;: lambda agent_id: agent_id
+            }
+        # or: all UEs use the same policy and NN
+        else:
+            config[&#39;multiagent&#39;] = {
+                &#39;policies&#39;: {&#39;ue&#39;: (None, env.observation_space, env.action_space, {})},
+                &#39;policy_mapping_fn&#39;: lambda agent_id: &#39;ue&#39;
+            }
+
+    return config</code></pre>
+</details>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+<h2 class="section-title" id="header-functions">Functions</h2>
+<dl>
+<dt id="deepcomp.util.env_setup.create_custom_env"><code class="name flex">
+<span>def <span class="ident">create_custom_env</span></span>(<span>sharing_model)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Hand-created custom env. For demos or specific experiments.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def create_custom_env(sharing_model):
+    &#34;&#34;&#34;Hand-created custom env. For demos or specific experiments.&#34;&#34;&#34;
+    map, bs_list = create_small_map(sharing_model)
+    # 2 stationary UEs
+    ue_list = [
+        User(str(1), map, pos_x=70, pos_y=40, movement=UniformMovement(map)),
+        User(str(2), map, pos_x=80, pos_y=60, movement=UniformMovement(map))
+    ]
+    return map, ue_list, bs_list</code></pre>
+</details>
+</dd>
+<dt id="deepcomp.util.env_setup.create_dyn_large_map"><code class="name flex">
+<span>def <span class="ident">create_dyn_large_map</span></span>(<span>sharing_model, num_bs, dist_to_border=10)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def create_dyn_large_map(sharing_model, num_bs, dist_to_border=10):
+    assert 1 &lt;= num_bs &lt;= 7, &#34;Only support 1-7 BS in large env&#34;
+    _, bs_list = create_large_map(sharing_model)
+    # take only selected BS
+    bs_list = bs_list[:num_bs]
+    # create map with size according to BS positions
+    max_x, max_y = None, None
+    for bs in bs_list:
+        if max_x is None or bs.pos.x &gt; max_x:
+            max_x = bs.pos.x
+        if max_y is None or bs.pos.y &gt; max_y:
+            max_y = bs.pos.y
+    map = Map(width=max_x + dist_to_border, height=max_y + dist_to_border)
+    return map, bs_list</code></pre>
+</details>
+</dd>
+<dt id="deepcomp.util.env_setup.create_dyn_medium_map"><code class="name flex">
+<span>def <span class="ident">create_dyn_medium_map</span></span>(<span>sharing_model, bs_dist=100, dist_to_border=10)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Create map with 3 BS at equal distance. Distance can be varied dynamically. Map is sized automatically.
+Keep the same layout as old medium env here: A, B on same horizontal axis. C above in the middle</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def create_dyn_medium_map(sharing_model, bs_dist=100, dist_to_border=10):
+    &#34;&#34;&#34;
+    Create map with 3 BS at equal distance. Distance can be varied dynamically. Map is sized automatically.
+    Keep the same layout as old medium env here: A, B on same horizontal axis. C above in the middle
+    &#34;&#34;&#34;
+    # calculate vertical distance from A, B to C using Pythagoras
+    y_dist = np.sqrt(bs_dist ** 2 - (bs_dist / 2) ** 2)
+    # derive map size from BS distance and distance to border
+    map_width = 2 * dist_to_border + bs_dist
+    map_height = 2 * dist_to_border + y_dist
+
+    map = Map(width=map_width, height=map_height)
+    # BS A is located at bottom left corner with specified distance to border
+    bs1 = Basestation(&#39;A&#39;, Point(dist_to_border, dist_to_border), get_sharing_for_bs(sharing_model, 0))
+    # other BS positions are derived accordingly
+    bs2 = Basestation(&#39;B&#39;, Point(dist_to_border + bs_dist, dist_to_border), get_sharing_for_bs(sharing_model, 1))
+    bs3 = Basestation(&#39;C&#39;, Point(dist_to_border + (bs_dist / 2), dist_to_border + y_dist), get_sharing_for_bs(sharing_model, 2))
+    return map, [bs1, bs2, bs3]</code></pre>
+</details>
+</dd>
+<dt id="deepcomp.util.env_setup.create_dyn_small_map"><code class="name flex">
+<span>def <span class="ident">create_dyn_small_map</span></span>(<span>sharing_model, bs_dist=100, dist_to_border=10)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Small env with 2 BS and dynamic distance in between</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def create_dyn_small_map(sharing_model, bs_dist=100, dist_to_border=10):
+    &#34;&#34;&#34;Small env with 2 BS and dynamic distance in between&#34;&#34;&#34;
+    map = Map(width=2 * dist_to_border + bs_dist, height=2 * dist_to_border)
+    bs1 = Basestation(&#39;A&#39;, Point(dist_to_border, dist_to_border), sharing_model)
+    bs2 = Basestation(&#39;B&#39;, Point(dist_to_border + bs_dist, dist_to_border), sharing_model)
+    return map, [bs1, bs2]</code></pre>
+</details>
+</dd>
+<dt id="deepcomp.util.env_setup.create_env_config"><code class="name flex">
+<span>def <span class="ident">create_env_config</span></span>(<span>cli_args)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Create environment and RLlib config based on passed CLI args. Return config.</p>
+<p>:param cli_args: Parsed CLI args
+:return: The complete config for an RLlib agent, including the env &amp; env_config</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def create_env_config(cli_args):
+    &#34;&#34;&#34;
+    Create environment and RLlib config based on passed CLI args. Return config.
+
+    :param cli_args: Parsed CLI args
+    :return: The complete config for an RLlib agent, including the env &amp; env_config
+    &#34;&#34;&#34;
+    env_class = get_env_class(cli_args.agent)
+    map, ue_list, bs_list = get_env(cli_args.env, cli_args.bs_dist, cli_args.static_ues, cli_args.slow_ues,
+                                    cli_args.fast_ues, cli_args.sharing, cli_args.num_bs)
+
+    # this is for DrEnv and step utility
+    # env_config = {
+    #     &#39;episode_length&#39;: eps_length, &#39;seed&#39;: seed,
+    #     &#39;map&#39;: map, &#39;bs_list&#39;: bs_list, &#39;ue_list&#39;: ue_list, &#39;dr_cutoff&#39;: &#39;auto&#39;, &#39;sub_req_dr&#39;: True,
+    #     &#39;curr_dr_obs&#39;: False, &#39;ues_at_bs_obs&#39;: False, &#39;dist_obs&#39;: False, &#39;next_dist_obs&#39;: False
+    # }
+    # this is for the custom NormEnv and log utility
+    env_config = {
+        &#39;episode_length&#39;: cli_args.eps_length, &#39;seed&#39;: cli_args.seed, &#39;map&#39;: map, &#39;bs_list&#39;: bs_list, &#39;ue_list&#39;: ue_list,
+        &#39;rand_episodes&#39;: cli_args.rand_train, &#39;new_ue_interval&#39;: cli_args.new_ue_interval, &#39;reward&#39;: cli_args.reward,
+        # if enabled log_metrics: log metrics even during training --&gt; visible on tensorboard
+        # if disabled: log just during testing --&gt; probably slightly faster training with less memory
+        &#39;log_metrics&#39;: True
+    }
+
+    # create and return the config
+    config = DEFAULT_CONFIG.copy()
+    # discount factor (default 0.99)
+    # config[&#39;gamma&#39;] = 0.5
+    # 0 = no workers/actors at all --&gt; low overhead for short debugging; 2+ workers to accelerate long training
+    config[&#39;num_workers&#39;] = cli_args.workers
+    config[&#39;seed&#39;] = cli_args.seed
+    # write training stats to file under ~/ray_results (default: False)
+    config[&#39;monitor&#39;] = True
+    config[&#39;train_batch_size&#39;] = cli_args.batch_size        # default: 4000; default in stable_baselines: 128
+    # auto normalize obserations by subtracting mean and dividing by std (default: &#34;NoFilter&#34;)
+    # config[&#39;observation_filter&#39;] = &#34;MeanStdFilter&#34;
+    # NN settings: https://docs.ray.io/en/latest/rllib-models.html#built-in-model-parameters
+    # configure the size of the neural network&#39;s hidden layers; default: [256, 256]
+    # config[&#39;model&#39;][&#39;fcnet_hiddens&#39;] = [512, 512, 512]
+    # LSTM settings
+    config[&#39;model&#39;][&#39;use_lstm&#39;] = cli_args.lstm
+    # config[&#39;model&#39;][&#39;lstm_use_prev_action_reward&#39;] = True
+    # config[&#39;log_level&#39;] = &#39;INFO&#39;    # ray logging default: warning
+    # reset the env whenever the horizon/eps_length is reached
+    config[&#39;horizon&#39;] = cli_args.eps_length
+    config[&#39;env&#39;] = env_class
+    config[&#39;env_config&#39;] = env_config
+    # callback for monitoring custom metrics
+    config[&#39;callbacks&#39;] = CustomMetricCallbacks
+
+    # for multi-agent env: https://docs.ray.io/en/latest/rllib-env.html#multi-agent-and-hierarchical
+    if MultiAgentEnv in env_class.__mro__:
+        # instantiate env to access obs and action space
+        env = env_class(env_config)
+
+        # use separate policies (and NNs) for each agent
+        if cli_args.separate_agent_nns:
+            # create policies also for all future UEs
+            if env.max_ues &gt; env.num_ue:
+                log.warning(&#34;Varying num. UEs. Creating policy for all (future) UEs.&#34;,
+                            curr_num_ue=env.num_ue, max_ues=env.max_ues)
+                ue_ids = [str(i + 1) for i in range(env.max_ues)]
+            else:
+                ue_ids = [ue.id for ue in ue_list]
+
+            config[&#39;multiagent&#39;] = {
+                # attention: ue.id needs to be a string! just casting it to str() here doesn&#39;t work;
+                # needs to be consistent with obs keys --&gt; easier, just use string IDs
+                &#39;policies&#39;: {ue_id: (None, env.observation_space, env.action_space, {}) for ue_id in ue_ids},
+                &#39;policy_mapping_fn&#39;: lambda agent_id: agent_id
+            }
+        # or: all UEs use the same policy and NN
+        else:
+            config[&#39;multiagent&#39;] = {
+                &#39;policies&#39;: {&#39;ue&#39;: (None, env.observation_space, env.action_space, {})},
+                &#39;policy_mapping_fn&#39;: lambda agent_id: &#39;ue&#39;
+            }
+
+    return config</code></pre>
+</details>
+</dd>
+<dt id="deepcomp.util.env_setup.create_large_map"><code class="name flex">
+<span>def <span class="ident">create_large_map</span></span>(<span>sharing_model)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Create larger map with 7 BS that are arranged in a typical hexagonal structure.</p>
+<p>:returns: Tuple(map, bs_list)</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def create_large_map(sharing_model):
+    &#34;&#34;&#34;
+    Create larger map with 7 BS that are arranged in a typical hexagonal structure.
+
+    :returns: Tuple(map, bs_list)
+    &#34;&#34;&#34;
+    map = Map(width=230, height=260)
+    bs_list = [
+        # center
+        Basestation(&#39;A&#39;, Point(115, 130), get_sharing_for_bs(sharing_model, 0)),
+        # top left, counter-clockwise
+        Basestation(&#39;B&#39;, Point(30, 80), get_sharing_for_bs(sharing_model, 1)),
+        Basestation(&#39;C&#39;, Point(115, 30), get_sharing_for_bs(sharing_model, 2)),
+        Basestation(&#39;D&#39;, Point(200, 80), get_sharing_for_bs(sharing_model, 3)),
+        Basestation(&#39;E&#39;, Point(200, 180), get_sharing_for_bs(sharing_model, 4)),
+        Basestation(&#39;F&#39;, Point(115, 230), get_sharing_for_bs(sharing_model, 5)),
+        Basestation(&#39;G&#39;, Point(30, 180), get_sharing_for_bs(sharing_model, 6)),
+    ]
+
+    return map, bs_list</code></pre>
+</details>
+</dd>
+<dt id="deepcomp.util.env_setup.create_medium_map"><code class="name flex">
+<span>def <span class="ident">create_medium_map</span></span>(<span>sharing_model)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Deprecated: Use dynamic medium env instead. Kept this to reproduce earlier results.
+Same as large env, but with map restricted to areas with coverage.
+Thus, optimal episode reward should be close to num_ues * eps_length * 10 (ie, all UEs are always connected)</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def create_medium_map(sharing_model):
+    &#34;&#34;&#34;
+    Deprecated: Use dynamic medium env instead. Kept this to reproduce earlier results.
+    Same as large env, but with map restricted to areas with coverage.
+    Thus, optimal episode reward should be close to num_ues * eps_length * 10 (ie, all UEs are always connected)
+    &#34;&#34;&#34;
+    map = Map(width=205, height=85)
+    bs1 = Basestation(&#39;A&#39;, Point(45, 35), sharing_model)
+    bs2 = Basestation(&#39;B&#39;, Point(160, 35), sharing_model)
+    bs3 = Basestation(&#39;C&#39;, Point(100, 85), sharing_model)
+    bs_list = [bs1, bs2, bs3]
+    return map, bs_list</code></pre>
+</details>
+</dd>
+<dt id="deepcomp.util.env_setup.create_small_map"><code class="name flex">
+<span>def <span class="ident">create_small_map</span></span>(<span>sharing_model)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Create small map and 2 BS</p>
+<p>:returns: tuple (map, bs_list)</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def create_small_map(sharing_model):
+    &#34;&#34;&#34;
+    Create small map and 2 BS
+
+    :returns: tuple (map, bs_list)
+    &#34;&#34;&#34;
+    map = Map(width=150, height=100)
+    bs1 = Basestation(&#39;A&#39;, Point(50, 50), get_sharing_for_bs(sharing_model, 0))
+    bs2 = Basestation(&#39;B&#39;, Point(100, 50), get_sharing_for_bs(sharing_model, 1))
+    bs_list = [bs1, bs2]
+    return map, bs_list</code></pre>
+</details>
+</dd>
+<dt id="deepcomp.util.env_setup.create_ues"><code class="name flex">
+<span>def <span class="ident">create_ues</span></span>(<span>map, num_static_ues, num_slow_ues, num_fast_ues)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Create custom number of slow/fast UEs on the given map. Return UE list</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def create_ues(map, num_static_ues, num_slow_ues, num_fast_ues):
+    &#34;&#34;&#34;Create custom number of slow/fast UEs on the given map. Return UE list&#34;&#34;&#34;
+    ue_list = []
+    id = 1
+    for i in range(num_static_ues):
+        ue_list.append(User(str(id), map, pos_x=&#39;random&#39;, pos_y=&#39;random&#39;, movement=RandomWaypoint(map, velocity=0)))
+        id += 1
+    for i in range(num_slow_ues):
+        ue_list.append(User(str(id), map, pos_x=&#39;random&#39;, pos_y=&#39;random&#39;, movement=RandomWaypoint(map, velocity=&#39;slow&#39;)))
+        id += 1
+    for i in range(num_fast_ues):
+        ue_list.append(User(str(id), map, pos_x=&#39;random&#39;, pos_y=&#39;random&#39;, movement=RandomWaypoint(map, velocity=&#39;fast&#39;)))
+        id += 1
+    return ue_list</code></pre>
+</details>
+</dd>
+<dt id="deepcomp.util.env_setup.get_env"><code class="name flex">
+<span>def <span class="ident">get_env</span></span>(<span>map_size, bs_dist, num_static_ues, num_slow_ues, num_fast_ues, sharing_model, num_bs=None)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Create and return the environment corresponding to the given map_size</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def get_env(map_size, bs_dist, num_static_ues, num_slow_ues, num_fast_ues, sharing_model, num_bs=None):
+    &#34;&#34;&#34;Create and return the environment corresponding to the given map_size&#34;&#34;&#34;
+    assert map_size in SUPPORTED_ENVS, f&#34;Environment {map_size} is not one of {SUPPORTED_ENVS}.&#34;
+
+    # create map and BS list
+    map, bs_list = None, None
+    if map_size == &#39;small&#39;:
+        map, bs_list = create_small_map(sharing_model)
+    elif map_size == &#39;medium&#39;:
+        map, bs_list = create_dyn_medium_map(sharing_model, bs_dist=bs_dist)
+    elif map_size == &#39;large&#39;:
+        if num_bs is None:
+            map, bs_list = create_large_map(sharing_model)
+        else:
+            map, bs_list = create_dyn_large_map(sharing_model, num_bs)
+    # custom env also defines UEs --&gt; return directly
+    elif map_size == &#39;custom&#39;:
+        return create_custom_env(sharing_model)
+
+    # create UEs
+    ue_list = create_ues(map, num_static_ues, num_slow_ues, num_fast_ues)
+
+    return map, ue_list, bs_list</code></pre>
+</details>
+</dd>
+<dt id="deepcomp.util.env_setup.get_env_class"><code class="name flex">
+<span>def <span class="ident">get_env_class</span></span>(<span>env_type)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Return the env class corresponding to the string type (from CLI)</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def get_env_class(env_type):
+    &#34;&#34;&#34;Return the env class corresponding to the string type (from CLI)&#34;&#34;&#34;
+    assert env_type in SUPPORTED_AGENTS, f&#34;Environment type was {env_type} but has to be one of {SUPPORTED_AGENTS}.&#34;
+
+    if env_type == &#39;single&#39;:
+        # return DatarateMobileEnv
+        # return NormDrMobileEnv
+        return RelNormEnv
+    if env_type == &#39;central&#39;:
+        # return CentralDrEnv
+        # return CentralNormDrEnv
+        return CentralRelNormEnv
+        # return CentralMaxNormEnv
+    if env_type == &#39;multi&#39;:
+        return MultiAgentMobileEnv</code></pre>
+</details>
+</dd>
+<dt id="deepcomp.util.env_setup.get_sharing_for_bs"><code class="name flex">
+<span>def <span class="ident">get_sharing_for_bs</span></span>(<span>sharing, bs_idx)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Return the sharing model for the given BS</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def get_sharing_for_bs(sharing, bs_idx):
+    &#34;&#34;&#34;Return the sharing model for the given BS&#34;&#34;&#34;
+    # if it&#39;s not mixed, it&#39;s the same for all BS
+    if sharing != &#39;mixed&#39;:
+        assert sharing in SUPPORTED_SHARING
+        return sharing
+
+    # else loop through the available sharing models
+    sharing_list = [&#39;resource-fair&#39;, &#39;rate-fair&#39;, &#39;proportional-fair&#39;]
+    return sharing_list[bs_idx % len(sharing_list)]</code></pre>
+</details>
+</dd>
+</dl>
+</section>
+<section>
+</section>
+</article>
+<nav id="sidebar">
+<h1>Index</h1>
+<div class="toc">
+<ul></ul>
+</div>
+<ul id="index">
+<li><h3>Super-module</h3>
+<ul>
+<li><code><a title="deepcomp.util" href="index.html">deepcomp.util</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-functions">Functions</a></h3>
+<ul class="">
+<li><code><a title="deepcomp.util.env_setup.create_custom_env" href="#deepcomp.util.env_setup.create_custom_env">create_custom_env</a></code></li>
+<li><code><a title="deepcomp.util.env_setup.create_dyn_large_map" href="#deepcomp.util.env_setup.create_dyn_large_map">create_dyn_large_map</a></code></li>
+<li><code><a title="deepcomp.util.env_setup.create_dyn_medium_map" href="#deepcomp.util.env_setup.create_dyn_medium_map">create_dyn_medium_map</a></code></li>
+<li><code><a title="deepcomp.util.env_setup.create_dyn_small_map" href="#deepcomp.util.env_setup.create_dyn_small_map">create_dyn_small_map</a></code></li>
+<li><code><a title="deepcomp.util.env_setup.create_env_config" href="#deepcomp.util.env_setup.create_env_config">create_env_config</a></code></li>
+<li><code><a title="deepcomp.util.env_setup.create_large_map" href="#deepcomp.util.env_setup.create_large_map">create_large_map</a></code></li>
+<li><code><a title="deepcomp.util.env_setup.create_medium_map" href="#deepcomp.util.env_setup.create_medium_map">create_medium_map</a></code></li>
+<li><code><a title="deepcomp.util.env_setup.create_small_map" href="#deepcomp.util.env_setup.create_small_map">create_small_map</a></code></li>
+<li><code><a title="deepcomp.util.env_setup.create_ues" href="#deepcomp.util.env_setup.create_ues">create_ues</a></code></li>
+<li><code><a title="deepcomp.util.env_setup.get_env" href="#deepcomp.util.env_setup.get_env">get_env</a></code></li>
+<li><code><a title="deepcomp.util.env_setup.get_env_class" href="#deepcomp.util.env_setup.get_env_class">get_env_class</a></code></li>
+<li><code><a title="deepcomp.util.env_setup.get_sharing_for_bs" href="#deepcomp.util.env_setup.get_sharing_for_bs">get_sharing_for_bs</a></code></li>
+</ul>
+</li>
+</ul>
+</nav>
+</main>
+<footer id="footer">
+<p>Generated by <a href="https://pdoc3.github.io/pdoc"><cite>pdoc</cite> 0.9.2</a>.</p>
+</footer>
+</body>
+</html>
