@@ -1,11 +1,9 @@
 from setuptools import setup, find_packages
 
 
-# TODO: use structlog 20.2.0 once available, which will support deepcopy
 requirements = [
     'ray[rllib]==1.0',
-    'structlog>=20.1.0',
-    # 'git+https://github.com/stefanbschneider/structlog.git@dev',
+    'structlog>=20.2.0',
     'structlog-round>=1.0',
     'shapely==1.7.0',
     'matplotlib==3.2.1',

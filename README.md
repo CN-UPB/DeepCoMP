@@ -17,9 +17,9 @@ sudo apt update
 sudo apt upgrade
 sudo apt install cmake build-essential zlib1g-dev python3-dev
 
-# then install rllib and structlog manually for now
+# install rllib manually up front
+# details: https://github.com/ray-project/ray/issues/11274
 pip install ray[rllib]==1
-pip install git+https://github.com/stefanbschneider/structlog.git@dev
 
 # complete installation of remaining dependencies
 python setup.py install
