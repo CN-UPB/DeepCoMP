@@ -7,10 +7,7 @@ on:
   release:
     types: [created]
   workflow_dispatch:
-    inputs:
-      name: 'Manual Trigger'
-      description: 'https://github.blog/changelog/2020-07-06-github-actions-manual-triggers-with-workflow_dispatch/'
-
+   
 jobs:
   deploy:
 
