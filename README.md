@@ -3,13 +3,22 @@
 Deep reinforcement learning for dynamic multi-cell selection in CoMP scenarios.
 Three variants: DeepCoMP (central agent), DD-CoMP (distributed agents using central policy), D3-CoMP (distributed agents with separate policies).
 
-![example](docs/gifs/v10.gif)
+![example](https://github.com/CN-UPB/DeepCoMP/raw/master/docs/gifs/v10.gif)
 
 
 ## Setup
 
 You need Python 3.8+.
-To install everything, run
+
+### Simple Installation via PyPi
+
+```
+pip install deepcomp
+```
+
+### Manual Installation from Source
+
+Clone the repository. Then install everything, following these steps:
 
 ```
 # only on ubuntu
