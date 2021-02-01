@@ -28,7 +28,9 @@ sudo apt install cmake build-essential zlib1g-dev python3-dev
 
 # install rllib manually up front
 # details: https://github.com/ray-project/ray/issues/11274
-pip install ray[rllib]==1
+pip install ray[rllib]>=1
+# also install numpy 1.19.5 manually; since 1.20 leads to errors with TF 2.2
+pip install numpy==1.19.5
 
 # complete installation of remaining dependencies
 python setup.py install
