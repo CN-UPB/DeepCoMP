@@ -52,7 +52,7 @@ class Simulation:
         self.agent = None
         # only init ray if necessary --> lower overhead for dummy agents
         if self.agent_name == 'ppo':
-            ray.init(local_mode=debug)
+            ray.init(address='auto', local_mode=debug)
         self.agent_path = None
 
         # filename for saving is set when loading the agent
