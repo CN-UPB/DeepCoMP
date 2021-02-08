@@ -52,6 +52,7 @@ class Simulation:
         self.agent = None
         # only init ray if necessary --> lower overhead for dummy agents
         if self.agent_name == 'ppo':
+            # FIXME: setting address is just for cluster; breaks local mode
             ray.init(address='auto', local_mode=debug)
         self.agent_path = None
 

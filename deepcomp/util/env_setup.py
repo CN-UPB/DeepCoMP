@@ -224,7 +224,7 @@ def create_env_config(cli_args):
     # discount factor (default 0.99)
     # config['gamma'] = 0.5
     # 0 = no workers/actors at all --> low overhead for short debugging; 2+ workers to accelerate long training
-    config['num_workers'] = cli_args.workers
+    # config['num_workers'] = cli_args.workers
     config['seed'] = cli_args.seed
     # write training stats to file under ~/ray_results (default: False)
     config['monitor'] = True
