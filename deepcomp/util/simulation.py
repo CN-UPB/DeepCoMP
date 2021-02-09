@@ -16,7 +16,7 @@ import ray.tune
 from ray.rllib.agents.ppo import PPOTrainer
 from ray.rllib.env.multi_agent_env import MultiAgentEnv
 
-from deepcomp.util.constants import SUPPORTED_ALGS, SUPPORTED_RENDER, RESULT_DIR, TRAIN_DIR, TEST_DIR, VIDEO_DIR
+from deepcomp.util.constants import SUPPORTED_ALGS, SUPPORTED_RENDER, get_result_dirs
 from deepcomp.agent.dummy import RandomAgent, FixedAgent
 from deepcomp.agent.heuristics import GreedyBestSelection, GreedyAllSelection, DynamicSelection
 from deepcomp.agent.brute_force import BruteForceAgent
@@ -62,6 +62,8 @@ class Simulation:
 
         # filename for saving is set when loading the agent
         self.result_filename = None
+        # result dirs for saving progress, test results, and videos
+        self.result_dir, self.test_dir, self.video_dir = get_result_dirs(result_dir=cli_args.result_dir)
 
         self.log = structlog.get_logger()
         self.log.debug('Simulation init', env=self.env_name, eps_length=self.episode_length, agent=self.agent_name,
@@ -126,7 +128,7 @@ class Simulation:
         if restore_path is not None:
             restore_path = self.get_last_checkpoint_path(restore_path)
 
-        analysis = ray.tune.run(PPOTrainer, config=self.config, local_dir=RESULT_DIR, stop=stop_criteria,
+        analysis = ray.tune.run(PPOTrainer, config=self.config, local_dir=self.result_dir, stop=stop_criteria,
                                 # checkpoint every 10 iterations and at the end; keep the best 10 checkpoints
                                 checkpoint_at_end=True, checkpoint_freq=10, keep_checkpoints_num=10,
                                 checkpoint_score_attr='episode_reward_mean', restore=restore_path,
@@ -266,15 +268,15 @@ class Simulation:
         # save html5 video
         if mode == 'html' or mode == 'both':
             html = anim.to_html5_video()
-            with open(f'{VIDEO_DIR}/{self.result_filename}.html', 'w') as f:
+            with open(f'{self.video_dir}/{self.result_filename}.html', 'w') as f:
                 f.write(html)
-            self.log.info('Video saved', path=f'{VIDEO_DIR}/{self.result_filename}.html')
+            self.log.info('Video saved', path=f'{self.video_dir}/{self.result_filename}.html')
 
         # save gif; requires external dependency ImageMagick
         if mode == 'gif' or mode == 'both':
             try:
-                anim.save(f'{VIDEO_DIR}/{self.result_filename}.gif', writer='imagemagick')
-                self.log.info('Gif saved', path=f'{VIDEO_DIR}/{self.result_filename}.gif')
+                anim.save(f'{self.video_dir}/{self.result_filename}.gif', writer='imagemagick')
+                self.log.info('Gif saved', path=f'{self.video_dir}/{self.result_filename}.gif')
             except TypeError:
                 self.log.error('ImageMagick needs to be installed for saving gifs.')
 
@@ -438,7 +440,7 @@ class Simulation:
 
     def write_scalar_results(self, scalar_results):
         """Write experiment results to CSV file. Include all relevant info."""
-        result_file = f'{TEST_DIR}/{self.result_filename}.csv'
+        result_file = f'{self.test_dir}/{self.result_filename}.csv'
         self.log.info("Writing scalar results", file=result_file)
 
         data = self.metadata
@@ -500,7 +502,7 @@ class Simulation:
             df.attrs['env_config'] = self.env_config
             df.attrs['cli_args'] = vars(self.cli_args)
             dfs.append(df)
-            result_file = f'{TEST_DIR}/{self.result_filename}_{metric}.pkl'
+            result_file = f'{self.test_dir}/{self.result_filename}_{metric}.pkl'
             self.log.info('Writing vector results', metric=metric, file=result_file)
             df.to_pickle(result_file)
 

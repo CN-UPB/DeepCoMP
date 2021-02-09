@@ -16,7 +16,7 @@ def setup_cli():
     parser.add_argument('--agent', type=str, choices=SUPPORTED_AGENTS, default='central',
                         help="Whether to use a single agent for 1 UE, a central agent, or multi agents")
     parser.add_argument('--alg', type=str, choices=SUPPORTED_ALGS, default='ppo', help="Algorithm")
-    parser.add_argument('--workers', type=int, default=1, help="Number of workers for RLlib training and evaluation")
+    parser.add_argument('--workers', type=int, default=1, help="Number of workers for training (one per CPU core)")
     parser.add_argument('--batch-size', type=int, default=4000, help="Number of training iterations per training batch")
     parser.add_argument('--train-steps', type=int, default=None, help="Max. number of training time steps (if any)")
     parser.add_argument('--train-iter', type=int, default=None, help="Max. number of training iterations (if any)")
@@ -56,6 +56,8 @@ def setup_cli():
                         help="How (and whether) to render the testing video.")
     parser.add_argument('--eval', type=int, default=0, help="Number of evaluation episodes after testing")
     parser.add_argument('--seed', type=int, default=None, help="Seed for the RNG (algorithms and environment)")
+    parser.add_argument('--result-dir', type=str, default=None, help="Optional path to where results should be stored."
+                                                                     "Default: <project_root>/results")
 
     args = parser.parse_args()
 

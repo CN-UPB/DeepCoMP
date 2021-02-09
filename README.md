@@ -56,7 +56,7 @@ deepcomp -h
 For example: 
 
 ```
-deepcomp --env medium --slow-ues 3 --fast-ues 0 --agent central --workers 2 --train-steps 50000 --seed 42 --video both --sharing mixed
+deepcomp --env medium --slow-ues 3 --agent central --workers 2 --train-steps 50000 --seed 42 --video both
 ```
 
 To run DeepCoMP, use `--alg ppo --agent central`.

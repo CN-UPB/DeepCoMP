@@ -29,24 +29,26 @@ EPSILON = 1e-16
 FAIR_WEIGHT_ALPHA = 1
 FAIR_WEIGHT_BETA = 1
 
-# constants regarding result and trainig files
-# project root (= repo root; where the readme is) for file access
-_this_dir = pathlib.Path(__file__).parent.absolute()
-PROJECT_ROOT = _this_dir.parent.parent.absolute()
-RESULT_DIR = os.path.join(PROJECT_ROOT, 'results')
-TRAIN_DIR = os.path.join(RESULT_DIR, 'PPO')
-TEST_DIR = os.path.join(RESULT_DIR, 'test')
-VIDEO_DIR = os.path.join(RESULT_DIR, 'videos')
-PLOT_DIR = os.path.join(RESULT_DIR, 'plots')
 
+# constants regarding result files
+def get_result_dirs(result_dir=None):
+    """
+    Return the path to the result dir, test dir, and video dir.
+    If a custom result dir is provided, use that. Otherwise, default to project root/results.
+    """
+    if result_dir is None:
+        # project root (= repo root; where the readme is) for file access
+        _this_dir = pathlib.Path(__file__).parent.absolute()
+        project_root = _this_dir.parent.parent.absolute()
+        result_dir = os.path.join(project_root, 'results')
 
-def create_result_dirs():
-    """Create directories for saving training, testing results and videos"""
-    os.makedirs(RESULT_DIR, exist_ok=True)
-    os.makedirs(TRAIN_DIR, exist_ok=True)
-    os.makedirs(TEST_DIR, exist_ok=True)
-    os.makedirs(VIDEO_DIR, exist_ok=True)
-    os.makedirs(PLOT_DIR, exist_ok=True)
+    test_dir = os.path.join(result_dir, 'test')
+    video_dir = os.path.join(result_dir, 'videos')
 
+    # create dirs
+    os.makedirs(result_dir, exist_ok=True)
+    os.makedirs(test_dir, exist_ok=True)
+    os.makedirs(video_dir, exist_ok=True)
 
-create_result_dirs()
+    return result_dir, test_dir, video_dir
+
