@@ -28,6 +28,7 @@ def setup_cli():
     parser.add_argument('--lstm', action='store_true', help="Whether or not to use an LSTM cell")
     parser.add_argument('--reward', type=str, choices=SUPPORTED_REWARDS, default='sum',
                         help="How to aggregate rewards from multiple UEs within a step.")
+    parser.add_argument('--cluster', action='store_true', help="Set this flag when running on a multi-node cluster.")
     # environment
     parser.add_argument('--env', type=str, choices=SUPPORTED_ENVS, default='small', help="Env/Map size")
     parser.add_argument('--num-bs', type=int, default=None, help="Number of BS in large env (not supported by others).")

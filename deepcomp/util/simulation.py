@@ -52,8 +52,12 @@ class Simulation:
         self.agent = None
         # only init ray if necessary --> lower overhead for dummy agents
         if self.agent_name == 'ppo':
-            # FIXME: setting address is just for cluster; breaks local mode
-            ray.init(address='auto', local_mode=debug)
+            if self.cli_args.cluster:
+                # when running on a cluster (with "ray up"), auto connect to Redis and cluster head
+                ray.init(address='auto')
+            else:
+                # disable for local execution (it won't find a cluster and will break). optionally, enable local debug
+                ray.init(local_mode=debug)
         self.agent_path = None
 
         # filename for saving is set when loading the agent
