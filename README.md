@@ -8,7 +8,7 @@ Three variants: DeepCoMP (central agent), DD-CoMP (distributed agents using cent
 
 ## Setup
 
-You need Python 3.8+.
+You need Python 3.8+. You can install `deepcomp` either directly from PyPi or manually after cloning this repository.
 
 ### Simple Installation via PyPi
 
@@ -26,11 +26,11 @@ sudo apt update
 sudo apt upgrade
 sudo apt install cmake build-essential zlib1g-dev python3-dev
 
+# also install numpy 1.19.5 manually; since 1.20 leads to errors with TF 2.2
+pip install numpy==1.19.5
 # install rllib manually up front
 # details: https://github.com/ray-project/ray/issues/11274 (also, v1.1 throws an error with Python lists)
 pip install ray[rllib]==1
-# also install numpy 1.19.5 manually; since 1.20 leads to errors with TF 2.2
-pip install numpy==1.19.5
 
 # complete installation of remaining dependencies
 python setup.py install
@@ -62,7 +62,11 @@ deepcomp --env medium --slow-ues 3 --agent central --workers 2 --train-steps 500
 To run DeepCoMP, use `--alg ppo --agent central`.
 For DD-CoMP, use `--alg ppo --agent multi`, and for D3-CoMP, use `--alg ppo --agent multi --separate-agent-nns`.
 
-Training logs, results, videos, and trained agents are saved in the `results` directory.
+By default, training logs, results, videos, and trained agents are saved in `<project-root>/results`,
+where `<project-root>` is the root directory of DeepCoMP.
+If you cloned the repo from GitHub, this is where the Readme is. 
+If you installed via PyPi, this is in your virtualenv's site packages.
+You can choose a custom location with `--result-dir <custom-path>`.
 
 #### Accessing results remotely
 
@@ -83,7 +87,15 @@ To view learning curves (and other metrics) when training an agent, use Tensorbo
 tensorboard --logdir results/PPO/ (--host 0.0.0.0)
 ```
 
-Tensorboard is available at http://localhost:6006
+Tensorboard is available at http://localhost:6006 (or `<remote-ip>:6006` when running remotely).
+
+#### Scaling Up: Running DeepCoMP on multiple cores or a multi-node cluster
+
+To train DeepCoMP on multiple cores in parallel, configure the number of workers (corresponding to CPU cores) with `--workers`.
+
+To scale training to a multi-node cluster, adjust `cluster.yaml` and follow the steps described [here](https://stefanbschneider.github.io/blog/rllib-private-cluster).
+Set `--workers` to the total number of CPU cores you want to use on the entire cluster.
+
 
 
 ## Documentation
