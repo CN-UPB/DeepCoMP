@@ -24,7 +24,7 @@ requirements = [
     'joblib==0.16.0',
     # extra dependencies for Ray RLlib
     # installing directly via ray[rllib] doesn't work with setup.py: https://github.com/ray-project/ray/issues/11274
-    'scipy',
+    'scipy==1.4.1',
     'lz4',
 ]
 
