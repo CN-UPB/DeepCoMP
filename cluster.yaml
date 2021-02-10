@@ -40,7 +40,7 @@ provider:
     worker_ips:
         - ray02.cs.upb.de
         - ray03.cs.upb.de
-        - ray04.cs.upb.de
+#        - ray04.cs.upb.de
 #  [WORKER_NODE_1_HOSTNAME, WORKER_NODE_2_HOSTNAME, ... ]
     # Optional when running automatic cluster management on prem. If you use a coordinator server,
     # then you can launch multiple autoscaling clusters on the same set of machines, and the coordinator
