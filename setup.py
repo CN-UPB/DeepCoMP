@@ -9,7 +9,7 @@ with open(os.path.join(this_directory, 'README.md'), encoding='utf-8') as f:
 
 
 requirements = [
-    'ray==1.1.0',
+    'ray==1.2.0',
     'structlog>=20.2.0',
     'structlog-round>=1.0',
     'shapely==1.7.0',
