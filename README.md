@@ -26,14 +26,10 @@ sudo apt update
 sudo apt upgrade
 sudo apt install cmake build-essential zlib1g-dev python3-dev
 
-# also install numpy 1.19.5 manually; since 1.20 leads to errors with TF 2.2
-pip install numpy==1.19.5
-# install rllib manually up front
-# details: https://github.com/ray-project/ray/issues/11274 (also, v1.1 throws an error with Python lists)
-pip install ray[rllib]==1
-
-# complete installation of remaining dependencies
-python setup.py install
+# install all python dependencies
+pip install .
+# "python setup.py install" does not work for some reason: https://stackoverflow.com/a/66267232/2745116
+# for development install (when changing code): pip install -e .
 ```
 
 Tested on Ubuntu 20.04 and Windows 10 with Python 3.8.
