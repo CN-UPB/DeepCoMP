@@ -9,7 +9,7 @@ with open(os.path.join(this_directory, 'README.md'), encoding='utf-8') as f:
 
 
 requirements = [
-    'ray==1.2.0',
+    'ray[rllib]==1.2.0',
     'structlog>=20.2.0',
     'structlog-round>=1.0',
     'shapely==1.7.0',
@@ -25,7 +25,7 @@ requirements = [
     # extra dependencies for Ray RLlib
     # installing directly via ray[rllib] doesn't work with setup.py: https://github.com/ray-project/ray/issues/11274
     'scipy>=1.4.1',
-    'lz4',
+    # 'lz4',
 ]
 
 eval_requirements = [
