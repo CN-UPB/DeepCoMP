@@ -61,7 +61,7 @@ class User:
     @property
     def curr_dr(self):
         """Current data rate the UE gets through all its BS connections"""
-        dr = sum([dr for dr in self.bs_dr.values()])
+        dr = sum(list(self.bs_dr.values()))
         self.log.debug("Current data rate", curr_dr=dr)
         return dr
 
