@@ -20,7 +20,7 @@ def main():
     args_continue = getattr(args, 'continue')
 
     # stop training when any of the criteria is met
-    stop_criteria = dict()
+    stop_criteria = {}
     if args.train_steps is not None:
         stop_criteria['timesteps_total'] = args.train_steps
     if args.train_iter is not None:

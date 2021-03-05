@@ -246,7 +246,7 @@ class MobileEnv(gym.Env):
         :param penalties: Dict of penalties for all UEs. Used for calculating rewards.
         :return: Dict of rewards: UE --> reward (incl. penalty)
         """
-        rewards = dict()
+        rewards = {}
         for ue in self.ue_list:
             ue.update_curr_dr()
             # calc and return reward if needed
@@ -266,7 +266,7 @@ class MobileEnv(gym.Env):
 
         :return: Dict with num lost connections: UE --> num. lost connections
         """
-        lost_conn = dict()
+        lost_conn = {}
         for ue in self.ue_list:
             num_lost_conn = ue.move()
             # add penalty of -1 for each lost connection through movement (rather than actively disconnected)
