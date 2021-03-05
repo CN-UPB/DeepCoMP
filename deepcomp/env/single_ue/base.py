@@ -95,7 +95,8 @@ class MobileEnv(gym.Env):
                 offset += 100
                 ue.seed(seed + offset)
 
-    def set_log_level(self, log_dict):
+    @staticmethod
+    def set_log_level(log_dict):
         """
         Set a logging levels for a set of given logger. Needs to happen here, inside the env, for RLlib workers to work.
         :param dict log_dict: Dict with logger name --> logging level (eg, logging.INFO)
@@ -107,7 +108,8 @@ class MobileEnv(gym.Env):
         """Return the an observation of the current world for a given UE"""
         raise NotImplementedError('Implement in subclass')
 
-    def calc_reward(self, ue, penalty):
+    @staticmethod
+    def calc_reward(ue, penalty):
         """
         Calculate and return reward for specific UE: The UE's utility (based on its data rate) + penalty
         """
@@ -294,7 +296,8 @@ class MobileEnv(gym.Env):
         ue = self.ue_list[(self.time-1) % self.num_ue]
         return rewards[ue]
 
-    def done(self):
+    @staticmethod
+    def done():
         """
         Return whether the episode is done.
 
