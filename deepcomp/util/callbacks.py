@@ -39,7 +39,8 @@ class CustomMetricCallbacks(DefaultCallbacks):
                 else:
                     episode.user_data[eps_metric_name] = metric_value
 
-    def on_episode_end(self, *, worker: "RolloutWorker", base_env: BaseEnv,
+    @staticmethod
+    def on_episode_end(*, worker: "RolloutWorker", base_env: BaseEnv,
                        policies: Dict[PolicyID, Policy],
                        episode: MultiAgentEpisode, env_index: int, **kwargs):
         # log the sum of scalar metrics over an episode as metric

@@ -32,7 +32,7 @@ class MultiAgentMobileEnv(RelNormEnv, MultiAgentEnv):
 
     def get_obs(self):
         """Return next obs: Dict with UE --> obs"""
-        obs = dict()
+        obs = {}
         for ue in self.ue_list:
             obs[ue.id] = self.get_ue_obs(ue)
         return obs
@@ -47,7 +47,7 @@ class MultiAgentMobileEnv(RelNormEnv, MultiAgentEnv):
         # return {ue.id: r for ue, r in rewards.items()}
 
         # variant: add aggregated utility of UEs at the same BS
-        new_rewards = dict()
+        new_rewards = {}
         for ue, r in rewards.items():
             # initialize to own utility in case the UE is not connected to any BS and has no neighbors
             agg_util = r
