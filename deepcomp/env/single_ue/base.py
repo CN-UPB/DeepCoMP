@@ -296,8 +296,7 @@ class MobileEnv(gym.Env):
         ue = self.ue_list[(self.time-1) % self.num_ue]
         return rewards[ue]
 
-    @staticmethod
-    def done():
+    def done(self):
         """
         Return whether the episode is done.
 
