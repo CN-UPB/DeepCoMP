@@ -1,3 +1,5 @@
+[![DeepSource](https://deepsource.io/gh/CN-UPB/DeepCoMP.svg/?label=active+issues)](https://deepsource.io/gh/CN-UPB/DeepCoMP/?ref=repository-badge)
+
 # DeepCoMP: Self-Learning Dynamic Multi-Cell Selection for Coordinated Multipoint (CoMP)
 
 Deep reinforcement learning for dynamic multi-cell selection in CoMP scenarios.
