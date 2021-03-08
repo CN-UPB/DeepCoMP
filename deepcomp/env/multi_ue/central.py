@@ -36,7 +36,7 @@ class CentralBaseEnv(MobileEnv):
             # extend central obs
             for key in self.observation_space.spaces.keys():
                 # handle Discrete or Binary obs --> single number
-                if type(ue_obs[key]) == int:
+                if type(ue_obs[key]) is int:
                     obs[key].append(ue_obs[key])
                 # remaining Box or MultiDiscrete/Binary obs --> vector/list
                 else:

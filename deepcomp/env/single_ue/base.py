@@ -95,7 +95,8 @@ class MobileEnv(gym.Env):
                 offset += 100
                 ue.seed(seed + offset)
 
-    def set_log_level(self, log_dict):
+    @staticmethod
+    def set_log_level(log_dict):
         """
         Set a logging levels for a set of given logger. Needs to happen here, inside the env, for RLlib workers to work.
         :param dict log_dict: Dict with logger name --> logging level (eg, logging.INFO)
@@ -107,7 +108,8 @@ class MobileEnv(gym.Env):
         """Return the an observation of the current world for a given UE"""
         raise NotImplementedError('Implement in subclass')
 
-    def calc_reward(self, ue, penalty):
+    @staticmethod
+    def calc_reward(ue, penalty):
         """
         Calculate and return reward for specific UE: The UE's utility (based on its data rate) + penalty
         """
@@ -246,7 +248,7 @@ class MobileEnv(gym.Env):
         :param penalties: Dict of penalties for all UEs. Used for calculating rewards.
         :return: Dict of rewards: UE --> reward (incl. penalty)
         """
-        rewards = dict()
+        rewards = {}
         for ue in self.ue_list:
             ue.update_curr_dr()
             # calc and return reward if needed
@@ -266,7 +268,7 @@ class MobileEnv(gym.Env):
 
         :return: Dict with num lost connections: UE --> num. lost connections
         """
-        lost_conn = dict()
+        lost_conn = {}
         for ue in self.ue_list:
             num_lost_conn = ue.move()
             # add penalty of -1 for each lost connection through movement (rather than actively disconnected)

@@ -29,7 +29,7 @@ class User:
         self.movement = movement
         self.dr_req = dr_req
         # dict of connected BS: BS (only connected BS are keys!) --> data rate of connection
-        self.bs_dr = dict()
+        self.bs_dr = {}
 
         # own RNG for reproducibility; global random shares state that's manipulated by RL during training
         self.rng = random.Random()
@@ -61,7 +61,7 @@ class User:
     @property
     def curr_dr(self):
         """Current data rate the UE gets through all its BS connections"""
-        dr = sum([dr for dr in self.bs_dr.values()])
+        dr = sum(list(self.bs_dr.values()))
         self.log.debug("Current data rate", curr_dr=dr)
         return dr
 
@@ -97,7 +97,7 @@ class User:
         """Reset UE position, movement, and connections."""
         self.reset_pos()
         self.movement.reset()
-        self.bs_dr = dict()
+        self.bs_dr = {}
         self.ewma_dr = 0
 
     def plot(self, radius=2):
