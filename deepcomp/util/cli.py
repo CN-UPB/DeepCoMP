@@ -54,6 +54,8 @@ def setup_cli():
     parser.add_argument('--test', type=str, help="Test trained agent at given path (auto. loads last checkpoint)")
     parser.add_argument('--video', type=str, choices=SUPPORTED_RENDER, default=None,
                         help="How (and whether) to render the testing video.")
+    parser.add_argument('--simple-video', action='store_true',
+                        help="Simplify generated video by hiding detailed numbers. Only effective with --video.")
     parser.add_argument('--eval', type=int, default=0, help="Number of evaluation episodes after testing")
     parser.add_argument('--seed', type=int, default=None, help="Seed for the RNG (algorithms and environment)")
     parser.add_argument('--result-dir', type=str, default=None, help="Optional path to where results should be stored."
@@ -68,6 +70,10 @@ def setup_cli():
     if args.alg in MULTI_ALGS and args.alg not in CENTRAL_ALGS and args.agent != 'multi':
         log.warning('Algorithm only supports multi-agent. Switching to multi-agent.', alg=args.alg)
         args.agent = 'multi'
+
+    # simplify video only if video is enabled
+    if args.simple_video and args.video is None:
+        log.warning('--simple-video is ignored because --video is not set (defaults to no video)')
 
     log.info('CLI args', args=args)
 

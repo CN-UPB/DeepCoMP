@@ -100,10 +100,11 @@ class User:
         self.bs_dr = {}
         self.ewma_dr = 0
 
-    def plot(self, radius=2):
+    def plot(self, radius=2, simple=False):
         """
         Plot the UE as filled circle with a given radius and the ID. Color from red to green indicating the utility.
         :param radius: Radius of the circle
+        :param simple: Whether to simplify the rendered UE by omitting its data rate and utility
         :return: A list of created matplotlib artists
         """
         # show utility as red to yellow to green. use color map for [0,1) --> normalize utility first
@@ -115,11 +116,12 @@ class User:
         artists.extend(plt.fill(*self.pos.buffer(radius).exterior.xy, color=color))
         artists.append(plt.annotate(self.id, xy=(self.pos.x, self.pos.y), ha='center', va='center'))
 
-        # show curr data rate and utility below the UE
-        artists.append(plt.annotate(f'dr: {self.curr_dr:.2f}', xy=(self.pos.x, self.pos.y -radius -2),
-                                    ha='center', va='center'))
-        artists.append(plt.annotate(f'util: {self.utility:.2f}', xy=(self.pos.x, self.pos.y -radius -6),
-                                    ha='center', va='center'))
+        if not simple:
+            # show curr data rate and utility below the UE
+            artists.append(plt.annotate(f'dr: {self.curr_dr:.2f}', xy=(self.pos.x, self.pos.y -radius -2),
+                                        ha='center', va='center'))
+            artists.append(plt.annotate(f'util: {self.utility:.2f}', xy=(self.pos.x, self.pos.y -radius -6),
+                                        ha='center', va='center'))
         return artists
 
     def update_curr_dr(self):

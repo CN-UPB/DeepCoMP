@@ -58,6 +58,9 @@ class MobileEnv(gym.Env):
         self.observation_space = None
         self.action_space = None
 
+        # configure animation rendering
+        self.simple_video = env_config['simple_video']
+
         # configure logging inside env to ensure it works in ray/rllib. https://github.com/ray-project/ray/issues/9030
         config_logging()
         self.log = structlog.get_logger()
@@ -406,18 +409,19 @@ class MobileEnv(gym.Env):
                                       path_effects=[pe.SimpleLineShadow(shadow_color='black'), pe.Normal()]))
                                       # path_effects=[pe.Stroke(linewidth=2, foreground='black'), pe.Normal()]))
             # plot UE
-            patch.extend(ue.plot())
+            patch.extend(ue.plot(simple=self.simple_video))
 
         # base stations
         for bs in self.bs_list:
             patch.extend(bs.plot())
 
-        # title isn't redrawn in animation (out of box) --> static --> show time as text inside box, top-right corner
-        patch.append(plt.title(type(self).__name__))
-        # extra info: time step, total data rate & utility
-        patch.append(plt.text(0.9*self.map.width, 0.95*self.map.height, f"t={self.time}"))
-        patch.append(plt.text(0.9*self.map.width, 0.9*self.map.height, f"dr={self.total_dr:.2f}"))
-        patch.append(plt.text(0.9*self.map.width, 0.85*self.map.height, f"util={self.total_utility:.2f}"))
+        if not self.simple_video:
+            # title isn't redrawn in animation (out of box) --> static --> show time as text inside box, top-right corner
+            patch.append(plt.title(type(self).__name__))
+            # extra info: time step, total data rate & utility
+            patch.append(plt.text(0.9*self.map.width, 0.95*self.map.height, f"t={self.time}"))
+            patch.append(plt.text(0.9*self.map.width, 0.9*self.map.height, f"dr={self.total_dr:.2f}"))
+            patch.append(plt.text(0.9*self.map.width, 0.85*self.map.height, f"util={self.total_utility:.2f}"))
 
         # legend doesn't change --> only draw once at the beginning
         # if self.time == 0:
