@@ -1,6 +1,6 @@
+import sys
 import os
 import time
-import random
 from datetime import datetime
 from collections import defaultdict
 
@@ -218,7 +218,12 @@ class Simulation:
             self.agent = PPOTrainer(config=self.config, env=self.env_class)
             self.agent_path = self.get_best_checkpoint_path(rllib_dir)
             self.log.info('Loading PPO agent', checkpoint=self.agent_path)
-            self.agent.restore(self.agent_path)
+            try:
+                self.agent.restore(self.agent_path)
+            except AssertionError:
+                self.log.error(f"Error loading agent. Mismatch of neural network size and number of UEs when using a "
+                               f"pretrained central PPO?")
+                sys.exit()
         if self.agent_name == '3gpp':
             self.agent = Heuristic3GPP()
         if self.agent_name == 'fullcomp':
