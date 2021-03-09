@@ -54,13 +54,12 @@ def setup_cli():
     parser.add_argument('--test', type=str, help="Test trained agent at given path (auto. loads last checkpoint)")
     parser.add_argument('--video', type=str, choices=SUPPORTED_RENDER, default=None,
                         help="How (and whether) to render the testing video.")
-    parser.add_argument('--simple-video', type=str, choices=SUPPORTED_RENDER, default='html',
+    parser.add_argument('--simple-video', type=str, choices=SUPPORTED_RENDER, default=None,
                         help="Same as --video but without detailed numbers. Cannot be used at once with --video.")
     parser.add_argument('--eval', type=int, default=0, help="Number of evaluation episodes after testing")
-    parser.add_argument('--seed', type=int, default=42, help="Seed for the RNG (algorithms and environment)")
+    parser.add_argument('--seed', type=int, default=None, help="Seed for the RNG (algorithms and environment)")
     parser.add_argument('--result-dir', type=str, default=None, help="Optional path to where results should be stored."
                                                                      "Default: <project_root>/results")
-    # TODO: default to seed 42 and --simple-video html for demo
 
     args = parser.parse_args()
 
