@@ -224,7 +224,7 @@ class Simulation:
                 self.agent.restore(self.agent_path)
             except (AssertionError, ValueError) as e:
                 self.log.error(f"Error loading agent. Mismatch of neural network size and number of UEs when using a "
-                               f"pretrained central PPO? Error: {str(e)}")
+                               f"pretrained central PPO? Error: '{str(e)}'")
                 sys.exit()
         if self.agent_name == '3gpp':
             self.agent = Heuristic3GPP()

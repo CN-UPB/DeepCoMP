@@ -69,7 +69,11 @@ class MobileEnv(gym.Env):
         self.log.info('Env init', env_config=env_config)
 
         # call after initializing everything else (needs settings, log)
-        self.max_ues = self.get_max_num_ue()
+        self.max_ues = env_config['max_ues']
+        if self.max_ues is None:
+            # automatically get max UEs for given scenario
+            self.max_ues = self.get_max_num_ue()
+        assert self.max_ues >= self.num_ue
 
     @property
     def num_bs(self):
@@ -154,7 +158,6 @@ class MobileEnv(gym.Env):
 
     def get_max_num_ue(self):
         """Get the maximum number of UEs within an episode based on the new UE interval"""
-        # TODO: allow passing a manually set max UE, eg, if loading a central agent pretrained on more UEs
         max_ues = self.num_ue
         if self.new_ue_interval is not None:
             # calculate the max number of UEs if one new UE is added at a given interval

@@ -223,6 +223,7 @@ def create_env_config(cli_args):
     env_config = {
         'episode_length': cli_args.eps_length, 'seed': cli_args.seed, 'map': map, 'bs_list': bs_list, 'ue_list': ue_list,
         'rand_episodes': cli_args.rand_train, 'new_ue_interval': cli_args.new_ue_interval, 'reward': cli_args.reward,
+        'max_ues': cli_args.max_ues,
         # if enabled log_metrics: log metrics even during training --> visible on tensorboard
         # if disabled: log just during testing --> probably slightly faster training with less memory
         'log_metrics': True,
