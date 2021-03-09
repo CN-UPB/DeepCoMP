@@ -42,12 +42,14 @@ def get_result_dirs(result_dir=None):
         project_root = _this_dir.parent.parent.absolute()
         result_dir = os.path.join(project_root, 'results')
 
+    train_dir = os.path.join(result_dir, 'train')
     test_dir = os.path.join(result_dir, 'test')
     video_dir = os.path.join(result_dir, 'videos')
 
     # create dirs
     os.makedirs(result_dir, exist_ok=True)
+    os.makedirs(train_dir, exist_ok=True)
     os.makedirs(test_dir, exist_ok=True)
     os.makedirs(video_dir, exist_ok=True)
 
-    return result_dir, test_dir, video_dir
+    return result_dir, train_dir, test_dir, video_dir

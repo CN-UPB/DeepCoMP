@@ -63,7 +63,7 @@ class Simulation:
         # filename for saving is set when loading the agent
         self.result_filename = None
         # result dirs for saving progress, test results, and videos
-        self.result_dir, self.test_dir, self.video_dir = get_result_dirs(result_dir=cli_args.result_dir)
+        self.result_dir, self.train_dir, self.test_dir, self.video_dir = get_result_dirs(result_dir=cli_args.result_dir)
 
         self.log = structlog.get_logger()
         self.log.debug('Simulation init', env=self.env_name, eps_length=self.episode_length, agent=self.agent_name,
@@ -128,7 +128,7 @@ class Simulation:
         if restore_path is not None:
             restore_path = self.get_last_checkpoint_path(restore_path)
 
-        analysis = ray.tune.run(PPOTrainer, config=self.config, local_dir=self.result_dir, stop=stop_criteria,
+        analysis = ray.tune.run(PPOTrainer, config=self.config, local_dir=self.train_dir, stop=stop_criteria,
                                 # checkpoint every 10 iterations and at the end; keep the best 10 checkpoints
                                 checkpoint_at_end=True, checkpoint_freq=10, keep_checkpoints_num=10,
                                 checkpoint_score_attr='episode_reward_mean', restore=restore_path,

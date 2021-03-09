@@ -83,7 +83,7 @@ Then access at `<remote-ip>:8000`.
 To view learning curves (and other metrics) when training an agent, use Tensorboard:
 
 ```
-tensorboard --logdir results/PPO/ (--host 0.0.0.0)
+tensorboard --logdir results/train/ (--host 0.0.0.0)
 ```
 
 Tensorboard is available at http://localhost:6006 (or `<remote-ip>:6006` when running remotely).
