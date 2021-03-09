@@ -159,13 +159,23 @@ def create_ues(map, num_static_ues, num_slow_ues, num_fast_ues):
 
 def create_custom_env(sharing_model):
     """Hand-created custom env. For demos or specific experiments."""
-    map, bs_list = create_small_map(sharing_model)
-    # 2 stationary UEs
-    ue_list = [
-        User(str(1), map, pos_x=70, pos_y=40, movement=UniformMovement(map)),
-        User(str(2), map, pos_x=80, pos_y=60, movement=UniformMovement(map))
+    # map with 4 BS at distance of 100; distance 10 to border of map
+    map = Map(width=194, height=120)
+    bs_list = [
+        # left
+        Basestation('A', Point(10, 60), get_sharing_for_bs(sharing_model, 0)),
+        # counter-clockwise
+        Basestation('B', Point(97, 10), get_sharing_for_bs(sharing_model, 1)),
+        Basestation('C', Point(184, 60), get_sharing_for_bs(sharing_model, 2)),
+        Basestation('D', Point(97, 110), get_sharing_for_bs(sharing_model, 3)),
     ]
-    return map, ue_list, bs_list
+
+    # UEs are now created dynamically according to CLI
+    # ue_list = [
+    #     User(str(1), map, pos_x=70, pos_y=40, movement=UniformMovement(map)),
+    #     User(str(2), map, pos_x=80, pos_y=60, movement=UniformMovement(map))
+    # ]
+    return map, bs_list
 
 
 def get_env(map_size, bs_dist, num_static_ues, num_slow_ues, num_fast_ues, sharing_model, num_bs=None):
@@ -183,9 +193,8 @@ def get_env(map_size, bs_dist, num_static_ues, num_slow_ues, num_fast_ues, shari
             map, bs_list = create_large_map(sharing_model)
         else:
             map, bs_list = create_dyn_large_map(sharing_model, num_bs)
-    # custom env also defines UEs --> return directly
     elif map_size == 'custom':
-        return create_custom_env(sharing_model)
+        map, bs_list = create_custom_env(sharing_model)
 
     # create UEs
     ue_list = create_ues(map, num_static_ues, num_slow_ues, num_fast_ues)
