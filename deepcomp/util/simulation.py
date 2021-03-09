@@ -270,7 +270,7 @@ class Simulation:
         """
         render_modes = SUPPORTED_RENDER - {None}
         assert mode in render_modes, f"Render mode {mode} not in {render_modes}"
-        anim = matplotlib.animation.ArtistAnimation(fig, patches, repeat=False)
+        anim = matplotlib.animation.ArtistAnimation(fig, patches, interval=100, repeat=False)
 
         # save html5 video
         if mode == 'html' or mode == 'both':

@@ -33,7 +33,7 @@ def setup_cli():
     parser.add_argument('--env', type=str, choices=SUPPORTED_ENVS, default='custom', help="Env/Map size")
     parser.add_argument('--num-bs', type=int, default=None, help="Number of BS in large env (not supported by others).")
     parser.add_argument('--bs-dist', type=int, default=100, help="Distance between BS. Only supported by medium env.")
-    parser.add_argument('--eps-length', type=int, default=50, help="Number of time steps per episode")
+    parser.add_argument('--eps-length', type=int, default=100, help="Number of time steps per episode")
     parser.add_argument('--static-ues', type=int, default=0, help="Number of static UEs in the environment")
     parser.add_argument('--ues', type=int, default=0, help="Number of (slow) UEs in the environment")
     parser.add_argument('--fast-ues', type=int, default=0, help="Number of fast UEs in the environment")
