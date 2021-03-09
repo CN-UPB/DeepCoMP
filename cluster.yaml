@@ -1,5 +1,5 @@
 # An unique identifier for the head node and workers of this cluster.
-cluster_name: mycluster
+cluster_name: ray10cluster
 
 ## NOTE: Typically for local clusters, min_workers == max_workers == len(worker_ips).
 
@@ -36,12 +36,14 @@ max_workers: 1
 # Local specific configuration.
 provider:
     type: local
-#    head_ip: ray01.cs.upb.de
-    head_ip: fgcn-tango-4.cs.upb.de
+#    head_ip: ray10.cs.upb.de
+    head_ip: ray09.cs.upb.de
+#    head_ip: fgcn-tango-4.cs.upb.de
     worker_ips:
-        - fgcn-tango-5.cs.upb.de
-#        - ray02.cs.upb.de
-#        - ray03.cs.upb.de
+#        - fgcn-tango-5.cs.upb.de
+#        - ray09.cs.upb.de
+        - ray08.cs.upb.de
+#        - ray07.cs.upb.de
 #        - ray04.cs.upb.de
 #  [WORKER_NODE_1_HOSTNAME, WORKER_NODE_2_HOSTNAME, ... ]
     # Optional when running automatic cluster management on prem. If you use a coordinator server,
@@ -53,6 +55,7 @@ provider:
 auth:
     ssh_user: stefan
     # Optional if an ssh private key is necessary to ssh to the cluster.
+#    ssh_private_key: ~/.ssh/id_ed25519
     ssh_private_key: ~/.ssh/id_rsa
 
 # Leave this empty.
