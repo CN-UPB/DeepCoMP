@@ -38,6 +38,8 @@ class MobileEnv(gym.Env):
         """
         super().__init__()
         self.time = 0
+        # total utility summed up over all UEs and time steps so far
+        self.total_utility = 0
         self.episode_length = env_config['episode_length']
         self.map = env_config['map']
         self.bs_list = env_config['bs_list']
@@ -82,8 +84,14 @@ class MobileEnv(gym.Env):
         return sum([ue.curr_dr for ue in self.ue_list])
 
     @property
-    def total_utility(self):
+    def current_total_utility(self):
         return sum([ue.utility for ue in self.ue_list])
+
+    @property
+    def avg_total_utility(self):
+        if self.time == 0:
+            return self.total_utility
+        return self.total_utility / self.time
 
     def seed(self, seed=None):
         if seed is not None:
@@ -330,7 +338,7 @@ class MobileEnv(gym.Env):
                 # num UEs without any connection
                 # 'num_ues_wo_conn': sum([1 if len(ue.bs_dr) == 0 else 0 for ue in self.ue_list]),
                 # 'avg_utility': np.mean([ue.utility for ue in self.ue_list]),
-                'sum_utility': sum([ue.utility for ue in self.ue_list])
+                'sum_utility': self.current_total_utility
             },
             # vector metrics are metrics that contain a dict of values for each step with UE --> metric
             # currently not supported (needs some adjustments in simulator)
@@ -374,6 +382,7 @@ class MobileEnv(gym.Env):
         # rewards = {ue: np.mean([rewards_before[ue], rewards_after[ue]]) for ue in self.ue_list}
         rewards = rewards_before
         self.time += 1
+        self.total_utility += self.current_total_utility
 
         # get and return next obs, reward, done, info
         self.obs = self.get_obs()
@@ -415,13 +424,18 @@ class MobileEnv(gym.Env):
         for bs in self.bs_list:
             patch.extend(bs.plot())
 
-        if not self.simple_video:
-            # title isn't redrawn in animation (out of box) --> static --> show time as text inside box, top-right corner
+        if self.simple_video:
+            # only print avg. total utility (sum over UEs, avg over time steps)
+            patch.append(plt.text(0.85 * self.map.width, 0.95 * self.map.height,
+                                  f"Avg. QoE: {self.avg_total_utility:.2f}", fontsize='large'))
+        else:
+            # title isn't redrawn in animation (out of box) -> static -> show time as text inside box, top-right corner
             patch.append(plt.title(type(self).__name__))
             # extra info: time step, total data rate & utility
             patch.append(plt.text(0.9*self.map.width, 0.95*self.map.height, f"t={self.time}"))
             patch.append(plt.text(0.9*self.map.width, 0.9*self.map.height, f"dr={self.total_dr:.2f}"))
-            patch.append(plt.text(0.9*self.map.width, 0.85*self.map.height, f"util={self.total_utility:.2f}"))
+            patch.append(plt.text(0.9 * self.map.width, 0.85 * self.map.height, f"util={self.current_total_utility:.2f}"))
+            patch.append(plt.text(0.9 * self.map.width, 0.8 * self.map.height, f"avg util={self.avg_total_utility:.2f}"))
 
         # legend doesn't change --> only draw once at the beginning
         # if self.time == 0:
