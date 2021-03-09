@@ -430,7 +430,7 @@ class MobileEnv(gym.Env):
 
         if self.simple_video:
             # only print avg. total utility (sum over UEs, avg over time steps)
-            patch.append(plt.text(0.85 * self.map.width, 0.95 * self.map.height,
+            patch.append(plt.text(0.86 * self.map.width, 0.95 * self.map.height,
                                   f"Avg. QoE: {self.avg_total_utility:.2f}", fontsize='large'))
         else:
             # title isn't redrawn in animation (out of box) -> static -> show time as text inside box, top-right corner
