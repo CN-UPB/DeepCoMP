@@ -1,6 +1,7 @@
 import sys
 import os
 import time
+import logging
 from datetime import datetime
 from collections import defaultdict
 
@@ -57,7 +58,8 @@ class Simulation:
                 ray.init(address='auto')
             else:
                 # disable for local execution (it won't find a cluster and will break). optionally, enable local debug
-                ray.init(local_mode=debug)
+                # also less logging and no dashboard
+                ray.init(local_mode=debug, include_dashboard=False, log_to_driver=False)
         self.agent_path = None
 
         # filename for saving is set when loading the agent

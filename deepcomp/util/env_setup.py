@@ -255,6 +255,7 @@ def create_env_config(cli_args):
     config['env_config'] = env_config
     # callback for monitoring custom metrics
     config['callbacks'] = CustomMetricCallbacks
+    config['log_level'] = 'ERROR'
 
     # for multi-agent env: https://docs.ray.io/en/latest/rllib-env.html#multi-agent-and-hierarchical
     if MultiAgentEnv in env_class.__mro__:
