@@ -18,7 +18,7 @@ from ray.rllib.env.multi_agent_env import MultiAgentEnv
 
 from deepcomp.util.constants import SUPPORTED_ALGS, SUPPORTED_RENDER, get_result_dirs
 from deepcomp.agent.dummy import RandomAgent, FixedAgent
-from deepcomp.agent.heuristics import GreedyBestSelection, GreedyAllSelection, DynamicSelection
+from deepcomp.agent.heuristics import Heuristic3GPP, FullCoMP, DynamicSelection
 from deepcomp.agent.brute_force import BruteForceAgent
 from deepcomp.util.logs import config_logging
 
@@ -30,7 +30,7 @@ class Simulation:
         Create a new simulation object to hold the agent and environment, train & test & visualize the agent + env.
 
         :param config: RLlib agent config
-        :param agent_name: String identifying the agent. Supported: 'ppo', 'greedy-best', 'random', 'fixed'
+        :param agent_name: String identifying the agent
         :param cli_args: Dict of CLI args
         :param debug: Whether or not to enable ray's local_mode for debugging
         """
@@ -219,10 +219,10 @@ class Simulation:
             self.agent_path = self.get_best_checkpoint_path(rllib_dir)
             self.log.info('Loading PPO agent', checkpoint=self.agent_path)
             self.agent.restore(self.agent_path)
-        if self.agent_name == 'greedy-best':
-            self.agent = GreedyBestSelection()
-        if self.agent_name == 'greedy-all':
-            self.agent = GreedyAllSelection()
+        if self.agent_name == '3gpp':
+            self.agent = Heuristic3GPP()
+        if self.agent_name == 'fullcomp':
+            self.agent = FullCoMP()
         if self.agent_name == 'dynamic':
             self.agent = DynamicSelection(epsilon=0.8)
         if self.agent_name == 'brute-force':

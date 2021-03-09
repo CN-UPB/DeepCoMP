@@ -11,7 +11,7 @@ LOG_ROUND_DIGITS = 3
 
 # use sets for O(1) include checks
 CENTRAL_ALGS = {'ppo', 'random', 'fixed', 'brute-force'}
-MULTI_ALGS = {'ppo', 'greedy-best', 'greedy-all', 'dynamic'}
+MULTI_ALGS = {'ppo', '3gpp', 'fullcomp', 'dynamic'}
 SUPPORTED_ALGS = CENTRAL_ALGS.union(MULTI_ALGS)
 SUPPORTED_AGENTS = {'single', 'central', 'multi'}
 SUPPORTED_ENVS = {'small', 'medium', 'large', 'custom'}

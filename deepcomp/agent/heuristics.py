@@ -6,7 +6,7 @@ import numpy as np
 from deepcomp.agent.base import MultiAgent
 
 
-class GreedyBestSelection(MultiAgent):
+class Heuristic3GPP(MultiAgent):
     """
     Agent that is always connected to at most one BS. Greedily chooses the BS with highest achievable data rate.
     This is comparable to 3GPP LTE cell selection based on highest SINR (with a hysteresis threshold of 0)
@@ -33,8 +33,8 @@ class GreedyBestSelection(MultiAgent):
         return best_bs + 1
 
 
-class GreedyAllSelection(MultiAgent):
-    """Agent that always greedily connects to all BS."""
+class FullCoMP(MultiAgent):
+    """Agent that always greedily connects to all BS. I refer to this agent as 'FullCoMP' in the paper."""
     def compute_action(self, obs, policy_id):
         """
         Compute action for a UE. Try to connect to all BS. Prioritize BS with higher data rate.
