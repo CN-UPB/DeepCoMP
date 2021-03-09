@@ -65,6 +65,9 @@ def setup_cli():
 
     args = parser.parse_args()
 
+    # TODO: for demo --slow-ues --> --ues
+    args.slow_ues = args.ues
+
     # check if algorithm and agent are compatible or adjust automatically
     if args.alg in CENTRAL_ALGS and args.alg not in MULTI_ALGS and args.agent != 'central':
         log.warning('Algorithm only supports central agent. Switching to central agent.', alg=args.alg)
