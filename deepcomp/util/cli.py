@@ -35,7 +35,7 @@ def setup_cli():
     parser.add_argument('--bs-dist', type=int, default=100, help="Distance between BS. Only supported by medium env.")
     parser.add_argument('--eps-length', type=int, default=50, help="Number of time steps per episode")
     parser.add_argument('--static-ues', type=int, default=0, help="Number of static UEs in the environment")
-    parser.add_argument('--slow-ues', type=int, default=0, help="Number of slow UEs in the environment")
+    parser.add_argument('--ues', type=int, default=0, help="Number of (slow) UEs in the environment")
     parser.add_argument('--fast-ues', type=int, default=0, help="Number of fast UEs in the environment")
     # could implement this simply by processing the number and increasing the static, slow, fast UEs correspondingly
     # before passing to env creation
@@ -60,7 +60,8 @@ def setup_cli():
     parser.add_argument('--seed', type=int, default=42, help="Seed for the RNG (algorithms and environment)")
     parser.add_argument('--result-dir', type=str, default=None, help="Optional path to where results should be stored."
                                                                      "Default: <project_root>/results")
-    # TODO: chagned defaults for demo: seed was None, --simple-video was None, env was small, eps len was 100
+    # TODO: changed defaults for demo: seed was None, --simple-video was None, env was small, eps len was 100,
+    #  --ues was --slow-ues
 
     args = parser.parse_args()
 
