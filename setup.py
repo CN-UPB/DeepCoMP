@@ -48,5 +48,10 @@ setup(
         'console_scripts': [
             'deepcomp=deepcomp.main:main'
         ]
-    }
+    },
+    classifiers=[
+        "Programming Language :: Python :: 3",
+        "License :: OSI Approved :: MIT License",
+        "Operating System :: OS Independent",
+    ],
 )

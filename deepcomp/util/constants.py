@@ -51,4 +51,3 @@ def get_result_dirs(result_dir=None):
     os.makedirs(video_dir, exist_ok=True)
 
     return result_dir, test_dir, video_dir
-
