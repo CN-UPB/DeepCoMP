@@ -11,7 +11,7 @@ Three variants: DeepCoMP (central agent), DD-CoMP (distributed agents using cent
 
 ## Setup
 
-You need Python 3.8+. You can install `deepcomp` either directly from PyPi or manually after cloning this repository.
+You need Python 3.8+. You can install `deepcomp` either directly from [PyPi](https://pypi.org/project/deepcomp/) or manually after cloning this repository.
 
 ### Simple Installation via PyPi
 
@@ -112,8 +112,12 @@ mv docs/deepcomp/ docs/
 # then manually adjust index.html to link to GitHub repo
 ```
 
-## Contribution
+## Contributions
 
 Development: [@stefanbschneider](https://github.com/stefanbschneider/)
 
 Feature requests, questions, issues, and pull requests via GitHub are welcome.
+
+## Acknowledgement
+
+![Huawei logo](https://raw.githubusercontent.com/CN-UPB/DeepCoMP/master/docs/logos/huawei_horizontal.png)
