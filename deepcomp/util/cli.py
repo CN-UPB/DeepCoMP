@@ -30,10 +30,10 @@ def setup_cli():
                         help="How to aggregate rewards from multiple UEs within a step.")
     parser.add_argument('--cluster', action='store_true', help="Set this flag when running on a multi-node cluster.")
     # environment
-    parser.add_argument('--env', type=str, choices=SUPPORTED_ENVS, default='small', help="Env/Map size")
+    parser.add_argument('--env', type=str, choices=SUPPORTED_ENVS, default='custom', help="Env/Map size")
     parser.add_argument('--num-bs', type=int, default=None, help="Number of BS in large env (not supported by others).")
     parser.add_argument('--bs-dist', type=int, default=100, help="Distance between BS. Only supported by medium env.")
-    parser.add_argument('--eps-length', type=int, default=100, help="Number of time steps per episode")
+    parser.add_argument('--eps-length', type=int, default=50, help="Number of time steps per episode")
     parser.add_argument('--static-ues', type=int, default=0, help="Number of static UEs in the environment")
     parser.add_argument('--slow-ues', type=int, default=0, help="Number of slow UEs in the environment")
     parser.add_argument('--fast-ues', type=int, default=0, help="Number of fast UEs in the environment")
@@ -60,7 +60,7 @@ def setup_cli():
     parser.add_argument('--seed', type=int, default=42, help="Seed for the RNG (algorithms and environment)")
     parser.add_argument('--result-dir', type=str, default=None, help="Optional path to where results should be stored."
                                                                      "Default: <project_root>/results")
-    # TODO: default to seed 42 and --simple-video html for demo
+    # TODO: chagned defaults for demo: seed was None, --simple-video was None, env was small, eps len was 100
 
     args = parser.parse_args()
 
