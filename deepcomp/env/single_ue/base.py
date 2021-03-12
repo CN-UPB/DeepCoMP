@@ -400,14 +400,16 @@ class MobileEnv(gym.Env):
                       done=done)
         return self.obs, reward, done, info
 
-    def render(self, mode='human'):
+    def render(self, ax, mode='human'):
         """Plot and visualize the current status of the world. Return the patch of actors for animation."""
         # list of matplotlib "artists", which can be used to create animations
         patch = []
 
         # limit to map borders
-        plt.xlim(0, self.map.width)
-        plt.ylim(0, self.map.height)
+        # plt.xlim(0, self.map.width)
+        # plt.ylim(0, self.map.height)
+        ax.set_xlim(0, self.map.width)
+        ax.set_ylim(0, self.map.height)
 
         # users & connections
         # show utility as red to yellow to green. use color map for [0,1) --> normalize utility first
@@ -419,15 +421,20 @@ class MobileEnv(gym.Env):
             for bs, dr in ue.bs_dr.items():
                 color = colormap(norm(log_utility(dr)))
                 # add black background/borders for lines to make them better visible if the utility color is too light
-                patch.extend(plt.plot([ue.pos.x, bs.pos.x], [ue.pos.y, bs.pos.y], color=color,
-                                      path_effects=[pe.SimpleLineShadow(shadow_color='black'), pe.Normal()]))
+                # patch.extend(plt.plot([ue.pos.x, bs.pos.x], [ue.pos.y, bs.pos.y], color=color,
+                #                       path_effects=[pe.SimpleLineShadow(shadow_color='black'), pe.Normal()]))
                                       # path_effects=[pe.Stroke(linewidth=2, foreground='black'), pe.Normal()]))
+                patch.extend(ax.plot([ue.pos.x, bs.pos.x], [ue.pos.y, bs.pos.y], color=color,
+                             path_effects=[pe.SimpleLineShadow(shadow_color='black'), pe.Normal()]))
             # plot UE
-            patch.extend(ue.plot(simple=self.simple_video))
+            patch.extend(ue.plot(ax, simple=self.simple_video))
 
         # base stations
         for bs in self.bs_list:
-            patch.extend(bs.plot())
+            patch.extend(bs.plot(ax))
+
+        if self.dashboard:
+            return patch
 
         if self.simple_video:
             # only print avg. total utility (sum over UEs, avg over time steps)

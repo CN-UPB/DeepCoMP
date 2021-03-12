@@ -46,6 +46,7 @@ class Simulation:
         # num workers for parallel execution of eval episodes
         self.num_workers = config['num_workers']
         self.cli_args = cli_args
+        self.dashboard = self.env_config['dashboard']
 
         # agent
         assert agent_name in SUPPORTED_ALGS, f"Agent {agent_name} not supported. Supported agents: {SUPPORTED_ALGS}"
@@ -374,15 +375,14 @@ class Simulation:
         ax_ue2 = fig.add_subplot(gs[3, 2], sharex=ax_ue1)
         ax_ue2.set_title('UE 2 Stats')
 
-        return fig
+        return fig, ax_main
 
-    def run_episode(self, env, render=None, dashboard=False, log_dict=None):
+    def run_episode(self, env, render=None, log_dict=None):
         """
         Run a single episode on the given environment. Append episode reward and exec time to list and return.
 
         :param env: Instance of the environment to use (each joblib iteration will still use its own instance)
         :param render: Whether/How to render the episode
-        :param dashboard: Whether to render the episode as detailed dashboard
         :param log_dict: Dict with logging levels to set
         :return: Tuple of eps_duration (scalar), step rewards (list), metrics per step (list of dicts)
         """
@@ -399,12 +399,13 @@ class Simulation:
 
         eps_start = time.time()
         if render is not None:
-            if dashboard:
-                fig = self.setup_dashboard(env.map)
+            if self.dashboard:
+                fig, ax_main = self.setup_dashboard(env.map)
             else:
                 fig = plt.figure(figsize=env.map.figsize)
+                ax_main = plt.gca()
             # equal aspect ratio to avoid distortions
-            plt.gca().set_aspect('equal')
+            ax_main.set_aspect('equal')
 
         # run until episode ends
         patches = []
@@ -422,7 +423,10 @@ class Simulation:
         # for continuous problems, stop evaluation after fixed eps length
         while (done is None or not done) and t < self.episode_length:
             if render is not None:
-                patches.append(env.render())
+                if self.dashboard:
+                    patches.append(env.render(ax=ax_main))
+                else:
+                    patches.append(env.render(ax=ax_main))
                 if render == 'plot':
                     plt.show()
 
@@ -440,7 +444,7 @@ class Simulation:
 
         # create the animation
         if render is not None:
-            if not dashboard:
+            if not self.dashboard:
                 fig.tight_layout()
             self.save_animation(fig, patches, render)
 

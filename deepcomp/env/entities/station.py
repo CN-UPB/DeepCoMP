@@ -74,18 +74,24 @@ class Basestation:
             return min([ue.utility for ue in self.conn_ues])
         return 20
 
-    def plot(self):
+    def plot(self, ax):
         """
         Plot the BS as square with the ID inside as well as circles around it indicating the range.
 
         :return: A list of created matplotlib artists
         """
         # plot BS
-        artists = plt.plot(*self.symbol.exterior.xy, color='black')
-        artists.append(plt.annotate(self.id, xy=(self.pos.x, self.pos.y), ha='center', va='center'))
+        # artists = plt.plot(*self.symbol.exterior.xy, color='black')
+        # artists.append(plt.annotate(self.id, xy=(self.pos.x, self.pos.y), ha='center', va='center'))
+        # # plot range
+        # artists.extend(plt.plot(*self.range_1mbit.exterior.xy, color='black'))
+        # artists.extend(plt.plot(*self.range_conn.exterior.xy, color='gray'))
+
+        artists = ax.plot(*self.symbol.exterior.xy, color='black')
+        artists.append(ax.annotate(self.id, xy=(self.pos.x, self.pos.y), ha='center', va='center'))
         # plot range
-        artists.extend(plt.plot(*self.range_1mbit.exterior.xy, color='black'))
-        artists.extend(plt.plot(*self.range_conn.exterior.xy, color='gray'))
+        artists.extend(ax.plot(*self.range_1mbit.exterior.xy, color='black'))
+        artists.extend(ax.plot(*self.range_conn.exterior.xy, color='gray'))
         return artists
 
     def reset(self):
