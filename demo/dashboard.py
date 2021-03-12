@@ -11,7 +11,6 @@ fig = plt.figure(constrained_layout=True, figsize=map.dashboard_figsize)
 # fig.subplots_adjust(top=0.88)
 gs = fig.add_gridspec(4, 3)
 
-# FIXME: set figsize according to mapsize
 ax1 = fig.add_subplot(gs[:, :2])
 # ax1.set_title('Dashboard')
 

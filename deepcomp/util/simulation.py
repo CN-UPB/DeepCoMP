@@ -353,10 +353,11 @@ class Simulation:
 
         # text box with general info (top right)
         ax_text = fig.add_subplot(gs[0, 2])
+        ax_text.axis('off')
         # TODO: set text dynamically
         text_table = [
             ['Agent', 'DeepCoMP'],
-            ['Time', '4'],
+            ['Time Step', '4'],
             ['Curr. Total Rate', '25 GB/s'],
             ['Curr. Total QoE', '8'],
             ['Avg. Total QoE', '9']
@@ -367,13 +368,13 @@ class Simulation:
 
         # global stats (right; below text box)
         ax_global = fig.add_subplot(gs[1, 2])
-        ax_global.set_title('Global Stats')
+        ax_global.set_title('Total QoE')
 
         # UE-specific stats (right; below global)
         ax_ue1 = fig.add_subplot(gs[2, 2], sharex=ax_global)
-        ax_ue1.set_title('UE 1 Stats')
+        ax_ue1.set_title('UE 1: QoE')
         ax_ue2 = fig.add_subplot(gs[3, 2], sharex=ax_ue1)
-        ax_ue2.set_title('UE 2 Stats')
+        ax_ue2.set_title('UE 2: QoE')
 
         return fig, ax_main
 
@@ -423,10 +424,7 @@ class Simulation:
         # for continuous problems, stop evaluation after fixed eps length
         while (done is None or not done) and t < self.episode_length:
             if render is not None:
-                if self.dashboard:
-                    patches.append(env.render(ax=ax_main))
-                else:
-                    patches.append(env.render(ax=ax_main))
+                patches.append(env.render(ax=ax_main))
                 if render == 'plot':
                     plt.show()
 

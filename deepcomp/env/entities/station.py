@@ -78,15 +78,10 @@ class Basestation:
         """
         Plot the BS as square with the ID inside as well as circles around it indicating the range.
 
+        :param ax: Matplotlib axis to plot on
         :return: A list of created matplotlib artists
         """
         # plot BS
-        # artists = plt.plot(*self.symbol.exterior.xy, color='black')
-        # artists.append(plt.annotate(self.id, xy=(self.pos.x, self.pos.y), ha='center', va='center'))
-        # # plot range
-        # artists.extend(plt.plot(*self.range_1mbit.exterior.xy, color='black'))
-        # artists.extend(plt.plot(*self.range_conn.exterior.xy, color='gray'))
-
         artists = ax.plot(*self.symbol.exterior.xy, color='black')
         artists.append(ax.annotate(self.id, xy=(self.pos.x, self.pos.y), ha='center', va='center'))
         # plot range

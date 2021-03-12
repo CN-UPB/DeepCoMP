@@ -400,14 +400,16 @@ class MobileEnv(gym.Env):
                       done=done)
         return self.obs, reward, done, info
 
-    def render(self, ax, mode='human'):
+    def render(self, ax=None, mode='human'):
         """Plot and visualize the current status of the world. Return the patch of actors for animation."""
+        # if no explicit axis is specified get the current axis from matplotlib
+        if ax is None:
+            ax = plt.gca()
+
         # list of matplotlib "artists", which can be used to create animations
         patch = []
 
         # limit to map borders
-        # plt.xlim(0, self.map.width)
-        # plt.ylim(0, self.map.height)
         ax.set_xlim(0, self.map.width)
         ax.set_ylim(0, self.map.height)
 
@@ -421,9 +423,6 @@ class MobileEnv(gym.Env):
             for bs, dr in ue.bs_dr.items():
                 color = colormap(norm(log_utility(dr)))
                 # add black background/borders for lines to make them better visible if the utility color is too light
-                # patch.extend(plt.plot([ue.pos.x, bs.pos.x], [ue.pos.y, bs.pos.y], color=color,
-                #                       path_effects=[pe.SimpleLineShadow(shadow_color='black'), pe.Normal()]))
-                                      # path_effects=[pe.Stroke(linewidth=2, foreground='black'), pe.Normal()]))
                 patch.extend(ax.plot([ue.pos.x, bs.pos.x], [ue.pos.y, bs.pos.y], color=color,
                              path_effects=[pe.SimpleLineShadow(shadow_color='black'), pe.Normal()]))
             # plot UE
@@ -433,25 +432,19 @@ class MobileEnv(gym.Env):
         for bs in self.bs_list:
             patch.extend(bs.plot(ax))
 
-        if self.dashboard:
-            return patch
-
         if self.simple_video:
             # only print avg. total utility (sum over UEs, avg over time steps)
-            patch.append(plt.text(0.86 * self.map.width, 0.95 * self.map.height,
+            patch.append(ax.text(0.86 * self.map.width, 0.95 * self.map.height,
                                   f"Avg. QoE: {self.avg_total_utility:.2f}", fontsize='large'))
         else:
             # title isn't redrawn in animation (out of box) -> static -> show time as text inside box, top-right corner
-            patch.append(plt.title(type(self).__name__))
+            # patch.append(plt.title(type(self).__name__))
             # extra info: time step, total data rate & utility
-            patch.append(plt.text(0.9*self.map.width, 0.95*self.map.height, f"t={self.time}"))
-            patch.append(plt.text(0.9*self.map.width, 0.9*self.map.height, f"dr={self.total_dr:.2f}"))
-            patch.append(plt.text(0.9 * self.map.width, 0.85 * self.map.height, f"util={self.current_total_utility:.2f}"))
-            patch.append(plt.text(0.9 * self.map.width, 0.8 * self.map.height, f"avg util={self.avg_total_utility:.2f}"))
+            patch.append(ax.text(0.9*self.map.width, 0.95*self.map.height, f"t={self.time}"))
+            patch.append(ax.text(0.9*self.map.width, 0.9*self.map.height, f"dr={self.total_dr:.2f}"))
+            patch.append(ax.text(0.9 * self.map.width, 0.85 * self.map.height, f"util={self.current_total_utility:.2f}"))
+            patch.append(ax.text(0.9 * self.map.width, 0.8 * self.map.height, f"avg util={self.avg_total_utility:.2f}"))
 
-        # legend doesn't change --> only draw once at the beginning
-        # if self.time == 0:
-        #     plt.legend(loc='upper left')
         return patch
 
     def add_new_ue(self, velocity='slow'):
