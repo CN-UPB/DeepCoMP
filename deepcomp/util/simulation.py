@@ -343,8 +343,7 @@ class Simulation:
                        done=done['__all__'])
         return next_obs, sum(reward.values()), done['__all__'], info, state
 
-    @staticmethod
-    def setup_dashboard(map):
+    def setup_dashboard(self, map):
         """Setup the dashboard with matplotlib figures and gridspec; based on the map size"""
         fig = plt.figure(constrained_layout=True, figsize=map.dashboard_figsize)
         gs = fig.add_gridspec(4, 3)
@@ -354,29 +353,28 @@ class Simulation:
         # text box with general info (top right)
         ax_text = fig.add_subplot(gs[0, 2])
         ax_text.axis('off')
-        # TODO: set text dynamically
-        text_table = [
-            ['Agent', 'DeepCoMP'],
-            ['Time Step', '4'],
-            ['Curr. Total Rate', '25 GB/s'],
-            ['Curr. Total QoE', '8'],
-            ['Avg. Total QoE', '9']
-        ]
-        table = ax_text.table(cellText=text_table, cellLoc='left', edges='open', loc='upper center')
-        table.auto_set_font_size(False)
-        table.set_fontsize(12)
 
         # global stats (right; below text box)
-        ax_global = fig.add_subplot(gs[1, 2])
-        ax_global.set_title('Total QoE')
+        ax_total = fig.add_subplot(gs[1, 2])
+        ax_total.set_title('Total QoE')
 
         # UE-specific stats (right; below global)
-        ax_ue1 = fig.add_subplot(gs[2, 2], sharex=ax_global)
+        ax_ue1 = fig.add_subplot(gs[2, 2], sharex=ax_total)
         ax_ue1.set_title('UE 1: QoE')
         ax_ue2 = fig.add_subplot(gs[3, 2], sharex=ax_ue1)
         ax_ue2.set_title('UE 2: QoE')
 
-        return fig, ax_main
+        # prepare dict of dashboard_axes
+        # TODO: derive UEs' IDs automatically somehow rather than hard-coding
+        dashboard_axes = {
+            'main': ax_main, 'text': ax_text, 'total': ax_total, 'ue': {
+                '1': ax_ue1, '2': ax_ue2
+            },
+            # for convenience, also include agent name
+            'agent': self.agent_name
+        }
+
+        return fig, ax_main, dashboard_axes
 
     def run_episode(self, env, render=None, log_dict=None):
         """
@@ -400,8 +398,9 @@ class Simulation:
 
         eps_start = time.time()
         if render is not None:
+            dashboard_axes = None
             if self.dashboard:
-                fig, ax_main = self.setup_dashboard(env.map)
+                fig, ax_main, dashboard_axes = self.setup_dashboard(env.map)
             else:
                 fig = plt.figure(figsize=env.map.figsize)
                 ax_main = plt.gca()
@@ -424,7 +423,7 @@ class Simulation:
         # for continuous problems, stop evaluation after fixed eps length
         while (done is None or not done) and t < self.episode_length:
             if render is not None:
-                patches.append(env.render(ax=ax_main))
+                patches.append(env.render(ax=ax_main, dashboard_axes=dashboard_axes))
                 if render == 'plot':
                     plt.show()
 

@@ -4,6 +4,7 @@
 class CentralAgent:
     """Single central agent that observes and controls all UEs at once."""
     def __init__(self):
+        self.name = "Unnamed Central Agent"
         self.central_agent = True
 
     def compute_action(self, observation):
@@ -12,6 +13,7 @@ class CentralAgent:
 
 class MultiAgent:
     def __init__(self):
+        self.name = "Unnamed Multi Agent"
         self.central_agent = False
 
     def compute_action(self, observation, policy_id):

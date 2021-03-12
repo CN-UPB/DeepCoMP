@@ -400,8 +400,50 @@ class MobileEnv(gym.Env):
                       done=done)
         return self.obs, reward, done, info
 
-    def render(self, ax=None, mode='human'):
-        """Plot and visualize the current status of the world. Return the patch of actors for animation."""
+    def render_dashboard(self, dashboard_axes):
+        """
+        Plot additional information on extra dashboard axes
+
+        :param dashboard_axes: Optional dict with additional axes for plotting in dashboard mode.
+        Dict: 'main' --> same as ax, 'text' --> axis for printing text, 'total' --> axis with total utility,
+        'ue' --> another dict with UE ids and axes for UE-specific utility
+        :return: List of matplotlib patches for animation
+        """
+        assert dashboard_axes is not None, "Parameter dashboard_axes is required for rendering with dashboard."
+        patch = []
+
+        # print global info in text subplot
+        assert 'text' in dashboard_axes, f"dashboard_axes must have 'text' key. Available keys: {dashboard_axes.keys}"
+        assert 'agent' in dashboard_axes, "dashboard_axes mus have 'agent' key with agent name"
+        ax_text = dashboard_axes['text']
+        # TODO: automatically get current agent and map to understandable name; get from attribute of agent rather than simulator
+        text_table = [
+            ['Agent', dashboard_axes['agent']],
+            ['Time Step', self.time],
+            ['Curr. Total Rate', f'{self.total_dr:.2f} GB/s'],
+            ['Curr. Total QoE', f'{self.current_total_utility:.2f}'],
+            ['Avg. Total QoE', f'{self.avg_total_utility:.2f}']
+        ]
+        table = ax_text.table(cellText=text_table, cellLoc='left', edges='open', loc='upper center')
+        table.auto_set_font_size(False)
+        table.set_fontsize(12)
+        patch.append(table)
+
+        # TODO: also render other axes: total, UE-specific QoE
+
+        return patch
+
+    def render(self, mode='human', ax=None, dashboard_axes=None):
+        """
+        Plot and visualize the current status of the world. Return the patch of actors for animation.
+
+        :param mode: Rendering mode, dictated by OpenAI Gym
+        :param ax: Main matplotlib axis to plot on
+        :param dashboard_axes: Optional dict with additional axes for plotting in dashboard mode.
+        Dict: 'main' --> same as ax, 'text' --> axis for printing text, 'total' --> axis with total utility,
+        'ue' --> another dict with UE ids and axes for UE-specific utility
+        :return: List of matplotlib patches for animation
+        """
         # if no explicit axis is specified get the current axis from matplotlib
         if ax is None:
             ax = plt.gca()
@@ -431,6 +473,10 @@ class MobileEnv(gym.Env):
         # base stations
         for bs in self.bs_list:
             patch.extend(bs.plot(ax))
+
+        # dashboard mode: render extra info on additional axes
+        if self.dashboard:
+            patch.extend(self.render_dashboard(dashboard_axes))
 
         if self.simple_video:
             # only print avg. total utility (sum over UEs, avg over time steps)
