@@ -1,8 +1,5 @@
 # dashboard test with matplotlib: https://matplotlib.org/stable/tutorials/intermediate/gridspec.html
-
-import matplotlib
 import matplotlib.pyplot as plt
-import matplotlib.gridspec as gridspec
 
 from deepcomp.env.entities.map import Map
 
@@ -14,8 +11,9 @@ fig = plt.figure(constrained_layout=True, figsize=map.dashboard_figsize)
 # fig.subplots_adjust(top=0.88)
 gs = fig.add_gridspec(4, 3)
 
-ax1 = fig.add_subplot(gs[:, :2])
-ax1.set_title('Map View')
+# FIXME: set figsize according to mapsize
+ax1 = fig.add_subplot(gs[:, :2], figsize=map.figsize)
+# ax1.set_title('Dashboard')
 
 ax_text = fig.add_subplot(gs[0, 2])
 ax_text.axis('off')

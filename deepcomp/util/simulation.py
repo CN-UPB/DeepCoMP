@@ -342,12 +342,47 @@ class Simulation:
                        done=done['__all__'])
         return next_obs, sum(reward.values()), done['__all__'], info, state
 
-    def run_episode(self, env, render=None, log_dict=None):
+    @staticmethod
+    def setup_dashboard(map):
+        """Setup the dashboard with matplotlib figures and gridspec; based on the map size"""
+        fig = plt.figure(constrained_layout=True, figsize=map.dashboard_figsize)
+        gs = fig.add_gridspec(4, 3)
+        # main map view
+        ax_main = fig.add_subplot(gs[:, :2])
+
+        # text box with general info (top right)
+        ax_text = fig.add_subplot(gs[0, 2])
+        # TODO: set text dynamically
+        text_table = [
+            ['Agent', 'DeepCoMP'],
+            ['Time', '4'],
+            ['Curr. Total Rate', '25 GB/s'],
+            ['Curr. Total QoE', '8'],
+            ['Avg. Total QoE', '9']
+        ]
+        table = ax_text.table(cellText=text_table, cellLoc='left', edges='open', loc='upper center')
+        table.auto_set_font_size(False)
+        table.set_fontsize(12)
+
+        # global stats (right; below text box)
+        ax_global = fig.add_subplot(gs[1, 2])
+        ax_global.set_title('Global Stats')
+
+        # UE-specific stats (right; below global)
+        ax_ue1 = fig.add_subplot(gs[2, 2], sharex=ax_global)
+        ax_ue1.set_title('UE 1 Stats')
+        ax_ue2 = fig.add_subplot(gs[3, 2], sharex=ax_ue1)
+        ax_ue2.set_title('UE 2 Stats')
+
+        return fig
+
+    def run_episode(self, env, render=None, dashboard=False, log_dict=None):
         """
         Run a single episode on the given environment. Append episode reward and exec time to list and return.
 
         :param env: Instance of the environment to use (each joblib iteration will still use its own instance)
         :param render: Whether/How to render the episode
+        :param dashboard: Whether to render the episode as detailed dashboard
         :param log_dict: Dict with logging levels to set
         :return: Tuple of eps_duration (scalar), step rewards (list), metrics per step (list of dicts)
         """
@@ -364,7 +399,10 @@ class Simulation:
 
         eps_start = time.time()
         if render is not None:
-            fig = plt.figure(figsize=env.map.figsize)
+            if dashboard:
+                fig = self.setup_dashboard(env.map)
+            else:
+                fig = plt.figure(figsize=env.map.figsize)
             # equal aspect ratio to avoid distortions
             plt.gca().set_aspect('equal')
 
@@ -402,7 +440,8 @@ class Simulation:
 
         # create the animation
         if render is not None:
-            fig.tight_layout()
+            if not dashboard:
+                fig.tight_layout()
             self.save_animation(fig, patches, render)
 
         # episode time in seconds (to measure simulation efficiency)
