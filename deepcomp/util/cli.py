@@ -58,6 +58,7 @@ def setup_cli():
                         help="How (and whether) to render the testing video.")
     parser.add_argument('--simple-video', type=str, choices=SUPPORTED_RENDER, default='html',
                         help="Same as --video but without detailed numbers. Cannot be used at once with --video.")
+    parser.add_argument('--dashboard', action='store_true', help="Render video in form of a dashboard.")
     parser.add_argument('--eval', type=int, default=0, help="Number of evaluation episodes after testing")
     parser.add_argument('--seed', type=int, default=42, help="Seed for the RNG (algorithms and environment)")
     parser.add_argument('--result-dir', type=str, default=None, help="Optional path to where results should be stored."
@@ -87,6 +88,8 @@ def setup_cli():
         else:
             log.warning('Do not use --video and --simple-video at once; just either or. Ignoring --simple-video.')
             args.simple_video = False
+    if args.dashboard and args.video is None:
+        log.warning("--dashboard has no effect without --video. Specify how to render/save a video with --video.")
 
     log.info('CLI args', args=args)
 

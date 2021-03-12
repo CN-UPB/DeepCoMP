@@ -228,7 +228,7 @@ def create_env_config(cli_args):
         # if disabled: log just during testing --> probably slightly faster training with less memory
         'log_metrics': True,
         # custom animation rendering
-        'simple_video': cli_args.simple_video
+        'simple_video': cli_args.simple_video, 'dashboard': cli_args.dashboard,
     }
 
     # create and return the config

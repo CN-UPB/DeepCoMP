@@ -62,6 +62,7 @@ class MobileEnv(gym.Env):
 
         # configure animation rendering
         self.simple_video = env_config['simple_video']
+        self.dashboard = env_config['dashboard']
 
         # configure logging inside env to ensure it works in ray/rllib. https://github.com/ray-project/ray/issues/9030
         config_logging()
