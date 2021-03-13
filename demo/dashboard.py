@@ -2,7 +2,7 @@
 import matplotlib.pyplot as plt
 
 from deepcomp.env.entities.map import Map
-
+import random
 
 map = Map(250, 250)
 
@@ -40,6 +40,7 @@ table.set_fontsize(12)
 
 ax2 = fig.add_subplot(gs[1, 2])
 ax2.set_title('Global Stats')
+ax2.plot([i for i in range(5)], [random.random() for _ in range(5)])
 
 ax3 = fig.add_subplot(gs[2, 2])
 ax3.set_title('UE 1 Stats')

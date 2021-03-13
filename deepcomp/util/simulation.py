@@ -407,12 +407,22 @@ class Simulation:
         dashboard_axes = {
             'main': ax_main, 'text': ax_text, 'total': ax_total, 'ue': {
                 '1': ax_ue1, '2': ax_ue2
-            },
-            # for convenience, also include agent name
-            'agent': self.agent_dashboard_name
+            }
         }
 
         return fig, ax_main, dashboard_axes
+
+    def get_dashboard_data(self, dashboard_axes, scalar_metrics, vector_metrics):
+        """Return a structured dict with data for plotting on the dashboard"""
+        dashboard_data = {
+            'agent': self.agent_dashboard_name,
+            'total': [t['sum_utility'] for t in scalar_metrics],
+            'ue': {}
+        }
+        # fill UE-specific data
+        for ue_id in dashboard_axes['ue'].keys():
+            dashboard_data['ue'][ue_id] = [t['utility'][f'UE {ue_id}'] for t in vector_metrics]
+        return dashboard_data
 
     def run_episode(self, env, render=None, log_dict=None):
         """
@@ -437,10 +447,12 @@ class Simulation:
         eps_start = time.time()
         if render is not None:
             dashboard_axes = None
+            dashboard_data = None
             if self.dashboard:
                 # show extra stats of first two UEs on dashboard
                 ue_ids = [ue.id for ue in env.ue_list][:2]
                 fig, ax_main, dashboard_axes = self.setup_dashboard(env.map, ue_ids)
+                dashboard_data = self.get_dashboard_data(dashboard_axes, scalar_metrics, vector_metrics)
             else:
                 fig = plt.figure(figsize=env.map.figsize)
                 ax_main = plt.gca()
@@ -463,7 +475,10 @@ class Simulation:
         # for continuous problems, stop evaluation after fixed eps length
         while (done is None or not done) and t < self.episode_length:
             if render is not None:
-                patches.append(env.render(ax=ax_main, dashboard_axes=dashboard_axes))
+                # update extra data for dashboard
+                if self.dashboard:
+                    dashboard_data = self.get_dashboard_data(dashboard_axes, scalar_metrics, vector_metrics)
+                patches.append(env.render(ax=ax_main, dashboard_axes=dashboard_axes, dashboard_data=dashboard_data))
                 if render == 'plot':
                     plt.show()
 

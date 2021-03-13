@@ -400,25 +400,25 @@ class MobileEnv(gym.Env):
                       done=done)
         return self.obs, reward, done, info
 
-    def render_dashboard(self, dashboard_axes):
+    def render_dashboard(self, dashboard_axes, dashboard_data):
         """
         Plot additional information on extra dashboard axes
 
         :param dashboard_axes: Optional dict with additional axes for plotting in dashboard mode.
         Dict: 'main' --> same as ax, 'text' --> axis for printing text, 'total' --> axis with total utility,
         'ue' --> another dict with UE ids and axes for UE-specific utility
+        :param dashboard_data: Dict of data for rendering in the dashboard
         :return: List of matplotlib patches for animation
         """
-        assert dashboard_axes is not None, "Parameter dashboard_axes is required for rendering with dashboard."
+        assert None not in (dashboard_axes, dashboard_data), \
+            "Parameters dashboard_axes and dashboard_data are required for rendering with dashboard."
         patch = []
 
         # print global info in text subplot
-        assert 'text' in dashboard_axes, f"dashboard_axes must have 'text' key. Available keys: {dashboard_axes.keys}"
-        assert 'agent' in dashboard_axes, "dashboard_axes mus have 'agent' key with agent name"
         ax_text = dashboard_axes['text']
         # TODO: automatically get current agent and map to understandable name; get from attribute of agent rather than simulator
         text_table = [
-            ['Agent', dashboard_axes['agent']],
+            ['Agent', dashboard_data['agent']],
             ['Time Step', self.time],
             ['Curr. Total Rate', f'{self.total_dr:.2f} GB/s'],
             ['Curr. Total QoE', f'{self.current_total_utility:.2f}'],
@@ -429,11 +429,21 @@ class MobileEnv(gym.Env):
         table.set_fontsize(12)
         patch.append(table)
 
-        # TODO: also render other axes: total, UE-specific QoE
+        # show utility as red to yellow to green. use color map for [0,1) --> normalize utility first
+        colormap = cm.get_cmap('RdYlGn')
+        norm = plt.Normalize(-20, 20)
+
+        # render total QoE over time
+        ax_total = dashboard_axes['total']
+        total_util = dashboard_data['total']
+        color = colormap(norm(log_utility(self.current_total_utility / self.num_ue)))
+        patch.extend(ax_total.plot([t+1 for t in range(len(total_util))], [util for util in total_util], color=color))
+
+        # TODO: also render other axes: UE-specific QoE
 
         return patch
 
-    def render(self, mode='human', ax=None, dashboard_axes=None):
+    def render(self, mode='human', ax=None, dashboard_axes=None, dashboard_data=None):
         """
         Plot and visualize the current status of the world. Return the patch of actors for animation.
 
@@ -443,6 +453,7 @@ class MobileEnv(gym.Env):
         Dict: 'main' --> same as ax, 'text' --> axis for printing text, 'total' --> axis with total utility,
         'ue' --> another dict with UE ids and axes for UE-specific utility
         :return: List of matplotlib patches for animation
+        :param dashboard_data: Dict with data for showing in the dashboard
         """
         # if no explicit axis is specified get the current axis from matplotlib
         if ax is None:
@@ -476,7 +487,7 @@ class MobileEnv(gym.Env):
 
         # dashboard mode: render extra info on additional axes
         if self.dashboard:
-            patch.extend(self.render_dashboard(dashboard_axes))
+            patch.extend(self.render_dashboard(dashboard_axes, dashboard_data))
 
         if self.simple_video:
             # only print avg. total utility (sum over UEs, avg over time steps)
