@@ -13,7 +13,6 @@ class Heuristic3GPP(MultiAgent):
     """
     def __init__(self):
         super().__init__()
-        self.name = "3GPP"
 
     def compute_action(self, obs, policy_id):
         """
@@ -41,7 +40,6 @@ class FullCoMP(MultiAgent):
     """Agent that always greedily connects to all BS. I refer to this agent as 'FullCoMP' in the paper."""
     def __init__(self):
         super().__init__()
-        self.name = "Full CoMP"
 
     def compute_action(self, obs, policy_id):
         """
@@ -80,7 +78,6 @@ class DynamicSelection(MultiAgent):
         :param epsilon: Scaling factor
         """
         super().__init__()
-        self.name = "Dynamic CoMP"
         self.epsilon = epsilon
 
     def compute_action(self, obs, policy_id):

@@ -343,8 +343,44 @@ class Simulation:
                        done=done['__all__'])
         return next_obs, sum(reward.values()), done['__all__'], info, state
 
-    def setup_dashboard(self, map):
-        """Setup the dashboard with matplotlib figures and gridspec; based on the map size"""
+    @property
+    def agent_dashboard_name(self):
+        """Map self.agent_name to some prettier name for the dashboard"""
+        if self.agent_name == 'ppo':
+            if self.cli_args.agent == 'central':
+                return 'DeepCoMP'
+            elif self.cli_args.agent == 'multi':
+                if self.cli_args.separate_agent_nns:
+                    return 'D3-CoMP'
+                else:
+                    return 'DD-CoMP'
+            return None
+        elif self.agent_name == '3gpp':
+            return '3GPP'
+        elif self.agent_name == 'fullcomp':
+            return 'FullCoMP'
+        elif self.agent_name == 'dynamic':
+            return 'Dynamic CoMP'
+        elif self.agent_name == 'brute-force':
+            return 'Brute Force (Opt.)'
+        elif self.agent_name == 'random':
+            return 'Random'
+        elif self.agent_name == 'fixed':
+            return 'Fixed'
+        self.log.warning("Unknown agent name", agent_name=self.agent_name)
+        return self.agent_name
+
+    def setup_dashboard(self, map, ue_ids):
+        """
+        Setup the dashboard with matplotlib figures and gridspec; based on the map size
+
+        :param map: The environment map, used for dimensioning the plot and dashboard
+        :param ue_ids: List of UE IDs for which to show stats on the dashboard
+        :return: Matplotlib figure, main axis, and dict of other axes
+        """
+        if len(ue_ids) > 3:
+            self.log.info("Showing many UEs on dashboard may look bad. Recommended: 2 UEs.", num_ues=ue_ids)
+
         fig = plt.figure(constrained_layout=True, figsize=map.dashboard_figsize)
         gs = fig.add_gridspec(4, 3)
         # main map view
@@ -359,19 +395,21 @@ class Simulation:
         ax_total.set_title('Total QoE')
 
         # UE-specific stats (right; below global)
+        ue_axes = {}
+        # TODO: get UEs automatically
         ax_ue1 = fig.add_subplot(gs[2, 2], sharex=ax_total)
         ax_ue1.set_title('UE 1: QoE')
         ax_ue2 = fig.add_subplot(gs[3, 2], sharex=ax_ue1)
         ax_ue2.set_title('UE 2: QoE')
 
         # prepare dict of dashboard_axes
-        # TODO: derive UEs' IDs automatically somehow rather than hard-coding
+        # TODO: derive UEs' IDs automatically somehow rather than hard-coding; also number of UEs automatically
         dashboard_axes = {
             'main': ax_main, 'text': ax_text, 'total': ax_total, 'ue': {
                 '1': ax_ue1, '2': ax_ue2
             },
             # for convenience, also include agent name
-            'agent': self.agent_name
+            'agent': self.agent_dashboard_name
         }
 
         return fig, ax_main, dashboard_axes
@@ -400,7 +438,9 @@ class Simulation:
         if render is not None:
             dashboard_axes = None
             if self.dashboard:
-                fig, ax_main, dashboard_axes = self.setup_dashboard(env.map)
+                # show extra stats of first two UEs on dashboard
+                ue_ids = [ue.id for ue in env.ue_list][:2]
+                fig, ax_main, dashboard_axes = self.setup_dashboard(env.map, ue_ids)
             else:
                 fig = plt.figure(figsize=env.map.figsize)
                 ax_main = plt.gca()

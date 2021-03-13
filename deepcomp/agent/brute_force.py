@@ -19,7 +19,6 @@ class BruteForceAgent(CentralAgent):
         Also >1 only makes sense for 3+ UEs and BS, otherwise overhead is higher than gain.
         """
         super().__init__()
-        self.name = "Brute Force (Opt.)"
         self.num_workers = num_workers
         self.env = None
 

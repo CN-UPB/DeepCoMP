@@ -7,7 +7,6 @@ class RandomAgent(CentralAgent):
     """Agent that always selects a random action. Following the stable_baselines API."""
     def __init__(self, action_space, num_vec_envs=None, seed=None):
         super().__init__()
-        self.name = "Random"
         self.action_space = action_space
         self.action_space.seed(seed)
         # number of envs inside the VecEnv determines the number of actions to make in each step; or None if no VecEnv
@@ -26,7 +25,6 @@ class FixedAgent(CentralAgent):
     """Agent that always selects a the same fixed action. Following the stable_baselines API."""
     def __init__(self, action, noop_interval=0, num_vec_envs=None):
         super().__init__()
-        self.name = "Fixed"
         self.action = action
         # number of no op actions (action 0) between repeating actions
         self.noop_interval = noop_interval
