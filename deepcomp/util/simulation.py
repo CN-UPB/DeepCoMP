@@ -393,6 +393,8 @@ class Simulation:
         # global stats (right; below text box)
         ax_total = fig.add_subplot(gs[1, 2])
         ax_total.set_title('Total QoE')
+        ax_total.set_xlabel('Time')
+        ax_total.set_ylabel('QoE')
 
         # UE-specific stats (right; below global)
         ue_axes = {}

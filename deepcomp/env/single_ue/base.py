@@ -436,10 +436,15 @@ class MobileEnv(gym.Env):
         # render total QoE over time
         ax_total = dashboard_axes['total']
         total_util = dashboard_data['total']
-        color = colormap(norm(log_utility(self.current_total_utility / self.num_ue)))
-        patch.extend(ax_total.plot([t+1 for t in range(len(total_util))], [util for util in total_util], color=color))
+        color = colormap(norm(self.current_total_utility / self.num_ue))
+        patch.extend(ax_total.plot([t+1 for t in range(len(total_util))], [util for util in total_util],
+                                   color=color, marker='.'))
 
-        # TODO: also render other axes: UE-specific QoE
+        # render UE-specific QoE
+        for ue_id, ue_ax in dashboard_axes['ue'].items():
+            ue_util = dashboard_data['ue'][ue_id]
+            patch.extend(ue_ax.plot([t+1 for t in range(len(total_util))], [util for util in ue_util],
+                                    color='blue', marker='.'))
 
         return patch
 
@@ -455,6 +460,8 @@ class MobileEnv(gym.Env):
         :return: List of matplotlib patches for animation
         :param dashboard_data: Dict with data for showing in the dashboard
         """
+        # TODO: add static legend with green, red UE and Good/bad QoE
+
         # if no explicit axis is specified get the current axis from matplotlib
         if ax is None:
             ax = plt.gca()
