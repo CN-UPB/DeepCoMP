@@ -13,6 +13,9 @@ def setup_cli():
     """Create CLI parser and return parsed args"""
     parser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     # algorithm & training
+    parser.add_argument('--approach', type=str, choices=['deepcomp', 'ddcomp', 'd3comp'], default=None,
+                        help="Which DRL approach to use: DeepCoMP, DD-CoMP, or D3-CoMP. "
+                             "Overrides --agent, --alg, and --separate-agent-nns.")
     parser.add_argument('--agent', type=str, choices=SUPPORTED_AGENTS, default='central',
                         help="Whether to use a single agent for 1 UE, a central agent, or multi agents")
     parser.add_argument('--alg', type=str, choices=SUPPORTED_ALGS, default='ppo', help="Algorithm")
@@ -63,12 +66,25 @@ def setup_cli():
     parser.add_argument('--seed', type=int, default=42, help="Seed for the RNG (algorithms and environment)")
     parser.add_argument('--result-dir', type=str, default=None, help="Optional path to where results should be stored."
                                                                      "Default: <project_root>/results")
-    # TODO: changed defaults for demo: seed was None, --simple-video was None, env was small, --ues was --slow-ues
+    # TODO: changed defaults for demo: seed was None, --simple-video was None, env was small, --ues was --slow-ues; added --approach shortcut
 
     args = parser.parse_args()
 
     # TODO: for demo --slow-ues --> --ues
     args.slow_ues = args.ues
+
+    # TODO: for demo --> shortcut cli command for deepcomp, ddcomp, d3comp
+    if args.approach is not None:
+        args.alg = 'ppo'
+        if args.approach == 'deepcomp':
+            args.agent = 'central'
+            args.separate_agent_nns = False
+        elif args.approach == 'ddcomp':
+            args.agent = 'multi'
+            args.separate_agent_nns = False
+        elif args.approach == 'd3comp':
+            args.agent = 'multi'
+            args.separate_agent_nns = True
 
     # check if algorithm and agent are compatible or adjust automatically
     if args.alg in CENTRAL_ALGS and args.alg not in MULTI_ALGS and args.agent != 'central':
