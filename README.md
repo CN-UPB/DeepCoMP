@@ -120,4 +120,11 @@ Feature requests, questions, issues, and pull requests via GitHub are welcome.
 
 ## Acknowledgement
 
+This project was partially funded by Huawei.
+
 ![Huawei logo](https://raw.githubusercontent.com/CN-UPB/DeepCoMP/master/docs/logos/huawei_horizontal.png)
+
+Credits for icons used in rendered videos:
+
+* [Smartphone icon](https://thenounproject.com/search/?q=smartphone&i=3772531) by Muhammad Ridho from the Noun Project
+* [Base station icon](https://thenounproject.com/search/?q=base+station&i=1286474) by Clea Doltz from the Noun Project
