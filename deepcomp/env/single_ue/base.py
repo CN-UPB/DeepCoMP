@@ -416,7 +416,6 @@ class MobileEnv(gym.Env):
 
         # print global info in text subplot
         ax_text = dashboard_axes['text']
-        # TODO: automatically get current agent and map to understandable name; get from attribute of agent rather than simulator
         text_table = [
             ['Agent', dashboard_data['agent']],
             ['Time Step', self.time],
@@ -424,6 +423,7 @@ class MobileEnv(gym.Env):
             ['Curr. Total QoE', f'{self.current_total_utility:.2f}'],
             ['Avg. Total QoE', f'{self.avg_total_utility:.2f}']
         ]
+        # TODO: Also show number of train steps in the dashboard; access directly from ray somehow? 'N/A' for heuristics
         table = ax_text.table(cellText=text_table, cellLoc='left', edges='open', loc='upper center')
         table.auto_set_font_size(False)
         table.set_fontsize(12)
