@@ -119,13 +119,6 @@ class MobileEnv(gym.Env):
         return self.total_utility / div
 
     @property
-    def total_avg_utility(self):
-        """Utility averaged over all UEs and time steps so far"""
-        if self.time == 0:
-            return self.total_utility / self.num_ue
-        return self.total_utility / (self.num_ue * self.time)
-
-    @property
     def current_avg_utility(self):
         return self.current_total_utility / self.num_ue
 
@@ -453,7 +446,7 @@ class MobileEnv(gym.Env):
             ['Time Step', self.time],
             ['Curr. Avg. Rate', f'{self.avg_dr:.2f} GB/s'],
             ['Curr. Avg. QoE', f'{self.current_avg_utility:.2f}'],
-            ['Total Avg. QoE', f'{self.total_avg_utility:.2f}']
+            ['Total Avg. QoE', f'{self.total_avg_utility():.2f}']
         ]
         table = ax_text.table(cellText=text_table, cellLoc='left', edges='open', loc='upper center')
         table.auto_set_font_size(False)
@@ -544,8 +537,8 @@ class MobileEnv(gym.Env):
                 ['Time Step', self.time],
                 # ['Curr. Avg. Rate', f'{self.avg_dr:.2f} GB/s'],
                 # ['Curr. Avg. QoE', f'{self.current_avg_utility:.2f}'],
-                # ['Total Avg. QoE', f'{self.total_avg_utility:.2f}']
-                ['Avg. Total QoE', f'{self.total_avg_utility(avg_time=True, avg_ues=False)}']
+                # ['Total Avg. QoE', f'{self.total_avg_utility():.2f}']
+                ['Avg. Total QoE', f'{self.total_avg_utility(avg_time=True, avg_ues=False):.2f}']
             ]
             yoffset = 0.95
             for text in text_table:
