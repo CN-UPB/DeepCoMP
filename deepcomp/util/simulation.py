@@ -219,7 +219,9 @@ class Simulation:
             # turn off exploration for testing the loaded agent
             self.config['explore'] = explore
             self.agent = PPOTrainer(config=self.config, env=self.env_class)
-            self.agent_path = self.get_best_checkpoint_path(rllib_dir)
+            # TODO: changed to last checkpoint rather then best for demo --> back to best later
+            # self.agent_path = self.get_best_checkpoint_path(rllib_dir)
+            self.agent_path = self.get_last_checkpoint_path(rllib_dir)
             self.log.info('Loading PPO agent', checkpoint=self.agent_path)
             try:
                 self.agent.restore(self.agent_path)
@@ -391,15 +393,15 @@ class Simulation:
         ax_text.axis('off')
 
         # global stats (right; below text box)
-        ax_total = fig.add_subplot(gs[1, 2])
-        ax_total.set_title('Total QoE')
-        ax_total.set_ylim(-20, 20)
+        ax_avg = fig.add_subplot(gs[1, 2])
+        ax_avg.set_title('Avg. QoE')
+        ax_avg.set_ylim(-20, 20)
 
         # UE-specific stats (right; below global)
         ue_axes = {}
         row = 2
         for ue_id in ue_ids:
-            ue_axes[ue_id] = fig.add_subplot(gs[row, 2], sharex=ax_total, sharey=ax_total)
+            ue_axes[ue_id] = fig.add_subplot(gs[row, 2], sharex=ax_avg, sharey=ax_avg)
             ue_axes[ue_id].set_title(f'UE {ue_id}: QoE')
             row += 1
         # set xlabel for last axis
@@ -407,7 +409,7 @@ class Simulation:
 
         # prepare dict of dashboard_axes
         dashboard_axes = {
-            'main': ax_main, 'text': ax_text, 'total': ax_total, 'ue': ue_axes
+            'main': ax_main, 'text': ax_text, 'avg': ax_avg, 'ue': ue_axes
         }
 
         return fig, ax_main, dashboard_axes
@@ -419,10 +421,11 @@ class Simulation:
         if self.agent_name == 'ppo':
             train_steps = self.agent.training_iteration * self.agent.config['train_batch_size']
 
+        num_ue = self.cli_args.static_ues + self.cli_args.slow_ues + self.cli_args.fast_ues
         dashboard_data = {
             'agent': self.agent_dashboard_name,
             'train_steps': train_steps,
-            'total': [t['sum_utility'] for t in scalar_metrics],
+            'avg': [t['sum_utility'] / num_ue for t in scalar_metrics],
             'ue': {}
         }
         # fill UE-specific data

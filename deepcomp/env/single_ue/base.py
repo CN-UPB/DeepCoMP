@@ -38,7 +38,7 @@ class MobileEnv(gym.Env):
         """
         super().__init__()
         self.time = 0
-        # total utility summed up over all UEs and time steps so far
+        # total summed up over utility over all UEs and time steps so far
         self.total_utility = 0
         self.episode_length = env_config['episode_length']
         self.map = env_config['map']
@@ -89,14 +89,23 @@ class MobileEnv(gym.Env):
         return sum([ue.curr_dr for ue in self.ue_list])
 
     @property
+    def avg_dr(self):
+        return self.total_dr / self.num_ue
+
+    @property
     def current_total_utility(self):
         return sum([ue.utility for ue in self.ue_list])
 
     @property
-    def avg_total_utility(self):
+    def total_avg_utility(self):
+        """Utility averaged over all UEs and time steps so far"""
         if self.time == 0:
-            return self.total_utility
-        return self.total_utility / self.time
+            return self.total_utility / self.num_ue
+        return self.total_utility / (self.num_ue * self.time)
+
+    @property
+    def current_avg_utility(self):
+        return self.current_total_utility / self.num_ue
 
     def seed(self, seed=None):
         if seed is not None:
@@ -420,30 +429,25 @@ class MobileEnv(gym.Env):
             ['Agent', dashboard_data['agent']],
             ['Training Steps', dashboard_data['train_steps']],
             ['Time Step', self.time],
-            ['Curr. Total Rate', f'{self.total_dr:.2f} GB/s'],
-            ['Curr. Total QoE', f'{self.current_total_utility:.2f}'],
-            ['Avg. Total QoE', f'{self.avg_total_utility:.2f}']
+            ['Curr. Avg. Rate', f'{self.avg_dr:.2f} GB/s'],
+            ['Curr. Avg. QoE', f'{self.current_avg_utility:.2f}'],
+            ['Total Avg. QoE', f'{self.total_avg_utility:.2f}']
         ]
         table = ax_text.table(cellText=text_table, cellLoc='left', edges='open', loc='upper center')
         table.auto_set_font_size(False)
         table.set_fontsize(12)
         patch.append(table)
 
-        # show utility as red to yellow to green. use color map for [0,1) --> normalize utility first
-        # colormap = cm.get_cmap('RdYlGn')
-        # norm = plt.Normalize(-20, 20)
-
         # render total QoE over time
-        ax_total = dashboard_axes['total']
-        total_util = dashboard_data['total']
-        # color = colormap(norm(self.current_total_utility / self.num_ue))
-        patch.extend(ax_total.plot([t+1 for t in range(len(total_util))], [util for util in total_util],
+        ax_avg = dashboard_axes['avg']
+        avg_util = dashboard_data['avg']
+        patch.extend(ax_avg.plot([t+1 for t in range(len(avg_util))], [util for util in avg_util],
                                    color='blue', marker='.'))
 
         # render UE-specific QoE
         for ue_id, ue_ax in dashboard_axes['ue'].items():
             ue_util = dashboard_data['ue'][ue_id]
-            patch.extend(ue_ax.plot([t+1 for t in range(len(total_util))], [util for util in ue_util],
+            patch.extend(ue_ax.plot([t+1 for t in range(len(avg_util))], [util for util in ue_util],
                                     color='blue', marker='.'))
 
         return patch
@@ -513,8 +517,10 @@ class MobileEnv(gym.Env):
             # extra info: time step, total data rate & utility
             patch.append(ax.text(0.9*self.map.width, 0.95*self.map.height, f"t={self.time}"))
             patch.append(ax.text(0.9*self.map.width, 0.9*self.map.height, f"dr={self.total_dr:.2f}"))
-            patch.append(ax.text(0.9 * self.map.width, 0.85 * self.map.height, f"util={self.current_total_utility:.2f}"))
-            patch.append(ax.text(0.9 * self.map.width, 0.8 * self.map.height, f"avg util={self.avg_total_utility:.2f}"))
+            patch.append(ax.text(0.9 * self.map.width, 0.85 * self.map.height,
+                                 f"curr avg util={self.current_avg_utility:.2f}"))
+            patch.append(ax.text(0.9 * self.map.width, 0.8 * self.map.height,
+                                 f"total avg util={self.total_avg_utility:.2f}"))
 
         return patch
 
