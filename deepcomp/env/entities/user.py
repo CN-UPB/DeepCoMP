@@ -126,7 +126,7 @@ class User:
 
     def update_curr_dr(self):
         """Update the current data rate of all BS connections according to the current situation (pos & assignment)"""
-        for bs in self.bs_dr.keys():
+        for bs in self.bs_dr:
             self.bs_dr[bs] = bs.data_rate(self)
 
     def update_ewma_dr(self, weight=0.9):
@@ -162,7 +162,7 @@ class User:
         :return: Number of removed/lost connections
         """
         remove_bs = []
-        for bs in self.bs_dr.keys():
+        for bs in self.bs_dr:
             if not bs.can_connect(self.pos):
                 self.log.info("Losing connection to BS", bs=bs)
                 remove_bs.append(bs)
@@ -215,7 +215,7 @@ class User:
     def ues_at_same_bs(self):
         """Return set of UEs that are currently connected to any of the BS that this UE is connected to"""
         ue_set = set()
-        for bs in self.bs_dr.keys():
+        for bs in self.bs_dr:
             ue_set.update(set(bs.conn_ues))
         self.log.debug('UEs at same BS', ue_set=ue_set)
         return ue_set
