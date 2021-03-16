@@ -393,22 +393,21 @@ class Simulation:
         # global stats (right; below text box)
         ax_total = fig.add_subplot(gs[1, 2])
         ax_total.set_title('Total QoE')
+        ax_total.set_ylim(-20, 20)
 
         # UE-specific stats (right; below global)
         ue_axes = {}
-        # TODO: get UEs automatically
-        ax_ue1 = fig.add_subplot(gs[2, 2], sharex=ax_total)
-        ax_ue1.set_title('UE 1: QoE')
-        ax_ue2 = fig.add_subplot(gs[3, 2], sharex=ax_ue1)
-        ax_ue2.set_title('UE 2: QoE')
-        ax_ue2.set_xlabel('Time')
+        row = 2
+        for ue_id in ue_ids:
+            ue_axes[ue_id] = fig.add_subplot(gs[row, 2], sharex=ax_total, sharey=ax_total)
+            ue_axes[ue_id].set_title(f'UE {ue_id}: QoE')
+            row += 1
+        # set xlabel for last axis
+        ue_axes[ue_id].set_xlabel('Time')
 
         # prepare dict of dashboard_axes
-        # TODO: derive UEs' IDs automatically somehow rather than hard-coding; also number of UEs automatically
         dashboard_axes = {
-            'main': ax_main, 'text': ax_text, 'total': ax_total, 'ue': {
-                '1': ax_ue1, '2': ax_ue2
-            }
+            'main': ax_main, 'text': ax_text, 'total': ax_total, 'ue': ue_axes
         }
 
         return fig, ax_main, dashboard_axes
