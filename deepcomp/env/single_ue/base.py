@@ -61,8 +61,8 @@ class MobileEnv(gym.Env):
         self.action_space = None
 
         # configure animation rendering
-        self.simple_video = env_config['simple_video']
         self.dashboard = env_config['dashboard']
+        self.ue_details = env_config['ue_details']
 
         # configure logging inside env to ensure it works in ray/rllib. https://github.com/ray-project/ray/issues/9030
         config_logging()
@@ -499,7 +499,7 @@ class MobileEnv(gym.Env):
                 patch.extend(ax.plot([ue.pos.x, bs.pos.x], [ue.pos.y, bs.pos.y], color=color,
                              path_effects=[pe.SimpleLineShadow(shadow_color='black'), pe.Normal()]))
             # plot UE
-            patch.extend(ue.plot(ax, radius=ue_symbol_radius, simple=self.simple_video))
+            patch.extend(ue.plot(ax, radius=ue_symbol_radius, details=self.ue_details))
 
         # base stations
         for bs in self.bs_list:
@@ -509,10 +509,6 @@ class MobileEnv(gym.Env):
         if self.dashboard:
             patch.extend(self.render_dashboard(dashboard_axes, dashboard_data))
 
-        if self.simple_video:
-            # only print avg. total utility (sum over UEs, avg over time steps)
-            patch.append(ax.text(0.86 * self.map.width, 0.95 * self.map.height,
-                                  f"Avg. QoE: {self.avg_total_utility:.2f}", fontsize='large'))
         else:
             # title isn't redrawn in animation (out of box) -> static -> show time as text inside box, top-right corner
             # patch.append(plt.title(type(self).__name__))

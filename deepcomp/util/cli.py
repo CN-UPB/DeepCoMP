@@ -57,11 +57,11 @@ def setup_cli():
     parser.add_argument('--fixed-rand-eval', action='store_true',
                         help="Evaluate once with fixed episodes and then again with random episodes.")
     parser.add_argument('--test', type=str, help="Test trained agent at given path (auto. loads last checkpoint)")
-    parser.add_argument('--video', type=str, choices=SUPPORTED_RENDER, default=None,
+    parser.add_argument('--video', type=str, choices=SUPPORTED_RENDER, default='html',
                         help="How (and whether) to render the testing video.")
-    parser.add_argument('--simple-video', type=str, choices=SUPPORTED_RENDER, default='html',
-                        help="Same as --video but without detailed numbers. Cannot be used at once with --video.")
-    parser.add_argument('--dashboard', action='store_true', help="Render video in form of a dashboard.")
+    # TODO: drop --default option and always use dashboard (why not?)
+    parser.add_argument('--dashboard', action='store_true', default=True, help="Render video in form of a dashboard.")
+    parser.add_argument('--ue-details', action='store_true', help="Show UE's data rate and util in rendered video.")
     parser.add_argument('--eval', type=int, default=0, help="Number of evaluation episodes after testing")
     parser.add_argument('--seed', type=int, default=42, help="Seed for the RNG (algorithms and environment)")
     parser.add_argument('--result-dir', type=str, default=None, help="Optional path to where results should be stored."
@@ -94,18 +94,9 @@ def setup_cli():
         log.warning('Algorithm only supports multi-agent. Switching to multi-agent.', alg=args.alg)
         args.agent = 'multi'
 
-    # simplify video: process and set args.video to the selection and args.simple_video as bool
-    if args.simple_video is None:
-        args.simple_video = False
-    else:
-        if args.video is None:
-            args.video = args.simple_video
-            args.simple_video = True
-        else:
-            log.warning('Do not use --video and --simple-video at once; just either or. Ignoring --simple-video.')
-            args.simple_video = False
-    if args.dashboard and args.video is None:
-        log.warning("--dashboard has no effect without --video. Specify how to render/save a video with --video.")
+    # render settings
+    if (args.dashboard or args.ue_details) and args.video is None:
+        log.warning("--dashboard and --ue-details have no effect without --video.")
 
     log.info('CLI args', args=args)
 
