@@ -4,6 +4,7 @@ import time
 import logging
 from datetime import datetime
 from collections import defaultdict
+from pathlib import Path
 
 import pandas as pd
 import structlog
@@ -52,6 +53,7 @@ class Simulation:
         assert agent_name in SUPPORTED_ALGS, f"Agent {agent_name} not supported. Supported agents: {SUPPORTED_ALGS}"
         self.agent_name = agent_name
         self.agent = None
+        self.agent_train_steps = None
         # only init ray if necessary --> lower overhead for dummy agents
         if self.agent_name == 'ppo':
             if self.cli_args.cluster:
@@ -204,6 +206,20 @@ class Simulation:
         checkpoint = analysis.get_best_checkpoint(analysis._get_trial_paths()[0])
         return os.path.abspath(checkpoint)
 
+    def get_training_steps(self):
+        """Get and return the total training steps of the currently loaded agent"""
+        if self.agent_name != 'ppo':
+            return None
+        # usually train steps = train iterations * batch size, but it also somehow depends on num. workers
+        # --> better to read value from progress.csv
+        progress_dir = Path(self.agent_path).parent.parent
+        progress_file = os.path.join(progress_dir, 'progress.csv')
+        df = pd.read_csv(progress_file)
+        train_steps = int(df[df['training_iteration'] == self.agent.training_iteration]['timesteps_total'])
+        self.log.info("Loaded training progress", train_iteration = self.agent.training_iteration,
+                      train_steps=train_steps, progress_file=progress_file)
+        return train_steps
+
     def load_agent(self, rllib_dir=None, rand_seed=None, fixed_action=1, explore=False):
         """
         Load a trained RLlib agent from the specified rllib_path. Call this before testing a trained agent.
@@ -248,6 +264,9 @@ class Simulation:
 
         # set a suitable filename for saving testing videos and results later
         self.set_result_filename()
+
+        # read the number of training steps
+        self.agent_train_steps = self.get_training_steps()
 
     def set_result_filename(self):
         """Return a suitable filename (without file ending) in the format 'agent_env-class_env-size_num-ues_time'"""
@@ -418,8 +437,8 @@ class Simulation:
         """Return a structured dict with data for plotting on the dashboard"""
         # get number of training steps (if applicable)
         train_steps = 'N/A'
-        if self.agent_name == 'ppo':
-            train_steps = self.agent.training_iteration * self.agent.config['train_batch_size']
+        if self.agent_train_steps is not None:
+            train_steps = self.agent_train_steps
 
         num_ue = self.cli_args.static_ues + self.cli_args.slow_ues + self.cli_args.fast_ues
         dashboard_data = {
