@@ -96,6 +96,28 @@ class MobileEnv(gym.Env):
     def current_total_utility(self):
         return sum([ue.utility for ue in self.ue_list])
 
+    def total_avg_utility(self, avg_time=True, avg_ues=True):
+        """
+        The total utility optionally averaged over time and UEs.
+
+        :param avg_time: Whether or not to average over all time steps.
+        :param avg_ues: Whether or not to average over all UEs.
+        :return: Return the average utility (representing QoE)
+        """
+        # determine how to average based on provided args
+        div_time = 1
+        if avg_time:
+            div_time = self.time
+        div_ues = 1
+        if avg_ues:
+            div_ues = self.num_ue
+        div = div_time * div_ues
+
+        # calc and return average
+        if div == 0:
+            return self.total_utility
+        return self.total_utility / div
+
     @property
     def total_avg_utility(self):
         """Utility averaged over all UEs and time steps so far"""
@@ -522,7 +544,8 @@ class MobileEnv(gym.Env):
                 ['Time Step', self.time],
                 # ['Curr. Avg. Rate', f'{self.avg_dr:.2f} GB/s'],
                 # ['Curr. Avg. QoE', f'{self.current_avg_utility:.2f}'],
-                ['Total Avg. QoE', f'{self.total_avg_utility:.2f}']
+                # ['Total Avg. QoE', f'{self.total_avg_utility:.2f}']
+                ['Avg. Total QoE', f'{self.total_avg_utility(avg_time=True, avg_ues=False)}']
             ]
             yoffset = 0.95
             for text in text_table:
