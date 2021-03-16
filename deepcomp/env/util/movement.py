@@ -174,9 +174,7 @@ class RandomWaypoint(Movement):
             if self.curr_pause < self.pause_duration:
                 self.curr_pause += 1
                 return curr_pos
-            # else stop pausing and choose a new waypoint --> reset()
-            else:
-                self.reset()
+            self.reset()
 
         # move towards (new) waypoint
         new_pos = self.step_towards_waypoint(curr_pos)

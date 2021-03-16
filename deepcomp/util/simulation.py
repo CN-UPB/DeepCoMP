@@ -368,23 +368,22 @@ class Simulation:
         if self.agent_name == 'ppo':
             if self.cli_args.agent == 'central':
                 return 'DeepCoMP'
-            elif self.cli_args.agent == 'multi':
+            if self.cli_args.agent == 'multi':
                 if self.cli_args.separate_agent_nns:
                     return 'D3-CoMP'
-                else:
-                    return 'DD-CoMP'
+                return 'DD-CoMP'
             return None
-        elif self.agent_name == '3gpp':
+        if self.agent_name == '3gpp':
             return '3GPP'
-        elif self.agent_name == 'fullcomp':
+        if self.agent_name == 'fullcomp':
             return 'FullCoMP'
-        elif self.agent_name == 'dynamic':
+        if self.agent_name == 'dynamic':
             return 'Dynamic CoMP'
-        elif self.agent_name == 'brute-force':
+        if self.agent_name == 'brute-force':
             return 'Brute Force (Opt.)'
-        elif self.agent_name == 'random':
+        if self.agent_name == 'random':
             return 'Random'
-        elif self.agent_name == 'fixed':
+        if self.agent_name == 'fixed':
             return 'Fixed'
         self.log.warning("Unknown agent name", agent_name=self.agent_name)
         return self.agent_name
