@@ -414,8 +414,14 @@ class Simulation:
 
     def get_dashboard_data(self, dashboard_axes, scalar_metrics, vector_metrics):
         """Return a structured dict with data for plotting on the dashboard"""
+        # get number of training steps (if applicable)
+        train_steps = 'N/A'
+        if self.agent_name == 'ppo':
+            train_steps = self.agent.training_iteration * self.agent.config['train_batch_size']
+
         dashboard_data = {
             'agent': self.agent_dashboard_name,
+            'train_steps': train_steps,
             'total': [t['sum_utility'] for t in scalar_metrics],
             'ue': {}
         }

@@ -418,12 +418,12 @@ class MobileEnv(gym.Env):
         ax_text = dashboard_axes['text']
         text_table = [
             ['Agent', dashboard_data['agent']],
+            ['Training Steps', dashboard_data['train_steps']],
             ['Time Step', self.time],
             ['Curr. Total Rate', f'{self.total_dr:.2f} GB/s'],
             ['Curr. Total QoE', f'{self.current_total_utility:.2f}'],
             ['Avg. Total QoE', f'{self.avg_total_utility:.2f}']
         ]
-        # TODO: Also show number of train steps in the dashboard; access directly from ray somehow? 'N/A' for heuristics
         table = ax_text.table(cellText=text_table, cellLoc='left', edges='open', loc='upper center')
         table.auto_set_font_size(False)
         table.set_fontsize(12)
@@ -460,8 +460,6 @@ class MobileEnv(gym.Env):
         :return: List of matplotlib patches for animation
         :param dashboard_data: Dict with data for showing in the dashboard
         """
-        # TODO: add static legend with green, red UE and Good/bad QoE
-
         # if no explicit axis is specified get the current axis from matplotlib
         if ax is None:
             ax = plt.gca()
