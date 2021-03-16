@@ -17,7 +17,7 @@ requirements = [
     'seaborn==0.10.1',
     'numpy<1.20',
     'gym[atari]>=0.17.1',
-    'tensorflow==2.2.0',
+    'tensorflow>=2.2.0',
     'gputil==1.4.0',
     'pandas>=1.0.5',
     'tqdm==4.47.0',
@@ -26,6 +26,7 @@ requirements = [
     # installing directly via ray[rllib] doesn't work with setup.py: https://github.com/ray-project/ray/issues/11274
     'scipy==1.4.1',
     # 'lz4',
+    'svgpath2mpl>=0.2.1',
 ]
 
 eval_requirements = [
@@ -34,7 +35,7 @@ eval_requirements = [
 
 setup(
     name='deepcomp',
-    version='1.1.0',
+    version='1.2.0',
     author='Stefan Schneider',
     description="DeepCoMP: Self-Learning Dynamic Multi-Cell Selection for Coordinated Multipoint (CoMP)",
     long_description=long_description,

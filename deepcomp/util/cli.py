@@ -13,6 +13,9 @@ def setup_cli():
     """Create CLI parser and return parsed args"""
     parser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     # algorithm & training
+    parser.add_argument('--approach', type=str, choices=['deepcomp', 'ddcomp', 'd3comp'], default=None,
+                        help="Which DRL approach to use: DeepCoMP, DD-CoMP, or D3-CoMP. "
+                             "Overrides --agent, --alg, and --separate-agent-nns.")
     parser.add_argument('--agent', type=str, choices=SUPPORTED_AGENTS, default='central',
                         help="Whether to use a single agent for 1 UE, a central agent, or multi agents")
     parser.add_argument('--alg', type=str, choices=SUPPORTED_ALGS, default='ppo', help="Algorithm")
@@ -30,12 +33,14 @@ def setup_cli():
                         help="How to aggregate rewards from multiple UEs within a step.")
     parser.add_argument('--cluster', action='store_true', help="Set this flag when running on a multi-node cluster.")
     # environment
-    parser.add_argument('--env', type=str, choices=SUPPORTED_ENVS, default='small', help="Env/Map size")
+    parser.add_argument('--env', type=str, choices=SUPPORTED_ENVS, default='custom', help="Env/Map size")
     parser.add_argument('--num-bs', type=int, default=None, help="Number of BS in large env (not supported by others).")
     parser.add_argument('--bs-dist', type=int, default=100, help="Distance between BS. Only supported by medium env.")
     parser.add_argument('--eps-length', type=int, default=100, help="Number of time steps per episode")
+    parser.add_argument('--max-ues', type=int, default=None, help="Expected max. number of UEs. Relevant for central "
+                                                                  "agent's NN size. Derived automatically if not set.")
     parser.add_argument('--static-ues', type=int, default=0, help="Number of static UEs in the environment")
-    parser.add_argument('--slow-ues', type=int, default=0, help="Number of slow UEs in the environment")
+    parser.add_argument('--ues', type=int, default=0, help="Number of (slow) UEs in the environment")
     parser.add_argument('--fast-ues', type=int, default=0, help="Number of fast UEs in the environment")
     # could implement this simply by processing the number and increasing the static, slow, fast UEs correspondingly
     # before passing to env creation
@@ -52,16 +57,33 @@ def setup_cli():
     parser.add_argument('--fixed-rand-eval', action='store_true',
                         help="Evaluate once with fixed episodes and then again with random episodes.")
     parser.add_argument('--test', type=str, help="Test trained agent at given path (auto. loads last checkpoint)")
-    parser.add_argument('--video', type=str, choices=SUPPORTED_RENDER, default=None,
+    parser.add_argument('--video', type=str, choices=SUPPORTED_RENDER, default='html',
                         help="How (and whether) to render the testing video.")
-    parser.add_argument('--simple-video', type=str, choices=SUPPORTED_RENDER, default=None,
-                        help="Same as --video but without detailed numbers. Cannot be used at once with --video.")
+    parser.add_argument('--dashboard', action='store_true', help="Render video in form of a dashboard (slow).")
+    parser.add_argument('--ue-details', action='store_true', default=True, help="Show UEs' data rate and util in rendered video.")
     parser.add_argument('--eval', type=int, default=0, help="Number of evaluation episodes after testing")
-    parser.add_argument('--seed', type=int, default=None, help="Seed for the RNG (algorithms and environment)")
+    parser.add_argument('--seed', type=int, default=42, help="Seed for the RNG (algorithms and environment)")
     parser.add_argument('--result-dir', type=str, default=None, help="Optional path to where results should be stored."
                                                                      "Default: <project_root>/results")
+    # TODO: changed defaults for demo: seed was None, env was small, --ues was --slow-ues; --ue-details default true
 
     args = parser.parse_args()
+
+    # TODO: for demo --slow-ues --> --ues
+    args.slow_ues = args.ues
+
+    # shortcut cli command for deepcomp, ddcomp, d3comp
+    if args.approach is not None:
+        args.alg = 'ppo'
+        if args.approach == 'deepcomp':
+            args.agent = 'central'
+            args.separate_agent_nns = False
+        elif args.approach == 'ddcomp':
+            args.agent = 'multi'
+            args.separate_agent_nns = False
+        elif args.approach == 'd3comp':
+            args.agent = 'multi'
+            args.separate_agent_nns = True
 
     # check if algorithm and agent are compatible or adjust automatically
     if args.alg in CENTRAL_ALGS and args.alg not in MULTI_ALGS and args.agent != 'central':
@@ -71,16 +93,9 @@ def setup_cli():
         log.warning('Algorithm only supports multi-agent. Switching to multi-agent.', alg=args.alg)
         args.agent = 'multi'
 
-    # simplify video: process and set args.video to the selection and args.simple_video as bool
-    if args.simple_video is None:
-        args.simple_video = False
-    else:
-        if args.video is None:
-            args.video = args.simple_video
-            args.simple_video = True
-        else:
-            log.warning('Do not use --video and --simple-video at once; just either or. Ignoring --simple-video.')
-            args.simple_video = False
+    # render settings
+    if (args.dashboard or args.ue_details) and args.video is None:
+        log.warning("--dashboard and --ue-details have no effect without --video.")
 
     log.info('CLI args', args=args)
 

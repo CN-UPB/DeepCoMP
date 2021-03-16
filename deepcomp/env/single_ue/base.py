@@ -38,7 +38,7 @@ class MobileEnv(gym.Env):
         """
         super().__init__()
         self.time = 0
-        # total utility summed up over all UEs and time steps so far
+        # total summed up over utility over all UEs and time steps so far
         self.total_utility = 0
         self.episode_length = env_config['episode_length']
         self.map = env_config['map']
@@ -61,7 +61,8 @@ class MobileEnv(gym.Env):
         self.action_space = None
 
         # configure animation rendering
-        self.simple_video = env_config['simple_video']
+        self.dashboard = env_config['dashboard']
+        self.ue_details = env_config['ue_details']
 
         # configure logging inside env to ensure it works in ray/rllib. https://github.com/ray-project/ray/issues/9030
         config_logging()
@@ -69,7 +70,11 @@ class MobileEnv(gym.Env):
         self.log.info('Env init', env_config=env_config)
 
         # call after initializing everything else (needs settings, log)
-        self.max_ues = self.get_max_num_ue()
+        self.max_ues = env_config['max_ues']
+        if self.max_ues is None:
+            # automatically get max UEs for given scenario
+            self.max_ues = self.get_max_num_ue()
+        assert self.max_ues >= self.num_ue
 
     @property
     def num_bs(self):
@@ -84,14 +89,38 @@ class MobileEnv(gym.Env):
         return sum([ue.curr_dr for ue in self.ue_list])
 
     @property
+    def avg_dr(self):
+        return self.total_dr / self.num_ue
+
+    @property
     def current_total_utility(self):
         return sum([ue.utility for ue in self.ue_list])
 
-    @property
-    def avg_total_utility(self):
-        if self.time == 0:
+    def total_avg_utility(self, avg_time=True, avg_ues=True):
+        """
+        The total utility optionally averaged over time and UEs.
+
+        :param avg_time: Whether or not to average over all time steps.
+        :param avg_ues: Whether or not to average over all UEs.
+        :return: Return the average utility (representing QoE)
+        """
+        # determine how to average based on provided args
+        div_time = 1
+        if avg_time:
+            div_time = self.time
+        div_ues = 1
+        if avg_ues:
+            div_ues = self.num_ue
+        div = div_time * div_ues
+
+        # calc and return average
+        if div == 0:
             return self.total_utility
-        return self.total_utility / self.time
+        return self.total_utility / div
+
+    @property
+    def current_avg_utility(self):
+        return self.current_total_utility / self.num_ue
 
     def seed(self, seed=None):
         if seed is not None:
@@ -154,7 +183,6 @@ class MobileEnv(gym.Env):
 
     def get_max_num_ue(self):
         """Get the maximum number of UEs within an episode based on the new UE interval"""
-        # TODO: allow passing a manually set max UE, eg, if loading a central agent pretrained on more UEs
         max_ues = self.num_ue
         if self.new_ue_interval is not None:
             # calculate the max number of UEs if one new UE is added at a given interval
@@ -396,51 +424,128 @@ class MobileEnv(gym.Env):
                       done=done)
         return self.obs, reward, done, info
 
-    def render(self, mode='human'):
-        """Plot and visualize the current status of the world. Return the patch of actors for animation."""
+    def render_dashboard(self, dashboard_axes, dashboard_data):
+        """
+        Plot additional information on extra dashboard axes
+
+        :param dashboard_axes: Optional dict with additional axes for plotting in dashboard mode.
+        Dict: 'main' --> same as ax, 'text' --> axis for printing text, 'total' --> axis with total utility,
+        'ue' --> another dict with UE ids and axes for UE-specific utility
+        :param dashboard_data: Dict of data for rendering in the dashboard
+        :return: List of matplotlib patches for animation
+        """
+        assert None not in (dashboard_axes, dashboard_data), \
+            "Parameters dashboard_axes and dashboard_data are required for rendering with dashboard."
+        patch = []
+
+        # print global info in text subplot
+        ax_text = dashboard_axes['text']
+        text_table = [
+            ['Agent', dashboard_data['agent']],
+            ['Training Steps', dashboard_data['train_steps']],
+            ['Time Step', self.time],
+            ['Curr. Avg. Rate', f'{self.avg_dr:.2f} GB/s'],
+            ['Curr. Avg. QoE', f'{self.current_avg_utility:.2f}'],
+            ['Total Avg. QoE', f'{self.total_avg_utility():.2f}']
+        ]
+        table = ax_text.table(cellText=text_table, cellLoc='left', edges='open', loc='upper center')
+        table.auto_set_font_size(False)
+        table.set_fontsize(12)
+        patch.append(table)
+
+        # render total QoE over time
+        ax_avg = dashboard_axes['avg']
+        avg_util = dashboard_data['avg']
+        patch.extend(ax_avg.plot([t+1 for t in range(len(avg_util))], [util for util in avg_util],
+                                   color='blue', marker='.'))
+
+        # render UE-specific QoE
+        for ue_id, ue_ax in dashboard_axes['ue'].items():
+            ue_util = dashboard_data['ue'][ue_id]
+            patch.extend(ue_ax.plot([t+1 for t in range(len(avg_util))], [util for util in ue_util],
+                                    color='blue', marker='.'))
+
+        return patch
+
+    def render(self, mode='human', ax=None, dashboard_axes=None, dashboard_data=None):
+        """
+        Plot and visualize the current status of the world. Return the patch of actors for animation.
+
+        :param mode: Rendering mode, dictated by OpenAI Gym
+        :param ax: Main matplotlib axis to plot on
+        :param dashboard_axes: Optional dict with additional axes for plotting in dashboard mode.
+        Dict: 'main' --> same as ax, 'text' --> axis for printing text, 'total' --> axis with total utility,
+        'ue' --> another dict with UE ids and axes for UE-specific utility
+        :return: List of matplotlib patches for animation
+        :param dashboard_data: Dict with data for showing in the dashboard
+        """
+        # if no explicit axis is specified get the current axis from matplotlib
+        if ax is None:
+            ax = plt.gca()
+
         # list of matplotlib "artists", which can be used to create animations
         patch = []
 
         # limit to map borders
-        plt.xlim(0, self.map.width)
-        plt.ylim(0, self.map.height)
+        ax.set_xlim(0, self.map.width)
+        ax.set_ylim(0, self.map.height)
 
         # users & connections
         # show utility as red to yellow to green. use color map for [0,1) --> normalize utility first
         colormap = cm.get_cmap('RdYlGn')
         norm = plt.Normalize(-20, 20)
 
+        # static legend explaining UEs' color = their utility/QoE
+        legend_symbols = [
+            plt.Line2D([0], [0], color='white', label='Good QoE', marker='o', markersize=10,
+                       markerfacecolor=colormap(norm(20))),
+            plt.Line2D([0], [0], color='white', label='Medium QoE', marker='o', markersize=10,
+                       markerfacecolor=colormap(norm(0))),
+            plt.Line2D([0], [0], color='white', label='Bad QoE', marker='o', markersize=10,
+                       markerfacecolor=colormap(norm(-20))),
+        ]
+        ax.legend(handles=legend_symbols, loc='upper left')
+
+        # determine UE symbol radius based on map size (so it's well visible)
+        ue_symbol_radius = int(min(self.map.width, self.map.height) / 50)
         for ue in self.ue_list:
             # plot connections to all BS
             for bs, dr in ue.bs_dr.items():
                 color = colormap(norm(log_utility(dr)))
                 # add black background/borders for lines to make them better visible if the utility color is too light
-                patch.extend(plt.plot([ue.pos.x, bs.pos.x], [ue.pos.y, bs.pos.y], color=color,
-                                      path_effects=[pe.SimpleLineShadow(shadow_color='black'), pe.Normal()]))
-                                      # path_effects=[pe.Stroke(linewidth=2, foreground='black'), pe.Normal()]))
+                patch.extend(ax.plot([ue.pos.x, bs.pos.x], [ue.pos.y, bs.pos.y], color=color,
+                             path_effects=[pe.SimpleLineShadow(shadow_color='black'), pe.Normal()]))
             # plot UE
-            patch.extend(ue.plot(simple=self.simple_video))
+            patch.extend(ue.plot(ax, radius=ue_symbol_radius, details=self.ue_details))
 
         # base stations
         for bs in self.bs_list:
-            patch.extend(bs.plot())
+            patch.extend(bs.plot(ax, label_ybuffer=int(self.map.height / 15)))
 
-        if self.simple_video:
-            # only print avg. total utility (sum over UEs, avg over time steps)
-            patch.append(plt.text(0.85 * self.map.width, 0.95 * self.map.height,
-                                  f"Avg. QoE: {self.avg_total_utility:.2f}", fontsize='large'))
+        # dashboard mode: render extra info on additional axes
+        if self.dashboard:
+            patch.extend(self.render_dashboard(dashboard_axes, dashboard_data))
+
         else:
-            # title isn't redrawn in animation (out of box) -> static -> show time as text inside box, top-right corner
-            patch.append(plt.title(type(self).__name__))
-            # extra info: time step, total data rate & utility
-            patch.append(plt.text(0.9*self.map.width, 0.95*self.map.height, f"t={self.time}"))
-            patch.append(plt.text(0.9*self.map.width, 0.9*self.map.height, f"dr={self.total_dr:.2f}"))
-            patch.append(plt.text(0.9 * self.map.width, 0.85 * self.map.height, f"util={self.current_total_utility:.2f}"))
-            patch.append(plt.text(0.9 * self.map.width, 0.8 * self.map.height, f"avg util={self.avg_total_utility:.2f}"))
+            text_table = []
+            if dashboard_data is not None:
+                text_table = [
+                    ['Agent', dashboard_data['agent']],
+                    ['Training Steps', dashboard_data['train_steps']],
+                ]
+            text_table += [
+                ['Time Step', self.time],
+                # ['Curr. Avg. Rate', f'{self.avg_dr:.2f} GB/s'],
+                # ['Curr. Avg. QoE', f'{self.current_avg_utility:.2f}'],
+                # ['Total Avg. QoE', f'{self.total_avg_utility():.2f}']
+                ['Avg. Total QoE', f'{self.total_avg_utility(avg_time=True, avg_ues=False):.2f}']
+            ]
+            yoffset = 0.95
+            for text in text_table:
+                patch.append(ax.text(0.8 * self.map.width, yoffset * self.map.height, f'{text[0]}: {text[1]}',
+                                     fontsize=12, backgroundcolor='white'))
+                yoffset -= 0.04
 
-        # legend doesn't change --> only draw once at the beginning
-        # if self.time == 0:
-        #     plt.legend(loc='upper left')
         return patch
 
     def add_new_ue(self, velocity='slow'):

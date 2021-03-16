@@ -1,8 +1,10 @@
 import sys
 import os
 import time
+import logging
 from datetime import datetime
 from collections import defaultdict
+from pathlib import Path
 
 import pandas as pd
 import structlog
@@ -45,11 +47,13 @@ class Simulation:
         # num workers for parallel execution of eval episodes
         self.num_workers = config['num_workers']
         self.cli_args = cli_args
+        self.dashboard = self.env_config['dashboard']
 
         # agent
         assert agent_name in SUPPORTED_ALGS, f"Agent {agent_name} not supported. Supported agents: {SUPPORTED_ALGS}"
         self.agent_name = agent_name
         self.agent = None
+        self.agent_train_steps = None
         # only init ray if necessary --> lower overhead for dummy agents
         if self.agent_name == 'ppo':
             if self.cli_args.cluster:
@@ -57,7 +61,8 @@ class Simulation:
                 ray.init(address='auto')
             else:
                 # disable for local execution (it won't find a cluster and will break). optionally, enable local debug
-                ray.init(local_mode=debug)
+                # also less logging and no dashboard
+                ray.init(local_mode=debug, include_dashboard=False, log_to_driver=False)
         self.agent_path = None
 
         # filename for saving is set when loading the agent
@@ -201,6 +206,20 @@ class Simulation:
         checkpoint = analysis.get_best_checkpoint(analysis._get_trial_paths()[0])
         return os.path.abspath(checkpoint)
 
+    def get_training_steps(self):
+        """Get and return the total training steps of the currently loaded agent"""
+        if self.agent_name != 'ppo':
+            return None
+        # usually train steps = train iterations * batch size, but it also somehow depends on num. workers
+        # --> better to read value from progress.csv
+        progress_dir = Path(self.agent_path).parent.parent
+        progress_file = os.path.join(progress_dir, 'progress.csv')
+        df = pd.read_csv(progress_file)
+        train_steps = int(df[df['training_iteration'] == self.agent.training_iteration]['timesteps_total'])
+        self.log.info("Loaded training progress", train_iteration = self.agent.training_iteration,
+                      train_steps=train_steps, progress_file=progress_file)
+        return train_steps
+
     def load_agent(self, rllib_dir=None, rand_seed=None, fixed_action=1, explore=False):
         """
         Load a trained RLlib agent from the specified rllib_path. Call this before testing a trained agent.
@@ -216,13 +235,15 @@ class Simulation:
             # turn off exploration for testing the loaded agent
             self.config['explore'] = explore
             self.agent = PPOTrainer(config=self.config, env=self.env_class)
-            self.agent_path = self.get_best_checkpoint_path(rllib_dir)
+            # TODO: changed to last checkpoint rather then best for demo --> back to best later
+            # self.agent_path = self.get_best_checkpoint_path(rllib_dir)
+            self.agent_path = self.get_last_checkpoint_path(rllib_dir)
             self.log.info('Loading PPO agent', checkpoint=self.agent_path)
             try:
                 self.agent.restore(self.agent_path)
-            except AssertionError:
-                self.log.error(f"Error loading agent. Mismatch of neural network size and number of UEs when using a "
-                               f"pretrained central PPO?")
+            except (AssertionError, ValueError) as e:
+                self.log.error(f"Error loading agent. Mismatch of neural network size and number of UEs or env size"
+                               f" when using a pretrained central DeepCoMP agent? Error: '{str(e)}'")
                 sys.exit()
         if self.agent_name == '3gpp':
             self.agent = Heuristic3GPP()
@@ -243,6 +264,9 @@ class Simulation:
 
         # set a suitable filename for saving testing videos and results later
         self.set_result_filename()
+
+        # read the number of training steps
+        self.agent_train_steps = self.get_training_steps()
 
     def set_result_filename(self):
         """Return a suitable filename (without file ending) in the format 'agent_env-class_env-size_num-ues_time'"""
@@ -268,7 +292,7 @@ class Simulation:
         """
         render_modes = SUPPORTED_RENDER - {None}
         assert mode in render_modes, f"Render mode {mode} not in {render_modes}"
-        anim = matplotlib.animation.ArtistAnimation(fig, patches, repeat=False)
+        anim = matplotlib.animation.ArtistAnimation(fig, patches, interval=100, repeat=False)
 
         # save html5 video
         if mode == 'html' or mode == 'both':
@@ -340,6 +364,95 @@ class Simulation:
                        done=done['__all__'])
         return next_obs, sum(reward.values()), done['__all__'], info, state
 
+    @property
+    def agent_dashboard_name(self):
+        """Map self.agent_name to some prettier name for the dashboard"""
+        if self.agent_name == 'ppo':
+            if self.cli_args.agent == 'central':
+                return 'DeepCoMP'
+            elif self.cli_args.agent == 'multi':
+                if self.cli_args.separate_agent_nns:
+                    return 'D3-CoMP'
+                else:
+                    return 'DD-CoMP'
+            return None
+        elif self.agent_name == '3gpp':
+            return '3GPP'
+        elif self.agent_name == 'fullcomp':
+            return 'FullCoMP'
+        elif self.agent_name == 'dynamic':
+            return 'Dynamic CoMP'
+        elif self.agent_name == 'brute-force':
+            return 'Brute Force (Opt.)'
+        elif self.agent_name == 'random':
+            return 'Random'
+        elif self.agent_name == 'fixed':
+            return 'Fixed'
+        self.log.warning("Unknown agent name", agent_name=self.agent_name)
+        return self.agent_name
+
+    def setup_dashboard(self, map, ue_ids):
+        """
+        Setup the dashboard with matplotlib figures and gridspec; based on the map size
+
+        :param map: The environment map, used for dimensioning the plot and dashboard
+        :param ue_ids: List of UE IDs for which to show stats on the dashboard
+        :return: Matplotlib figure, main axis, and dict of other axes
+        """
+        if len(ue_ids) > 3:
+            self.log.info("Showing many UEs on dashboard may look bad. Recommended: 2 UEs.", num_ues=ue_ids)
+
+        fig = plt.figure(constrained_layout=True, figsize=map.dashboard_figsize)
+        gs = fig.add_gridspec(4, 3)
+        # main map view
+        ax_main = fig.add_subplot(gs[:, :2])
+
+        # text box with general info (top right)
+        ax_text = fig.add_subplot(gs[0, 2])
+        ax_text.axis('off')
+
+        # global stats (right; below text box)
+        ax_avg = fig.add_subplot(gs[1, 2])
+        ax_avg.set_title('Avg. QoE')
+        ax_avg.set_ylim(-20, 20)
+
+        # UE-specific stats (right; below global)
+        ue_axes = {}
+        row = 2
+        for ue_id in ue_ids:
+            ue_axes[ue_id] = fig.add_subplot(gs[row, 2], sharex=ax_avg, sharey=ax_avg)
+            ue_axes[ue_id].set_title(f'UE {ue_id}: QoE')
+            row += 1
+        # set xlabel for last axis
+        ue_axes[ue_id].set_xlabel('Time')
+
+        # prepare dict of dashboard_axes
+        dashboard_axes = {
+            'main': ax_main, 'text': ax_text, 'avg': ax_avg, 'ue': ue_axes
+        }
+
+        return fig, ax_main, dashboard_axes
+
+    def get_dashboard_data(self, dashboard_axes, scalar_metrics, vector_metrics):
+        """Return a structured dict with data for plotting on the dashboard"""
+        # get number of training steps (if applicable)
+        train_steps = 'N/A'
+        if self.agent_train_steps is not None:
+            train_steps = self.agent_train_steps
+
+        num_ue = self.cli_args.static_ues + self.cli_args.slow_ues + self.cli_args.fast_ues
+        dashboard_data = {
+            'agent': self.agent_dashboard_name,
+            'train_steps': train_steps,
+            'avg': [t['sum_utility'] / num_ue for t in scalar_metrics],
+            'ue': {}
+        }
+        # fill UE-specific data
+        if 'ue' in dashboard_axes:
+            for ue_id in dashboard_axes['ue'].keys():
+                dashboard_data['ue'][ue_id] = [t['utility'][f'UE {ue_id}'] for t in vector_metrics]
+        return dashboard_data
+
     def run_episode(self, env, render=None, log_dict=None):
         """
         Run a single episode on the given environment. Append episode reward and exec time to list and return.
@@ -362,9 +475,19 @@ class Simulation:
 
         eps_start = time.time()
         if render is not None:
-            fig = plt.figure(figsize=env.map.figsize)
+            dashboard_axes = None
+            # dashboard_data = None
+            dashboard_data = self.get_dashboard_data({}, scalar_metrics, vector_metrics)
+            if self.dashboard:
+                # show extra stats of first two UEs on dashboard
+                ue_ids = [ue.id for ue in env.ue_list][:2]
+                fig, ax_main, dashboard_axes = self.setup_dashboard(env.map, ue_ids)
+                dashboard_data = self.get_dashboard_data(dashboard_axes, scalar_metrics, vector_metrics)
+            else:
+                fig = plt.figure(figsize=env.map.figsize)
+                ax_main = plt.gca()
             # equal aspect ratio to avoid distortions
-            plt.gca().set_aspect('equal')
+            ax_main.set_aspect('equal')
 
         # run until episode ends
         patches = []
@@ -382,7 +505,10 @@ class Simulation:
         # for continuous problems, stop evaluation after fixed eps length
         while (done is None or not done) and t < self.episode_length:
             if render is not None:
-                patches.append(env.render())
+                # update extra data for dashboard
+                if self.dashboard:
+                    dashboard_data = self.get_dashboard_data(dashboard_axes, scalar_metrics, vector_metrics)
+                patches.append(env.render(ax=ax_main, dashboard_axes=dashboard_axes, dashboard_data=dashboard_data))
                 if render == 'plot':
                     plt.show()
 
@@ -400,7 +526,8 @@ class Simulation:
 
         # create the animation
         if render is not None:
-            fig.tight_layout()
+            if not self.dashboard:
+                fig.tight_layout()
             self.save_animation(fig, patches, render)
 
         # episode time in seconds (to measure simulation efficiency)

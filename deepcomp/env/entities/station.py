@@ -3,7 +3,7 @@ import numpy as np
 from shapely.geometry import Polygon
 import matplotlib.pyplot as plt
 
-from deepcomp.util.constants import SUPPORTED_SHARING, EPSILON, FAIR_WEIGHT_ALPHA, FAIR_WEIGHT_BETA
+from deepcomp.util.constants import SUPPORTED_SHARING, EPSILON, FAIR_WEIGHT_ALPHA, FAIR_WEIGHT_BETA, station_symbol
 
 
 # SNR threshold required for UEs to connect to this BS. This threshold corresponds roughly to a distance of 69m.
@@ -74,18 +74,25 @@ class Basestation:
             return min([ue.utility for ue in self.conn_ues])
         return 20
 
-    def plot(self):
+    def plot(self, ax, markersize=30, label_ybuffer=10):
         """
         Plot the BS as square with the ID inside as well as circles around it indicating the range.
 
+        :param ax: Matplotlib axis to plot on
+        :param markersize: Matplotlib marker size of the base station symbol. Good size depends on the map size.
+        :param label_ybuffer: How far to put the label with station ID from the symbol. Should depend on map size.
         :return: A list of created matplotlib artists
         """
         # plot BS
-        artists = plt.plot(*self.symbol.exterior.xy, color='black')
-        artists.append(plt.annotate(self.id, xy=(self.pos.x, self.pos.y), ha='center', va='center'))
+        # artists = ax.plot(*self.symbol.exterior.xy, color='black')
+        # marker_size =
+        artists = ax.plot(self.pos.x, self.pos.y, marker=station_symbol, markersize=markersize, markeredgewidth=0.1,
+                          color='black')
+        # TODO: color-code resource allocation scheme in plotted station symbol; add legend explaining the colors
+        artists.append(ax.annotate(self.id, xy=(self.pos.x, self.pos.y - label_ybuffer), ha='center', va='center'))
         # plot range
-        artists.extend(plt.plot(*self.range_1mbit.exterior.xy, color='black'))
-        artists.extend(plt.plot(*self.range_conn.exterior.xy, color='gray'))
+        artists.extend(ax.plot(*self.range_1mbit.exterior.xy, color='black'))
+        artists.extend(ax.plot(*self.range_conn.exterior.xy, color='gray'))
         return artists
 
     def reset(self):
