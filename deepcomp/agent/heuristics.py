@@ -11,8 +11,6 @@ class Heuristic3GPP(MultiAgent):
     Agent that is always connected to at most one BS. Greedily chooses the BS with highest achievable data rate.
     This is comparable to 3GPP LTE cell selection based on highest SINR (with a hysteresis threshold of 0)
     """
-    def __init__(self):
-        super().__init__()
 
     def compute_action(self, obs, policy_id):
         """
@@ -38,8 +36,6 @@ class Heuristic3GPP(MultiAgent):
 
 class FullCoMP(MultiAgent):
     """Agent that always greedily connects to all BS. I refer to this agent as 'FullCoMP' in the paper."""
-    def __init__(self):
-        super().__init__()
 
     def compute_action(self, obs, policy_id):
         """

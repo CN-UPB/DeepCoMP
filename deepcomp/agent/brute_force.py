@@ -37,8 +37,7 @@ class BruteForceAgent(CentralAgent):
         if n == 0:
             if num_digits is None:
                 return [0]
-            else:
-                return [0 for _ in range(num_digits)]
+            return [0 for _ in range(num_digits)]
 
         # actual conversion
         digits = []

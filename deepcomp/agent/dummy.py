@@ -17,8 +17,7 @@ class RandomAgent(CentralAgent):
         # num_vec_envs=None means we don't use a VecEnv --> return action directly (not in array)
         if self.num_vec_envs is None:
             return self.action_space.sample()
-        else:
-            return [self.action_space.sample() for _ in range(self.num_vec_envs)]
+        return [self.action_space.sample() for _ in range(self.num_vec_envs)]
 
 
 class FixedAgent(CentralAgent):
@@ -48,5 +47,4 @@ class FixedAgent(CentralAgent):
         # return action
         if self.num_vec_envs is None:
             return action
-        else:
-            return [action for _ in range(self.num_vec_envs)]
+        return [action for _ in range(self.num_vec_envs)]
