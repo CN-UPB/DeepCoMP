@@ -480,6 +480,17 @@ class MobileEnv(gym.Env):
 
         # determine UE symbol radius based on map size (so it's well visible)
         ue_symbol_radius = int(min(self.map.width, self.map.height) / 50)
+        # static legend explaining UEs' color = their utility/QoE
+        legend_symbols = [
+            plt.Line2D([0], [0], color='white', label='Good QoE', marker='o', markersize=ue_symbol_radius * 5,
+                       markerfacecolor=colormap(norm(20))),
+            plt.Line2D([0], [0], color='white', label='Medium QoE', marker='o', markersize=ue_symbol_radius * 5,
+                       markerfacecolor=colormap(norm(0))),
+            plt.Line2D([0], [0], color='white', label='Bad QoE', marker='o', markersize=ue_symbol_radius * 5,
+                       markerfacecolor=colormap(norm(-20))),
+        ]
+        ax.legend(handles=legend_symbols, loc='upper left')
+
         for ue in self.ue_list:
             # plot connections to all BS
             for bs, dr in ue.bs_dr.items():
