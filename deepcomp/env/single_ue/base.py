@@ -430,15 +430,15 @@ class MobileEnv(gym.Env):
         patch.append(table)
 
         # show utility as red to yellow to green. use color map for [0,1) --> normalize utility first
-        colormap = cm.get_cmap('RdYlGn')
-        norm = plt.Normalize(-20, 20)
+        # colormap = cm.get_cmap('RdYlGn')
+        # norm = plt.Normalize(-20, 20)
 
         # render total QoE over time
         ax_total = dashboard_axes['total']
         total_util = dashboard_data['total']
-        color = colormap(norm(self.current_total_utility / self.num_ue))
+        # color = colormap(norm(self.current_total_utility / self.num_ue))
         patch.extend(ax_total.plot([t+1 for t in range(len(total_util))], [util for util in total_util],
-                                   color=color, marker='.'))
+                                   color='blue', marker='.'))
 
         # render UE-specific QoE
         for ue_id, ue_ax in dashboard_axes['ue'].items():

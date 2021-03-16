@@ -3,7 +3,7 @@ import numpy as np
 from shapely.geometry import Polygon
 import matplotlib.pyplot as plt
 
-from deepcomp.util.constants import SUPPORTED_SHARING, EPSILON, FAIR_WEIGHT_ALPHA, FAIR_WEIGHT_BETA
+from deepcomp.util.constants import SUPPORTED_SHARING, EPSILON, FAIR_WEIGHT_ALPHA, FAIR_WEIGHT_BETA, station_symbol
 
 
 # SNR threshold required for UEs to connect to this BS. This threshold corresponds roughly to a distance of 69m.
@@ -82,8 +82,11 @@ class Basestation:
         :return: A list of created matplotlib artists
         """
         # plot BS
-        artists = ax.plot(*self.symbol.exterior.xy, color='black')
-        artists.append(ax.annotate(self.id, xy=(self.pos.x, self.pos.y), ha='center', va='center'))
+        # artists = ax.plot(*self.symbol.exterior.xy, color='black')
+        artists = ax.plot(self.pos.x, self.pos.y, marker=station_symbol, markersize=40, markeredgewidth=0.1,
+                          color='black')
+        # TODO: color-code resource allocation scheme in plotted station symbol; add legend explaining the colors
+        artists.append(ax.annotate(self.id, xy=(self.pos.x, self.pos.y - 7), ha='center', va='center'))
         # plot range
         artists.extend(ax.plot(*self.range_1mbit.exterior.xy, color='black'))
         artists.extend(ax.plot(*self.range_conn.exterior.xy, color='gray'))

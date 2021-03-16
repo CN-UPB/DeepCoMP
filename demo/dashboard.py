@@ -1,8 +1,13 @@
 # dashboard test with matplotlib: https://matplotlib.org/stable/tutorials/intermediate/gridspec.html
+import random
+
 import matplotlib.pyplot as plt
+from matplotlib import transforms
+from svgpath2mpl import parse_path
 
 from deepcomp.env.entities.map import Map
-import random
+from deepcomp.util.constants import station_symbol
+
 
 map = Map(250, 250)
 
@@ -11,8 +16,28 @@ fig = plt.figure(constrained_layout=True, figsize=map.dashboard_figsize)
 # fig.subplots_adjust(top=0.88)
 gs = fig.add_gridspec(4, 3)
 
-ax1 = fig.add_subplot(gs[:, :2])
+# EXAMPLES = {
+#     'triangle01': {
+#         'width': 400,
+#         'height': 400,
+#         'paths': [{
+#             'd': "M 100 100 L 300 100 L 200 300 z",
+#             'fill': "red",
+#             'stroke': "blue",
+#             'stroke-width': 3,
+#         }],
+#     }
+# }
+
+ax_main = fig.add_subplot(gs[:, :2])
 # ax1.set_title('Dashboard')
+# symbol = parse_path(station_symbol)
+# symbol.vertices -= symbol.vertices.mean(axis=0)
+# rotate: https://stackoverflow.com/a/48231144/2745116
+# symbol = symbol.transformed(transforms.Affine2D().rotate_deg(180))
+# symbol.should_simplify = True
+# symbol._transform.rotate_deg(60)
+ax_main.plot(1, 2, marker=station_symbol, markersize=40, color='black', markeredgewidth=0.1)
 
 ax_text = fig.add_subplot(gs[0, 2])
 ax_text.axis('off')

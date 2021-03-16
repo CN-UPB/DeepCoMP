@@ -26,6 +26,7 @@ requirements = [
     # installing directly via ray[rllib] doesn't work with setup.py: https://github.com/ray-project/ray/issues/11274
     'scipy==1.4.1',
     # 'lz4',
+    'svgpath2mpl>=0.2.1',
 ]
 
 eval_requirements = [
@@ -34,7 +35,7 @@ eval_requirements = [
 
 setup(
     name='deepcomp',
-    version='1.1.0',
+    version='1.1.1',
     author='Stefan Schneider',
     description="DeepCoMP: Self-Learning Dynamic Multi-Cell Selection for Coordinated Multipoint (CoMP)",
     long_description=long_description,
