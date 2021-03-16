@@ -7,7 +7,6 @@ Deep reinforcement learning for dynamic multi-cell selection in CoMP scenarios.
 Three variants: DeepCoMP (central agent), DD-CoMP (distributed agents using central policy), D3-CoMP (distributed agents with separate policies).
 
 ![dashboard](https://raw.githubusercontent.com/CN-UPB/DeepCoMP/master/docs/gifs/dashboard.gif?raw=true)
-
 <sup>[Base station icon](https://thenounproject.com/search/?q=base+station&i=1286474) by Clea Doltz from the Noun Project</sup>
 
 ## Setup
