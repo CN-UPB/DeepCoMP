@@ -6,8 +6,9 @@
 Deep reinforcement learning for dynamic multi-cell selection in CoMP scenarios.
 Three variants: DeepCoMP (central agent), DD-CoMP (distributed agents using central policy), D3-CoMP (distributed agents with separate policies).
 
-![example](https://raw.githubusercontent.com/CN-UPB/DeepCoMP/master/docs/gifs/v10.gif)
+![dashboard](https://raw.githubusercontent.com/CN-UPB/DeepCoMP/master/docs/gifs/dashboard.gif?raw=true)
 
+<sup>[Base station icon](https://thenounproject.com/search/?q=base+station&i=1286474) by Clea Doltz from the Noun Project</sup>
 
 ## Setup
 
@@ -120,9 +121,6 @@ Feature requests, questions, issues, and pull requests via GitHub are welcome.
 
 ## Acknowledgement
 
-![Huawei logo](https://raw.githubusercontent.com/CN-UPB/DeepCoMP/master/docs/logos/huawei_horizontal.png)
+![Huawei logo](https://raw.githubusercontent.com/CN-UPB/DeepCoMP/master/docs/logos/huawei_horizontal.png?raw=true)
 
-Icons used in rendered videos:
-
-* [Smartphone icon](https://thenounproject.com/search/?q=smartphone&i=3772531) by Muhammad Ridho from the Noun Project
-* [Base station icon](https://thenounproject.com/search/?q=base+station&i=1286474) by Clea Doltz from the Noun Project
+[Base station icon](https://thenounproject.com/search/?q=base+station&i=1286474) (used in rendered videos) by Clea Doltz from the Noun Project
