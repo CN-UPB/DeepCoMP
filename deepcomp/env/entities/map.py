@@ -43,7 +43,8 @@ class Map:
     def dashboard_figsize(self):
         """Get scaled figsize for matplotlib when plotting the dashboard view"""
         map_fig_width, map_fig_height = self.figsize
-        return int(map_fig_width * 1.5), int(map_fig_height)
+        dashboard_width = max(int(map_fig_width * 1.5), 10)
+        return dashboard_width, int(map_fig_height)
 
     def seed(self, seed=None):
         self.rng.seed(seed)

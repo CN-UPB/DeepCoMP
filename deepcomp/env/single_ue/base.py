@@ -478,6 +478,8 @@ class MobileEnv(gym.Env):
         colormap = cm.get_cmap('RdYlGn')
         norm = plt.Normalize(-20, 20)
 
+        # determine UE symbol radius based on map size (so it's well visible)
+        ue_symbol_radius = int(min(self.map.width, self.map.height) / 50)
         for ue in self.ue_list:
             # plot connections to all BS
             for bs, dr in ue.bs_dr.items():
@@ -486,11 +488,11 @@ class MobileEnv(gym.Env):
                 patch.extend(ax.plot([ue.pos.x, bs.pos.x], [ue.pos.y, bs.pos.y], color=color,
                              path_effects=[pe.SimpleLineShadow(shadow_color='black'), pe.Normal()]))
             # plot UE
-            patch.extend(ue.plot(ax, simple=self.simple_video))
+            patch.extend(ue.plot(ax, radius=ue_symbol_radius, simple=self.simple_video))
 
         # base stations
         for bs in self.bs_list:
-            patch.extend(bs.plot(ax))
+            patch.extend(bs.plot(ax, label_ybuffer=int(self.map.height / 15)))
 
         # dashboard mode: render extra info on additional axes
         if self.dashboard:
