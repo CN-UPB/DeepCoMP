@@ -1,7 +1,6 @@
 import sys
 import os
 import time
-import logging
 from datetime import datetime
 from collections import defaultdict
 from pathlib import Path

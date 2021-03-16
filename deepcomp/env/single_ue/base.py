@@ -12,7 +12,7 @@ from matplotlib import cm
 import matplotlib.patheffects as pe
 
 from deepcomp.util.logs import config_logging
-from deepcomp.env.util.utility import step_utility, log_utility
+from deepcomp.env.util.utility import log_utility
 from deepcomp.env.entities.user import User
 from deepcomp.env.util.movement import RandomWaypoint
 

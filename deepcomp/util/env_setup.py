@@ -6,13 +6,13 @@ from ray.rllib.agents.ppo import DEFAULT_CONFIG
 from ray.rllib.env.multi_agent_env import MultiAgentEnv
 
 from deepcomp.util.constants import SUPPORTED_ENVS, SUPPORTED_AGENTS, SUPPORTED_SHARING
-from deepcomp.env.single_ue.variants import BinaryMobileEnv, DatarateMobileEnv, NormDrMobileEnv, RelNormEnv, MaxNormEnv
-from deepcomp.env.multi_ue.central import CentralDrEnv, CentralNormDrEnv, CentralRelNormEnv, CentralMaxNormEnv
-from deepcomp.env.multi_ue.multi_agent import MultiAgentMobileEnv, SeqMultiAgentMobileEnv
+from deepcomp.env.single_ue.variants import RelNormEnv
+from deepcomp.env.multi_ue.central import CentralRelNormEnv
+from deepcomp.env.multi_ue.multi_agent import MultiAgentMobileEnv
 from deepcomp.env.entities.user import User
 from deepcomp.env.entities.station import Basestation
 from deepcomp.env.entities.map import Map
-from deepcomp.env.util.movement import UniformMovement, RandomWaypoint
+from deepcomp.env.util.movement import RandomWaypoint
 from deepcomp.util.callbacks import CustomMetricCallbacks
 
 

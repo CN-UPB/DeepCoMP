@@ -3,7 +3,7 @@ import copy
 import random
 from unittest import TestCase
 
-from drl_mobile.util.env_setup import create_env_config, get_env
+from drl_mobile.util.env_setup import get_env
 from drl_mobile.env.multi_ue.multi_agent import MultiAgentMobileEnv
 
 
