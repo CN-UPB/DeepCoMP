@@ -60,7 +60,7 @@ def setup_cli():
     parser.add_argument('--video', type=str, choices=SUPPORTED_RENDER, default='html',
                         help="How (and whether) to render the testing video.")
     parser.add_argument('--dashboard', action='store_true', help="Render video in form of a dashboard (slow).")
-    parser.add_argument('--ue-details', action='store_true', default=True, help="Show UEs' data rate and util in rendered video.")
+    parser.add_argument('--ue-details', action='store_true', default=False, help="Show UEs' data rate and util in rendered video.")
     parser.add_argument('--eval', type=int, default=0, help="Number of evaluation episodes after testing")
     parser.add_argument('--seed', type=int, default=42, help="Seed for the RNG (algorithms and environment)")
     parser.add_argument('--result-dir', type=str, default=None, help="Optional path to where results should be stored."
