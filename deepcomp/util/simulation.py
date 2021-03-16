@@ -422,7 +422,7 @@ class Simulation:
             ue_axes[ue_id].set_title(f'UE {ue_id}: QoE')
             row += 1
         # set xlabel for last axis
-        ue_axes[ue_id].set_xlabel('Time')
+        ue_axes[ue_ids[-1]].set_xlabel('Time')
 
         # prepare dict of dashboard_axes
         dashboard_axes = {
