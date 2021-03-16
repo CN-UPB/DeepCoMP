@@ -235,9 +235,8 @@ class Simulation:
             # turn off exploration for testing the loaded agent
             self.config['explore'] = explore
             self.agent = PPOTrainer(config=self.config, env=self.env_class)
-            # TODO: changed to last checkpoint rather then best for demo --> back to best later
-            # self.agent_path = self.get_best_checkpoint_path(rllib_dir)
-            self.agent_path = self.get_last_checkpoint_path(rllib_dir)
+            self.agent_path = self.get_best_checkpoint_path(rllib_dir)
+            # self.agent_path = self.get_last_checkpoint_path(rllib_dir)
             self.log.info('Loading PPO agent', checkpoint=self.agent_path)
             try:
                 self.agent.restore(self.agent_path)
