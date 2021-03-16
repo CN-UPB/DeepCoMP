@@ -1,7 +1,6 @@
-import numpy as np
 from ray.rllib.env.multi_agent_env import MultiAgentEnv
 
-from deepcomp.env.single_ue.variants import DatarateMobileEnv, NormDrMobileEnv, RelNormEnv, MaxNormEnv
+from deepcomp.env.single_ue.variants import RelNormEnv
 
 
 class MultiAgentMobileEnv(RelNormEnv, MultiAgentEnv):

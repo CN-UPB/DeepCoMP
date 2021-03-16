@@ -3,7 +3,7 @@ from typing import Dict
 from ray.rllib import Policy
 from ray.rllib.agents.callbacks import DefaultCallbacks
 from ray.rllib.env import BaseEnv
-from ray.rllib.evaluation import MultiAgentEpisode, RolloutWorker
+from ray.rllib.evaluation import MultiAgentEpisode
 from ray.rllib.utils.typing import PolicyID
 
 

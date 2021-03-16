@@ -5,8 +5,7 @@ from shapely.geometry import Point
 import matplotlib.pyplot as plt
 from matplotlib import cm
 
-from deepcomp.env.util.utility import step_utility, log_utility
-from deepcomp.util.constants import FAIR_WEIGHT_ALPHA, FAIR_WEIGHT_BETA, EPSILON
+from deepcomp.env.util.utility import log_utility
 
 
 class User:
