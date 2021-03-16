@@ -59,9 +59,8 @@ def setup_cli():
     parser.add_argument('--test', type=str, help="Test trained agent at given path (auto. loads last checkpoint)")
     parser.add_argument('--video', type=str, choices=SUPPORTED_RENDER, default='html',
                         help="How (and whether) to render the testing video.")
-    # TODO: drop --default option and always use dashboard (why not? -- it's slow!)
-    parser.add_argument('--dashboard', action='store_true', help="Render video in form of a dashboard (slower).")
-    parser.add_argument('--ue-details', action='store_true', help="Show UE's data rate and util in rendered video.")
+    parser.add_argument('--dashboard', action='store_true', help="Render video in form of a dashboard (slow).")
+    parser.add_argument('--ue-details', action='store_true', help="Show UEs' data rate and util in rendered video.")
     parser.add_argument('--eval', type=int, default=0, help="Number of evaluation episodes after testing")
     parser.add_argument('--seed', type=int, default=42, help="Seed for the RNG (algorithms and environment)")
     parser.add_argument('--result-dir', type=str, default=None, help="Optional path to where results should be stored."
@@ -73,7 +72,7 @@ def setup_cli():
     # TODO: for demo --slow-ues --> --ues
     args.slow_ues = args.ues
 
-    # TODO: for demo --> shortcut cli command for deepcomp, ddcomp, d3comp
+    # shortcut cli command for deepcomp, ddcomp, d3comp
     if args.approach is not None:
         args.alg = 'ppo'
         if args.approach == 'deepcomp':

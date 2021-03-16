@@ -429,8 +429,9 @@ class Simulation:
             'ue': {}
         }
         # fill UE-specific data
-        for ue_id in dashboard_axes['ue'].keys():
-            dashboard_data['ue'][ue_id] = [t['utility'][f'UE {ue_id}'] for t in vector_metrics]
+        if 'ue' in dashboard_axes:
+            for ue_id in dashboard_axes['ue'].keys():
+                dashboard_data['ue'][ue_id] = [t['utility'][f'UE {ue_id}'] for t in vector_metrics]
         return dashboard_data
 
     def run_episode(self, env, render=None, log_dict=None):
@@ -456,7 +457,8 @@ class Simulation:
         eps_start = time.time()
         if render is not None:
             dashboard_axes = None
-            dashboard_data = None
+            # dashboard_data = None
+            dashboard_data = self.get_dashboard_data({}, scalar_metrics, vector_metrics)
             if self.dashboard:
                 # show extra stats of first two UEs on dashboard
                 ue_ids = [ue.id for ue in env.ue_list][:2]

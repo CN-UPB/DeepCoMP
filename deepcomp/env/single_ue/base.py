@@ -512,15 +512,23 @@ class MobileEnv(gym.Env):
             patch.extend(self.render_dashboard(dashboard_axes, dashboard_data))
 
         else:
-            # title isn't redrawn in animation (out of box) -> static -> show time as text inside box, top-right corner
-            # patch.append(plt.title(type(self).__name__))
-            # extra info: time step, total data rate & utility
-            patch.append(ax.text(0.9*self.map.width, 0.95*self.map.height, f"t={self.time}"))
-            patch.append(ax.text(0.9*self.map.width, 0.9*self.map.height, f"dr={self.total_dr:.2f}"))
-            patch.append(ax.text(0.9 * self.map.width, 0.85 * self.map.height,
-                                 f"curr avg util={self.current_avg_utility:.2f}"))
-            patch.append(ax.text(0.9 * self.map.width, 0.8 * self.map.height,
-                                 f"total avg util={self.total_avg_utility:.2f}"))
+            text_table = []
+            if dashboard_data is not None:
+                text_table = [
+                    ['Agent', dashboard_data['agent']],
+                    ['Training Steps', dashboard_data['train_steps']],
+                ]
+            text_table += [
+                ['Time Step', self.time],
+                # ['Curr. Avg. Rate', f'{self.avg_dr:.2f} GB/s'],
+                # ['Curr. Avg. QoE', f'{self.current_avg_utility:.2f}'],
+                ['Total Avg. QoE', f'{self.total_avg_utility:.2f}']
+            ]
+            yoffset = 0.95
+            for text in text_table:
+                patch.append(ax.text(0.8 * self.map.width, yoffset * self.map.height, f'{text[0]}: {text[1]}',
+                                     fontsize=12, backgroundcolor='white'))
+                yoffset -= 0.04
 
         return patch
 
