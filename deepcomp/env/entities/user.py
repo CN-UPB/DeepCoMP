@@ -202,9 +202,8 @@ class User:
             self.log = self.log.bind(conn_bs=list(self.bs_dr.keys()))
             log.info("Connected")
             return True
-        else:
-            # log.info("Cannot connect")
-            return False
+        # log.info("Cannot connect")
+        return False
 
     def disconnect_from_bs(self, bs):
         """Disconnect from given BS. Assume BS is currently connected."""
