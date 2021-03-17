@@ -118,9 +118,9 @@ class User:
 
         if details:
             # show curr data rate and utility below the UE
-            artists.append(ax.annotate(f'r: {self.curr_dr:.2f}', xy=(self.pos.x, self.pos.y - radius -2),
+            artists.append(ax.annotate(f'r: {self.curr_dr:.2f}', xy=(self.pos.x, self.pos.y - radius - 2),
                                        ha='center', va='center'))
-            artists.append(ax.annotate(f'qoe: {self.utility:.2f}', xy=(self.pos.x, self.pos.y - radius -6),
+            artists.append(ax.annotate(f'qoe: {self.utility:.2f}', xy=(self.pos.x, self.pos.y - radius - 6),
                                        ha='center', va='center'))
         return artists
 
