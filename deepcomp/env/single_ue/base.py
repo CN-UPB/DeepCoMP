@@ -537,7 +537,8 @@ class MobileEnv(gym.Env):
                 ['Time Step', self.time],
                 # ['Curr. Avg. Rate', f'{self.avg_dr:.2f} GB/s'],
                 # ['Curr. Avg. QoE', f'{self.current_avg_utility:.2f}'],
-                # ['Total Avg. QoE', f'{self.total_avg_utility():.2f}']
+                # ['Total Avg. QoE', f'{self.total_avg_utility():.2f}'],
+                ['Curr. Total QoE', f'{self.current_total_utility:.2f}'],
                 ['Avg. Total QoE', f'{self.total_avg_utility(avg_time=True, avg_ues=False):.2f}']
             ]
             yoffset = 0.95
