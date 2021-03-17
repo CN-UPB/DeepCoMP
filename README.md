@@ -5,9 +5,14 @@
 
 Deep reinforcement learning for dynamic multi-cell selection in CoMP scenarios.
 Three variants: DeepCoMP (central agent), DD-CoMP (distributed agents using central policy), D3-CoMP (distributed agents with separate policies).
+All three approaches self-learn and adapt to various scenarios in mobile networks without expert knowledge, human intervention, or detailed assumptions about the underlying system.
+Compared to other approaches, they are more flexible and achieve higher Quality of Experience.
 
-![dashboard](https://raw.githubusercontent.com/CN-UPB/DeepCoMP/master/docs/gifs/dashboard.gif?raw=true)
-<sup>[Base station icon](https://thenounproject.com/search/?q=base+station&i=1286474) by Clea Doltz from the Noun Project</sup>
+<p align="center">
+    <img src="https://raw.githubusercontent.com/CN-UPB/DeepCoMP/master/docs/gifs/dashboard.gif?raw=true"><br/>
+    <em>Visualized cell selection policy of DeepCoMP after 2M training steps.</em><br>
+    <small><a href="https://thenounproject.com/search/?q=base+station&i=1286474" target="_blank">Base station icon</a> by Clea Doltz from the Noun Project.</small>
+</p>
 
 ## Setup
 
@@ -16,11 +21,16 @@ You need Python 3.8+. You can install `deepcomp` either directly from [PyPi](htt
 ### Simple Installation via PyPi
 
 ```
+sudo apt update
+sudo apt upgrade
+sudo apt install cmake build-essential zlib1g-dev python3-dev
+
 pip install deepcomp
 ```
 
 ### Manual Installation from Source
 
+For adjusting or further developing DeepCoMP, it's better to install manually rather than from PyPi. 
 Clone the repository. Then install everything, following these steps:
 
 ```
@@ -28,6 +38,10 @@ Clone the repository. Then install everything, following these steps:
 sudo apt update
 sudo apt upgrade
 sudo apt install cmake build-essential zlib1g-dev python3-dev
+
+# clone
+git clone git@github.com:CN-UPB/DeepCoMP.git
+cd DeepCoMP
 
 # install all python dependencies
 pip install .
@@ -120,6 +134,11 @@ Feature requests, questions, issues, and pull requests via GitHub are welcome.
 
 ## Acknowledgement
 
-![Huawei logo](https://raw.githubusercontent.com/CN-UPB/DeepCoMP/master/docs/logos/huawei_horizontal.png?raw=true)
+DeepCoMP is an outcome of a joint project between Paderborn University, Germany, and Huawei Germany.
 
-[Base station icon](https://thenounproject.com/search/?q=base+station&i=1286474) (used in rendered videos) by Clea Doltz from the Noun Project
+<p align="center">
+    <img src="https://raw.githubusercontent.com/CN-UPB/DeepCoMP/master/docs/logos/upb.png?raw=true" width="200" hspace="30"/>
+    <img src="https://raw.githubusercontent.com/CN-UPB/DeepCoMP/master/docs/logos/huawei_horizontal.png?raw=true" width="250" hspace="30"/>
+</p>
+
+[Base station icon](https://thenounproject.com/search/?q=base+station&i=1286474) (used in rendered videos) by Clea Doltz from the Noun Project.
