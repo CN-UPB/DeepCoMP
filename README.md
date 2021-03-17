@@ -11,7 +11,7 @@ Compared to other approaches, they are more flexible and achieve higher Quality 
 <p align="center">
     <img src="https://raw.githubusercontent.com/CN-UPB/DeepCoMP/master/docs/gifs/dashboard_lossy.gif?raw=true"><br/>
     <em>Visualized cell selection policy of DeepCoMP after 2M training steps.</em><br>
-    <sup>[Base station icon](https://thenounproject.com/search/?q=base+station&i=1286474) by Clea Doltz from the Noun Project</sup>
+    <sup><a href="https://thenounproject.com/search/?q=base+station&i=1286474" target="_blank">Base station icon</a> by Clea Doltz from the Noun Project</sup>
 </p>
 
 ## Setup
