@@ -36,3 +36,4 @@ jobs:
       run: |
         deepcomp --alg fullcomp --ues 2
         deepcomp --approach deepcomp --train-steps 200 --batch-size 128 --env small --ues 2
+        deepcomp --approach ddcomp --train-steps 200 --batch-size 128 --env small --ues 2
