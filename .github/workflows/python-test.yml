@@ -1,0 +1,43 @@
+# This workflow will upload a Python Package using Twine when a release is created
+# For more information see: https://help.github.com/en/actions/language-and-framework-guides/using-python-with-github-actions#publishing-to-package-registries
+
+name: CI
+
+on:
+  push:
+    branches: [ $default-branch ]
+  pull_request:
+    branches: [ $default-branch ]
+   
+jobs:
+  test:
+
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: [3.8, 3.9]
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v2
+      with:
+        python-version: ${{ matrix.python-version }}
+    - name: Install dependencies
+      run: |
+#        sudo apt update && sudo apt upgrade
+#        sudo apt install cmake build-essentials zlib1g-dev python3-dev
+        python -m pip install --upgrade pip
+        python -m pip install flake8
+        pip install .
+    - name: Lint with flake8
+      run: |
+        # stop the build if there are Python syntax errors or undefined names
+        flake8 deepcomp --ignore=E501
+#    - name: Test with pytest
+#      run: |
+#        pytest
+    - name: Run example commands to test
+      run: |
+        deepcomp --alg fullcomp --ues 2
+        deepcomp --approach deepcomp --train-steps 200 --batch-size 128 --env small --ues 2
