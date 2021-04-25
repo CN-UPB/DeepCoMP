@@ -65,7 +65,10 @@ To use the Docker image, simply pull the latest version from Docker Hub:
 
 TODO
 
-
+Alternatively, to build the Docker image manually from the `Dockerfile`, clone this repository and run
+```
+docker build -t deepcomp .
+```
 
 ## Usage
 
