@@ -1,6 +1,8 @@
 [![CI](https://github.com/CN-UPB/DeepCoMP/actions/workflows/python-test.yml/badge.svg)](https://github.com/CN-UPB/DeepCoMP/actions/workflows/python-test.yml)
 [![PyPi](https://github.com/CN-UPB/DeepCoMP/actions/workflows/python-publish.yml/badge.svg?branch=v1.1.0)](https://github.com/CN-UPB/DeepCoMP/actions/workflows/python-publish.yml)
+[![Docker](https://github.com/CN-UPB/DeepCoMP/actions/workflows/docker-publish.yml/badge.svg)](https://github.com/CN-UPB/DeepCoMP/actions/workflows/docker-publish.yml)
 [![DeepSource](https://deepsource.io/gh/CN-UPB/DeepCoMP.svg/?label=active+issues)](https://deepsource.io/gh/CN-UPB/DeepCoMP/?ref=repository-badge)
+
 
 # DeepCoMP: Self-Learning Dynamic Multi-Cell Selection for Coordinated Multipoint (CoMP)
 
@@ -66,6 +68,8 @@ To use the Docker image, simply pull the latest version from Docker Hub:
 
 ```
 docker pull stefanupb/deepcomp
+# tag image with just "deepcomp". alternatively, write out "stefanupb/deepcomp" in all following commands.
+docker tag stefanupb/deepcomp:latest deepcomp
 ```
 
 Alternatively, to build the Docker image manually from the `Dockerfile`, clone this repository and run
@@ -125,6 +129,12 @@ For example, the following command lists all CLI options:
 ```
 docker exec deepcomp deepcomp -h
 ```
+Or to train the central DeepCoMP agent:
+```
+docker exec deepcomp deepcomp --approach deepcomp --train-steps 8000 --ues 2 --result-dir results
+```
+**Important:** Specify `--result-dir results` as argument. 
+Otherwise, the results will be stored elsewhere and TensorFlow and the HTTP server will not find and display them.
 
 To inspect training progress or view create files (e.g., rendered videos), use TensorBoard and the HTTP server,
 which are available via `localhost:6006` and `localhost:8000`.

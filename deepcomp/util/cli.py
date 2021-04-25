@@ -68,6 +68,9 @@ def setup_cli():
 
     args = parser.parse_args()
 
+    # ensure at least 1 UE is configured
+    assert args.static_ues + args.slow_ues + args.fast_ues > 0, "No UEs configured. You must set the number of UEs."
+
     # shortcut cli command for deepcomp, ddcomp, d3comp
     if args.approach is not None:
         args.alg = 'ppo'
