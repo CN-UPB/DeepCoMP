@@ -1,8 +1,9 @@
 # build and publish Docker image
 name: Docker
+# disabled and replaced with Docker Hub's automated builds (they also pull the Readme automatically)
 on:
-  release:
-    types: [published]
+#  release:
+#    types: [published]
   workflow_dispatch:
 
 jobs:
@@ -17,5 +18,5 @@ jobs:
         with:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
-          repository: stefanupb/deepcomp
+          repository: stefanbschneider/deepcomp
           tag_with_ref: true

@@ -1,6 +1,7 @@
 [![CI](https://github.com/CN-UPB/DeepCoMP/actions/workflows/python-test.yml/badge.svg)](https://github.com/CN-UPB/DeepCoMP/actions/workflows/python-test.yml)
 [![PyPi](https://github.com/CN-UPB/DeepCoMP/actions/workflows/python-publish.yml/badge.svg?branch=v1.1.0)](https://github.com/CN-UPB/DeepCoMP/actions/workflows/python-publish.yml)
-[![Docker](https://github.com/CN-UPB/DeepCoMP/actions/workflows/docker-publish.yml/badge.svg)](https://github.com/CN-UPB/DeepCoMP/actions/workflows/docker-publish.yml)
+[![Docker Cloud Build Status](https://img.shields.io/docker/cloud/build/stefanbschneider/deepcomp?label=Docker%20Build&logo=docker)](https://hub.docker.com/r/stefanbschneider/deepcomp)
+[![Docker Pulls](https://img.shields.io/docker/pulls/stefanbschneider/deepcomp?label=Docker%20Pulls&logo=docker)](https://hub.docker.com/r/stefanbschneider/deepcomp)
 [![DeepSource](https://deepsource.io/gh/CN-UPB/DeepCoMP.svg/?label=active+issues)](https://deepsource.io/gh/CN-UPB/DeepCoMP/?ref=repository-badge)
 
 
@@ -64,12 +65,12 @@ sudo apt install ffmpeg imagemagick
 ### Docker
 
 There is a Docker image that comes with `deepcomp` preinstalled. 
-To use the Docker image, simply pull the latest version from Docker Hub:
+To use the Docker image, simply pull the latest version from [Docker Hub](https://hub.docker.com/r/stefanbschneider/deepcomp):
 
 ```
-docker pull stefanupb/deepcomp
-# tag image with just "deepcomp". alternatively, write out "stefanupb/deepcomp" in all following commands.
-docker tag stefanupb/deepcomp:latest deepcomp
+docker pull stefanbschneider/deepcomp
+# tag image with just "deepcomp". alternatively, write out "stefanbschneider/deepcomp" in all following commands.
+docker tag stefanbschneider/deepcomp:latest deepcomp
 ```
 
 Alternatively, to build the Docker image manually from the `Dockerfile`, clone this repository and run
