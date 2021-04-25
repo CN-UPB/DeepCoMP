@@ -40,7 +40,7 @@ def setup_cli():
     parser.add_argument('--max-ues', type=int, default=None, help="Expected max. number of UEs. Relevant for central "
                                                                   "agent's NN size. Derived automatically if not set.")
     parser.add_argument('--static-ues', type=int, default=0, help="Number of static UEs in the environment")
-    parser.add_argument('--ues', type=int, default=0, help="Number of (slow) UEs in the environment")
+    parser.add_argument('--slow-ues', '--ues', type=int, default=0, help="Number of (slow) UEs in the environment")
     parser.add_argument('--fast-ues', type=int, default=0, help="Number of fast UEs in the environment")
     # could implement this simply by processing the number and increasing the static, slow, fast UEs correspondingly
     # before passing to env creation
