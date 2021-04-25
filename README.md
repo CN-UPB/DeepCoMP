@@ -1,3 +1,4 @@
+[![CI](https://github.com/CN-UPB/DeepCoMP/actions/workflows/python-test.yml/badge.svg)](https://github.com/CN-UPB/DeepCoMP/actions/workflows/python-test.yml)
 [![PyPi](https://github.com/CN-UPB/DeepCoMP/actions/workflows/python-publish.yml/badge.svg?branch=v1.1.0)](https://github.com/CN-UPB/DeepCoMP/actions/workflows/python-publish.yml)
 [![DeepSource](https://deepsource.io/gh/CN-UPB/DeepCoMP.svg/?label=active+issues)](https://deepsource.io/gh/CN-UPB/DeepCoMP/?ref=repository-badge)
 
@@ -94,16 +95,42 @@ You can choose a custom location with `--result-dir <custom-path>`.
 
 ### Docker
 
+**Note:** By default, results within the Docker container are not stored persistently. 
+To save them, copy them from the Docker container or use a Docker volume.
+
+#### Start the Container
+
 If you want to use the `deepcomp` Docker container and pulled the corresponding image from Docker Hub,
 you can use it as follows:
 ```
-# start Docker container and connect to it
-docker run -it --rm --name deepcomp deepcomp
+docker run -d -p 6006:6006 -p 8000:8000 --rm --name deepcomp deepcomp
 ```
-TODO
+This starts the Docker container in the background, publishing port 6006 for TensorBoard and port 8000 for the
+HTTP server (described below).
+The container automatically starts TensorBoard and the HTTP server, so this does not need to be done manually.
+The `--rm` flag automatically removes the container once it is stopped.
 
-**Note:** By default, results within the Docker container are not stored persistently. 
-To save them, copy them from the Docker container or use a Docker volume.
+#### Use DeepCoMP on the Container
+
+To execute commands on the running Docker container, use `docker exec <container-name> <command>` as follows:
+```
+docker exec deepcomp deepcomp <deepcomp-args>
+```
+Here, the arguments are identical with the ones described above.
+For example, the following command lists all CLI options:
+```
+docker exec deepcomp deepcomp -h
+```
+
+To inspect training progress or view create files (e.g., rendered videos), use TensorBoard and the HTTP server,
+which are available via `localhost:6006` and `localhost:8000`.
+
+#### Terminate the Container
+
+Stop the container with
+```
+docker stop deepcomp
+```
 
 ### Accessing results remotely
 
