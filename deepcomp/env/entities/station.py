@@ -1,7 +1,6 @@
 import structlog
 import numpy as np
 from shapely.geometry import Polygon
-import matplotlib.pyplot as plt
 
 from deepcomp.util.constants import SUPPORTED_SHARING, EPSILON, FAIR_WEIGHT_ALPHA, FAIR_WEIGHT_BETA, station_symbol
 
@@ -35,10 +34,10 @@ class Basestation:
         self.range_1mbit = pos.buffer(46)
         # also rectangle around pos
         symbol_size = 3
-        self.symbol = Polygon([(self.pos.x-symbol_size, self.pos.y-symbol_size),
-                               (self.pos.x+symbol_size, self.pos.y-symbol_size),
-                               (self.pos.x+symbol_size, self.pos.y+symbol_size),
-                               (self.pos.x-symbol_size, self.pos.y+symbol_size)])
+        self.symbol = Polygon([(self.pos.x - symbol_size, self.pos.y - symbol_size),
+                               (self.pos.x + symbol_size, self.pos.y - symbol_size),
+                               (self.pos.x + symbol_size, self.pos.y + symbol_size),
+                               (self.pos.x - symbol_size, self.pos.y + symbol_size)])
 
         self.log = structlog.get_logger(id=self.id, pos=str(self.pos))
         self.log.info('BS init', sharing_model=self.sharing_model, bw=self.bw, freq=self.frequency, noise=self.noise,
@@ -167,7 +166,7 @@ class Basestation:
         # rate-fair=volume-fair: rather than splitting the resources equally, all connected UEs get the same rate/volume
         # this makes adding new UEs very expensive if they are far away (leads to much lower shared dr for all UEs)
         if self.sharing_model == 'rate-fair':
-            total_inverse_dr = sum([1/self.data_rate_unshared(ue) for ue in self.conn_ues])
+            total_inverse_dr = sum([1 / self.data_rate_unshared(ue) for ue in self.conn_ues])
             # assume we can split them into infinitely small/many RBs
             dr_ue_shared = 1 / total_inverse_dr
 

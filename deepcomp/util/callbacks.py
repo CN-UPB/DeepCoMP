@@ -24,7 +24,7 @@ class CustomMetricCallbacks(DefaultCallbacks):
             info = episode.last_info_for()
         return info
 
-    def on_episode_step(self, *, worker: "RolloutWorker", base_env: BaseEnv,
+    def on_episode_step(self, *, worker, base_env: BaseEnv,
                         episode: MultiAgentEpisode, env_index: int, **kwargs):
         info = self.get_info(base_env, episode)
         # add all custom scalar metrics in the info dict
@@ -40,7 +40,7 @@ class CustomMetricCallbacks(DefaultCallbacks):
                     episode.user_data[eps_metric_name] = metric_value
 
     @staticmethod
-    def on_episode_end(*, worker: "RolloutWorker", base_env: BaseEnv,
+    def on_episode_end(*, worker, base_env: BaseEnv,
                        policies: Dict[PolicyID, Policy],
                        episode: MultiAgentEpisode, env_index: int, **kwargs):
         # log the sum of scalar metrics over an episode as metric

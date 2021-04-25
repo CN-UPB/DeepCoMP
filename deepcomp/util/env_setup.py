@@ -287,4 +287,3 @@ def create_env_config(cli_args):
             }
 
     return config
-

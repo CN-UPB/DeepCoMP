@@ -23,15 +23,6 @@ def config_logging():
     structlog.configure(logger_factory=LoggerFactory(),
                         processors=[
                             structlog.stdlib.filter_by_level,
-                            # structlog.stdlib.add_logger_name,
-                            # structlog.stdlib.add_log_level,
-                            # structlog.stdlib.PositionalArgumentsFormatter(),
-                            # structlog.processors.StackInfoRenderer(),
-                            # structlog.processors.format_exc_info,
-                            # structlog.processors.UnicodeDecoder(),
-                            # structlog.processors.TimeStamper(fmt="%Y-%m-%d %H:%M:%S"),
                             FloatRounder(digits=LOG_ROUND_DIGITS, not_fields=['sinr', 'signal', 'interference']),
                             structlog.dev.ConsoleRenderer()
-                            # structlog.stdlib.render_to_log_kwargs,
-                            # structlog.processors.JSONRenderer()
-                        ])
+    ])

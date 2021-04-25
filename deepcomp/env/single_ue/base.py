@@ -227,8 +227,8 @@ class MobileEnv(gym.Env):
         for ue, action in action_dict.items():
             # apply action: try to connect to BS; or: 0 = no op
             if action > 0:
-                bs = self.bs_list[action-1]
-                connected = ue.connect_to_bs(bs, disconnect=True, return_connected=True)
+                bs = self.bs_list[action - 1]
+                ue.connect_to_bs(bs, disconnect=True, return_connected=True)
 
                 # penalty -5 for connecting to a BS that's already in use by other UEs
                 # if connected and bs.num_conn_ues >= 2:
@@ -333,7 +333,7 @@ class MobileEnv(gym.Env):
         :returns: Reward for the step (depends on the env variant; here just for one UE)
         """
         # here: get reward for UE that applied the action (at time - 1)
-        ue = self.ue_list[(self.time-1) % self.num_ue]
+        ue = self.ue_list[(self.time - 1) % self.num_ue]
         return rewards[ue]
 
     def done(self):
@@ -403,11 +403,11 @@ class MobileEnv(gym.Env):
 
         # move UEs, update data rates and rewards in between; increment time
         rewards_before = self.update_ue_drs_rewards(penalties=penalties)
-        lost_conn = self.move_ues()
+        _ = self.move_ues()
         # penalty of -1 for lost connections due to movement (rather than active disconnect)
         # penalties = {ue: -1 * lost_conn[ue] for ue in self.ue_list}
         # update of drs is needed even if we don't need the reward
-        rewards_after = self.update_ue_drs_rewards(penalties=None, update_only=True)
+        _ = self.update_ue_drs_rewards(penalties=None, update_only=True)
         # rewards = {ue: np.mean([rewards_before[ue], rewards_after[ue]]) for ue in self.ue_list}
         rewards = rewards_before
         self.time += 1
@@ -456,13 +456,13 @@ class MobileEnv(gym.Env):
         # render total QoE over time
         ax_avg = dashboard_axes['avg']
         avg_util = dashboard_data['avg']
-        patch.extend(ax_avg.plot([t+1 for t in range(len(avg_util))], [util for util in avg_util],
-                                   color='blue', marker='.'))
+        patch.extend(ax_avg.plot([t + 1 for t in range(len(avg_util))], [util for util in avg_util],
+                                 color='blue', marker='.'))
 
         # render UE-specific QoE
         for ue_id, ue_ax in dashboard_axes['ue'].items():
             ue_util = dashboard_data['ue'][ue_id]
-            patch.extend(ue_ax.plot([t+1 for t in range(len(avg_util))], [util for util in ue_util],
+            patch.extend(ue_ax.plot([t + 1 for t in range(len(avg_util))], [util for util in ue_util],
                                     color='blue', marker='.'))
 
         return patch

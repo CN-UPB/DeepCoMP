@@ -108,7 +108,7 @@ class DatarateMobileEnv(BinaryMobileEnv):
 
         # 4. Optional: Number of connected UEs per BS. Discrete: 0 up to all UEs
         if self.ues_at_bs_obs:
-            obs_space['ues_at_bs'] = gym.spaces.MultiDiscrete([self.num_ue+1 for _ in range(self.num_bs)])
+            obs_space['ues_at_bs'] = gym.spaces.MultiDiscrete([self.num_ue + 1 for _ in range(self.num_bs)])
 
         # 5. Optional: Distance of a UE to all BS. Normalized by max distance on map (diagonal)
         if self.dist_obs:

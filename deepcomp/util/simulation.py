@@ -215,7 +215,7 @@ class Simulation:
         progress_file = os.path.join(progress_dir, 'progress.csv')
         df = pd.read_csv(progress_file)
         train_steps = int(df[df['training_iteration'] == self.agent.training_iteration]['timesteps_total'])
-        self.log.info("Loaded training progress", train_iteration = self.agent.training_iteration,
+        self.log.info("Loaded training progress", train_iteration=self.agent.training_iteration,
                       train_steps=train_steps, progress_file=progress_file)
         return train_steps
 
@@ -689,6 +689,6 @@ class Simulation:
         # write results to file
         if write_results:
             self.write_scalar_results(scalar_results)
-            dfs = self.write_vector_results(vector_metrics)
+            self.write_vector_results(vector_metrics)
 
         return rewards

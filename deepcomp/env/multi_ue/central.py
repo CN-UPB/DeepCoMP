@@ -93,7 +93,7 @@ class CentralDrEnv(CentralBaseEnv, DatarateMobileEnv):
         # 4. number of connected UEs per BS --> help distribute UEs better. Optional
         if self.ues_at_bs_obs:
             # at each BS 0 up to all UEs can be connected (no normalization yet)
-            obs_space['ues_at_bs'] = gym.spaces.MultiDiscrete([self.num_ue+1 for _ in range(self.num_bs)])
+            obs_space['ues_at_bs'] = gym.spaces.MultiDiscrete([self.num_ue + 1 for _ in range(self.num_bs)])
         if self.dist_obs:
             obs_space['dist'] = gym.spaces.Box(low=0, high=1, shape=(self.num_ue * self.num_bs,))
         if self.next_dist_obs:
