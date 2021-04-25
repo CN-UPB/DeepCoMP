@@ -25,8 +25,6 @@ jobs:
         python-version: ${{ matrix.python-version }}
     - name: Install dependencies
       run: |
-#        sudo apt update && sudo apt upgrade
-#        sudo apt install cmake build-essentials zlib1g-dev python3-dev
         python -m pip install --upgrade pip
         python -m pip install flake8
         pip install .
@@ -34,9 +32,6 @@ jobs:
       run: |
         # stop the build if there are Python syntax errors or undefined names
         flake8 deepcomp --ignore=E501
-#    - name: Test with pytest
-#      run: |
-#        pytest
     - name: Run example commands to test
       run: |
         deepcomp --alg fullcomp --ues 2
