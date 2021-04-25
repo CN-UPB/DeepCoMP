@@ -58,6 +58,14 @@ On Ubuntu:
 sudo apt install ffmpeg imagemagick
 ```
 
+### Docker
+
+There is a Docker image that comes with `deepcomp` preinstalled. 
+To use the Docker image, simply pull the latest version from Docker Hub:
+
+TODO
+
+
 
 ## Usage
 
@@ -81,7 +89,20 @@ If you cloned the repo from GitHub, this is where the Readme is.
 If you installed via PyPi, this is in your virtualenv's site packages.
 You can choose a custom location with `--result-dir <custom-path>`.
 
-#### Accessing results remotely
+### Docker
+
+If you want to use the `deepcomp` Docker container and pulled the corresponding image from Docker Hub,
+you can use it as follows:
+```
+# start Docker container and connect to it
+docker run -it --rm --name deepcomp deepcomp
+```
+TODO
+
+**Note:** By default, results within the Docker container are not stored persistently. 
+To save them, copy them from the Docker container or use a Docker volume.
+
+### Accessing results remotely
 
 When running remotely, you can serve the replay video by running:
 
@@ -92,7 +113,7 @@ python -m http.server
 
 Then access at `<remote-ip>:8000`.
 
-#### Tensorboard
+### Tensorboard
 
 To view learning curves (and other metrics) when training an agent, use Tensorboard:
 
@@ -102,7 +123,7 @@ tensorboard --logdir results/train/ (--host 0.0.0.0)
 
 Tensorboard is available at http://localhost:6006 (or `<remote-ip>:6006` when running remotely).
 
-#### Scaling Up: Running DeepCoMP on multiple cores or a multi-node cluster
+### Scaling Up: Running DeepCoMP on multiple cores or a multi-node cluster
 
 To train DeepCoMP on multiple cores in parallel, configure the number of workers (corresponding to CPU cores) with `--workers`.
 
