@@ -3,7 +3,7 @@ FROM ubuntu:focal
 # installation
 ENV DEBIAN_FRONTEND=noninteractive
 RUN apt-get update && apt-get install -y \
-    cmake build-essential zlib1g-dev python3-dev python3-pip ffmpeg imagemagick
+    cmake build-essential zlib1g-dev python3-dev python3-pip ffmpeg imagemagick rsync
 RUN pip3 install deepcomp
 
 # start tensorboard and http server (for rendered videos)

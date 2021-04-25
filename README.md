@@ -112,12 +112,13 @@ To save them, copy them from the Docker container or use a Docker volume.
 If you want to use the `deepcomp` Docker container and pulled the corresponding image from Docker Hub,
 you can use it as follows:
 ```
-docker run -d -p 6006:6006 -p 8000:8000 --rm --name deepcomp deepcomp
+docker run -d -p 6006:6006 -p 8000:8000 --rm --shm-size=3gb --name deepcomp deepcomp
 ```
 This starts the Docker container in the background, publishing port 6006 for TensorBoard and port 8000 for the
 HTTP server (described below).
 The container automatically starts TensorBoard and the HTTP server, so this does not need to be done manually.
 The `--rm` flag automatically removes the container once it is stopped.
+The `--shm-size=3gb` sets the size of `/dev/shm` inside the Docker container to 3 GB, which is too small by default.
 
 #### Use DeepCoMP on the Container
 
@@ -130,17 +131,22 @@ For example, the following command lists all CLI options:
 ```
 docker exec deepcomp deepcomp -h
 ```
-Or to train the central DeepCoMP agent:
+Or to train the central DeepCoMP agent for a short duration of 4000 steps:
 ```
-docker exec deepcomp deepcomp --approach deepcomp --train-steps 8000 --ues 2 --result-dir results
+docker exec -t deepcomp deepcomp --approach deepcomp --train-steps 4000 --batch-size 200 --ues 2 --result-dir results
 ```
 **Important:** Specify `--result-dir results` as argument. 
 Otherwise, the results will be stored elsewhere and TensorFlow and the HTTP server will not find and display them.
+
+The other `deepcomp` arguments can be set as desired.
+The Docker `-t` flag ensures that the output is printed continuously during training, not just after completion.
 
 To inspect training progress or view create files (e.g., rendered videos), use TensorBoard and the HTTP server,
 which are available via `localhost:6006` and `localhost:8000`.
 
 #### Terminate the Container
+
+**Important:** Stopping the container will remove any files and training progress within the container.
 
 Stop the container with
 ```
