@@ -64,12 +64,16 @@ sudo apt install ffmpeg imagemagick
 There is a Docker image that comes with `deepcomp` preinstalled. 
 To use the Docker image, simply pull the latest version from Docker Hub:
 
-TODO
+```
+docker pull stefanupb/deepcomp
+```
 
 Alternatively, to build the Docker image manually from the `Dockerfile`, clone this repository and run
 ```
 docker build -t deepcomp .
 ```
+Use the `--no-cache` option is to force a rebuild of the image, pulling the latest `deepcomp` version from PyPI.
+
 
 ## Usage
 
