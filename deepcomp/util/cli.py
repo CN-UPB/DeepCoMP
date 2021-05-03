@@ -19,7 +19,7 @@ def setup_cli():
     parser.add_argument('--agent', type=str, choices=SUPPORTED_AGENTS, default='central',
                         help="Whether to use a single agent for 1 UE, a central agent, or multi agents")
     parser.add_argument('--alg', type=str, choices=SUPPORTED_ALGS, default='ppo', help="Algorithm")
-    parser.add_argument('--epsilon', type=float, default=None, help="Scaling factor for dynamic alg. (defaults 0.5).")
+    parser.add_argument('--epsilon', type=float, help="Scaling factor for dynamic heuristic.")
     parser.add_argument('--workers', type=int, default=1, help="Number of workers for training (one per CPU core)")
     parser.add_argument('--batch-size', type=int, default=4000, help="Number of training iterations per training batch")
     parser.add_argument('--train-steps', type=int, default=None, help="Max. number of training time steps (if any)")
