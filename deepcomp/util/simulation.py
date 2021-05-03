@@ -97,6 +97,8 @@ class Simulation:
             'agent': agent_str,
             'agent_path': self.agent_path,
             'agent_id': self.extract_agent_id(self.agent_path),
+            # just relevant for dynamic agent
+            'agent_epsilon': self.cli_args.epsilon,
             'env': self.env_name,
             'env_size': self.cli_args.env,
             'eps_length': self.episode_length,
