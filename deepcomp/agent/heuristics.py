@@ -65,6 +65,8 @@ class DynamicSelection(MultiAgent):
     """
     Heuristic that dynamically selects cells per UE depending on the SINR.
     It always selects the strongest cell with SINR-1st and all cells that are within epsilon * SINR-1st.
+    This represents a configurable intermediate approach between our single-cell 3GPP and the multi-cell Full CoMP approach.
+    With epsilon=0, this heuristic equals the Full CoMP approach. With epsilon=1, it equals the Full CoMP approach.
 
     Based on the following paper: 'Multi-point fairness in resource allocation for C-RAN downlink CoMP transmission'
     https://jwcn-eurasipjournals.springeropen.com/articles/10.1186/s13638-015-0501-4

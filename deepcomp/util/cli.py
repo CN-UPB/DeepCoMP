@@ -19,6 +19,7 @@ def setup_cli():
     parser.add_argument('--agent', type=str, choices=SUPPORTED_AGENTS, default='central',
                         help="Whether to use a single agent for 1 UE, a central agent, or multi agents")
     parser.add_argument('--alg', type=str, choices=SUPPORTED_ALGS, default='ppo', help="Algorithm")
+    parser.add_argument('--epsilon', type=float, default=None, help="Scaling factor for dynamic alg. (defaults 0.5).")
     parser.add_argument('--workers', type=int, default=1, help="Number of workers for training (one per CPU core)")
     parser.add_argument('--batch-size', type=int, default=4000, help="Number of training iterations per training batch")
     parser.add_argument('--train-steps', type=int, default=None, help="Max. number of training time steps (if any)")
@@ -83,6 +84,18 @@ def setup_cli():
         elif args.approach == 'd3comp':
             args.agent = 'multi'
             args.separate_agent_nns = True
+
+    # ensure scaling factor epsilon is valid and only set for the dynamic heuristic
+    if args.epsilon is None:
+        if args.alg == 'dynamic':
+            args.epsilon = 0.5
+            log.warning(f"Scaling factor epsilon is required for the dynamic algorithm but was not set. "
+                        f"Defaulting to epsilon={args.epsilon}.")
+    else:
+        assert 0 <= args.epsilon <= 1, f"Scaling factor epsilon must be within [0,1] but is {args.epsilon}."
+        if args.alg != 'dynamic':
+            log.warning(f"Scaling factor epsilon set to {args.epsilon} is ignored. "
+                        f"Epsilon is only relevant for the dynamic heuristic, but algorithm {args.alg} is selected.")
 
     # check if algorithm and agent are compatible or adjust automatically
     if args.alg in CENTRAL_ALGS and args.alg not in MULTI_ALGS and args.agent != 'central':

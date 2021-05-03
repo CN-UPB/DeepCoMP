@@ -248,7 +248,7 @@ class Simulation:
         if self.agent_name == 'fullcomp':
             self.agent = FullCoMP()
         if self.agent_name == 'dynamic':
-            self.agent = DynamicSelection(epsilon=0.8)
+            self.agent = DynamicSelection(epsilon=self.cli_args.epsilon)
         if self.agent_name == 'brute-force':
             self.agent = BruteForceAgent(self.num_workers)
         if self.agent_name == 'random':
