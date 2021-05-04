@@ -273,6 +273,8 @@ class Simulation:
         assert self.agent is not None, "Set the filename after loading the agent"
         timestamp = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
         agent_name = type(self.agent).__name__
+        if agent_name == 'DynamicSelection':
+            agent_name += f'Eps{self.cli_args.epsilon}'
         env_size = self.cli_args.env
         num_ues = self.cli_args.static_ues + self.cli_args.slow_ues + self.cli_args.fast_ues
         train = 'rand' if self.cli_args.rand_train else 'fixed'
@@ -630,10 +632,14 @@ class Simulation:
             df.attrs = self.metadata
             df.attrs['metric'] = metric
             df.attrs['num_episodes'] = len(vector_metrics)
-            # don't add env_config to attrs as it contains user and cell objects which may become outdated
-            # then loading old result pickle files will become impossible when having a newer env version installed
-            # df.attrs['env_config'] = self.env_config
             df.attrs['cli_args'] = vars(self.cli_args)
+            # important: avoid saving env-specific objects (e.g., UEs or BS); it'll break loading if they change
+            # hence, overwrite map, ue_list and bs_list with list of string IDs rather than objects
+            df.attrs['env_config'] = self.env_config
+            df.attrs['env_config']['map'] = str(self.env_config['map'])
+            df.attrs['env_config']['ue_list'] = [str(ue) for ue in self.env_config['ue_list']]
+            df.attrs['env_config']['bs_list'] = [str(bs) for bs in self.env_config['bs_list']]
+
             dfs.append(df)
             result_file = f'{self.test_dir}/{self.result_filename}_{metric}.pkl'
             self.log.info('Writing vector results', metric=metric, file=result_file)
