@@ -630,7 +630,9 @@ class Simulation:
             df.attrs = self.metadata
             df.attrs['metric'] = metric
             df.attrs['num_episodes'] = len(vector_metrics)
-            df.attrs['env_config'] = self.env_config
+            # don't add env_config to attrs as it contains user and cell objects which may become outdated
+            # then loading old result pickle files will become impossible when having a newer env version installed
+            # df.attrs['env_config'] = self.env_config
             df.attrs['cli_args'] = vars(self.cli_args)
             dfs.append(df)
             result_file = f'{self.test_dir}/{self.result_filename}_{metric}.pkl'
