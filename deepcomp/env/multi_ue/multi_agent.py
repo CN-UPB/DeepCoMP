@@ -1,3 +1,4 @@
+import numpy as np
 from ray.rllib.env.multi_agent_env import MultiAgentEnv
 
 from deepcomp.env.single_ue.variants import RelNormEnv
@@ -55,7 +56,11 @@ class MultiAgentMobileEnv(RelNormEnv, MultiAgentEnv):
             if len(neighbors) > 0:
                 # aggregate utility of different UEs as configured
                 if self.reward_agg == 'sum':
-                    agg_util = sum([rewards[neighbor] for neighbor in neighbors])
+                    # IMPORTANT: using a sum here is bad! in high load, all UEs have neg. utility/reward and summing up
+                    # may lead to worse reward than simply disconnecting from all cells (-1). not what we want!
+                    # instead, avg over all neighbors' reward
+                    # for central deepcomp, it's not important because it's always a fix set of UEs (all)
+                    agg_util = np.mean([rewards[neighbor] for neighbor in neighbors])
                 elif self.reward_agg == 'min':
                     agg_util = min([rewards[neighbor] for neighbor in neighbors])
                 else:
