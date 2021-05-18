@@ -1,7 +1,10 @@
 """
 Heuristic algorithms to use as baseline. Only work as multi-agent, not central (would be the same anyways).
 """
+import random
+
 import numpy as np
+from shapely.geometry import Polygon
 
 from deepcomp.agent.base import MultiAgent
 
@@ -100,3 +103,59 @@ class DynamicSelection(MultiAgent):
 
         # else do nothing
         return 0
+
+
+class StaticClustering(MultiAgent):
+    """
+    Cluster cells into static, non-overlapping groups of fixed size M, which then form a group for CoMP-JT.
+    Inspired by the approach by Marsch & Fettweis: https://ieeexplore.ieee.org/document/5963458
+    Instead of clustering by solving an ILP for max SINR, here, simply choose closest cells.
+    """
+    def __init__(self, cluster_size, bs_list, seed=None):
+        self.cluster_size = cluster_size
+        self.bs_list = bs_list
+        # random number generator for clustering approach
+        self.rng = random.Random()
+        self.rng.seed(seed)
+        # build clusters up front, which are then used for online cell selection
+        self.clusters = self.build_clusters()
+        print(self.clusters)
+        # TODO: function for online cell selection
+
+    def build_clusters(self):
+        """
+        Take list of cells and build clusters of configured size, choosing the closest neighbors.
+
+        :returns: Dict with cell ID --> set of cell IDs in same cluster
+        """
+        clusters = dict()
+        remaining_bs = self.bs_list
+        curr_cluster = set()
+
+        while len(remaining_bs) > 0:
+            # start new cluster with random remaining cell
+            if len(curr_cluster) == 0:
+                bs = self.rng.choice(remaining_bs)
+                curr_cluster.add(bs)
+                remaining_bs.remove(bs)
+
+            # add closest cell to cluster
+            else:
+                cluster_polygon = Polygon([bs.pos for bs in curr_cluster])
+                center = cluster_polygon.centroid
+                closest_bs = min(remaining_bs, key=lambda x: center.distance(x.pos))
+                # add to cluster and remove from remaining cells
+                curr_cluster.add(closest_bs)
+                remaining_bs.remove(closest_bs)
+
+            # if cluster is full, save and reset
+            if len(curr_cluster) == self.cluster_size:
+                for bs in curr_cluster:
+                    clusters[bs] = curr_cluster
+                curr_cluster = set()
+
+        # add remaining cells in curr cluster, even if it's not full
+        for bs in curr_cluster:
+            clusters[bs] = curr_cluster
+
+        return clusters
