@@ -1,6 +1,7 @@
 """
 Heuristic algorithms to use as baseline. Only work as multi-agent, not central (would be the same anyways).
 """
+import copy
 import random
 
 import numpy as np
@@ -111,7 +112,7 @@ class StaticClustering(MultiAgent):
     Inspired by the approach by Marsch & Fettweis: https://ieeexplore.ieee.org/document/5963458
     Instead of clustering by solving an ILP for max SINR, here, simply choose closest cells.
     """
-    def __init__(self, cluster_size, bs_list, seed=None):
+    def __init__(self, cluster_size, bs_list, seed=None, clusters=None):
         self.cluster_size = cluster_size
         self.bs_list = bs_list
         self.seed = seed
@@ -119,9 +120,9 @@ class StaticClustering(MultiAgent):
         self.rng = random.Random()
         self.rng.seed(seed)
         # build clusters up front, which are then used for online cell selection
-        self.clusters = self.build_clusters()
-        print(self.clusters)
-        # TODO: function for online cell selection
+        self.clusters = clusters
+        if self.clusters is None:
+            self.clusters = self.build_clusters()
 
     def build_clusters(self):
         """
@@ -130,7 +131,7 @@ class StaticClustering(MultiAgent):
         :returns: Dict with cell ID --> set of cell IDs in same cluster
         """
         clusters = dict()
-        remaining_bs = self.bs_list
+        remaining_bs = copy.copy(self.bs_list)
         curr_cluster = set()
 
         while len(remaining_bs) > 0:
@@ -161,3 +162,26 @@ class StaticClustering(MultiAgent):
             clusters[bs] = curr_cluster
 
         return clusters
+
+    def compute_action(self, obs, policy_id):
+        """Select strongest BS and all BS that are in the same cluster. Independent of policy_id."""
+        # get set of cells in cluster
+        best_bs = self.bs_list[np.argmax(obs['dr'])]
+        cluster = self.clusters[best_bs]
+        cluster_idx = [self.bs_list.index(bs) for bs in cluster]
+
+        connected_bs_idx = [idx for idx, conn in enumerate(obs['connected']) if conn]
+        # disconnect from any BS not in the set of selected BS
+        for bs_idx in connected_bs_idx:
+            if bs_idx not in cluster_idx:
+                # 0 = noop --> select BS with BS index + 1
+                return bs_idx + 1
+
+        # then connect to BS inside set, starting with the strongest --> sort with decreasing SINR
+        selected_bs_sorted = sorted(cluster_idx, key=lambda idx: obs['dr'][idx], reverse=True)
+        for bs_idx in selected_bs_sorted:
+            if not obs['connected'][bs_idx]:
+                return bs_idx + 1
+
+        # else do nothing
+        return 0
