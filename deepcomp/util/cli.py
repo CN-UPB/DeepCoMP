@@ -20,6 +20,7 @@ def setup_cli():
                         help="Whether to use a single agent for 1 UE, a central agent, or multi agents")
     parser.add_argument('--alg', type=str, choices=SUPPORTED_ALGS, default='ppo', help="Algorithm")
     parser.add_argument('--epsilon', type=float, help="Scaling factor for dynamic heuristic.")
+    parser.add_argument('--cluster-size', type=int, help="Cluster size for static clustering heuristic (1-3).")
     parser.add_argument('--workers', type=int, default=1, help="Number of workers for training (one per CPU core)")
     parser.add_argument('--batch-size', type=int, default=4000, help="Number of training iterations per training batch")
     parser.add_argument('--train-steps', type=int, default=None, help="Max. number of training time steps (if any)")
@@ -96,6 +97,15 @@ def setup_cli():
         if args.alg != 'dynamic':
             log.warning(f"Scaling factor epsilon set to {args.epsilon} is ignored. "
                         f"Epsilon is only relevant for the dynamic heuristic, but algorithm {args.alg} is selected.")
+
+    # ensure cluster size is valid and only set for static clustering heuristic
+    if args.alg == 'static':
+        assert 1 <= args.cluster_size, \
+            f"Cluster size >=1 required for static clustering. Current setting: {args.cluster_size}"
+    else:
+        if args.cluster_size is not None:
+            log.warning(f"Cluster size of {args.cluster_size} is ignored. "
+                        f"It is only relevant for the static clustering algorithm.")
 
     # check if algorithm and agent are compatible or adjust automatically
     if args.alg in CENTRAL_ALGS and args.alg not in MULTI_ALGS and args.agent != 'central':

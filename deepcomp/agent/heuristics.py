@@ -4,7 +4,7 @@ Heuristic algorithms to use as baseline. Only work as multi-agent, not central (
 import random
 
 import numpy as np
-from shapely.geometry import Polygon
+from shapely.geometry import Point
 
 from deepcomp.agent.base import MultiAgent
 
@@ -114,6 +114,7 @@ class StaticClustering(MultiAgent):
     def __init__(self, cluster_size, bs_list, seed=None):
         self.cluster_size = cluster_size
         self.bs_list = bs_list
+        self.seed = seed
         # random number generator for clustering approach
         self.rng = random.Random()
         self.rng.seed(seed)
@@ -141,8 +142,9 @@ class StaticClustering(MultiAgent):
 
             # add closest cell to cluster
             else:
-                cluster_polygon = Polygon([bs.pos for bs in curr_cluster])
-                center = cluster_polygon.centroid
+                center_x = np.mean([bs.pos.x for bs in curr_cluster])
+                center_y = np.mean([bs.pos.y for bs in curr_cluster])
+                center = Point(center_x, center_y)
                 closest_bs = min(remaining_bs, key=lambda x: center.distance(x.pos))
                 # add to cluster and remove from remaining cells
                 curr_cluster.add(closest_bs)

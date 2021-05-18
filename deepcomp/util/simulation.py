@@ -19,7 +19,7 @@ from ray.rllib.env.multi_agent_env import MultiAgentEnv
 
 from deepcomp.util.constants import SUPPORTED_ALGS, SUPPORTED_RENDER, get_result_dirs
 from deepcomp.agent.dummy import RandomAgent, FixedAgent
-from deepcomp.agent.heuristics import Heuristic3GPP, FullCoMP, DynamicSelection
+from deepcomp.agent.heuristics import Heuristic3GPP, FullCoMP, DynamicSelection, StaticClustering
 from deepcomp.agent.brute_force import BruteForceAgent
 from deepcomp.util.logs import config_logging
 
@@ -226,7 +226,7 @@ class Simulation:
         Load a trained RLlib agent from the specified rllib_path. Call this before testing a trained agent.
 
         :param rllib_dir: Path pointing to the agent's training dir (only used for RLlib agents)
-        :param rand_seed: RNG seed used by the random agent (ignored by other agents)
+        :param rand_seed: RNG seed used by the cluster and random agent (ignored by other agents)
         :param fixed_action: Fixed action performed by the fixed agent (ignored by the others)
         :param explore: Whether to keep exploration enabled. Set to False when testing an RLlib agent.
         True for continuing training.
@@ -251,6 +251,9 @@ class Simulation:
             self.agent = FullCoMP()
         if self.agent_name == 'dynamic':
             self.agent = DynamicSelection(epsilon=self.cli_args.epsilon)
+        if self.agent_name == 'static':
+            self.agent = StaticClustering(cluster_size=self.cli_args.cluster_size, bs_list=self.env_config['bs_list'],
+                                          seed=rand_seed)
         if self.agent_name == 'brute-force':
             self.agent = BruteForceAgent(self.num_workers)
         if self.agent_name == 'random':
