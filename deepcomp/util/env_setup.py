@@ -213,6 +213,14 @@ def get_ue_arrival(ue_arrival_name):
         return {10: 3, 30: -2}
     if ue_arrival_name == "updown":
         return {10: 1, 15: 1, 20: 1, 40: 1, 50: -1, 60: -1}
+    if ue_arrival_name == "largeupdown":
+        return {
+            20: 1, 30: -1, 40: 1,
+            # large increase up to 12 (starting at 1)
+            45: 1, 50: 1, 55: 2, 60: 3, 65: 2, 70: 1,
+            # large decrease down to 1
+            75: -1, 80: -2, 85: -3, 90: -3, 95: -2
+        }
     raise ValueError(f"Unknown UE arrival name: {ue_arrival_name}")
 
 
@@ -244,6 +252,9 @@ def create_env_config(cli_args):
         # custom animation rendering
         'dashboard': cli_args.dashboard, 'ue_details': cli_args.ue_details,
     }
+    # convert ue_arrival sequence to str keys as required by RLlib: https://github.com/ray-project/ray/issues/16215
+    if env_config['ue_arrival'] is not None:
+        env_config['ue_arrival'] = {str(k): v for k, v in env_config['ue_arrival'].items()}
 
     # create and return the config
     config = DEFAULT_CONFIG.copy()
