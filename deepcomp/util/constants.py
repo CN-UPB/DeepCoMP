@@ -18,6 +18,7 @@ MULTI_ALGS = {'ppo', '3gpp', 'fullcomp', 'dynamic', 'static'}
 SUPPORTED_ALGS = CENTRAL_ALGS.union(MULTI_ALGS)
 SUPPORTED_AGENTS = {'single', 'central', 'multi'}
 SUPPORTED_ENVS = {'small', 'medium', 'large', 'custom'}
+SUPPORTED_UE_ARRIVAL = {'oneupdown', 'updown', None}
 SUPPORTED_RENDER = {'html', 'gif', 'both', None}
 SUPPORTED_SHARING = {'max-cap', 'resource-fair', 'rate-fair', 'proportional-fair'}
 SUPPORTED_REWARDS = {'min', 'sum'}

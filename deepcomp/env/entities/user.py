@@ -212,6 +212,13 @@ class User:
         bs.conn_ues.remove(self)
         self.log = self.log.bind(conn_bs=list(self.bs_dr.keys()))
 
+    def disconnect_from_all(self):
+        """Disconnect from all BS. Necessary before removing UE."""
+        # copy list of all curr BS to avoid iterating over dict with changing size
+        bs_list = list(self.bs_dr.keys())
+        for bs in bs_list:
+            self.disconnect_from_bs(bs)
+
     def ues_at_same_bs(self):
         """Return set of UEs that are currently connected to any of the BS that this UE is connected to"""
         ue_set = set()

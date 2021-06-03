@@ -5,7 +5,7 @@ from shapely.geometry import Point
 from ray.rllib.agents.ppo import DEFAULT_CONFIG
 from ray.rllib.env.multi_agent_env import MultiAgentEnv
 
-from deepcomp.util.constants import SUPPORTED_ENVS, SUPPORTED_AGENTS, SUPPORTED_SHARING
+from deepcomp.util.constants import SUPPORTED_ENVS, SUPPORTED_AGENTS, SUPPORTED_SHARING, SUPPORTED_UE_ARRIVAL
 from deepcomp.env.single_ue.variants import RelNormEnv
 from deepcomp.env.multi_ue.central import CentralRelNormEnv
 from deepcomp.env.multi_ue.multi_agent import MultiAgentMobileEnv
@@ -202,6 +202,18 @@ def get_env(map_size, bs_dist, num_static_ues, num_slow_ues, num_fast_ues, shari
     return map, ue_list, bs_list
 
 
+def get_ue_arrival(ue_arrival_name):
+    """Get the dict defining UE arrival over time based on the name provided via CLI"""
+    assert ue_arrival_name in SUPPORTED_UE_ARRIVAL
+    if ue_arrival_name is None:
+        return None
+    if ue_arrival_name == "oneupdown":
+        return {10: 1, 30: -1}
+    if ue_arrival_name == "updown":
+        return {10: 1, 15: 1, 20: 1, 40: 1, 50: -1, 60: -1}
+    raise ValueError(f"Unknown UE arrival name: {ue_arrival_name}")
+
+
 def create_env_config(cli_args):
     """
     Create environment and RLlib config based on passed CLI args. Return config.
@@ -223,7 +235,7 @@ def create_env_config(cli_args):
     env_config = {
         'episode_length': cli_args.eps_length, 'seed': cli_args.seed, 'map': map, 'bs_list': bs_list, 'ue_list': ue_list,
         'rand_episodes': cli_args.rand_train, 'new_ue_interval': cli_args.new_ue_interval, 'reward': cli_args.reward,
-        'max_ues': cli_args.max_ues,
+        'max_ues': cli_args.max_ues, 'ue_arrival': get_ue_arrival(cli_args.ue_arrival),
         # if enabled log_metrics: log metrics even during training --> visible on tensorboard
         # if disabled: log just during testing --> probably slightly faster training with less memory
         'log_metrics': True,

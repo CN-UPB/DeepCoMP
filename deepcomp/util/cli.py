@@ -3,7 +3,7 @@ import argparse
 import structlog
 
 from deepcomp.util.constants import SUPPORTED_ALGS, SUPPORTED_ENVS, SUPPORTED_AGENTS, SUPPORTED_RENDER, \
-    SUPPORTED_SHARING, SUPPORTED_REWARDS, CENTRAL_ALGS, MULTI_ALGS
+    SUPPORTED_SHARING, SUPPORTED_REWARDS, CENTRAL_ALGS, MULTI_ALGS, SUPPORTED_UE_ARRIVAL
 
 
 log = structlog.get_logger()
@@ -50,6 +50,7 @@ def setup_cli():
     #                     help="Number of UEs in the environment, equally mixed between different movement speeds")
     parser.add_argument('--new-ue-interval', type=int, default=None,
                         help="Interval in number of steps after which a new UEs enter the environment periodically.")
+    parser.add_argument('--ue-arrival', type=str, choices=SUPPORTED_UE_ARRIVAL, help="UE arrival sequence")
     parser.add_argument('--sharing', type=str, choices=SUPPORTED_SHARING.union({'mixed'}), default='mixed',
                         help="Sharing model used by BS to split resources and/or rate among connected UEs.")
     # evaluation
@@ -70,7 +71,7 @@ def setup_cli():
 
     args = parser.parse_args()
 
-    # ensure at least 1 UE is configured
+    # ensure at least 1 UE is configured; required for RL alg to work
     assert args.static_ues + args.slow_ues + args.fast_ues > 0, "No UEs configured. You must set the number of UEs."
 
     # shortcut cli command for deepcomp, ddcomp, d3comp

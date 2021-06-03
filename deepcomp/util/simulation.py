@@ -107,6 +107,7 @@ class Simulation:
             'num_ue_static': self.cli_args.static_ues,
             'num_ue_slow': self.cli_args.slow_ues,
             'num_ue_fast': self.cli_args.fast_ues,
+            'ue_arrival': self.env_config['ue_arrival'],
             'result_filename': self.result_filename,
         }
 
@@ -280,6 +281,8 @@ class Simulation:
             agent_name += f'Eps{self.cli_args.epsilon}'
         env_size = self.cli_args.env
         num_ues = self.cli_args.static_ues + self.cli_args.slow_ues + self.cli_args.fast_ues
+        if self.env_config['ue_arrival'] is not None:
+            num_ues = f"{num_ues}dyn"
         train = 'rand' if self.cli_args.rand_train else 'fixed'
         test = 'rand' if self.cli_args.rand_test else 'fixed'
         seed = self.cli_args.seed
@@ -386,6 +389,8 @@ class Simulation:
             return 'FullCoMP'
         if self.agent_name == 'dynamic':
             return 'Dynamic CoMP'
+        if self.agent_name =='static':
+            return 'Static Clustering'
         if self.agent_name == 'brute-force':
             return 'Brute Force (Opt.)'
         if self.agent_name == 'random':
