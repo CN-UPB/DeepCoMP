@@ -209,6 +209,8 @@ def get_ue_arrival(ue_arrival_name):
         return None
     if ue_arrival_name == "oneupdown":
         return {10: 1, 30: -1}
+    if ue_arrival_name == "3up2down":
+        return {10: 3, 30: -2}
     if ue_arrival_name == "updown":
         return {10: 1, 15: 1, 20: 1, 40: 1, 50: -1, 60: -1}
     raise ValueError(f"Unknown UE arrival name: {ue_arrival_name}")

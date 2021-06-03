@@ -416,16 +416,14 @@ class MobileEnv(gym.Env):
         if self.new_ue_interval is not None and self.time > 0 and self.time % self.new_ue_interval == 0:
             self.add_new_ue()
 
-        # alternatively, add/remove UE according to ue_arrival dict
+        # alternatively, add/remove UE according to UE arrival sequence dict: positive --> add UEs, negative --> remove
         if self.ue_arrival is not None and self.time in self.ue_arrival:
-            # currently only support +1/-1, ie, arrival/departure of single UE
-            # TODO: extend to arbitrary numbers?
-            if self.ue_arrival[self.time] == 1:
-                self.add_new_ue()
-            elif self.ue_arrival[self.time] == -1:
-                self.remove_ue()
-            else:
-                self.log.warning("Unsupported UE arrival/departure", ue_arrival=self.ue_arrival, time=self.time)
+            if self.ue_arrival[self.time] > 0:
+                for _ in range(self.ue_arrival[self.time]):
+                    self.add_new_ue()
+            elif self.ue_arrival[self.time] < 0:
+                for _ in range(-self.ue_arrival[self.time]):
+                    self.remove_ue()
 
         # move UEs, update data rates and rewards in between; increment time
         rewards_before = self.update_ue_drs_rewards(penalties=penalties)
