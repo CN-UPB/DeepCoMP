@@ -40,6 +40,7 @@ class Simulation:
         self.env_class = config['env']
         self.env_name = config['env'].__name__
         self.env_config = config['env_config']
+        self.env = self.env_class(self.env_config)
         self.episode_length = self.env_config['episode_length']
         # detect automatically if the env is a multi-agent env by checking all (not just immediate) ancestors
         self.multi_agent_env = MultiAgentEnv in self.env_class.__mro__
@@ -284,9 +285,9 @@ class Simulation:
         env_size = self.cli_args.env
         num_ues = self.cli_args.static_ues + self.cli_args.slow_ues + self.cli_args.fast_ues
         if self.env_config['new_ue_interval'] is not None:
-            num_ues = f"{num_ues}incr"
+            num_ues = f"{num_ues}-{self.env.max_ues}incr"
         elif self.env_config['ue_arrival'] is not None:
-            num_ues = f"{num_ues}dyn"
+            num_ues = f"{num_ues}-{self.env.max_ues}dyn"
         train = 'rand' if self.cli_args.rand_train else 'fixed'
         test = 'rand' if self.cli_args.rand_test else 'fixed'
         seed = self.cli_args.seed
@@ -623,7 +624,8 @@ class Simulation:
         for metric in metrics:
             # init dict with empty lists
             data = {'episode': [], 'time_step': []}
-            ues = list(vector_metrics[-1][-1][metric].keys())
+            # ues = list(vector_metrics[-1][-1][metric].keys())
+            ues = [f'UE {i + 1}' for i in range(self.env.max_ues)]
             for ue in ues:
                 data[ue] = []
 
