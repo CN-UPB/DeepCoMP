@@ -209,6 +209,8 @@ def get_ue_arrival(ue_arrival_name):
         return None
     if ue_arrival_name == "oneupdown":
         return {10: 1, 30: -1}
+    if ue_arrival_name == "updownupdown":
+        return {10: 1, 20: -1, 30: 1, 40: -1}
     if ue_arrival_name == "3up2down":
         return {10: 3, 30: -2}
     if ue_arrival_name == "updown":
@@ -285,16 +287,18 @@ def create_env_config(cli_args):
 
     # for multi-agent env: https://docs.ray.io/en/latest/rllib-env.html#multi-agent-and-hierarchical
     if MultiAgentEnv in env_class.__mro__:
-        # instantiate env to access obs and action space
+        # instantiate env to access obs and action space and num diff UEs
         env = env_class(env_config)
 
         # use separate policies (and NNs) for each agent
         if cli_args.separate_agent_nns:
+            num_diff_ues = env.get_num_diff_ues()
             # create policies also for all future UEs
-            if env.max_ues > env.num_ue:
+            if num_diff_ues > env.num_ue:
                 log.warning("Varying num. UEs. Creating policy for all (future) UEs.",
-                            curr_num_ue=env.num_ue, max_ues=env.max_ues)
-                ue_ids = [str(i + 1) for i in range(env.max_ues)]
+                            curr_num_ue=env.num_ue, num_diff_ues=num_diff_ues, new_ue_interval=env.new_ue_interval,
+                            ue_arrival=env.ue_arrival)
+                ue_ids = [str(i + 1) for i in range(num_diff_ues)]
             else:
                 ue_ids = [ue.id for ue in ue_list]
 

@@ -208,6 +208,22 @@ class MobileEnv(gym.Env):
                           max_ues=max_ues, episode_length=self.episode_length)
         return max_ues
 
+    def get_num_diff_ues(self):
+        """
+        Get the number of *different* UEs that arrive over time. Can be larger than max (simultaneous) UEs if UEs
+        depart and new UEs arrive (with UE arrival sequence).
+        """
+        max_ues = self.get_max_num_ue()
+        if self.ue_arrival is None:
+            return max_ues
+
+        # only relevant when using a UE arrival sequence
+        num_diff_ues = self.num_ue
+        for arrival in self.ue_arrival.values():
+            if arrival > 0:
+                num_diff_ues += arrival
+        return num_diff_ues
+
     def get_ue_actions(self, action):
         """
         Retrieve the action per UE from the RL agent's action and return in in form of a dict.
