@@ -9,7 +9,9 @@ with open(os.path.join(this_directory, 'README.md'), encoding='utf-8') as f:
 
 
 requirements = [
-    'ray[rllib]==1.3.0',
+    # use ray 1.0 as long as the multi agent issue with decreasing agents persists (only affects --ue-arrival scenarios)
+    # https://github.com/ray-project/ray/issues/15297
+    'ray[rllib]==1.0.0',
     'structlog>=20.2.0',
     'structlog-round>=1.0',
     'shapely==1.7.0',
@@ -35,7 +37,7 @@ eval_requirements = [
 
 setup(
     name='deepcomp',
-    version='1.2.6',
+    version='1.2.7',
     author='Stefan Schneider',
     description="DeepCoMP: Self-Learning Dynamic Multi-Cell Selection for Coordinated Multipoint (CoMP)",
     long_description=long_description,
