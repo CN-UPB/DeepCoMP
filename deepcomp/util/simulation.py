@@ -107,7 +107,9 @@ class Simulation:
             'num_ue_static': self.cli_args.static_ues,
             'num_ue_slow': self.cli_args.slow_ues,
             'num_ue_fast': self.cli_args.fast_ues,
-            'ue_arrival': self.env_config['ue_arrival'],
+            # just put arrival name here, not sequence (as dict), since a dict here leads to a Pandas error when
+            # writing scalar results
+            'ue_arrival': self.cli_args.ue_arrival,
             'result_filename': self.result_filename,
         }
 
@@ -638,6 +640,9 @@ class Simulation:
             # create and write data frame
             df = pd.DataFrame(data)
             df.attrs = self.metadata
+            # also write the UE arrival sequence in addition to name (not included in metadata to avoid error in
+            # write_scalar_results)
+            df.attrs['ue_arrival_dict'] = self.env_config['ue_arrival']
             df.attrs['metric'] = metric
             df.attrs['num_episodes'] = len(vector_metrics)
             df.attrs['cli_args'] = vars(self.cli_args)
