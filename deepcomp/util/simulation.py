@@ -108,6 +108,7 @@ class Simulation:
             'num_ue_static': self.cli_args.static_ues,
             'num_ue_slow': self.cli_args.slow_ues,
             'num_ue_fast': self.cli_args.fast_ues,
+            'num_ue_max': self.env.max_ues,
             # just put arrival name here, not sequence (as dict), since a dict here leads to a Pandas error when
             # writing scalar results
             'ue_arrival': self.cli_args.ue_arrival,
