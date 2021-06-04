@@ -283,7 +283,9 @@ class Simulation:
             agent_name += f'Eps{self.cli_args.epsilon}'
         env_size = self.cli_args.env
         num_ues = self.cli_args.static_ues + self.cli_args.slow_ues + self.cli_args.fast_ues
-        if self.env_config['ue_arrival'] is not None:
+        if self.env_config['new_ue_interval'] is not None:
+            num_ues = f"{num_ues}incr"
+        elif self.env_config['ue_arrival'] is not None:
             num_ues = f"{num_ues}dyn"
         train = 'rand' if self.cli_args.rand_train else 'fixed'
         test = 'rand' if self.cli_args.rand_test else 'fixed'
