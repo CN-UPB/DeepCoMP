@@ -11,7 +11,7 @@ with open(os.path.join(this_directory, 'README.md'), encoding='utf-8') as f:
 requirements = [
     # use ray 1.0 as long as the multi agent issue with decreasing agents persists (only affects --ue-arrival scenarios)
     # https://github.com/ray-project/ray/issues/15297
-    'ray[rllib]==1.0.0',
+    'ray[rllib]==1.4.0',
     'structlog>=20.2.0',
     'structlog-round>=1.0',
     'shapely==1.7.0',
