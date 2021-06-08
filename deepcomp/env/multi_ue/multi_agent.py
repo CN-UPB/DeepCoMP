@@ -50,7 +50,8 @@ class MultiAgentMobileEnv(RelNormEnv, MultiAgentEnv):
         new_rewards = {}
         for ue, r in rewards.items():
             # initialize to own utility in case the UE is not connected to any BS and has no neighbors
-            agg_util = r
+            #agg_util = r
+            agg_util = ue.utility
             # neighbors include the UE itself
             # neighbors = ue.ues_at_same_bs()
 
@@ -71,12 +72,18 @@ class MultiAgentMobileEnv(RelNormEnv, MultiAgentEnv):
                     # calc weighted avg depending on number of UEs per BS
                     num_neighbors = sum([bs.num_conn_ues for bs in bs_in_range])
                     if num_neighbors > 0:
-                        agg_util = sum([bs.total_utility for bs in bs_in_range]) / num_neighbors
+                        total_util_neighbors = sum([bs.total_utility for bs in bs_in_range])
+                        # include own QoE explicitly if the UE is not connected itself
+                        if len(ue.bs_dr) == 0:
+                            agg_util = (total_util_neighbors + ue.utility) / (num_neighbors + 1)
+                        # else, the UE is part of the total_util_neighbors already
+                        else:
+                            agg_util = total_util_neighbors / num_neighbors
                 elif self.reward_agg == 'min':
                     # agg_util = min([rewards[neighbor] for neighbor in neighbors])
 
-                    # alternative: min QoE over all neighboring BS
-                    agg_util = min([bs.min_utility for bs in bs_in_range])
+                    # alternative: min QoE over all neighboring BS; always include own QoE (in case not connected)
+                    agg_util = min([bs.min_utility for bs in bs_in_range] + [ue.utility])
                 else:
                     raise NotImplementedError(f"Unexpected reward aggregation: {self.reward_agg}")
             new_rewards[ue.id] = agg_util
