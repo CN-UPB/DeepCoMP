@@ -60,6 +60,13 @@ class Basestation:
         return total_rate
 
     @property
+    def total_utility(self):
+        """Total utility summed up over all UEs connected to this BS. If the BS is idle, return max utility"""
+        if len(self.conn_ues) > 0:
+            return sum([ue.utility for ue in self.conn_ues])
+        return 20
+
+    @property
     def avg_utility(self):
         """Avg utility of UEs connected to this BS. If the BS is idle, return max utility"""
         if len(self.conn_ues) > 0:
