@@ -395,7 +395,7 @@ class Simulation:
             return 'FullCoMP'
         if self.agent_name == 'dynamic':
             return 'Dynamic CoMP'
-        if self.agent_name =='static':
+        if self.agent_name == 'static':
             return 'Static Clustering'
         if self.agent_name == 'brute-force':
             return 'Brute Force (Opt.)'
