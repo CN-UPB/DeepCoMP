@@ -52,7 +52,7 @@ class MobileEnv(gym.Env):
         self.ue_arrival = env_config['ue_arrival']
         if self.ue_arrival is not None:
             # convert to int and ensure dict is sorted with incr time
-            self.ue_arrival = {int(k): v for k,v in env_config['ue_arrival'].items()}
+            self.ue_arrival = {int(k): v for k, v in env_config['ue_arrival'].items()}
             self.ue_arrival = {t: diff for t, diff in sorted(self.ue_arrival.items())}
             self.new_ue_interval = None
         # seed the environment
