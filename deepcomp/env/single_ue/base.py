@@ -48,6 +48,13 @@ class MobileEnv(gym.Env):
         # shallow copy. If I just assign, it points to the same object. If I deepcopy, it copies and generates new UEs
         self.original_ue_list = copy.copy(env_config['ue_list'])
         self.new_ue_interval = env_config['new_ue_interval']
+        # alternatively, ue arrival list; disable interval
+        self.ue_arrival = env_config['ue_arrival']
+        if self.ue_arrival is not None:
+            # convert to int and ensure dict is sorted with incr time
+            self.ue_arrival = {int(k): v for k,v in env_config['ue_arrival'].items()}
+            self.ue_arrival = {t: diff for t, diff in sorted(self.ue_arrival.items())}
+            self.new_ue_interval = None
         # seed the environment
         self.env_seed = env_config['seed']
         self.seed(env_config['seed'])
@@ -190,7 +197,32 @@ class MobileEnv(gym.Env):
             max_ues = self.num_ue + int((self.episode_length - 1) / self.new_ue_interval)
             self.log.info('Num. UEs varies over time.', new_ue_interval=self.new_ue_interval, num_ues=self.num_ue,
                           max_ues=max_ues, episode_length=self.episode_length)
+        if self.ue_arrival is not None:
+            # iterate through the UE arrival/departure and calculate the curr number UEs. save the max
+            curr_ues = max_ues
+            for arrival in self.ue_arrival.values():
+                curr_ues += arrival
+                if curr_ues > max_ues:
+                    max_ues = curr_ues
+            self.log.info('Num. UEs varies over time.', ue_arrival=self.ue_arrival, num_ues=self.num_ue,
+                          max_ues=max_ues, episode_length=self.episode_length)
         return max_ues
+
+    def get_num_diff_ues(self):
+        """
+        Get the number of *different* UEs that arrive over time. Can be larger than max (simultaneous) UEs if UEs
+        depart and new UEs arrive (with UE arrival sequence).
+        """
+        max_ues = self.get_max_num_ue()
+        if self.ue_arrival is None:
+            return max_ues
+
+        # only relevant when using a UE arrival sequence
+        num_diff_ues = self.num_ue
+        for arrival in self.ue_arrival.values():
+            if arrival > 0:
+                num_diff_ues += arrival
+        return num_diff_ues
 
     def get_ue_actions(self, action):
         """
@@ -401,6 +433,15 @@ class MobileEnv(gym.Env):
         if self.new_ue_interval is not None and self.time > 0 and self.time % self.new_ue_interval == 0:
             self.add_new_ue()
 
+        # alternatively, add/remove UE according to UE arrival sequence dict: positive --> add UEs, negative --> remove
+        if self.ue_arrival is not None and self.time in self.ue_arrival:
+            if self.ue_arrival[self.time] > 0:
+                for _ in range(self.ue_arrival[self.time]):
+                    self.add_new_ue()
+            elif self.ue_arrival[self.time] < 0:
+                for _ in range(-self.ue_arrival[self.time]):
+                    self.remove_ue()
+
         # move UEs, update data rates and rewards in between; increment time
         rewards_before = self.update_ue_drs_rewards(penalties=penalties)
         _ = self.move_ues()
@@ -557,7 +598,21 @@ class MobileEnv(gym.Env):
         new_ue = User(str(id), self.map, pos.x, pos.y, movement=RandomWaypoint(self.map, velocity=velocity))
 
         # seed with fixed but unique seed to have different movement
-        new_ue.seed(self.env_seed + id * 100)
+        if self.env_seed is None:
+            new_ue.seed(id * 100)
+        else:
+            new_ue.seed(self.env_seed + id * 100)
         # reset to ensure the new seed is applied, eg, to always select the same "random" waypoint with the same seed
         new_ue.reset()
         self.ue_list.append(new_ue)
+
+    def remove_ue(self, ue_idx=None):
+        if ue_idx is None:
+            # select random UE to remove
+            ue_idx = random.randint(0, self.num_ue - 1)
+
+        # remove from list and remove all current connections to free any resources
+        ue = self.ue_list.pop(ue_idx)
+        ue.disconnect_from_all()
+        del ue
+        # TODO: more elegant to move UEs out of map before removing?

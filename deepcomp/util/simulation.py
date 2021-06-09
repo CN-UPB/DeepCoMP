@@ -19,7 +19,7 @@ from ray.rllib.env.multi_agent_env import MultiAgentEnv
 
 from deepcomp.util.constants import SUPPORTED_ALGS, SUPPORTED_RENDER, get_result_dirs
 from deepcomp.agent.dummy import RandomAgent, FixedAgent
-from deepcomp.agent.heuristics import Heuristic3GPP, FullCoMP, DynamicSelection
+from deepcomp.agent.heuristics import Heuristic3GPP, FullCoMP, DynamicSelection, StaticClustering
 from deepcomp.agent.brute_force import BruteForceAgent
 from deepcomp.util.logs import config_logging
 
@@ -40,6 +40,7 @@ class Simulation:
         self.env_class = config['env']
         self.env_name = config['env'].__name__
         self.env_config = config['env_config']
+        self.env = self.env_class(self.env_config)
         self.episode_length = self.env_config['episode_length']
         # detect automatically if the env is a multi-agent env by checking all (not just immediate) ancestors
         self.multi_agent_env = MultiAgentEnv in self.env_class.__mro__
@@ -97,6 +98,8 @@ class Simulation:
             'agent': agent_str,
             'agent_path': self.agent_path,
             'agent_id': self.extract_agent_id(self.agent_path),
+            # just relevant for dynamic agent
+            'agent_epsilon': self.cli_args.epsilon,
             'env': self.env_name,
             'env_size': self.cli_args.env,
             'eps_length': self.episode_length,
@@ -105,6 +108,10 @@ class Simulation:
             'num_ue_static': self.cli_args.static_ues,
             'num_ue_slow': self.cli_args.slow_ues,
             'num_ue_fast': self.cli_args.fast_ues,
+            'num_ue_max': self.env.max_ues,
+            # just put arrival name here, not sequence (as dict), since a dict here leads to a Pandas error when
+            # writing scalar results
+            'ue_arrival': self.cli_args.ue_arrival,
             'result_filename': self.result_filename,
         }
 
@@ -224,7 +231,7 @@ class Simulation:
         Load a trained RLlib agent from the specified rllib_path. Call this before testing a trained agent.
 
         :param rllib_dir: Path pointing to the agent's training dir (only used for RLlib agents)
-        :param rand_seed: RNG seed used by the random agent (ignored by other agents)
+        :param rand_seed: RNG seed used by the cluster and random agent (ignored by other agents)
         :param fixed_action: Fixed action performed by the fixed agent (ignored by the others)
         :param explore: Whether to keep exploration enabled. Set to False when testing an RLlib agent.
         True for continuing training.
@@ -248,7 +255,10 @@ class Simulation:
         if self.agent_name == 'fullcomp':
             self.agent = FullCoMP()
         if self.agent_name == 'dynamic':
-            self.agent = DynamicSelection(epsilon=0.8)
+            self.agent = DynamicSelection(epsilon=self.cli_args.epsilon)
+        if self.agent_name == 'static':
+            self.agent = StaticClustering(cluster_size=self.cli_args.cluster_size, bs_list=self.env_config['bs_list'],
+                                          seed=rand_seed)
         if self.agent_name == 'brute-force':
             self.agent = BruteForceAgent(self.num_workers)
         if self.agent_name == 'random':
@@ -271,8 +281,14 @@ class Simulation:
         assert self.agent is not None, "Set the filename after loading the agent"
         timestamp = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
         agent_name = type(self.agent).__name__
+        if agent_name == 'DynamicSelection':
+            agent_name += f'Eps{self.cli_args.epsilon}'
         env_size = self.cli_args.env
         num_ues = self.cli_args.static_ues + self.cli_args.slow_ues + self.cli_args.fast_ues
+        if self.env_config['new_ue_interval'] is not None:
+            num_ues = f"{num_ues}-{self.env.max_ues}incr"
+        elif self.env_config['ue_arrival'] is not None:
+            num_ues = f"{num_ues}-{self.env.max_ues}dyn"
         train = 'rand' if self.cli_args.rand_train else 'fixed'
         test = 'rand' if self.cli_args.rand_test else 'fixed'
         seed = self.cli_args.seed
@@ -379,6 +395,8 @@ class Simulation:
             return 'FullCoMP'
         if self.agent_name == 'dynamic':
             return 'Dynamic CoMP'
+        if self.agent_name =='static':
+            return 'Static Clustering'
         if self.agent_name == 'brute-force':
             return 'Brute Force (Opt.)'
         if self.agent_name == 'random':
@@ -607,7 +625,8 @@ class Simulation:
         for metric in metrics:
             # init dict with empty lists
             data = {'episode': [], 'time_step': []}
-            ues = list(vector_metrics[-1][-1][metric].keys())
+            # ues = list(vector_metrics[-1][-1][metric].keys())
+            ues = [f'UE {i + 1}' for i in range(self.env.max_ues)]
             for ue in ues:
                 data[ue] = []
 
@@ -626,10 +645,19 @@ class Simulation:
             # create and write data frame
             df = pd.DataFrame(data)
             df.attrs = self.metadata
+            # also write the UE arrival sequence in addition to name (not included in metadata to avoid error in
+            # write_scalar_results)
+            df.attrs['ue_arrival_dict'] = self.env_config['ue_arrival']
             df.attrs['metric'] = metric
             df.attrs['num_episodes'] = len(vector_metrics)
-            df.attrs['env_config'] = self.env_config
             df.attrs['cli_args'] = vars(self.cli_args)
+            # important: avoid saving env-specific objects (e.g., UEs or BS); it'll break loading if they change
+            # hence, overwrite map, ue_list and bs_list with list of string IDs rather than objects
+            df.attrs['env_config'] = self.env_config
+            df.attrs['env_config']['map'] = str(self.env_config['map'])
+            df.attrs['env_config']['ue_list'] = [str(ue) for ue in self.env_config['ue_list']]
+            df.attrs['env_config']['bs_list'] = [str(bs) for bs in self.env_config['bs_list']]
+
             dfs.append(df)
             result_file = f'{self.test_dir}/{self.result_filename}_{metric}.pkl'
             self.log.info('Writing vector results', metric=metric, file=result_file)

@@ -247,6 +247,7 @@ class RelNormEnv(BinaryMobileEnv):
         * Doesn't require any dr_cuttoff
     * Include the own utility
     * Later: More observations indicating which BS are idle vs used by other UEs; also diff reward
+    * New: Extra obs with number of UEs and avg QoE per BS. To support multi-agent.
     """
     def __init__(self, env_config):
         super().__init__(env_config)
@@ -261,6 +262,8 @@ class RelNormEnv(BinaryMobileEnv):
             # 'bs_util': gym.spaces.Box(low=-1, high=1, shape=(self.num_bs,))
             # 'ues_at_bs': gym.spaces.MultiDiscrete([self.num_ue+1 for _ in range(self.num_bs)]),
             'ues_at_bs': gym.spaces.Box(low=0, high=1, shape=(self.num_bs,)),
+            # avg util per BS
+            'util_at_bs': gym.spaces.Box(low=-1, high=1, shape=(self.num_bs,)),
         }
         self.observation_space = gym.spaces.Dict(self.obs_space_dict)
 
@@ -291,8 +294,12 @@ class RelNormEnv(BinaryMobileEnv):
         # ues_at_bs = [bs.num_conn_ues for bs in self.bs_list]
         ues_at_bs = [bs.num_conn_ues / self.num_ue for bs in self.bs_list]
 
+        # add avg QoE per BS to obs; normalize to [-1,1]
+        avg_util_at_bs = [bs.avg_utility / 20 for bs in self.bs_list]
+
         # return {'connected': bs_conn, 'dr': bs_norm_dr, 'utility': utility}
-        return {'connected': bs_conn, 'dr': bs_norm_dr, 'utility': utility, 'ues_at_bs': ues_at_bs}
+        return {'connected': bs_conn, 'dr': bs_norm_dr, 'utility': utility,
+                'ues_at_bs': ues_at_bs, 'util_at_bs': avg_util_at_bs}
         # return {'connected': bs_conn, 'dr': bs_norm_dr, 'utility': utility, 'idle_bs': idle_bs}
         # return {'connected': bs_conn, 'dr': bs_norm_dr, 'utility': utility, 'bs_util': bs_util, 'idle_bs': idle_bs}
 

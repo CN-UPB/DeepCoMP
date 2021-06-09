@@ -5,7 +5,7 @@ from shapely.geometry import Point
 from ray.rllib.agents.ppo import DEFAULT_CONFIG
 from ray.rllib.env.multi_agent_env import MultiAgentEnv
 
-from deepcomp.util.constants import SUPPORTED_ENVS, SUPPORTED_AGENTS, SUPPORTED_SHARING
+from deepcomp.util.constants import SUPPORTED_ENVS, SUPPORTED_AGENTS, SUPPORTED_SHARING, SUPPORTED_UE_ARRIVAL
 from deepcomp.env.single_ue.variants import RelNormEnv
 from deepcomp.env.multi_ue.central import CentralRelNormEnv
 from deepcomp.env.multi_ue.multi_agent import MultiAgentMobileEnv
@@ -202,6 +202,30 @@ def get_env(map_size, bs_dist, num_static_ues, num_slow_ues, num_fast_ues, shari
     return map, ue_list, bs_list
 
 
+def get_ue_arrival(ue_arrival_name):
+    """Get the dict defining UE arrival over time based on the name provided via CLI"""
+    assert ue_arrival_name in SUPPORTED_UE_ARRIVAL
+    if ue_arrival_name is None:
+        return None
+    if ue_arrival_name == "oneupdown":
+        return {10: 1, 30: -1}
+    if ue_arrival_name == "updownupdown":
+        return {10: 1, 20: -1, 30: 1, 40: -1}
+    if ue_arrival_name == "3up2down":
+        return {10: 3, 30: -2}
+    if ue_arrival_name == "updown":
+        return {10: 1, 15: 1, 20: 1, 40: 1, 50: -1, 60: -1}
+    if ue_arrival_name == "largeupdown":
+        return {
+            20: 1, 30: -1, 40: 1,
+            # large increase up to 12 (starting at 1)
+            45: 1, 50: 1, 55: 2, 60: 3, 65: 2, 70: 1,
+            # large decrease down to 1
+            75: -1, 80: -2, 85: -3, 90: -3, 95: -2
+        }
+    raise ValueError(f"Unknown UE arrival name: {ue_arrival_name}")
+
+
 def create_env_config(cli_args):
     """
     Create environment and RLlib config based on passed CLI args. Return config.
@@ -223,13 +247,16 @@ def create_env_config(cli_args):
     env_config = {
         'episode_length': cli_args.eps_length, 'seed': cli_args.seed, 'map': map, 'bs_list': bs_list, 'ue_list': ue_list,
         'rand_episodes': cli_args.rand_train, 'new_ue_interval': cli_args.new_ue_interval, 'reward': cli_args.reward,
-        'max_ues': cli_args.max_ues,
+        'max_ues': cli_args.max_ues, 'ue_arrival': get_ue_arrival(cli_args.ue_arrival),
         # if enabled log_metrics: log metrics even during training --> visible on tensorboard
         # if disabled: log just during testing --> probably slightly faster training with less memory
         'log_metrics': True,
         # custom animation rendering
         'dashboard': cli_args.dashboard, 'ue_details': cli_args.ue_details,
     }
+    # convert ue_arrival sequence to str keys as required by RLlib: https://github.com/ray-project/ray/issues/16215
+    if env_config['ue_arrival'] is not None:
+        env_config['ue_arrival'] = {str(k): v for k, v in env_config['ue_arrival'].items()}
 
     # create and return the config
     config = DEFAULT_CONFIG.copy()
@@ -260,16 +287,18 @@ def create_env_config(cli_args):
 
     # for multi-agent env: https://docs.ray.io/en/latest/rllib-env.html#multi-agent-and-hierarchical
     if MultiAgentEnv in env_class.__mro__:
-        # instantiate env to access obs and action space
+        # instantiate env to access obs and action space and num diff UEs
         env = env_class(env_config)
 
         # use separate policies (and NNs) for each agent
         if cli_args.separate_agent_nns:
+            num_diff_ues = env.get_num_diff_ues()
             # create policies also for all future UEs
-            if env.max_ues > env.num_ue:
+            if num_diff_ues > env.num_ue:
                 log.warning("Varying num. UEs. Creating policy for all (future) UEs.",
-                            curr_num_ue=env.num_ue, max_ues=env.max_ues)
-                ue_ids = [str(i + 1) for i in range(env.max_ues)]
+                            curr_num_ue=env.num_ue, num_diff_ues=num_diff_ues, new_ue_interval=env.new_ue_interval,
+                            ue_arrival=env.ue_arrival)
+                ue_ids = [str(i + 1) for i in range(num_diff_ues)]
             else:
                 ue_ids = [ue.id for ue in ue_list]
 

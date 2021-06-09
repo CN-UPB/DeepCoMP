@@ -1,7 +1,11 @@
 """
 Heuristic algorithms to use as baseline. Only work as multi-agent, not central (would be the same anyways).
 """
+import copy
+import random
+
 import numpy as np
+from shapely.geometry import Point
 
 from deepcomp.agent.base import MultiAgent
 
@@ -65,6 +69,8 @@ class DynamicSelection(MultiAgent):
     """
     Heuristic that dynamically selects cells per UE depending on the SINR.
     It always selects the strongest cell with SINR-1st and all cells that are within epsilon * SINR-1st.
+    This represents a configurable intermediate approach between our single-cell 3GPP and the multi-cell Full CoMP approach.
+    With epsilon=0, this heuristic equals the Full CoMP approach. With epsilon=1, it equals the Full CoMP approach.
 
     Based on the following paper: 'Multi-point fairness in resource allocation for C-RAN downlink CoMP transmission'
     https://jwcn-eurasipjournals.springeropen.com/articles/10.1186/s13638-015-0501-4
@@ -95,6 +101,87 @@ class DynamicSelection(MultiAgent):
         for bs in selected_bs_sorted:
             if not obs['connected'][bs]:
                 return bs + 1
+
+        # else do nothing
+        return 0
+
+
+class StaticClustering(MultiAgent):
+    """
+    Cluster cells into static, non-overlapping groups of fixed size M, which then form a group for CoMP-JT.
+    Inspired by the approach by Marsch & Fettweis: https://ieeexplore.ieee.org/document/5963458
+    Instead of clustering by solving an ILP for max SINR, here, simply choose closest cells.
+    """
+    def __init__(self, cluster_size, bs_list, seed=None, clusters=None):
+        self.cluster_size = cluster_size
+        self.bs_list = bs_list
+        self.seed = seed
+        # random number generator for clustering approach
+        self.rng = random.Random()
+        self.rng.seed(seed)
+        # build clusters up front, which are then used for online cell selection
+        self.clusters = clusters
+        if self.clusters is None:
+            self.clusters = self.build_clusters()
+
+    def build_clusters(self):
+        """
+        Take list of cells and build clusters of configured size, choosing the closest neighbors.
+
+        :returns: Dict with cell ID --> set of cell IDs in same cluster
+        """
+        clusters = dict()
+        remaining_bs = copy.copy(self.bs_list)
+        curr_cluster = set()
+
+        while len(remaining_bs) > 0:
+            # start new cluster with random remaining cell
+            if len(curr_cluster) == 0:
+                bs = self.rng.choice(remaining_bs)
+                curr_cluster.add(bs)
+                remaining_bs.remove(bs)
+
+            # add closest cell to cluster
+            else:
+                center_x = np.mean([bs.pos.x for bs in curr_cluster])
+                center_y = np.mean([bs.pos.y for bs in curr_cluster])
+                center = Point(center_x, center_y)
+                closest_bs = min(remaining_bs, key=lambda x: center.distance(x.pos))
+                # add to cluster and remove from remaining cells
+                curr_cluster.add(closest_bs)
+                remaining_bs.remove(closest_bs)
+
+            # if cluster is full, save and reset
+            if len(curr_cluster) == self.cluster_size:
+                for bs in curr_cluster:
+                    clusters[bs] = curr_cluster
+                curr_cluster = set()
+
+        # add remaining cells in curr cluster, even if it's not full
+        for bs in curr_cluster:
+            clusters[bs] = curr_cluster
+
+        return clusters
+
+    def compute_action(self, obs, policy_id):
+        """Select strongest BS and all BS that are in the same cluster. Independent of policy_id."""
+        # get set of cells in cluster
+        best_bs = self.bs_list[np.argmax(obs['dr'])]
+        cluster = self.clusters[best_bs]
+        cluster_idx = [self.bs_list.index(bs) for bs in cluster]
+
+        connected_bs_idx = [idx for idx, conn in enumerate(obs['connected']) if conn]
+        # disconnect from any BS not in the set of selected BS
+        for bs_idx in connected_bs_idx:
+            if bs_idx not in cluster_idx:
+                # 0 = noop --> select BS with BS index + 1
+                return bs_idx + 1
+
+        # then connect to BS inside set, starting with the strongest --> sort with decreasing SINR
+        selected_bs_sorted = sorted(cluster_idx, key=lambda idx: obs['dr'][idx], reverse=True)
+        for bs_idx in selected_bs_sorted:
+            if not obs['connected'][bs_idx]:
+                return bs_idx + 1
 
         # else do nothing
         return 0

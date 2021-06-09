@@ -60,11 +60,19 @@ class Basestation:
         return total_rate
 
     @property
+    def total_utility(self):
+        """
+        Total utility summed up over all UEs connected to this BS.
+        Important for multi-agent reward: If the BS is idle, return 0.
+        """
+        return sum([ue.utility for ue in self.conn_ues])
+
+    @property
     def avg_utility(self):
-        """Avg utility of UEs connected to this BS. If the BS is idle, return max utility"""
+        """Avg utility of UEs connected to this BS. If the BS is idle, return 0."""
         if len(self.conn_ues) > 0:
             return np.mean([ue.utility for ue in self.conn_ues])
-        return 20
+        return 0
 
     @property
     def min_utility(self):
