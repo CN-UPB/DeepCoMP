@@ -50,7 +50,7 @@ class MultiAgentMobileEnv(RelNormEnv, MultiAgentEnv):
         new_rewards = {}
         for ue, r in rewards.items():
             # initialize to own utility in case the UE is not connected to any BS and has no neighbors
-            #agg_util = r
+            # agg_util = r
             agg_util = ue.utility
             # neighbors include the UE itself
             # neighbors = ue.ues_at_same_bs()
