@@ -51,6 +51,8 @@ class MultiAgentMobileEnv(RelNormEnv, MultiAgentEnv):
             # initialize to own utility in case the UE is not connected to any BS and has no neighbors
             # agg_util = r
             agg_util = ue.utility
+            # TODO: test greedy reward
+            return agg_util
             # neighbors include the UE itself
             # neighbors = ue.ues_at_same_bs()
 
