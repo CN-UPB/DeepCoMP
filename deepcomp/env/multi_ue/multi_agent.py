@@ -53,7 +53,6 @@ class MultiAgentMobileEnv(RelNormEnv, MultiAgentEnv):
             agg_util = ue.utility
             # TODO: test greedy rewards
             new_rewards[ue.id] = agg_util
-            self.log.debug('Reward', ue=ue, own_r=r, bs_in_range=bs_in_range, agg_util=agg_util)
             return new_rewards
 
             # neighbors include the UE itself
