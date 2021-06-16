@@ -1,5 +1,3 @@
-import numpy as np
-
 from ray.rllib.env.multi_agent_env import MultiAgentEnv
 
 from deepcomp.env.single_ue.variants import RelNormEnv
@@ -55,41 +53,41 @@ class MultiAgentMobileEnv(RelNormEnv, MultiAgentEnv):
             agg_util = ue.utility
 
             # neighbors include the UE itself
-            neighbors = ue.ues_at_same_bs()
+            # neighbors = ue.ues_at_same_bs()
 
             # new idea: get avg QoE of all UEs that are connected to any BS *in range*
             # ie, include BS that the current UE is in range of but not connected to
-            # bs_in_range = [bs for bs in self.bs_list if bs.can_connect(ue.pos)]
-            if len(neighbors) > 0:
-            # if len(bs_in_range) > 0:
+            bs_in_range = [bs for bs in self.bs_list if bs.can_connect(ue.pos)]
+            # if len(neighbors) > 0:
+            if len(bs_in_range) > 0:
                 # aggregate utility of different UEs as configured
                 if self.reward_agg == 'sum':
                     # IMPORTANT: using a sum here is bad! in high load, all UEs have neg. utility/reward and summing up
                     # may lead to worse reward than simply disconnecting from all cells (-1). not what we want!
                     # instead, avg over all neighbors' reward
                     # for central deepcomp, it's not important because it's always a fix set of UEs (all)
-                    agg_util = np.mean([rewards[neighbor] for neighbor in neighbors])
+                    # agg_util = np.mean([rewards[neighbor] for neighbor in neighbors])
 
                     # again: need to use AVG not sum since the total number of UEs in the neighborhood is changing!
                     # calc weighted avg depending on number of UEs per BS
-                    # num_neighbors = sum([bs.num_conn_ues for bs in bs_in_range])
-                    # if num_neighbors > 0:
-                    #     total_util_neighbors = sum([bs.total_utility for bs in bs_in_range])
-                    #     # include own QoE explicitly if the UE is not connected itself
-                    #     if len(ue.bs_dr) == 0:
-                    #         agg_util = (total_util_neighbors + ue.utility) / (num_neighbors + 1)
-                    #     # else, the UE is part of the total_util_neighbors already
-                    #     else:
-                    #         agg_util = total_util_neighbors / num_neighbors
+                    num_neighbors = sum([bs.num_conn_ues for bs in bs_in_range])
+                    if num_neighbors > 0:
+                        total_util_neighbors = sum([bs.total_utility for bs in bs_in_range])
+                        # include own QoE explicitly if the UE is not connected itself
+                        if len(ue.bs_dr) == 0:
+                            agg_util = (total_util_neighbors + ue.utility) / (num_neighbors + 1)
+                        # else, the UE is part of the total_util_neighbors already
+                        else:
+                            agg_util = total_util_neighbors / num_neighbors
                 elif self.reward_agg == 'min':
-                    agg_util = min([rewards[neighbor] for neighbor in neighbors])
+                    # agg_util = min([rewards[neighbor] for neighbor in neighbors])
 
                     # alternative: min QoE over all neighboring BS; always include own QoE (in case not connected)
-                    # agg_util = min([bs.min_utility for bs in bs_in_range] + [ue.utility])
+                    agg_util = min([bs.min_utility for bs in bs_in_range] + [ue.utility])
                 else:
                     raise NotImplementedError(f"Unexpected reward aggregation: {self.reward_agg}")
             new_rewards[ue.id] = agg_util
-            # self.log.debug('Reward', ue=ue, own_r=r, bs_in_range=bs_in_range, agg_util=agg_util)
+            self.log.debug('Reward', ue=ue, own_r=r, bs_in_range=bs_in_range, agg_util=agg_util)
         return new_rewards
 
     def done(self):
