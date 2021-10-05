@@ -37,8 +37,10 @@ FAIR_WEIGHT_BETA = 1
 # upper and lower bound for utility
 # affects reward clipping, normalization, plotting, etc.; change for different utility function
 # TODO: manually adjust for different utility functions. more elegant solution?
-MIN_UTILITY = 0
-MAX_UTILITY = 1000
+MIN_UTILITY = -20
+MAX_UTILITY = 20
+# MIN_UTILITY = 0
+# MAX_UTILITY = 1000
 
 
 # constants regarding result files
