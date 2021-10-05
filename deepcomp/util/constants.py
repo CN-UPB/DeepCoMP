@@ -33,6 +33,11 @@ EPSILON = 1e-16
 FAIR_WEIGHT_ALPHA = 1
 FAIR_WEIGHT_BETA = 1
 
+# upper and lower bound for utility
+# affects reward clipping, normalization, plotting, etc.; change for different utility function
+MIN_UTILITY = -20
+MAX_UTILITY = 20
+
 
 # constants regarding result files
 def get_result_dirs(result_dir=None):

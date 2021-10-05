@@ -5,7 +5,8 @@ from shapely.geometry import Point
 import matplotlib.pyplot as plt
 from matplotlib import cm
 
-from deepcomp.env.util.utility import log_utility
+from deepcomp.env.util.utility import log_utility, step_utility
+from deepcomp.util.constants import MIN_UTILITY, MAX_UTILITY
 
 
 class User:
@@ -71,9 +72,13 @@ class User:
 
     @property
     def utility(self):
-        """Utility based on the current data rate and utility function"""
-        # return step_utility(self.curr_dr, self.dr_req)
-        return log_utility(self.curr_dr)
+        """Utility property based on the current data rate and utility function"""
+        return self.dr_to_utility(self.curr_dr)
+
+    def dr_to_utility(self, dr):
+        """Utility function to map given data rate to utility for the UE"""
+        # return step_utility(dr, self.dr_req)
+        return log_utility(dr)
 
     def seed(self, seed=None):
         self.rng.seed(seed)
@@ -109,7 +114,7 @@ class User:
         """
         # show utility as red to yellow to green. use color map for [0,1) --> normalize utility first
         colormap = cm.get_cmap('RdYlGn')
-        norm = plt.Normalize(-20, 20)
+        norm = plt.Normalize(MIN_UTILITY, MAX_UTILITY)
         color = colormap(norm(self.utility))
 
         artists = ax.plot(*self.pos.buffer(radius).exterior.xy, color=color)

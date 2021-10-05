@@ -4,6 +4,8 @@ Attention: The absolute reward that's achieved with different utilities cannot b
 """
 import numpy as np
 
+from deepcomp.util.constants import MIN_UTILITY, MAX_UTILITY
+
 
 def step_utility(curr_dr, req_dr):
     """
@@ -11,11 +13,11 @@ def step_utility(curr_dr, req_dr):
 
     :param curr_dr: Current data rate
     :param req_dr: Required data rate
-    :return: Utility (-10 or +10)
+    :return: Min or max utility depending on whether the required data rate is met
     """
     if curr_dr >= req_dr:
-        return 10
-    return -10
+        return MAX_UTILITY
+    return MIN_UTILITY
 
 
 def log_utility(curr_dr):
@@ -32,6 +34,8 @@ def log_utility(curr_dr):
     # with many UEs where each UE only gets around 0.1 data rate, 100*log(0.9+x) looks good (eg, 50 UEs on medium env)
 
     # better: 10*log10(x) --> clip to [-20, 20]; -20 for <= 0.01 dr; +20 for >= 100 dr
+    # ensure min/max utility are set correctly for this utility function
+    assert MIN_UTILITY == -20 and MAX_UTILITY == 20, "The chosen log utility requires min/max utility to be -20/+20"
     if curr_dr == 0:
-        return -20
-    return np.clip(10 * np.log10(curr_dr), -20, 20)
+        return MIN_UTILITY
+    return np.clip(10 * np.log10(curr_dr), MIN_UTILITY, MAX_UTILITY)

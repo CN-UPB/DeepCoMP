@@ -2,7 +2,8 @@ import structlog
 import numpy as np
 from shapely.geometry import Polygon
 
-from deepcomp.util.constants import SUPPORTED_SHARING, EPSILON, FAIR_WEIGHT_ALPHA, FAIR_WEIGHT_BETA, station_symbol
+from deepcomp.util.constants import SUPPORTED_SHARING, EPSILON, FAIR_WEIGHT_ALPHA, FAIR_WEIGHT_BETA, station_symbol, \
+    MAX_UTILITY
 
 
 # SNR threshold required for UEs to connect to this BS. This threshold corresponds roughly to a distance of 69m.
@@ -79,7 +80,7 @@ class Basestation:
         """Min utility of UEs connected to this BS. If the BS is idle, return max utility"""
         if len(self.conn_ues) > 0:
             return min([ue.utility for ue in self.conn_ues])
-        return 20
+        return MAX_UTILITY
 
     def plot(self, ax, markersize=30, label_ybuffer=10):
         """

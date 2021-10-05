@@ -11,8 +11,8 @@ import matplotlib.pyplot as plt
 from matplotlib import cm
 import matplotlib.patheffects as pe
 
+from deepcomp.util.constants import MIN_UTILITY, MAX_UTILITY
 from deepcomp.util.logs import config_logging
-from deepcomp.env.util.utility import log_utility
 from deepcomp.env.entities.user import User
 from deepcomp.env.util.movement import RandomWaypoint
 
@@ -161,10 +161,10 @@ class MobileEnv(gym.Env):
         Calculate and return reward for specific UE: The UE's utility (based on its data rate) + penalty
         """
         # clip utility to -20, 20 to avoid -inf for 0 dr and cap at 100 dr
-        clip_util = np.clip(ue.utility, -20, 20)
+        clip_util = np.clip(ue.utility, MIN_UTILITY, MAX_UTILITY)
 
         # add penalty and clip again to stay in range -20, 20
-        return np.clip(clip_util + penalty, -20, 20) / 20
+        return np.clip(clip_util + penalty, MIN_UTILITY, MAX_UTILITY) / MAX_UTILITY
 
     def reset(self):
         """Reset environment by resetting time and all UEs (pos & movement) and their connections"""
@@ -534,16 +534,16 @@ class MobileEnv(gym.Env):
         # users & connections
         # show utility as red to yellow to green. use color map for [0,1) --> normalize utility first
         colormap = cm.get_cmap('RdYlGn')
-        norm = plt.Normalize(-20, 20)
+        norm = plt.Normalize(MIN_UTILITY, MAX_UTILITY)
 
         # static legend explaining UEs' color = their utility/QoE
         legend_symbols = [
             plt.Line2D([0], [0], color='white', label='Good QoE', marker='o', markersize=10,
-                       markerfacecolor=colormap(norm(20))),
+                       markerfacecolor=colormap(norm(MAX_UTILITY))),
             plt.Line2D([0], [0], color='white', label='Medium QoE', marker='o', markersize=10,
                        markerfacecolor=colormap(norm(0))),
             plt.Line2D([0], [0], color='white', label='Bad QoE', marker='o', markersize=10,
-                       markerfacecolor=colormap(norm(-20))),
+                       markerfacecolor=colormap(norm(MIN_UTILITY))),
         ]
         ax.legend(handles=legend_symbols, loc='upper left')
 
@@ -552,7 +552,7 @@ class MobileEnv(gym.Env):
         for ue in self.ue_list:
             # plot connections to all BS
             for bs, dr in ue.bs_dr.items():
-                color = colormap(norm(log_utility(dr)))
+                color = colormap(norm(ue.dr_to_utility(dr)))
                 # add black background/borders for lines to make them better visible if the utility color is too light
                 patch.extend(ax.plot([ue.pos.x, bs.pos.x], [ue.pos.y, bs.pos.y], color=color,
                              path_effects=[pe.SimpleLineShadow(shadow_color='black'), pe.Normal()]))

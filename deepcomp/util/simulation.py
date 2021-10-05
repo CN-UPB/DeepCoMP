@@ -17,7 +17,7 @@ import ray.tune
 from ray.rllib.agents.ppo import PPOTrainer
 from ray.rllib.env.multi_agent_env import MultiAgentEnv
 
-from deepcomp.util.constants import SUPPORTED_ALGS, SUPPORTED_RENDER, get_result_dirs
+from deepcomp.util.constants import SUPPORTED_ALGS, SUPPORTED_RENDER, get_result_dirs, MIN_UTILITY, MAX_UTILITY
 from deepcomp.agent.dummy import RandomAgent, FixedAgent
 from deepcomp.agent.heuristics import Heuristic3GPP, FullCoMP, DynamicSelection, StaticClustering
 from deepcomp.agent.brute_force import BruteForceAgent
@@ -429,7 +429,7 @@ class Simulation:
         # global stats (right; below text box)
         ax_avg = fig.add_subplot(gs[1, 2])
         ax_avg.set_title('Avg. QoE')
-        ax_avg.set_ylim(-20, 20)
+        ax_avg.set_ylim(MIN_UTILITY, MAX_UTILITY)
 
         # UE-specific stats (right; below global)
         ue_axes = {}

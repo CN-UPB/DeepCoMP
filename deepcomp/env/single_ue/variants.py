@@ -4,6 +4,7 @@ import numpy as np
 
 from deepcomp.env.single_ue.base import MobileEnv
 from deepcomp.env.entities.station import SNR_THRESHOLD as MIN_SNR_THRESHOLD
+from deepcomp.util.constants import MAX_UTILITY
 
 
 class BinaryMobileEnv(MobileEnv):
@@ -283,7 +284,7 @@ class RelNormEnv(BinaryMobileEnv):
             bs_norm_dr = [dr / max_dr for dr in bs_dr]
 
         # utility normalized to [-1,1]
-        utility = [ue.utility / 20]
+        utility = [ue.utility / MAX_UTILITY]
 
         # which BS are currently idle
         # idle_bs = [int(bs.num_conn_ues == 0) for bs in self.bs_list]
@@ -295,7 +296,7 @@ class RelNormEnv(BinaryMobileEnv):
         ues_at_bs = [bs.num_conn_ues / self.num_ue for bs in self.bs_list]
 
         # add avg QoE per BS to obs; normalize to [-1,1]
-        avg_util_at_bs = [bs.avg_utility / 20 for bs in self.bs_list]
+        avg_util_at_bs = [bs.avg_utility / MAX_UTILITY for bs in self.bs_list]
 
         # return {'connected': bs_conn, 'dr': bs_norm_dr, 'utility': utility}
         return {'connected': bs_conn, 'dr': bs_norm_dr, 'utility': utility,
