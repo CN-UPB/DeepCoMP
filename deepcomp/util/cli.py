@@ -119,7 +119,7 @@ def setup_cli():
         args.agent = 'multi'
 
     # warn for linear utility; can't change this automatically in code
-    if args.util == 'linear':
+    if args.util == 'linear' and (MIN_UTILITY != 0 or MAX_UTILITY != 1000):
         log.warning('Make sure to set MIN_UTILITY and MAX_UTILITY to sensible values manually!',
                     util_func=args.util, min_utility=MIN_UTILITY, max_utility=MAX_UTILITY, suggestion=(0, 1000))
 
