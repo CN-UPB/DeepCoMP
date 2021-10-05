@@ -22,6 +22,7 @@ SUPPORTED_UE_ARRIVAL = {'oneupdown', 'updownupdown', '3up2down', 'updown', 'larg
 SUPPORTED_RENDER = {'html', 'gif', 'both', None}
 SUPPORTED_SHARING = {'max-cap', 'resource-fair', 'rate-fair', 'proportional-fair'}
 SUPPORTED_REWARDS = {'min', 'sum'}
+SUPPORTED_UTILITIES = {'log', 'step'}
 
 # small epsilon used in denominator to avoid division by zero
 EPSILON = 1e-16

@@ -3,7 +3,7 @@ import argparse
 import structlog
 
 from deepcomp.util.constants import SUPPORTED_ALGS, SUPPORTED_ENVS, SUPPORTED_AGENTS, SUPPORTED_RENDER, \
-    SUPPORTED_SHARING, SUPPORTED_REWARDS, CENTRAL_ALGS, MULTI_ALGS, SUPPORTED_UE_ARRIVAL
+    SUPPORTED_SHARING, SUPPORTED_REWARDS, CENTRAL_ALGS, MULTI_ALGS, SUPPORTED_UE_ARRIVAL, SUPPORTED_UTILITIES
 
 
 log = structlog.get_logger()
@@ -53,6 +53,7 @@ def setup_cli():
     parser.add_argument('--ue-arrival', type=str, choices=SUPPORTED_UE_ARRIVAL, help="UE arrival sequence")
     parser.add_argument('--sharing', type=str, choices=SUPPORTED_SHARING.union({'mixed'}), default='mixed',
                         help="Sharing model used by BS to split resources and/or rate among connected UEs.")
+    parser.add_argument('--util', type=str, choices=SUPPORTED_UTILITIES, default='log', help="UEs' utility function")
     # evaluation
     parser.add_argument('--rand-train', action='store_true', help="Randomize training episodes.")
     parser.add_argument('--cont-train', action='store_true', help="Continuous training without resetting.")

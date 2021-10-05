@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 from matplotlib import cm
 
 from deepcomp.env.util.utility import log_utility, step_utility
-from deepcomp.util.constants import MIN_UTILITY, MAX_UTILITY
+from deepcomp.util.constants import MIN_UTILITY, MAX_UTILITY, SUPPORTED_UTILITIES
 
 
 class User:
@@ -14,7 +14,7 @@ class User:
     A user/UE moving around in the world and requesting mobile services
     Connection to BS are checked before connecting and after every move to check if connection is lost or still stable
     """
-    def __init__(self, id, map, pos_x, pos_y, movement, dr_req=1):
+    def __init__(self, id, map, pos_x, pos_y, movement, util_func='log', dr_req=1):
         """
         Create new UE object
         :param id: Unique ID of UE (string)
@@ -27,6 +27,9 @@ class User:
         self.id = id
         self.map = map
         self.movement = movement
+        assert util_func in SUPPORTED_UTILITIES, \
+            f"Utility function {util_func} not supported. Supported: {SUPPORTED_UTILITIES}"
+        self.util_func = util_func
         self.dr_req = dr_req
         # dict of connected BS: BS (only connected BS are keys!) --> data rate of connection
         self.bs_dr = {}
@@ -77,8 +80,14 @@ class User:
 
     def dr_to_utility(self, dr):
         """Utility function to map given data rate to utility for the UE"""
-        # return step_utility(dr, self.dr_req)
-        return log_utility(dr)
+        assert self.util_func in SUPPORTED_UTILITIES, \
+            f"Utility function {self.util_func} not supported. Supported: {SUPPORTED_UTILITIES}"
+        if self.util_func == 'log':
+            return log_utility(dr)
+        if self.util_func == 'step':
+            return step_utility(dr, self.dr_req)
+        # unknown utility not implemented
+        raise NotImplementedError(f"Utility function {self.util_func} not implemented!")
 
     def seed(self, seed=None):
         self.rng.seed(seed)

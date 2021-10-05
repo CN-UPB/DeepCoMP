@@ -277,7 +277,7 @@ class Simulation:
         self.agent_train_steps = self.get_training_steps()
 
     def set_result_filename(self):
-        """Return a suitable filename (without file ending) in the format 'agent_env-class_env-size_num-ues_time'"""
+        """Return a suitable filename (without file ending) depending on current configuration"""
         assert self.agent is not None, "Set the filename after loading the agent"
         timestamp = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
         agent_name = type(self.agent).__name__
@@ -293,8 +293,8 @@ class Simulation:
         test = 'rand' if self.cli_args.rand_test else 'fixed'
         seed = self.cli_args.seed
         self.result_filename = \
-            f'{agent_name}_{self.env_name}_{env_size}_{self.cli_args.sharing}_{num_ues}UEs-{self.cli_args.reward}' \
-            f'_{train}-{test}_{seed}_{timestamp}'
+            f'{agent_name}_{self.env_name}_{env_size}_{self.cli_args.sharing}_{num_ues}UEs-{self.cli_args.util}-' \
+            f'{self.cli_args.reward}_{train}-{test}_{seed}_{timestamp}'
 
     def save_animation(self, fig, patches, mode):
         """

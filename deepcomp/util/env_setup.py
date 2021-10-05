@@ -5,7 +5,8 @@ from shapely.geometry import Point
 from ray.rllib.agents.ppo import DEFAULT_CONFIG
 from ray.rllib.env.multi_agent_env import MultiAgentEnv
 
-from deepcomp.util.constants import SUPPORTED_ENVS, SUPPORTED_AGENTS, SUPPORTED_SHARING, SUPPORTED_UE_ARRIVAL
+from deepcomp.util.constants import SUPPORTED_ENVS, SUPPORTED_AGENTS, SUPPORTED_SHARING, SUPPORTED_UE_ARRIVAL, \
+    SUPPORTED_UTILITIES
 from deepcomp.env.single_ue.variants import RelNormEnv
 from deepcomp.env.multi_ue.central import CentralRelNormEnv
 from deepcomp.env.multi_ue.multi_agent import MultiAgentMobileEnv
@@ -141,18 +142,21 @@ def create_dyn_large_map(sharing_model, num_bs, dist_to_border=10):
     return map, bs_list
 
 
-def create_ues(map, num_static_ues, num_slow_ues, num_fast_ues):
+def create_ues(map, num_static_ues, num_slow_ues, num_fast_ues, util_func):
     """Create custom number of slow/fast UEs on the given map. Return UE list"""
     ue_list = []
     id = 1
     for i in range(num_static_ues):
-        ue_list.append(User(str(id), map, pos_x='random', pos_y='random', movement=RandomWaypoint(map, velocity=0)))
+        ue_list.append(User(str(id), map, pos_x='random', pos_y='random', movement=RandomWaypoint(map, velocity=0),
+                            util_func=util_func))
         id += 1
     for i in range(num_slow_ues):
-        ue_list.append(User(str(id), map, pos_x='random', pos_y='random', movement=RandomWaypoint(map, velocity='slow')))
+        ue_list.append(User(str(id), map, pos_x='random', pos_y='random', movement=RandomWaypoint(map, velocity='slow'),
+                            util_func=util_func))
         id += 1
     for i in range(num_fast_ues):
-        ue_list.append(User(str(id), map, pos_x='random', pos_y='random', movement=RandomWaypoint(map, velocity='fast')))
+        ue_list.append(User(str(id), map, pos_x='random', pos_y='random', movement=RandomWaypoint(map, velocity='fast'),
+                            util_func=util_func))
         id += 1
     return ue_list
 
@@ -169,18 +173,14 @@ def create_custom_env(sharing_model):
         Basestation('C', Point(184, 60), get_sharing_for_bs(sharing_model, 2)),
         Basestation('D', Point(97, 110), get_sharing_for_bs(sharing_model, 3)),
     ]
-
-    # UEs are now created dynamically according to CLI
-    # ue_list = [
-    #     User(str(1), map, pos_x=70, pos_y=40, movement=UniformMovement(map)),
-    #     User(str(2), map, pos_x=80, pos_y=60, movement=UniformMovement(map))
-    # ]
     return map, bs_list
 
 
-def get_env(map_size, bs_dist, num_static_ues, num_slow_ues, num_fast_ues, sharing_model, num_bs=None):
+def get_env(map_size, bs_dist, num_static_ues, num_slow_ues, num_fast_ues, sharing_model, util_func, num_bs=None):
     """Create and return the environment corresponding to the given map_size"""
     assert map_size in SUPPORTED_ENVS, f"Environment {map_size} is not one of {SUPPORTED_ENVS}."
+    assert util_func in SUPPORTED_UTILITIES, \
+            f"Utility function {util_func} not supported. Supported: {SUPPORTED_UTILITIES}"
 
     # create map and BS list
     map, bs_list = None, None
@@ -197,7 +197,7 @@ def get_env(map_size, bs_dist, num_static_ues, num_slow_ues, num_fast_ues, shari
         map, bs_list = create_custom_env(sharing_model)
 
     # create UEs
-    ue_list = create_ues(map, num_static_ues, num_slow_ues, num_fast_ues)
+    ue_list = create_ues(map, num_static_ues, num_slow_ues, num_fast_ues, util_func)
 
     return map, ue_list, bs_list
 
@@ -235,7 +235,7 @@ def create_env_config(cli_args):
     """
     env_class = get_env_class(cli_args.agent)
     map, ue_list, bs_list = get_env(cli_args.env, cli_args.bs_dist, cli_args.static_ues, cli_args.slow_ues,
-                                    cli_args.fast_ues, cli_args.sharing, cli_args.num_bs)
+                                    cli_args.fast_ues, cli_args.sharing, cli_args.util, num_bs=cli_args.num_bs)
 
     # this is for DrEnv and step utility
     # env_config = {
