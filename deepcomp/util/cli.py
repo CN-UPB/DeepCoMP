@@ -3,7 +3,8 @@ import argparse
 import structlog
 
 from deepcomp.util.constants import SUPPORTED_ALGS, SUPPORTED_ENVS, SUPPORTED_AGENTS, SUPPORTED_RENDER, \
-    SUPPORTED_SHARING, SUPPORTED_REWARDS, CENTRAL_ALGS, MULTI_ALGS, SUPPORTED_UE_ARRIVAL, SUPPORTED_UTILITIES
+    SUPPORTED_SHARING, SUPPORTED_REWARDS, CENTRAL_ALGS, MULTI_ALGS, SUPPORTED_UE_ARRIVAL, SUPPORTED_UTILITIES, \
+    MIN_UTILITY, MAX_UTILITY
 
 
 log = structlog.get_logger()
@@ -116,6 +117,11 @@ def setup_cli():
     if args.alg in MULTI_ALGS and args.alg not in CENTRAL_ALGS and args.agent != 'multi':
         log.warning('Algorithm only supports multi-agent. Switching to multi-agent.', alg=args.alg)
         args.agent = 'multi'
+
+    # warn for linear utility; can't change this automatically in code
+    if args.util == 'linear':
+        log.warning('Make sure to set MIN_UTILITY and MAX_UTILITY to sensible values manually!',
+                    util_func=args.util, min_utility=MIN_UTILITY, max_utility=MAX_UTILITY, suggestion=(0, 1000))
 
     # render settings
     if (args.dashboard or args.ue_details) and args.video is None:

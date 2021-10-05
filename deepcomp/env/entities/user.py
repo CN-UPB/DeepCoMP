@@ -5,7 +5,7 @@ from shapely.geometry import Point
 import matplotlib.pyplot as plt
 from matplotlib import cm
 
-from deepcomp.env.util.utility import log_utility, step_utility
+from deepcomp.env.util.utility import log_utility, step_utility, linear_clipped_utility
 from deepcomp.util.constants import MIN_UTILITY, MAX_UTILITY, SUPPORTED_UTILITIES
 
 
@@ -86,6 +86,8 @@ class User:
             return log_utility(dr)
         if self.util_func == 'step':
             return step_utility(dr, self.dr_req)
+        if self.util_func == 'linear':
+            return linear_clipped_utility(dr)
         # unknown utility not implemented
         raise NotImplementedError(f"Utility function {self.util_func} not implemented!")
 

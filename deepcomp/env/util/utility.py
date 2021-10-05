@@ -7,6 +7,19 @@ import numpy as np
 from deepcomp.util.constants import MIN_UTILITY, MAX_UTILITY
 
 
+def linear_clipped_utility(curr_dr, max_dr=MAX_UTILITY):
+    """
+    Utility that directly equals the data rate, increasing linearly up to a given maximum.
+
+    :param max_dr: Maximum data rate at which the utility does not increase further
+    :return: Utility
+    """
+    assert curr_dr >= 0 and max_dr >= 0
+    assert MIN_UTILITY == 0 and MAX_UTILITY == max_dr, \
+        f"The chosen linear utility requires MIN_UTILITY=0 and sensible MAX_UTILITY. Set sensible values manually!"
+    return np.clip(curr_dr, MIN_UTILITY, MAX_UTILITY)
+
+
 def step_utility(curr_dr, req_dr):
     """
     Flat negative utility as long as the required data rate is not met; then positive. Nothing in between.

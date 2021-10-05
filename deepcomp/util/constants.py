@@ -22,7 +22,7 @@ SUPPORTED_UE_ARRIVAL = {'oneupdown', 'updownupdown', '3up2down', 'updown', 'larg
 SUPPORTED_RENDER = {'html', 'gif', 'both', None}
 SUPPORTED_SHARING = {'max-cap', 'resource-fair', 'rate-fair', 'proportional-fair'}
 SUPPORTED_REWARDS = {'min', 'sum'}
-SUPPORTED_UTILITIES = {'log', 'step'}
+SUPPORTED_UTILITIES = {'log', 'step', 'linear'}
 
 # small epsilon used in denominator to avoid division by zero
 EPSILON = 1e-16
@@ -36,8 +36,9 @@ FAIR_WEIGHT_BETA = 1
 
 # upper and lower bound for utility
 # affects reward clipping, normalization, plotting, etc.; change for different utility function
-MIN_UTILITY = -20
-MAX_UTILITY = 20
+# TODO: manually adjust for different utility functions. more elegant solution?
+MIN_UTILITY = 0
+MAX_UTILITY = 1000
 
 
 # constants regarding result files
