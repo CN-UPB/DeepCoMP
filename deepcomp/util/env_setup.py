@@ -180,7 +180,7 @@ def get_env(map_size, bs_dist, num_static_ues, num_slow_ues, num_fast_ues, shari
     """Create and return the environment corresponding to the given map_size"""
     assert map_size in SUPPORTED_ENVS, f"Environment {map_size} is not one of {SUPPORTED_ENVS}."
     assert util_func in SUPPORTED_UTILITIES, \
-            f"Utility function {util_func} not supported. Supported: {SUPPORTED_UTILITIES}"
+        f"Utility function {util_func} not supported. Supported: {SUPPORTED_UTILITIES}"
 
     # create map and BS list
     map, bs_list = None, None
