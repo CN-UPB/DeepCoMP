@@ -21,7 +21,7 @@ SUPPORTED_ENVS = {'small', 'medium', 'large', 'custom'}
 SUPPORTED_UE_ARRIVAL = {'oneupdown', 'updownupdown', '3up2down', 'updown', 'largeupdown', None}
 SUPPORTED_RENDER = {'html', 'gif', 'both', None}
 SUPPORTED_SHARING = {'max-cap', 'resource-fair', 'rate-fair', 'proportional-fair'}
-SUPPORTED_REWARDS = {'min', 'sum'}
+SUPPORTED_REWARDS = {'min', 'sum', 'avg'}
 SUPPORTED_UTILITIES = {'log', 'step', 'linear'}
 
 # small epsilon used in denominator to avoid division by zero

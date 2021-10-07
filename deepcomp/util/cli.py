@@ -32,7 +32,7 @@ def setup_cli():
     parser.add_argument('--separate-agent-nns', action='store_true',
                         help="Only relevant for multi-agent RL. Use separate NNs for each agent instead of sharing.")
     parser.add_argument('--lstm', action='store_true', help="Whether or not to use an LSTM cell")
-    parser.add_argument('--reward', type=str, choices=SUPPORTED_REWARDS, default='sum',
+    parser.add_argument('--reward', type=str, choices=SUPPORTED_REWARDS, default='avg',
                         help="How to aggregate rewards from multiple UEs within a step.")
     parser.add_argument('--cluster', action='store_true', help="Set this flag when running on a multi-node cluster.")
     # environment
@@ -70,6 +70,7 @@ def setup_cli():
     parser.add_argument('--seed', type=int, default=None, help="Seed for the RNG (algorithms and environment)")
     parser.add_argument('--result-dir', type=str, default=None, help="Optional path to where results should be stored."
                                                                      "Default: <project_root>/results")
+    parser.add_argument('--debug', action='store_true', help="Run in debug mode for use with a debugger.")
 
     args = parser.parse_args()
 
@@ -126,6 +127,10 @@ def setup_cli():
     # render settings
     if (args.dashboard or args.ue_details) and args.video is None:
         log.warning("--dashboard and --ue-details have no effect without --video.")
+
+    # warn if using different reward function other than avg because they lead to worse results
+    if args.reward != 'avg':
+        log.warning("Deprecated reward aggregation!", selected_reward=args.reward, recommended='avg')
 
     log.info('CLI args', args=args)
 

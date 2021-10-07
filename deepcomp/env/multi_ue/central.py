@@ -1,5 +1,6 @@
 """Multi-UE envs with single, centralized agent controlling all UEs at once."""
 import gym.spaces
+import numpy as np
 
 from deepcomp.env.single_ue.base import MobileEnv
 from deepcomp.env.single_ue.variants import NormDrMobileEnv, DatarateMobileEnv, RelNormEnv, MaxNormEnv
@@ -63,6 +64,8 @@ class CentralBaseEnv(MobileEnv):
 
     def step_reward(self, rewards):
         """Return aggregated reward of all UEs as step reward"""
+        if self.reward_agg == 'avg':
+            return np.mean(list(rewards.values()))
         if self.reward_agg == 'sum':
             return sum(rewards.values())
         if self.reward_agg == 'min':
