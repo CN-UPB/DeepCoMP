@@ -139,7 +139,7 @@ class SeqMultiAgentMobileEnv(MultiAgentMobileEnv):
 
     def info(self):
         """Same for info: Only for curr UE. Then increment to next UE since it's the last operation in the step"""
-        info_dict = super(MultiAgentMobileEnv, self).info()
+        info_dict = super().info()
         return {self.curr_ue.id: info_dict}
 
     def step(self, action):
