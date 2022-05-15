@@ -87,14 +87,11 @@ Use the `--no-cache` option is to force a rebuild of the image, pulling the late
 deepcomp -h
 ```
 
-For example: 
+For example, the following trains DeepCoMP in a medium-sized environment with 3 UEs for 50k training steps (on 2 CPUs), rending a video (HTML and gif) in the end: 
 
 ```
 deepcomp --env medium --slow-ues 3 --agent central --workers 2 --train-steps 50000 --seed 42 --video both
 ```
-
-To run DeepCoMP, use `--alg ppo --agent central`.
-For DD-CoMP, use `--alg ppo --agent multi`, and for D3-CoMP, use `--alg ppo --agent multi --separate-agent-nns`.
 
 By default, training logs, results, videos, and trained agents are saved in `<project-root>/results`,
 where `<project-root>` is the root directory of DeepCoMP.
