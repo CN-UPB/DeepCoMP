@@ -18,6 +18,20 @@ Compared to other approaches, they are more flexible and achieve higher Quality 
     <sup><a href="https://thenounproject.com/search/?q=base+station&i=1286474" target="_blank">Base station icon</a> by Clea Doltz from the Noun Project</sup>
 </p>
 
+## Citation
+
+If you use this code, please cite our [paper (preprint; under review)](https://ris.uni-paderborn.de/download/33854/33855/preprint.pdf):
+
+```
+@article{schneider2021deepcomp,
+	title={DeepCoMP: Coordinated Multipoint Using Multi-Agent Deep Reinforcement Learning},
+	author={Schneider, Stefan and Karl, Holger and Khalili, Ramin and Hecker, Artur},
+	journal={Under Review},
+	year={2021},
+	note={Open-source repository: \url{https://github.com/CN-UPB/DeepCoMP}}
+}
+```
+
 ## Setup
 
 You need Python 3.8+. You can install `deepcomp` either directly from [PyPi](https://pypi.org/project/deepcomp/) or manually after cloning this repository.
