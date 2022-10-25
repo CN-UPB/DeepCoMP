@@ -1,6 +1,5 @@
 [![CI](https://github.com/CN-UPB/DeepCoMP/actions/workflows/python-test.yml/badge.svg)](https://github.com/CN-UPB/DeepCoMP/actions/workflows/python-test.yml)
 [![PyPi](https://github.com/CN-UPB/DeepCoMP/actions/workflows/python-publish.yml/badge.svg?branch=v1.1.0)](https://github.com/CN-UPB/DeepCoMP/actions/workflows/python-publish.yml)
-[![Docker Cloud Build Status](https://img.shields.io/docker/cloud/build/stefanbschneider/deepcomp?label=Docker%20Build&logo=docker)](https://hub.docker.com/r/stefanbschneider/deepcomp)
 [![Docker Pulls](https://img.shields.io/docker/pulls/stefanbschneider/deepcomp?label=Docker%20Pulls&logo=docker)](https://hub.docker.com/r/stefanbschneider/deepcomp)
 [![DeepSource](https://deepsource.io/gh/CN-UPB/DeepCoMP.svg/?label=active+issues)](https://deepsource.io/gh/CN-UPB/DeepCoMP/?ref=repository-badge)
 
@@ -11,6 +10,9 @@ Deep reinforcement learning for dynamic multi-cell selection in CoMP scenarios.
 Three variants: DeepCoMP (central agent), DD-CoMP (distributed agents using central policy), D3-CoMP (distributed agents with separate policies).
 All three approaches self-learn and adapt to various scenarios in mobile networks without expert knowledge, human intervention, or detailed assumptions about the underlying system.
 Compared to other approaches, they are more flexible and achieve higher Quality of Experience.
+
+For a high-level overview of DeepCoMP, please refer to my [blog post](https://stefanbschneider.github.io/blog/deepcomp).
+More details are available in our research paper presenting DeepCoMP ([preprint](https://ris.uni-paderborn.de/download/33854/33855/preprint.pdf)).
 
 <p align="center">
     <img src="https://raw.githubusercontent.com/CN-UPB/DeepCoMP/master/docs/gifs/dashboard_lossy.gif?raw=true"><br/>
