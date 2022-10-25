@@ -13,6 +13,7 @@ Compared to other approaches, they are more flexible and achieve higher Quality 
 
 For a high-level overview of DeepCoMP, please refer to my [blog post](https://stefanbschneider.github.io/blog/deepcomp).
 More details are available in our research paper presenting DeepCoMP ([preprint](https://ris.uni-paderborn.de/download/33854/33855/preprint.pdf)).
+I also talked about DeepCoMP at the Ray Summit 2021 ([YouTube](https://youtu.be/Qy4SzJKXlGE)).
 
 <p align="center">
     <img src="https://raw.githubusercontent.com/CN-UPB/DeepCoMP/master/docs/gifs/dashboard_lossy.gif?raw=true"><br/>
