@@ -1,6 +1,5 @@
 [![CI](https://github.com/CN-UPB/DeepCoMP/actions/workflows/python-test.yml/badge.svg)](https://github.com/CN-UPB/DeepCoMP/actions/workflows/python-test.yml)
 [![PyPi](https://github.com/CN-UPB/DeepCoMP/actions/workflows/python-publish.yml/badge.svg?branch=v1.1.0)](https://github.com/CN-UPB/DeepCoMP/actions/workflows/python-publish.yml)
-[![Docker Cloud Build Status](https://img.shields.io/docker/cloud/build/stefanbschneider/deepcomp?label=Docker%20Build&logo=docker)](https://hub.docker.com/r/stefanbschneider/deepcomp)
 [![Docker Pulls](https://img.shields.io/docker/pulls/stefanbschneider/deepcomp?label=Docker%20Pulls&logo=docker)](https://hub.docker.com/r/stefanbschneider/deepcomp)
 [![DeepSource](https://deepsource.io/gh/CN-UPB/DeepCoMP.svg/?label=active+issues)](https://deepsource.io/gh/CN-UPB/DeepCoMP/?ref=repository-badge)
 
@@ -12,11 +11,29 @@ Three variants: DeepCoMP (central agent), DD-CoMP (distributed agents using cent
 All three approaches self-learn and adapt to various scenarios in mobile networks without expert knowledge, human intervention, or detailed assumptions about the underlying system.
 Compared to other approaches, they are more flexible and achieve higher Quality of Experience.
 
+For a high-level overview of DeepCoMP, please refer to my [blog post](https://stefanbschneider.github.io/blog/deepcomp).
+More details are available in our research paper presenting DeepCoMP ([preprint](https://ris.uni-paderborn.de/download/33854/33855/preprint.pdf)).
+I also talked about DeepCoMP at the Ray Summit 2021 ([YouTube](https://youtu.be/Qy4SzJKXlGE)).
+
 <p align="center">
     <img src="https://raw.githubusercontent.com/CN-UPB/DeepCoMP/master/docs/gifs/dashboard_lossy.gif?raw=true"><br/>
     <em>Visualized cell selection policy of DeepCoMP after 2M training steps.</em><br>
     <sup><a href="https://thenounproject.com/search/?q=base+station&i=1286474" target="_blank">Base station icon</a> by Clea Doltz from the Noun Project</sup>
 </p>
+
+## Citation
+
+If you use this code, please cite our [paper (preprint; under review)](https://ris.uni-paderborn.de/download/33854/33855/preprint.pdf):
+
+```
+@article{schneider2021deepcomp,
+	title={DeepCoMP: Coordinated Multipoint Using Multi-Agent Deep Reinforcement Learning},
+	author={Schneider, Stefan and Karl, Holger and Khalili, Ramin and Hecker, Artur},
+	journal={Under Review},
+	year={2021},
+	note={Open-source repository: \url{https://github.com/CN-UPB/DeepCoMP}}
+}
+```
 
 ## Setup
 
