@@ -27,6 +27,10 @@ requirements = [
     # extra dependencies for Ray RLlib
     # installing directly via ray[rllib] doesn't work with setup.py: https://github.com/ray-project/ray/issues/11274
     'scipy==1.4.1',
+    # need to pin protobuf to avoid import errors: https://stackoverflow.com/q/71759248/2745116
+    'protobuf==3.20.3',
+    # same for pydantic: https://github.com/aws/aws-sdk-pandas/issues/2379#issuecomment-1621178909
+    'pydantic<2.0.0',
     # 'lz4',
     'svgpath2mpl>=0.2.1',
 ]
@@ -37,14 +41,14 @@ eval_requirements = [
 
 setup(
     name='deepcomp',
-    version='1.4.1',
+    version='1.4.2',
     author='Stefan Schneider',
     description="DeepCoMP: Self-Learning Dynamic Multi-Cell Selection for Coordinated Multipoint (CoMP)",
     long_description=long_description,
     long_description_content_type='text/markdown',
     url='https://github.com/CN-UPB/DeepCoMP',
     packages=find_packages(),
-    python_requires=">=3.8.*",
+    python_requires=">=3.8.0",
     install_requires=requirements + eval_requirements,
     zip_safe=False,
     entry_points={

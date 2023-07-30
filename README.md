@@ -6,7 +6,8 @@
 
 # DeepCoMP: Self-Learning Dynamic Multi-Cell Selection for Coordinated Multipoint (CoMP)
 
-Deep reinforcement learning for dynamic multi-cell selection in CoMP scenarios.
+Multi-Agent Deep Reinforcement Learning for Coordinated Multipoint in Mobile Networks
+
 Three variants: DeepCoMP (central agent), DD-CoMP (distributed agents using central policy), D3-CoMP (distributed agents with separate policies).
 All three approaches self-learn and adapt to various scenarios in mobile networks without expert knowledge, human intervention, or detailed assumptions about the underlying system.
 Compared to other approaches, they are more flexible and achieve higher Quality of Experience.
@@ -14,6 +15,8 @@ Compared to other approaches, they are more flexible and achieve higher Quality 
 For a high-level overview of DeepCoMP, please refer to my [blog post](https://stefanbschneider.github.io/blog/deepcomp).
 More details are available in our research paper presenting DeepCoMP ([preprint](https://ris.uni-paderborn.de/download/33854/33855/preprint.pdf)).
 I also talked about DeepCoMP at the Ray Summit 2021 ([YouTube](https://youtu.be/Qy4SzJKXlGE)).
+
+The simulation environment used to train DeepCoMP is available separately as [mobile-env](https://github.com/stefanbschneider/mobile-env).
 
 <p align="center">
     <img src="https://raw.githubusercontent.com/CN-UPB/DeepCoMP/master/docs/gifs/dashboard_lossy.gif?raw=true"><br/>
@@ -23,15 +26,14 @@ I also talked about DeepCoMP at the Ray Summit 2021 ([YouTube](https://youtu.be/
 
 ## Citation
 
-If you use this code, please cite our [paper (preprint; under review)](https://ris.uni-paderborn.de/download/33854/33855/preprint.pdf):
+If you use this code, please cite our [paper (preprint; accepted at IEEE TNSM 2023)](https://ris.uni-paderborn.de/download/33854/33855):
 
 ```
-@article{schneider2021deepcomp,
-	title={DeepCoMP: Coordinated Multipoint Using Multi-Agent Deep Reinforcement Learning},
+@article{schneider2023deepcomp,
+	title={Multi-Agent Deep Reinforcement Learning for Coordinated Multipoint in Mobile Networks},
 	author={Schneider, Stefan and Karl, Holger and Khalili, Ramin and Hecker, Artur},
-	journal={Under Review},
-	year={2021},
-	note={Open-source repository: \url{https://github.com/CN-UPB/DeepCoMP}}
+	journal={IEEE Transactions on Network and Service Management (TNSM)},
+	year={2023},
 }
 ```
 
