@@ -29,6 +29,8 @@ requirements = [
     'scipy==1.4.1',
     # need to pin protobuf to avoid import errors: https://stackoverflow.com/q/71759248/2745116
     'protobuf==3.20.3',
+    # same for pydantic: https://github.com/aws/aws-sdk-pandas/issues/2379#issuecomment-1621178909
+    'pydantic<2.0.0',
     # 'lz4',
     'svgpath2mpl>=0.2.1',
 ]
