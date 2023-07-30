@@ -16,6 +16,8 @@ For a high-level overview of DeepCoMP, please refer to my [blog post](https://st
 More details are available in our research paper presenting DeepCoMP ([preprint](https://ris.uni-paderborn.de/download/33854/33855/preprint.pdf)).
 I also talked about DeepCoMP at the Ray Summit 2021 ([YouTube](https://youtu.be/Qy4SzJKXlGE)).
 
+The simulation environment used to train DeepCoMP is available separately as [mobile-env](https://github.com/stefanbschneider/mobile-env).
+
 <p align="center">
     <img src="https://raw.githubusercontent.com/CN-UPB/DeepCoMP/master/docs/gifs/dashboard_lossy.gif?raw=true"><br/>
     <em>Visualized cell selection policy of DeepCoMP after 2M training steps.</em><br>
