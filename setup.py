@@ -44,7 +44,7 @@ setup(
     long_description_content_type='text/markdown',
     url='https://github.com/CN-UPB/DeepCoMP',
     packages=find_packages(),
-    python_requires=">=3.8.*",
+    python_requires=">=3.8.0",
     install_requires=requirements + eval_requirements,
     zip_safe=False,
     entry_points={
